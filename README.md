@@ -9,7 +9,7 @@ $ cp .env.sample .env
 $ docker-compose -f docker-compose.dev.yml up
 $ npx lerna exec --scope @anontown/server -- npm run build
 $ npx lerna exec --scope @anontown/server -- npm run migrate
-$ ./start-dev.sh
+$ npm run start:dev
 $ lerna exec --scope @anontown/client -- npm start
 ```
 

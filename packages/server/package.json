@@ -72,7 +72,6 @@
     "lint:fix": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts' --fix",
     "loc": "sloc --format cli-table ./src",
     "codegen": "gql-gen --config codegen.yml",
-    "start:dev": "./start-dev.sh",
     "migrate": "node ./dist/migrate.app.js"
   }
 }
