@@ -1,0 +1,6 @@
+@import "~style/input";
+
+.textarea{
+  @include input();
+  width:100%;
+}

@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "name": "@anontown/document",
+  "version": "2.0.0",
+  "description": "",
+  "scripts": {
+    "start": "gitbook serve src dist",
+    "build": "gitbook build src dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anontown/document.git"
+  },
+  "author": "kgtkr",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/anontown/document/issues"
+  },
+  "homepage": "https://github.com/anontown/document#readme",
+  "devDependencies": {
+    "gitbook-cli": "^2.3.2"
+  }
+}

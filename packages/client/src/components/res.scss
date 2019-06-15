@@ -1,0 +1,25 @@
+.container{
+  display: flex;
+}
+
+.vote{
+  display: flex;
+  flex-direction: column;
+}
+
+.main{
+  width: calc(100% - 48px);
+}
+
+.header{
+  font-size: 0.8rem;
+  width: 100%;
+}
+
+.reply{
+  background-color: #ff5;
+}
+
+.self{
+  background-color: #5f5;
+}

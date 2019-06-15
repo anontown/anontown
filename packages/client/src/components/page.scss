@@ -1,0 +1,23 @@
+.two{
+  display: flex;
+  @media screen and (max-width: 767px) {
+      &>aside {
+          display: none;
+      }
+  }
+  &>aside {
+      width: 30vw;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+  }
+
+  &>main {
+      flex: 1;
+      min-width: 0px;
+  }
+}
+
+.mainScroll{
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}

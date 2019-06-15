@@ -1,0 +1,23 @@
+.youtube{
+    width:100%;
+    padding-bottom: 56.25%;
+    height:0px;
+    position: relative;
+    &>iframe{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+  }
+}
+
+.md{
+  font-family:'ＭＳ Ｐゴシック','ＭＳＰゴシック','MSPゴシック','MS Pゴシック';
+  font-size:14px;
+  line-height:16px;
+
+  .preview{
+    max-width: 100px;
+  }
+}

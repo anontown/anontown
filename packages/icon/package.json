@@ -1,0 +1,25 @@
+{
+  "private": false,
+  "name": "@anontown/icon",
+  "version": "2.0.0",
+  "description": "",
+  "scripts": {
+    "build": "node build.js",
+    "clean": "rm *.png"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anontown/icon.git"
+  },
+  "author": "kgtkr",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/anontown/icon/issues"
+  },
+  "homepage": "https://github.com/anontown/icon#readme",
+  "devDependencies": {
+    "pn": "^1.1.0",
+    "svg2png": "^4.1.1"
+  },
+  "dependencies": {}
+}

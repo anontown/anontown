@@ -1,0 +1,38 @@
+html{
+  font-size: 16px;
+  a{
+    text-decoration: none;
+    color:#0275d8;
+    &:link {
+
+    }
+    &:visited {
+
+    }
+    &:hover { 
+      text-decoration:underline;
+    }
+    &:active { 
+      
+    }
+  }
+}
+
+body{
+  overflow-wrap: break-word;
+}
+
+body,html{
+  height: 100%;
+  margin: 0px;
+  overflow: hidden;
+  -webkit-overflow-scrolling:auto;
+} 
+
+#root{
+  position:fixed;
+  top:0px;
+  bottom:0px;
+  left: 0px;
+  right: 0px;
+}

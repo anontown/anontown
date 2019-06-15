@@ -1,0 +1,46 @@
+{
+    "extends": [
+        "tslint:recommended",
+        "tslint-react"
+    ],
+    "jsRules": {},
+    "rules": {
+        "member-access": [
+            true,
+            "no-public"
+        ],
+        "interface-name": [
+            true,
+            "never-prefix"
+        ],
+        "object-literal-sort-keys": false,
+        "variable-name": [
+            true,
+            "check-format",
+            "allow-leading-underscore",
+            "allow-pascal-case"
+        ],
+        "arrow-parens": [
+            true,
+            "ban-single-arg-parens"
+        ],
+        "max-classes-per-file": false,
+        "no-empty-interface": false,
+        "no-console": false,
+        "await-promise": true,
+        "indent": [
+            true,
+            "spaces",
+            2
+        ],
+        "no-floating-promises": false,
+        "jsx-no-multiline-js": false,
+        "strict-type-predicates": true,
+        // 一時的に無効
+        "jsx-no-lambda": false
+    },
+    "rulesDirectory": [],
+    "exclude": [
+        "generated/**/*"
+    ]
+}

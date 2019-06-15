@@ -1,0 +1,9 @@
+@mixin input(){
+  border-radius: 4px;
+  padding: 4px;
+  border:1px solid #ddd;
+
+  &:focus {
+    outline:solid 3px rgba(30,100,225, 0.4);
+  }
+}

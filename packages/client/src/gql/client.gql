@@ -1,0 +1,26 @@
+fragment client on Client{
+  id
+  name
+  url
+  self
+  date
+  update
+} 
+
+query findClients($query:ClientQuery!){
+    clients(query:$query){
+        ...client
+    }
+}
+
+mutation createClient($name:String!,$url:String!){
+    createClient(name:$name,url:$url){
+        ...client
+    }
+}
+
+mutation updateClient($id:ID!,$name:String!,$url:String!){
+    updateClient(id:$id,name:$name,url:$url){
+        ...client
+    }
+}

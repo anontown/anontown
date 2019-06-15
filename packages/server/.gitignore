@@ -1,0 +1,10 @@
+/.vscode
+/node_modules
+/.env
+/es/.env
+/data
+/dist
+/coverage
+/logs
+src/generated/*
+!.gitkeep

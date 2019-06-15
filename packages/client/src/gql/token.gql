@@ -1,0 +1,64 @@
+#import "./client.gql"
+#import "./token-req.gql"
+
+fragment token on Token{
+    ...tokenMaster
+    ...tokenGeneral
+}
+
+fragment tokenBase on Token{
+    id
+    key
+    date
+}
+
+fragment tokenMaster on TokenMaster{
+    ...tokenBase
+}
+
+fragment tokenGeneral on TokenGeneral{
+    client{
+        ...client
+    }
+    ...tokenBase
+}
+query findToken{
+    token{
+        ... on TokenMaster{
+            id
+            key
+        }
+    }
+}
+
+query findTokens{
+    tokens{
+        ... on TokenMaster{
+            ...tokenMaster
+        }
+        ... on TokenGeneral{
+            ...tokenGeneral
+        }
+    }
+}
+
+mutation createTokenMaster($auth:AuthUser!){
+    createTokenMaster(auth:$auth){
+        ...token
+    }
+}
+
+mutation delTokenClient($client:ID!){
+    delTokenClient(client:$client)
+}
+
+mutation createTokenGeneral($client:ID!){
+    createTokenGeneral(client:$client){
+        token{
+            ...tokenGeneral
+        }
+        req{
+            ...tokenReq
+        }
+    }
+}

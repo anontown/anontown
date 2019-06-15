@@ -1,0 +1,14 @@
+#import "./topic.gql"
+
+fragment history on History{
+    id
+    topic{
+        ...topicNormal
+    }
+    title
+    tags
+    text
+    date
+    hash
+    self
+}

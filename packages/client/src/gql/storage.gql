@@ -1,0 +1,16 @@
+fragment storage on Storage{
+    key
+    value
+}
+
+query findStorages($query:StorageQuery!){
+    storages(query:$query){
+        ...storage
+    }
+}
+
+mutation setStorage($key:String!,$value:String!){
+    setStorage(key:$key,value:$value){
+        ...storage
+    }
+}

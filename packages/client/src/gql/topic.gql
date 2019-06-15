@@ -1,0 +1,87 @@
+fragment topicSearch on TopicSearch{
+    ...topicNormal
+    ...topicOne
+}
+
+fragment topicNormal on TopicNormal{
+    #
+    tags
+    text
+    #
+    id
+    title
+    update
+    date
+    resCount
+    active
+}
+
+fragment topicOne on TopicOne{
+    #
+    tags
+    text
+    #
+    id
+    title
+    update
+    date
+    resCount
+    active
+}
+
+fragment topicFork on TopicFork{
+    parent{
+        ...topicSearch
+    }
+    #
+    id
+    title
+    update
+    date
+    resCount
+    active
+}
+
+
+fragment topic on Topic{
+    ...topicOne
+    ...topicNormal
+    ...topicFork
+} 
+
+mutation createTopicNormal($title:String!,$tags:[String!]!,$text:String!){
+    createTopicNormal(title:$title,tags:$tags,text:$text){
+        ...topic
+    }
+}
+
+mutation createTopicOne($title:String!,$tags:[String!]!,$text:String!){
+    createTopicOne(title:$title,tags:$tags,text:$text){
+        ...topic
+    }
+}
+
+query findTopics($query:TopicQuery!,$skip:Int,$limit:Int){
+    topics(query:$query,skip:$skip,limit:$limit){
+        ...topic
+    }
+}
+
+query findTopicTags{
+    topicTags{
+        name
+        count
+    }
+}
+
+mutation updateTopic($id:ID!,$title:String!,$tags:[String!]!,$text:String!){
+    updateTopic(id:$id,title:$title,tags:$tags,text:$text){
+        ...topicNormal
+    }
+}
+
+mutation createTopicFork($title:String!,$parent:ID!){
+    createTopicFork(title:$title,parent:$parent){
+        ...topicFork
+    }
+}

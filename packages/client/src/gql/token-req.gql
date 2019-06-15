@@ -1,0 +1,4 @@
+fragment tokenReq on TokenReq{
+    token
+    key
+}

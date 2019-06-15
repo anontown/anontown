@@ -1,0 +1,34 @@
+.main{
+  word-wrap:break-word;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.subject{
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolbar{
+  margin-left:auto;
+}
+
+.reses{
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.header{
+  background-color: #99f !important;
+  padding: 0.3rem;
+  display: flex;
+}
+
+.resWrite{
+  background-color: #99f !important;
+  padding: 0.6rem;
+}

@@ -1,0 +1,32 @@
+version: 2.1
+jobs:
+  server:
+    working_directory: ~/anontown
+    machine: true
+    steps:
+      - checkout
+      - run:
+        name: server build and test
+        command: |
+          cp .env.sample .env
+          AT_MODE=TEST docker-compose up -d
+          AT_MODE=TEST docker-compose run app npm run test:io
+  client:
+    working_directory: ~/anontown
+    docker:
+      - image: node:10.15.3
+    steps:
+      - checkout
+      - run:
+        name: client build
+        command: |
+          npm i
+          npx lerna bootstrap
+          lerna exec --scope @anontown/client -- npm run build
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - server
+      - client

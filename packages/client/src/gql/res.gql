@@ -1,0 +1,135 @@
+#import "./topic.gql"
+#import "./profile.gql"
+#import "./history.gql"
+
+fragment res on Res{
+    ...resNormal
+    ...resHistory
+    ...resFork
+    ...resDelete
+    ...resTopic
+}
+
+fragment resNormal on ResNormal{
+    name
+    text
+    reply{
+        id
+    }
+    profile{
+        ...profile
+    }
+    isReply
+    #
+    id
+    topic{
+        ...topic
+    }
+    date
+    self
+    uv
+    dv
+    hash
+    replyCount
+    voteFlag
+}
+
+fragment resHistory on ResHistory{
+    history{
+        ...history
+    }
+    #
+    id
+    topic{
+        ...topic
+    }
+    date
+    self
+    uv
+    dv
+    hash
+    replyCount
+    voteFlag
+}
+
+fragment resTopic on ResTopic{
+    #
+    id
+    topic{
+        ...topic
+    }
+    date
+    self
+    uv
+    dv
+    hash
+    replyCount
+    voteFlag
+}
+
+fragment resFork on ResFork{
+    fork{
+        ...topicFork
+    }
+    #
+    id
+    topic{
+        ...topic
+    }
+    date
+    self
+    uv
+    dv
+    hash
+    replyCount
+    voteFlag
+}
+
+fragment resDelete on ResDelete{
+    flag
+    #
+    id
+    topic{
+        ...topic
+    }
+    date
+    self
+    uv
+    dv
+    hash
+    replyCount
+    voteFlag
+}
+
+query findReses($query:ResQuery!){
+    reses(query:$query){
+        ...res
+    }
+}
+
+mutation voteRes($res:ID!,$type:VoteType!){
+    voteRes(res:$res,type:$type){
+        ...res
+    }
+}
+
+mutation delRes($res:ID!){
+    delRes(res:$res){
+        ...res
+    }
+}
+
+mutation createRes($topic:String!,$name:String,$text:String!,$reply:String,$profile:String,$age:Boolean!){
+    createRes(topic:$topic,name:$name,text:$text,reply:$reply,profile:$profile,age:$age){
+        ...resNormal
+    }
+}
+
+subscription resAdded($topic:ID!){
+  resAdded(topic:$topic){
+    count
+    res{
+        ...res
+    }
+  }
+}

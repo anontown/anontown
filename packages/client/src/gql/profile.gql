@@ -1,0 +1,27 @@
+fragment profile on Profile{
+    id
+    self
+    name
+    text
+    date
+    update
+    sn
+}
+
+query findProfiles($query:ProfileQuery!){
+    profiles(query:$query){
+        ...profile
+    }
+}
+
+mutation createProfile($name:String!,$text:String!,$sn:String!){
+    createProfile(name:$name,text:$text,sn:$sn){
+        ...profile
+    }
+}
+
+mutation updateProfile($id:ID!,$name:String,$text:String,$sn:String){
+    updateProfile(id:$id,name:$name,text:$text,sn:$sn){
+        ...profile
+    }
+}
