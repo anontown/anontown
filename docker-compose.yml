@@ -21,6 +21,7 @@ services:
     depends_on:
       - mongo
       - es
+      - redis
     volumes:
       - ./data/app/logs:/home/app/.anontown/logs
       - ./data/app/data:/home/app/.anontown/data
