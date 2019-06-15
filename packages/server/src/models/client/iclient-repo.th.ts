@@ -116,7 +116,7 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
       ]);
     });
 
-    describe("トークンがnullでselfがtrueの時エラーになるか", async () => {
+    it("トークンがnullでselfがtrueの時エラーになるか", async () => {
       const repo = repoGene();
       await expect(repo.find(none, { self: true })).rejects.toThrow(AtError);
     });
