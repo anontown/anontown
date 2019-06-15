@@ -10,7 +10,7 @@ jobs:
           command: |
             cp .env.sample .env
             AT_MODE=TEST docker-compose up -d
-            AT_MODE=TEST docker-compose run app npx lerna exec --scope @anontown/server -- npm run test:io
+            AT_MODE=TEST docker-compose run app ./wait-for-it.sh -t 0 $ES_HOST -- npx lerna exec --scope @anontown/server -- npm run test:io
   client:
     working_directory: ~/anontown
     docker:
