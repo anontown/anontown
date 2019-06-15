@@ -23,7 +23,11 @@ jobs:
         environment:
           ES_JAVA_OPTS: -Xms256m -Xmx256m
           transport.host: localhost
-          bootstrap.system_call_filter: "false"
+          http.host: '0.0.0.0'
+          http.port: 9200
+          network.host: 127.0.0.1
+          xpack.security.enabled: false
+          discovery.type: single-node
       - image: redis:5.0.4
         command: redis-server --appendonly yes
     steps:
