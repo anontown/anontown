@@ -18,7 +18,8 @@ services:
   es:
     image: "anontown/elasticsearch:5.6.16-1"
     restart: always
-    env_file: es/.env-pub
+    environment:
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
     ulimits:
       nofile:
         soft: 65536
