@@ -2,17 +2,50 @@ version: 2.1
 jobs:
   server:
     working_directory: ~/anontown
-    machine: true
+    docker:
+      - image: node:10.15.3
+        environment:
+          SALT_PASS: aaa
+          SALT_HASH: bbb
+          SALT_TOKEN: ccc
+          SALT_TOKEN_REQ: ddd
+          RECAPTCHA_SITE_KET: xxxxxxxxxxxx
+          RECAPTCHA_SECRET_KET: xxxxxxxxxxx
+          SERVER_PORT: 8080
+          DB_URL: mongodb://localhost:27017/anontown
+          ES_HOST: localhost:9200
+          SAVE_DIR: ../../data/app/
+          REDIS_URL: redis://localhost:6379/0
+          AT_MODE: TEST
+          DOCKERIZE_VERSION: v0.6.1
+      - image: mongo:3.6.3
+      - image: anontown/elasticsearch:5.6.16-1
+        environment:
+          ES_JAVA_OPTS: -Xms256m -Xmx256m
+          transport.host: localhost
+          bootstrap.system_call_filter: "false"
+      - image: redis:5.0.4
+        command: redis-server --appendonly yes
     steps:
       - checkout
       - run:
+          name: dockerize
+          command: |
+            apt update
+            apt install -y wget
+            wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+            tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+            rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+      - run:
           name: server build and test
           command: |
-            cp .env.sample .env
-            echo transport.host=localhost >> es/.env-pub
-            echo bootstrap.system_call_filter=false >> es/.env-pub
-            AT_MODE=TEST docker-compose up -d
-            AT_MODE=TEST docker-compose run app ./wait-for-it.sh -t 0 es:9200 -- npx lerna exec --scope @anontown/server -- npm run test:io
+            npm i --no-progress
+            npx lerna bootstrap
+            npx lerna exec --scope @anontown/server -- npm run build
+            mkdir data
+            mkdir data/app
+            dockerize -wait tcp://$ES_HOST
+            npx lerna exec --scope @anontown/server -- npm run test:io
   client:
     working_directory: ~/anontown
     docker:
