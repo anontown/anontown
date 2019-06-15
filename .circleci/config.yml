@@ -6,11 +6,11 @@ jobs:
     steps:
       - checkout
       - run:
-        name: server build and test
-        command: |
-          cp .env.sample .env
-          AT_MODE=TEST docker-compose up -d
-          AT_MODE=TEST docker-compose run app npm run test:io
+            name: server build and test
+            command: |
+              cp .env.sample .env
+              AT_MODE=TEST docker-compose up -d
+              AT_MODE=TEST docker-compose run app npm run test:io
   client:
     working_directory: ~/anontown
     docker:
@@ -18,11 +18,11 @@ jobs:
     steps:
       - checkout
       - run:
-        name: client build
-        command: |
-          npm i
-          npx lerna bootstrap
-          lerna exec --scope @anontown/client -- npm run build
+          name: client build
+          command: |
+            npm i
+            npx lerna bootstrap
+            lerna exec --scope @anontown/client -- npm run build
 
 workflows:
   version: 2
