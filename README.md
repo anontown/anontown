@@ -12,3 +12,8 @@ $ npx lerna exec --scope @anontown/server -- npm run migrate
 $ ./start-dev.sh
 $ lerna exec --scope @anontown/client -- npm start
 ```
+
+## TEST
+```sh
+circleci local execute --job server
+```
