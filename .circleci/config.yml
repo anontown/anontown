@@ -9,6 +9,8 @@ jobs:
           name: server build and test
           command: |
             cp .env.sample .env
+            echo transport.host=localhost >> es/.env-pub
+            echo bootstrap.system_call_filter=false >> es/.env-pub
             AT_MODE=TEST docker-compose up -d
             AT_MODE=TEST docker-compose run app ./wait-for-it.sh -t 0 es:9200 -- npx lerna exec --scope @anontown/server -- npm run test:io
   client:
