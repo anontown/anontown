@@ -67,13 +67,13 @@
   },
   "scripts": {
     "build": "npm run codegen&&tsc",
-    "start": "node ./dist/app.js",
+    "start": "node ./dist/endpoints/app.js",
     "test": "jest",
     "test:io": "TEST_MODE=IO jest --runInBand --forceExit",
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts'",
     "lint:fix": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts' --fix",
     "loc": "sloc --format cli-table ./src",
     "codegen": "gql-gen --config codegen.yml",
-    "migrate": "node ./dist/migrate.app.js"
+    "migrate": "node ./dist/endpoints/migrate.js"
   }
 }
