@@ -17,4 +17,5 @@ matrix:
       node_js: "10.15.3"
       before_script:
         - "npm i"
-      script: "npm run build"
+        - "npx lerna bootstrap"
+      script: "npx lerna exec --scope @anontown/client -- npm run build"
