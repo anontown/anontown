@@ -25,7 +25,7 @@ jobs:
           http.host: '0.0.0.0'
           http.port: 9200
           xpack.security.enabled: false
-          ES_JAVA_OPTS: '-Xms256m -Xmx1g'
+          ES_JAVA_OPTS: '-Xms1g -Xmx1g'
       - image: redis:5.0.4
     steps:
       - checkout
