@@ -15,6 +15,7 @@ services:
       ES_HOST: "es:9200"
       REDIS_URL: "redis://redis:6379/0"
       AT_MODE: "${AT_MODE}"
+      SAVE_DIR: ../../
     env_file: .env
     ports:
       - "8080:8080"
