@@ -30,3 +30,10 @@ circleci local execute --job server
 
 ## 公式サーバー
 https://anontown.com/  
+
+
+## 寄付
+サーバーの維持費などに使います。
+
+![](kyash.png)
+[kyash://qr/u/7715721704538960428](kyash://qr/u/7715721704538960428)
