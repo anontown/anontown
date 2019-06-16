@@ -33,5 +33,5 @@ module.exports = {
   ],
   testEnvironment: "node",
   verbose: true,
-  setupTestFrameworkScriptFile: "./jest.setup.js",
+  setupFilesAfterEnv: ["./jest.setup.js"],
 };
