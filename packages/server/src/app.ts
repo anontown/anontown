@@ -9,18 +9,5 @@ import { serverRun } from "./server";
 
 /* tslint:disable:no-floating-promises */
 (async () => {
-  // フォルダ作成
-  try {
-    await fs.mkdir(path.join(Config.saveDir, "logs"));
-  } catch {
-    /* tslint:disable:no-empty */
-  }
-
-  try {
-    await fs.mkdir(path.join(Config.saveDir, "data"));
-  } catch {
-    /* tslint:disable:no-empty */
-  }
-
   await serverRun(new Repo());
 })();

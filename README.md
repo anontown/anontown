@@ -11,11 +11,13 @@ $ npm i
 $ npx lerna bootstrap
 $ cp .env.sample .env
 # edit .env
+$ docker-compose -f docker-compose.dev.yml build
 $ docker-compose -f docker-compose.dev.yml up
-$ npx lerna exec --scope @anontown/server -- npm run build
-$ npx lerna exec --scope @anontown/server -- npm run migrate
-$ npm run start:dev
-$ lerna exec --scope @anontown/client -- npm start
+$ ./bin/server-dev-exec.sh npm run build
+$ mkdir data-app
+$ ./bin/server-dev-exec.sh npm run migrate
+$ ./bin/server-dev-exec.sh npm start
+$ ENV_NAME=dev lerna exec --scope @anontown/client -- npm start
 ```
 
 ## .env の編集
