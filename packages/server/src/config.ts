@@ -7,13 +7,13 @@ export const Config = {
     port: Number(process.env.SERVER_PORT),
   },
   db: {
-    url: process.env.DB_URL as string,
+    host: process.env.DB_HOST as string,
   },
   es: {
     host: process.env.ES_HOST as string,
   },
   redis: {
-    url: process.env.REDIS_URL as string,
+    host: process.env.REDIS_HOST as string,
   },
   salt: {
     pass: process.env.SALT_PASS as string,

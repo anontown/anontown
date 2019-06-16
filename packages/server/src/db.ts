@@ -6,7 +6,7 @@ import { Config } from "./config";
 import { Logger } from "./logger";
 
 export const DB = lazy(async () => {
-  const db = await MongoClient.connect(Config.db.url, {
+  const db = await MongoClient.connect(`mongodb://${Config.db.host}/anontown`, {
     useNewUrlParser: true,
   });
   Logger.system.info("db:connect");
@@ -14,11 +14,11 @@ export const DB = lazy(async () => {
 });
 
 export const ESClient = lazy(
-  () => new es.Client({ host: "http://" + Config.es.host, log: "error" }),
+  () => new es.Client({ host: `http://${Config.es.host}`, log: "error" }),
 );
 
 export function createRedisClient() {
-  return new Redis(Config.redis.url);
+  return new Redis(`redis://${Config.redis.host}/0`);
 }
 
 export const RedisClient = lazy(() => createRedisClient());
