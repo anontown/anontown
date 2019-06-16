@@ -51,12 +51,12 @@ export class TokenRepo implements ITokenRepo {
   async delClientToken(token: IAuthTokenMaster, clientID: string): Promise<void> {
     const db = await DB();
     await db.collection("tokens")
-      .remove({ user: new ObjectID(token.user), client: new ObjectID(clientID) });
+      .deleteOne({ user: new ObjectID(token.user), client: new ObjectID(clientID) });
   }
 
   async delMasterToken(user: IAuthUser): Promise<void> {
     const db = await DB();
     await db.collection("tokens")
-      .remove({ user: new ObjectID(user.id), type: "master" });
+      .deleteOne({ user: new ObjectID(user.id), type: "master" });
   }
 }
