@@ -21,13 +21,10 @@ jobs:
       - image: mongo:3.6.3
       - image: anontown/elasticsearch:5.6.16-1
         environment:
-          ES_JAVA_OPTS: -Xms256m -Xmx256m
-          transport.host: localhost
           http.host: '0.0.0.0'
           http.port: 9200
-          network.host: 127.0.0.1
           xpack.security.enabled: false
-          discovery.type: single-node
+          ES_JAVA_OPTS: '-Xms256m -Xmx256m'
       - image: redis:5.0.4
         command: redis-server --appendonly yes
     steps:
