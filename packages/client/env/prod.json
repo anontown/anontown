@@ -1,0 +1,21 @@
+{
+  "client": {
+    "origin": "https://anontown.com"
+  },
+  "camo": {
+    "origin": "https://camo.anontown.com",
+    "key": "0x24FEEDFACEDEADBEEFCAFE"
+  },
+  "api": {
+    "origin": "https://api.anontown.com"
+  },
+  "socket": {
+    "origin": "wss://api.anontown.com"
+  },
+  "recaptcha": {
+    "siteKey": "6LdoFBQUAAAAACc3lhPhbkEANEAHsmNd6UDN2vKo"
+  },
+  "imgur": {
+    "clientID": "042fd78266ccaaf"
+  }
+}
