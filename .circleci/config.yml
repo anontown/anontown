@@ -52,6 +52,8 @@ jobs:
     working_directory: ~/anontown
     docker:
       - image: node:10.15.3
+        environment:
+          NODE_OPTIONS: --max_old_space_size=1024
     steps:
       - checkout
       - run:
