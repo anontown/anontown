@@ -17,4 +17,4 @@ export function createRedisClient() {
     return new Redis(Config.redis.url);
 }
 
-export const RedisClient = createRedisClient();
+export const RedisClient = lazy(() => createRedisClient());

@@ -56,7 +56,7 @@ export class ResRepo implements IResRepo {
       replyCount: res.replyCount,
       count: resCount,
     };
-    await RedisClient.publish("res/add", JSON.stringify(data));
+    await RedisClient().publish("res/add", JSON.stringify(data));
   }
 
   async update(res: Res): Promise<void> {
