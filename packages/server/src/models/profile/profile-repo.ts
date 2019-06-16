@@ -39,7 +39,7 @@ export class ProfileRepo implements IProfileRepo {
   async insert(profile: Profile): Promise<void> {
     const db = await DB();
     try {
-      await db.collection("profiles").insert(profile.toDB());
+      await db.collection("profiles").insertOne(profile.toDB());
     } catch (ex) {
       const e: WriteError = ex;
       if (e.code === 11000) {

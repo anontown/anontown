@@ -40,7 +40,7 @@ export class TokenRepo implements ITokenRepo {
 
   async insert(token: Token): Promise<void> {
     const db = await DB();
-    await db.collection("tokens").insert(token.toDB());
+    await db.collection("tokens").insertOne(token.toDB());
   }
 
   async update(token: Token): Promise<void> {

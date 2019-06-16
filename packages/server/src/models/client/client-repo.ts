@@ -43,7 +43,7 @@ export class ClientRepo implements IClientRepo {
     const db = await DB();
 
     await db.collection("clients")
-      .insert(client.toDB());
+      .insertOne(client.toDB());
   }
 
   async update(client: Client): Promise<void> {

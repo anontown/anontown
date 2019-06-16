@@ -32,7 +32,7 @@ export class UserRepo implements IUserRepo {
   async insert(user: User): Promise<void> {
     const db = await DB();
     try {
-      await db.collection("users").insert(user.toDB());
+      await db.collection("users").insertOne(user.toDB());
     } catch (ex) {
       const e: WriteError = ex;
       if (e.code === 11000) {
