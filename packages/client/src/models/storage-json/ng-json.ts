@@ -1,28 +1,40 @@
 import * as t from "io-ts";
 
-export const ngNodeNotJson: t.Type<NGNodeNotJson> = t.recursion("NGNodeNotJSON", () => t.strict({
-  type: t.literal("not"),
-  child: ngNodeJson,
-}));
+export const ngNodeNotJson: t.Type<NGNodeNotJson> = t.recursion(
+  "NGNodeNotJSON",
+  () =>
+    t.strict({
+      type: t.literal("not"),
+      child: ngNodeJson,
+    }),
+);
 export interface NGNodeNotJson {
   readonly type: "not";
   readonly child: NGNodeJson;
 }
 
-export const ngNodeAndJson: t.Type<NGNodeAndJson> = t.recursion("NGNodeAndJson", () => t.strict({
-  type: t.literal("and"),
-  children: t.array(ngNodeJson),
-}));
+export const ngNodeAndJson: t.Type<NGNodeAndJson> = t.recursion(
+  "NGNodeAndJson",
+  () =>
+    t.strict({
+      type: t.literal("and"),
+      children: t.array(ngNodeJson),
+    }),
+);
 
 export interface NGNodeAndJson {
   readonly type: "and";
   readonly children: NGNodeJson[];
 }
 
-export const ngNodeOrJson: t.Type<NGNodeOrJson> = t.recursion("NGNodeOrJson", () => t.strict({
-  type: t.literal("or"),
-  children: t.array(ngNodeJson),
-}));
+export const ngNodeOrJson: t.Type<NGNodeOrJson> = t.recursion(
+  "NGNodeOrJson",
+  () =>
+    t.strict({
+      type: t.literal("or"),
+      children: t.array(ngNodeJson),
+    }),
+);
 
 export interface NGNodeOrJson {
   readonly type: "or";
@@ -49,7 +61,9 @@ export const ngNodeTextMatcherRegJson = t.strict({
   i: t.boolean,
 });
 
-export type NGNodeTextMatcherRegJson = t.TypeOf<typeof ngNodeTextMatcherRegJson>;
+export type NGNodeTextMatcherRegJson = t.TypeOf<
+  typeof ngNodeTextMatcherRegJson
+>;
 
 export const ngNodeTextMatcherTextJson = t.strict({
   type: t.literal("text"),
@@ -57,9 +71,14 @@ export const ngNodeTextMatcherTextJson = t.strict({
   i: t.boolean,
 });
 
-export type NGNodeTextMatcherTextJson = t.TypeOf<typeof ngNodeTextMatcherTextJson>;
+export type NGNodeTextMatcherTextJson = t.TypeOf<
+  typeof ngNodeTextMatcherTextJson
+>;
 
-export const ngNodeTextMatcherJson = t.taggedUnion("type", [ngNodeTextMatcherRegJson, ngNodeTextMatcherTextJson]);
+export const ngNodeTextMatcherJson = t.taggedUnion("type", [
+  ngNodeTextMatcherRegJson,
+  ngNodeTextMatcherTextJson,
+]);
 
 export type NGNodeTextMatcherJson = t.TypeOf<typeof ngNodeTextMatcherJson>;
 
@@ -84,16 +103,18 @@ export const ngNodeVoteJson = t.strict({
 
 export type NGNodeVoteJson = t.TypeOf<typeof ngNodeVoteJson>;
 
-export const ngNodeJson: t.Type<NGNodeJson> = t.recursion("NGNodeJSON", () => t.taggedUnion("type", [
-  ngNodeNotJson,
-  ngNodeAndJson,
-  ngNodeOrJson,
-  ngNodeProfileJson,
-  ngNodeHashJson,
-  ngNodeTextJson,
-  ngNodeNameJson,
-  ngNodeVoteJson,
-]));
+export const ngNodeJson: t.Type<NGNodeJson> = t.recursion("NGNodeJSON", () =>
+  t.taggedUnion("type", [
+    ngNodeNotJson,
+    ngNodeAndJson,
+    ngNodeOrJson,
+    ngNodeProfileJson,
+    ngNodeHashJson,
+    ngNodeTextJson,
+    ngNodeNameJson,
+    ngNodeVoteJson,
+  ]),
+);
 
 export type NGNodeJson =
   | NGNodeNotJson

@@ -9,7 +9,6 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { App } from "./components/app";
 import { gqlClient } from "./utils";
 
-
 Modal.setAppElement("#root");
 
 // Installing ServiceWorker

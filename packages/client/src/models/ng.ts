@@ -31,7 +31,10 @@ export function isNG(ng: NG, res: G.ResFragment) {
     return false;
   }
 
-  if (ng.expirationDate !== null && ng.expirationDate.valueOf() < new Date(res.date).valueOf()) {
+  if (
+    ng.expirationDate !== null &&
+    ng.expirationDate.valueOf() < new Date(res.date).valueOf()
+  ) {
     return false;
   }
 
@@ -44,32 +47,50 @@ function isNodeNG(node: NGNode, res: G.ResFragment): boolean | null {
       const b = isNodeNG(node.child, res);
       return b !== null ? !b : null;
     case "and":
-      return node.children.size === 0 ? null : node.children.every(x => !!isNodeNG(x, res));
+      return node.children.size === 0
+        ? null
+        : node.children.every(x => !!isNodeNG(x, res));
     case "or":
-      return node.children.size === 0 ? null : node.children.some(x => !!isNodeNG(x, res));
+      return node.children.size === 0
+        ? null
+        : node.children.some(x => !!isNodeNG(x, res));
     case "profile":
-      return res.__typename === "ResNormal" && res.profile !== null && node.profile === res.profile.id;
+      return (
+        res.__typename === "ResNormal" &&
+        res.profile !== null &&
+        node.profile === res.profile.id
+      );
     case "hash":
       return res.hash === node.hash;
     case "text":
-      return res.__typename === "ResNormal" && textMatcherTest(node.matcher, res.text);
+      return (
+        res.__typename === "ResNormal" &&
+        textMatcherTest(node.matcher, res.text)
+      );
     case "name":
-      return res.__typename === "ResNormal" && !isNullish(res.name) && textMatcherTest(node.matcher, res.name);
+      return (
+        res.__typename === "ResNormal" &&
+        !isNullish(res.name) &&
+        textMatcherTest(node.matcher, res.name)
+      );
     case "vote":
       return res.uv - res.dv < node.value;
   }
 }
 
-function textMatcherTest(matcher: NGNodeTextMatcher, text: string): boolean | null {
+function textMatcherTest(
+  matcher: NGNodeTextMatcher,
+  text: string,
+): boolean | null {
   if (matcher.source.length === 0) {
     return null;
   }
   switch (matcher.type) {
     case "reg":
       try {
-        return new RegExp(matcher.source, [
-          matcher.i ? "i" : "",
-        ].join("")).test(text);
+        return new RegExp(matcher.source, [matcher.i ? "i" : ""].join("")).test(
+          text,
+        );
       } catch {
         return null;
       }
@@ -87,14 +108,17 @@ export function toJSON(ng: NG): ngJson.NGJson {
     name: ng.name,
     topic: ng.topic,
     node: toJSONNode(ng.node),
-    expirationDate: ng.expirationDate !== null ? ng.expirationDate.toISOString() : null,
+    expirationDate:
+      ng.expirationDate !== null ? ng.expirationDate.toISOString() : null,
     date: ng.date.toISOString(),
     chain: ng.chain,
     transparent: ng.transparent,
   };
 }
 
-function toJSONMatcher(matcher: NGNodeTextMatcher): ngJson.NGNodeTextMatcherJson {
+function toJSONMatcher(
+  matcher: NGNodeTextMatcher,
+): ngJson.NGNodeTextMatcherJson {
   switch (matcher.type) {
     case "reg":
       return matcher;
@@ -108,9 +132,15 @@ function toJSONNode(node: NGNode): ngJson.NGNodeJson {
     case "not":
       return { type: "not", child: toJSONNode(node.child) };
     case "and":
-      return { type: "and", children: node.children.map(x => toJSONNode(x)).toArray() };
+      return {
+        type: "and",
+        children: node.children.map(x => toJSONNode(x)).toArray(),
+      };
     case "or":
-      return { type: "or", children: node.children.map(x => toJSONNode(x)).toArray() };
+      return {
+        type: "or",
+        children: node.children.map(x => toJSONNode(x)).toArray(),
+      };
     case "profile":
       return node;
     case "hash":
@@ -129,12 +159,15 @@ export function fromJSON(json: ngJson.NGJson): NG {
     id: uuid.v4(),
     ...json,
     node: fromJSONNode(json.node),
-    expirationDate: json.expirationDate !== null ? new Date(json.expirationDate) : null,
+    expirationDate:
+      json.expirationDate !== null ? new Date(json.expirationDate) : null,
     date: new Date(json.date),
   };
 }
 
-function fromJSONTextMatcher(matcher: ngJson.NGNodeTextMatcherJson): NGNodeTextMatcher {
+function fromJSONTextMatcher(
+  matcher: ngJson.NGNodeTextMatcherJson,
+): NGNodeTextMatcher {
   switch (matcher.type) {
     case "reg":
       return matcher;
@@ -148,17 +181,33 @@ function fromJSONNode(node: ngJson.NGNodeJson): NGNode {
     case "not":
       return { id: uuid.v4(), type: "not", child: fromJSONNode(node.child) };
     case "and":
-      return { id: uuid.v4(), type: "and", children: Im.List(node.children.map(x => fromJSONNode(x))) };
+      return {
+        id: uuid.v4(),
+        type: "and",
+        children: Im.List(node.children.map(x => fromJSONNode(x))),
+      };
     case "or":
-      return { id: uuid.v4(), type: "or", children: Im.List(node.children.map(x => fromJSONNode(x))) };
+      return {
+        id: uuid.v4(),
+        type: "or",
+        children: Im.List(node.children.map(x => fromJSONNode(x))),
+      };
     case "profile":
       return { id: uuid.v4(), ...node };
     case "hash":
       return { id: uuid.v4(), ...node };
     case "text":
-      return { id: uuid.v4(), type: "text", matcher: fromJSONTextMatcher(node.matcher) };
+      return {
+        id: uuid.v4(),
+        type: "text",
+        matcher: fromJSONTextMatcher(node.matcher),
+      };
     case "name":
-      return { id: uuid.v4(), type: "name", matcher: fromJSONTextMatcher(node.matcher) };
+      return {
+        id: uuid.v4(),
+        type: "name",
+        matcher: fromJSONTextMatcher(node.matcher),
+      };
     case "vote":
       return { id: uuid.v4(), ...node };
   }
@@ -175,14 +224,15 @@ export interface NG {
   readonly transparent: boolean;
 }
 
-export type NGNode = NGNodeNot |
-  NGNodeAnd |
-  NGNodeOr |
-  NGNodeProfile |
-  NGNodeHash |
-  NGNodeText |
-  NGNodeName |
-  NGNodeVote;
+export type NGNode =
+  | NGNodeNot
+  | NGNodeAnd
+  | NGNodeOr
+  | NGNodeProfile
+  | NGNodeHash
+  | NGNodeText
+  | NGNodeName
+  | NGNodeVote;
 
 export interface NGNodeNot {
   readonly id: string;

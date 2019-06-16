@@ -12,7 +12,10 @@ export function TagsLink(props: TagsLinkProps) {
   return (
     <Link
       className={props.mini ? style.mini : undefined}
-      to={{ pathname: "/topic/search", search: qs.stringify({ tags: props.tags }) }}
+      to={{
+        pathname: "/topic/search",
+        search: qs.stringify({ tags: props.tags }),
+      }}
     >
       {props.tags.length !== 0 ? props.tags.join(",") : "(なし)"}
     </Link>

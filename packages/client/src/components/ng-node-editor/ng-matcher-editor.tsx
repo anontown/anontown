@@ -1,7 +1,4 @@
-import {
-  Checkbox,
-  TextField,
-} from "material-ui";
+import { Checkbox, TextField } from "material-ui";
 import * as React from "react";
 import { ng } from "../../models";
 
@@ -10,7 +7,9 @@ export interface NGMatcherEditorProps {
   onChange: (text: ng.NGNodeTextMatcher) => void;
   floatingLabelText?: string;
 }
-export function NGMatcherEditor(props: NGMatcherEditorProps): React.ReactElement<any> {
+export function NGMatcherEditor(
+  props: NGMatcherEditorProps,
+): React.ReactElement<any> {
   return (
     <div>
       <Checkbox

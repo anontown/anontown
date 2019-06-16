@@ -1,7 +1,4 @@
-import {
-  ListItem,
-  TextField,
-} from "material-ui";
+import { ListItem, TextField } from "material-ui";
 import * as React from "react";
 import { ng } from "../../models";
 import { Modal } from "../modal";
@@ -16,14 +13,15 @@ export interface NGHashNodeEditorProps {
   changeOpenDialog: (v: boolean) => void;
 }
 
-export interface NGHashNodeEditorState {
-}
+export interface NGHashNodeEditorState {}
 
-export class NGHashNodeEditor extends React.Component<NGHashNodeEditorProps, NGHashNodeEditorState> {
+export class NGHashNodeEditor extends React.Component<
+  NGHashNodeEditorProps,
+  NGHashNodeEditorState
+> {
   constructor(props: NGHashNodeEditorProps) {
     super(props);
-    this.state = {
-    };
+    this.state = {};
   }
 
   render() {

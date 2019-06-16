@@ -1,7 +1,4 @@
-import {
-  ListItem,
-  TextField,
-} from "material-ui";
+import { ListItem, TextField } from "material-ui";
 import * as React from "react";
 import { ng } from "../../models";
 import { Modal } from "../modal";
@@ -16,14 +13,15 @@ export interface NGProfileNodeEditorProps {
   changeOpenDialog: (v: boolean) => void;
 }
 
-export interface NGProfileNodeEditorState {
-}
+export interface NGProfileNodeEditorState {}
 
-export class NGProfileNodeEditor extends React.Component<NGProfileNodeEditorProps, NGProfileNodeEditorState> {
+export class NGProfileNodeEditor extends React.Component<
+  NGProfileNodeEditorProps,
+  NGProfileNodeEditorState
+> {
   constructor(props: NGProfileNodeEditorProps) {
     super(props);
-    this.state = {
-    };
+    this.state = {};
   }
 
   render() {

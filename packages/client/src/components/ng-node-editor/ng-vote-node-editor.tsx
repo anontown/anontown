@@ -1,7 +1,4 @@
-import {
-  ListItem,
-  TextField,
-} from "material-ui";
+import { ListItem, TextField } from "material-ui";
 import * as React from "react";
 import { ng } from "../../models";
 import { Modal } from "../modal";
@@ -16,14 +13,15 @@ export interface NGVoteNodeEditorProps {
   changeOpenDialog: (v: boolean) => void;
 }
 
-export interface NGVoteNodeEditorState {
-}
+export interface NGVoteNodeEditorState {}
 
-export class NGVoteNodeEditor extends React.Component<NGVoteNodeEditorProps, NGVoteNodeEditorState> {
+export class NGVoteNodeEditor extends React.Component<
+  NGVoteNodeEditorProps,
+  NGVoteNodeEditorState
+> {
   constructor(props: NGVoteNodeEditorProps) {
     super(props);
-    this.state = {
-    };
+    this.state = {};
   }
 
   render() {

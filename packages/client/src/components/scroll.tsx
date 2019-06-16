@@ -1,12 +1,32 @@
-import { arrayDrop, arrayFirst, arrayLast, nullMap, pipe, undefinedMap, undefinedUnwrap, debugPrint } from "@kgtkr/utils";
+import {
+  arrayDrop,
+  arrayFirst,
+  arrayLast,
+  debugPrint,
+  nullMap,
+  pipe,
+  undefinedMap,
+  undefinedUnwrap,
+} from "@kgtkr/utils";
 import { DocumentNode } from "graphql";
 import * as React from "react";
-import { OnSubscriptionDataOptions, useQuery, useSubscription } from "react-apollo-hooks";
+import {
+  OnSubscriptionDataOptions,
+  useQuery,
+  useSubscription,
+} from "react-apollo-hooks";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { setTimeout } from "timers";
 import * as G from "../../generated/graphql";
-import { queryResultConvert, useEffectCond, useEffectRef, useFunctionRef, useLock, useValueRef } from "../utils";
+import {
+  queryResultConvert,
+  useEffectCond,
+  useEffectRef,
+  useFunctionRef,
+  useLock,
+  useValueRef,
+} from "../utils";
 
 interface ListItemData {
   id: string;
@@ -18,13 +38,21 @@ interface ItemElPair<T extends ListItemData> {
   el: HTMLDivElement;
 }
 
-export interface ScrollProps
-  <T extends ListItemData, QueryResult, QueryVariables, SubscriptionResult, SubscriptionVariables> {
+export interface ScrollProps<
+  T extends ListItemData,
+  QueryResult,
+  QueryVariables,
+  SubscriptionResult,
+  SubscriptionVariables
+> {
   newItemOrder: "top" | "bottom";
   query: DocumentNode;
   queryVariables: (dateQuery: G.DateQuery) => QueryVariables;
   queryResultConverter: (result: QueryResult) => T[];
-  queryResultMapper: (result: QueryResult, f: (data: T[]) => T[]) => QueryResult;
+  queryResultMapper: (
+    result: QueryResult,
+    f: (data: T[]) => T[],
+  ) => QueryResult;
   subscription: DocumentNode;
   subscriptionVariables: SubscriptionVariables;
   subscriptionResultConverter: (result: SubscriptionResult) => T;
@@ -64,10 +92,26 @@ function sleep(ms: number) {
   });
 }
 
-type Cmd = { type: "reset", date: string } | { type: "after" } | { type: "before" };
+type Cmd =
+  | { type: "reset"; date: string }
+  | { type: "after" }
+  | { type: "before" };
 
-export const Scroll = <T extends ListItemData, QueryResult, QueryVariables, SubscriptionResult, SubscriptionVariables>
-  (props: ScrollProps<T, QueryResult, QueryVariables, SubscriptionResult, SubscriptionVariables>) => {
+export const Scroll = <
+  T extends ListItemData,
+  QueryResult,
+  QueryVariables,
+  SubscriptionResult,
+  SubscriptionVariables
+>(
+  props: ScrollProps<
+    T,
+    QueryResult,
+    QueryVariables,
+    SubscriptionResult,
+    SubscriptionVariables
+  >,
+) => {
   const rootEl = React.useRef<HTMLDivElement | null>(null);
 
   const initDate = React.useMemo(() => props.initDate, []);
@@ -97,9 +141,12 @@ export const Scroll = <T extends ListItemData, QueryResult, QueryVariables, Subs
     });
   });
 
-  useEffectCond(() => {
-    runCmd({ type: "reset", date: initDate });
-  }, () => data.data !== undefined);
+  useEffectCond(
+    () => {
+      runCmd({ type: "reset", date: initDate });
+    },
+    () => data.data !== undefined,
+  );
 
   React.useEffect(() => {
     if (data.data !== undefined) {
@@ -110,7 +157,9 @@ export const Scroll = <T extends ListItemData, QueryResult, QueryVariables, Subs
   const idElMap = React.useMemo(() => new Map<string, HTMLDivElement>(), []);
   React.useEffect(() => {
     if (data.data !== undefined) {
-      const items = new Set(props.queryResultConverter(data.data).map(x => x.id));
+      const items = new Set(
+        props.queryResultConverter(data.data).map(x => x.id),
+      );
       for (const id of idElMap.keys()) {
         if (!items.has(id)) {
           idElMap.delete(id);
@@ -119,7 +168,6 @@ export const Scroll = <T extends ListItemData, QueryResult, QueryVariables, Subs
     } else {
       idElMap.clear();
     }
-
   }, [data.data, idElMap]);
 
   const toTop = useFunctionRef(async () => {
@@ -142,8 +190,7 @@ export const Scroll = <T extends ListItemData, QueryResult, QueryVariables, Subs
       .chain(undefinedMap(props.queryResultConverter))
       .chain(undefinedMap(arrayFirst))
       .chain(undefinedMap(x => idElMap.get(x.id)))
-      .chain(undefinedMap(x => ({ el: x, y: elY(x) })))
-      .value;
+      .chain(undefinedMap(x => ({ el: x, y: elY(x) }))).value;
     try {
       await f();
     } catch (e) {
@@ -173,18 +220,25 @@ export const Scroll = <T extends ListItemData, QueryResult, QueryVariables, Subs
       .map(item => {
         const el = idElMap.get(item.id);
         if (el !== undefined) {
-          return ({ item, el });
+          return { item, el };
         } else {
           return null;
         }
-      }).filter((x): x is ItemElPair<T> => x !== null)
+      })
+      .filter((x): x is ItemElPair<T> => x !== null)
       .reduce<ItemElPair<T> | null>((min, item) => {
         if (min === null) {
           return item;
-        } else if (Math.abs(min.el.getBoundingClientRect().top +
-          min.el.getBoundingClientRect().height / 2) >
-          Math.abs(item.el.getBoundingClientRect().top +
-            item.el.getBoundingClientRect().height / 2)) {
+        } else if (
+          Math.abs(
+            min.el.getBoundingClientRect().top +
+              min.el.getBoundingClientRect().height / 2,
+          ) >
+          Math.abs(
+            item.el.getBoundingClientRect().top +
+              item.el.getBoundingClientRect().height / 2,
+          )
+        ) {
           return item;
         } else {
           return min;
@@ -213,7 +267,7 @@ export const Scroll = <T extends ListItemData, QueryResult, QueryVariables, Subs
       .map(item => {
         const el = idElMap.get(item.id);
         if (el !== undefined) {
-          return ({ item, el });
+          return { item, el };
         } else {
           return null;
         }
@@ -222,12 +276,18 @@ export const Scroll = <T extends ListItemData, QueryResult, QueryVariables, Subs
       .reduce<ItemElPair<T> | null>((min, item) => {
         if (min === null) {
           return item;
-        } else if (Math.abs(window.innerHeight -
-          (min.el.getBoundingClientRect().top +
-            min.el.getBoundingClientRect().height / 2)) >
-          Math.abs(window.innerHeight -
-            (item.el.getBoundingClientRect().top +
-              item.el.getBoundingClientRect().height / 2))) {
+        } else if (
+          Math.abs(
+            window.innerHeight -
+              (min.el.getBoundingClientRect().top +
+                min.el.getBoundingClientRect().height / 2),
+          ) >
+          Math.abs(
+            window.innerHeight -
+              (item.el.getBoundingClientRect().top +
+                item.el.getBoundingClientRect().height / 2),
+          )
+        ) {
           return item;
         } else {
           return min;
@@ -259,9 +319,14 @@ export const Scroll = <T extends ListItemData, QueryResult, QueryVariables, Subs
             type: "gt",
           }),
           updateQuery: (prev, { fetchMoreResult }) => {
-            if (!fetchMoreResult) { return prev; }
+            if (!fetchMoreResult) {
+              return prev;
+            }
 
-            return props.queryResultMapper(prev, x => [...props.queryResultConverter(fetchMoreResult), ...x]);
+            return props.queryResultMapper(prev, x => [
+              ...props.queryResultConverter(fetchMoreResult),
+              ...x,
+            ]);
           },
         });
       });
@@ -286,9 +351,14 @@ export const Scroll = <T extends ListItemData, QueryResult, QueryVariables, Subs
             type: "lt",
           }),
           updateQuery: (prev, { fetchMoreResult }) => {
-            if (!fetchMoreResult) { return prev; }
+            if (!fetchMoreResult) {
+              return prev;
+            }
 
-            return props.queryResultMapper(prev, x => [...x, ...props.queryResultConverter(fetchMoreResult)]);
+            return props.queryResultMapper(prev, x => [
+              ...x,
+              ...props.queryResultConverter(fetchMoreResult),
+            ]);
           },
         });
       });
@@ -296,10 +366,12 @@ export const Scroll = <T extends ListItemData, QueryResult, QueryVariables, Subs
   });
 
   const resetDate = useFunctionRef(async (date: string) => {
-    await data.refetch(props.queryVariables({
-      date,
-      type: "lte",
-    }));
+    await data.refetch(
+      props.queryVariables({
+        date,
+        type: "lte",
+      }),
+    );
     switch (props.newItemOrder) {
       case "bottom":
         await toBottom();
@@ -311,141 +383,185 @@ export const Scroll = <T extends ListItemData, QueryResult, QueryVariables, Subs
     await findAfter();
   });
 
-  useEffectRef(f => {
-    const el = rootEl.current;
-    const subs = el !== null
-      ? rx.fromEvent(el, "scroll")
-        .pipe(op.map(() => el.scrollTop),
-          op.filter(top => Math.abs(top) <= props.width),
-          op.debounceTime(props.debounceTime))
-        .subscribe(() => f.current()) :
-      null;
-    return () => {
-      if (subs !== null) {
-        subs.unsubscribe();
+  useEffectRef(
+    f => {
+      const el = rootEl.current;
+      const subs =
+        el !== null
+          ? rx
+              .fromEvent(el, "scroll")
+              .pipe(
+                op.map(() => el.scrollTop),
+                op.filter(top => Math.abs(top) <= props.width),
+                op.debounceTime(props.debounceTime),
+              )
+              .subscribe(() => f.current())
+          : null;
+      return () => {
+        if (subs !== null) {
+          subs.unsubscribe();
+        }
+      };
+    },
+    () => {
+      switch (props.newItemOrder) {
+        case "top":
+          runCmd({ type: "after" });
+          break;
+        case "bottom":
+          runCmd({ type: "before" });
+          break;
       }
-    };
-  }, () => {
-    switch (props.newItemOrder) {
-      case "top":
-        runCmd({ type: "after" });
-        break;
-      case "bottom":
-        runCmd({ type: "before" });
-        break;
-    }
-  }, [rootEl.current, props.debounceTime]);
+    },
+    [rootEl.current, props.debounceTime],
+  );
 
-  useEffectRef(f => {
-    const el = rootEl.current;
-    const subs = el !== null
-      ? rx.fromEvent(el, "scroll")
-        .pipe(
-          op.map(() => el.scrollTop + el.clientHeight),
-          op.distinctUntilChanged(),
-          op.filter(bottom => props.width >= Math.abs(el.scrollHeight - bottom)),
-          op.debounceTime(props.debounceTime)
-        )
-        .subscribe(() => f.current())
-      : null;
-    return () => {
-      if (subs !== null) {
-        subs.unsubscribe();
+  useEffectRef(
+    f => {
+      const el = rootEl.current;
+      const subs =
+        el !== null
+          ? rx
+              .fromEvent(el, "scroll")
+              .pipe(
+                op.map(() => el.scrollTop + el.clientHeight),
+                op.distinctUntilChanged(),
+                op.filter(
+                  bottom => props.width >= Math.abs(el.scrollHeight - bottom),
+                ),
+                op.debounceTime(props.debounceTime),
+              )
+              .subscribe(() => f.current())
+          : null;
+      return () => {
+        if (subs !== null) {
+          subs.unsubscribe();
+        }
+      };
+    },
+    () => {
+      switch (props.newItemOrder) {
+        case "bottom":
+          runCmd({ type: "after" });
+          break;
+        case "top":
+          runCmd({ type: "before" });
+          break;
       }
-    };
-  }, () => {
-    switch (props.newItemOrder) {
-      case "bottom":
-        runCmd({ type: "after" });
-        break;
-      case "top":
-        runCmd({ type: "before" });
-        break;
-    }
-  }, [rootEl.current, props.debounceTime]);
+    },
+    [rootEl.current, props.debounceTime],
+  );
 
-  const getTopBottomElementRef = useValueRef(() => props.newItemOrder === "top" ? getTopElement() : getBottomElement());
+  const getTopBottomElementRef = useValueRef(() =>
+    props.newItemOrder === "top" ? getTopElement() : getBottomElement(),
+  );
 
-  useEffectRef(f => {
-    const el = rootEl.current;
-    const subs = el !== null
-      ? rx.fromEvent(el, "scroll")
-        .pipe(
-          op.debounceTime(props.debounceTime),
-          op.mergeMap(() => getTopBottomElementRef.current()),
-        )
-        .subscribe(x => f.current(x))
-      : null;
-    return () => {
-      if (subs !== null) {
-        subs.unsubscribe();
+  useEffectRef(
+    f => {
+      const el = rootEl.current;
+      const subs =
+        el !== null
+          ? rx
+              .fromEvent(el, "scroll")
+              .pipe(
+                op.debounceTime(props.debounceTime),
+                op.mergeMap(() => getTopBottomElementRef.current()),
+              )
+              .subscribe(x => f.current(x))
+          : null;
+      return () => {
+        if (subs !== null) {
+          subs.unsubscribe();
+        }
+      };
+    },
+    (newItem: T | null) => {
+      if (newItem !== null) {
+        props.scrollNewItemChange(newItem);
       }
-    };
-  }, (newItem: T | null) => {
-    if (newItem !== null) {
-      props.scrollNewItemChange(newItem);
-    }
-  }, [rootEl.current, props.debounceTime]);
+    },
+    [rootEl.current, props.debounceTime],
+  );
 
-  useEffectRef(f => {
-    const subs = rx
-      .interval(100)
-      .subscribe(() => f.current());
-    return () => {
-      subs.unsubscribe();
-    };
-  }, () => {
-    const el = rootEl.current;
-    if (props.isAutoScroll && el !== null) {
-      el.scrollTop += props.autoScrollSpeed;
-    }
-  }, []);
+  useEffectRef(
+    f => {
+      const subs = rx.interval(100).subscribe(() => f.current());
+      return () => {
+        subs.unsubscribe();
+      };
+    },
+    () => {
+      const el = rootEl.current;
+      if (props.isAutoScroll && el !== null) {
+        el.scrollTop += props.autoScrollSpeed;
+      }
+    },
+    [],
+  );
 
-  useEffectRef(f => {
-    const subs = props.scrollNewItem.subscribe(x => f.current(x));
-    return () => {
-      subs.unsubscribe();
-    };
-  }, (date: string) => {
-    runCmd({ type: "reset", date });
-  }, [props.scrollNewItem]);
+  useEffectRef(
+    f => {
+      const subs = props.scrollNewItem.subscribe(x => f.current(x));
+      return () => {
+        subs.unsubscribe();
+      };
+    },
+    (date: string) => {
+      runCmd({ type: "reset", date });
+    },
+    [props.scrollNewItem],
+  );
 
-  const onSubscriptionDataRef = useValueRef(({ client, subscriptionData }
-    : OnSubscriptionDataOptions<SubscriptionResult>) => {
-    if (subscriptionData.data !== undefined) {
-      const subsData = props.subscriptionResultConverter(subscriptionData.data);
-      const prev = client.readQuery<QueryResult, QueryVariables>({ query: props.query, variables });
-      if (prev !== null) {
-        client.writeQuery({
+  const onSubscriptionDataRef = useValueRef(
+    ({
+      client,
+      subscriptionData,
+    }: OnSubscriptionDataOptions<SubscriptionResult>) => {
+      if (subscriptionData.data !== undefined) {
+        const subsData = props.subscriptionResultConverter(
+          subscriptionData.data,
+        );
+        const prev = client.readQuery<QueryResult, QueryVariables>({
           query: props.query,
           variables,
-          data: props.queryResultMapper(prev, x => [subsData, ...x]),
         });
+        if (prev !== null) {
+          client.writeQuery({
+            query: props.query,
+            variables,
+            data: props.queryResultMapper(prev, x => [subsData, ...x]),
+          });
+        }
+        props.onSubscription(subscriptionData.data);
       }
-      props.onSubscription(subscriptionData.data);
-    }
-  });
-  useSubscription<SubscriptionResult, SubscriptionVariables>(props.subscription, {
-    variables: props.subscriptionVariables,
-    onSubscriptionData: x => onSubscriptionDataRef.current(x),
-  });
+    },
+  );
+  useSubscription<SubscriptionResult, SubscriptionVariables>(
+    props.subscription,
+    {
+      variables: props.subscriptionVariables,
+      onSubscriptionData: x => onSubscriptionDataRef.current(x),
+    },
+  );
 
   return (
     <div className={props.className} style={props.style} ref={rootEl}>
       {data.data !== undefined
         ? (props.newItemOrder === "bottom"
-          ? [...props.queryResultConverter(data.data)].reverse()
-          : props.queryResultConverter(data.data))
-          .map(item => <div
-            key={item.id}
-            ref={el => {
-              if (el !== null) {
-                idElMap.set(item.id, el);
-              }
-            }}
-          >
-            {props.dataToEl(item)}
-          </div>)
+            ? [...props.queryResultConverter(data.data)].reverse()
+            : props.queryResultConverter(data.data)
+          ).map(item => (
+            <div
+              key={item.id}
+              ref={el => {
+                if (el !== null) {
+                  idElMap.set(item.id, el);
+                }
+              }}
+            >
+              {props.dataToEl(item)}
+            </div>
+          ))
         : null}
       {data.loading ? "Loading" : null}
       {data.error !== undefined ? "エラーが発生しました" : null}

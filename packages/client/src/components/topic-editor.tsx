@@ -19,7 +19,10 @@ interface TopicEditorState {
   text: string;
 }
 
-export class TopicEditor extends React.Component<TopicEditorProps, TopicEditorState> {
+export class TopicEditor extends React.Component<
+  TopicEditorProps,
+  TopicEditorState
+> {
   constructor(props: TopicEditorProps) {
     super(props);
     this.state = {
@@ -43,9 +46,10 @@ export class TopicEditor extends React.Component<TopicEditorProps, TopicEditorSt
             this.props.onUpdate(data.updateTopic);
           }
         }}
-      >{
-          (submit, { error }) => {
-            return (<form>
+      >
+        {(submit, { error }) => {
+          return (
+            <form>
               {error && <Errors errors={["エラーが発生しました"]} />}
               <TextField
                 fullWidth={true}
@@ -64,8 +68,9 @@ export class TopicEditor extends React.Component<TopicEditorProps, TopicEditorSt
                 onChange={v => this.setState({ text: v })}
               />
               <RaisedButton onClick={() => submit()} label="OK" />
-            </form>);
-          }}
+            </form>
+          );
+        }}
       </G.UpdateTopicComponent>
     );
   }

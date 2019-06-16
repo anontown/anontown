@@ -1,6 +1,4 @@
-import {
-  ListItem,
-} from "material-ui";
+import { ListItem } from "material-ui";
 import * as React from "react";
 import { ng } from "../../models";
 import { Modal } from "../modal";
@@ -16,14 +14,15 @@ export interface NGTextNodeEditorProps {
   changeOpenDialog: (v: boolean) => void;
 }
 
-export interface NGTextNodeEditorState {
-}
+export interface NGTextNodeEditorState {}
 
-export class NGTextNodeEditor extends React.Component<NGTextNodeEditorProps, NGTextNodeEditorState> {
+export class NGTextNodeEditor extends React.Component<
+  NGTextNodeEditorProps,
+  NGTextNodeEditorState
+> {
   constructor(props: NGTextNodeEditorProps) {
     super(props);
-    this.state = {
-    };
+    this.state = {};
   }
 
   render() {

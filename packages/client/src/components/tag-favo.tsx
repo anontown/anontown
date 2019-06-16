@@ -1,6 +1,4 @@
-import {
-  Paper,
-} from "material-ui";
+import { Paper } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { UserData } from "../models";
@@ -11,8 +9,7 @@ interface TagFavoProps {
   userData: UserData;
 }
 
-interface TagFavoState {
-}
+interface TagFavoState {}
 
 export class TagFavo extends React.Component<TagFavoProps, TagFavoState> {
   constructor(props: TagFavoProps) {
@@ -22,16 +19,21 @@ export class TagFavo extends React.Component<TagFavoProps, TagFavoState> {
   render() {
     return (
       <Paper className={style.container}>
-        {this.props.userData.storage.tagsFavo.size !== 0 ?
-          this.props.userData.storage.tagsFavo.map(tags =>
-            <div key={tags.join(",")}>
-              <TagsLink tags={tags.toArray()} />
-            </div>).toArray()
-          : <div>
+        {this.props.userData.storage.tagsFavo.size !== 0 ? (
+          this.props.userData.storage.tagsFavo
+            .map(tags => (
+              <div key={tags.join(",")}>
+                <TagsLink tags={tags.toArray()} />
+              </div>
+            ))
+            .toArray()
+        ) : (
+          <div>
             お気に入りタグがありません。
-              <br />
+            <br />
             <Link to="/topic/search">検索</Link>
-          </div>}
+          </div>
+        )}
       </Paper>
     );
   }

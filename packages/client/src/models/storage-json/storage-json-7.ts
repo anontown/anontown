@@ -6,10 +6,13 @@ export const storageJSON7 = t.strict({
   ver: t.literal("7"),
   topicFavo: t.array(t.string),
   tagsFavo: t.array(t.array(t.string)),
-  topicRead: t.record(t.string, t.strict({
-    res: t.string,
-    count: t.number,
-  })),
+  topicRead: t.record(
+    t.string,
+    t.strict({
+      res: t.string,
+      count: t.number,
+    }),
+  ),
   ng: t.array(ngJson),
 });
 

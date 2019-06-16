@@ -1,117 +1,115 @@
 import { arrayLast } from "@kgtkr/utils";
-import {
-  Paper,
-  RaisedButton,
-} from "material-ui";
+import { Paper, RaisedButton } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
-import {
-  RouteComponentProps,
-} from "react-router-dom";
+import { RouteComponentProps } from "react-router-dom";
 import * as G from "../../generated/graphql";
-import {
-  Page,
-  Res,
-} from "../components";
+import { Page, Res } from "../components";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
 
 type NotificationsPageProps = RouteComponentProps<{}> & UserSwitchProps;
 
-export const NotificationsPage = userSwitch((_props: NotificationsPageProps) => {
-  const now = React.useRef(new Date().toISOString());
-  const reses = G.useFindResesQuery({
-    variables: {
-      query: {
-        date: {
-          date: now.current,
-          type: "lte",
+export const NotificationsPage = userSwitch(
+  (_props: NotificationsPageProps) => {
+    const now = React.useRef(new Date().toISOString());
+    const reses = G.useFindResesQuery({
+      variables: {
+        query: {
+          date: {
+            date: now.current,
+            type: "lte",
+          },
+          notice: true,
         },
-        notice: true,
       },
-    },
-  });
-  queryResultConvert(reses);
+    });
+    queryResultConvert(reses);
 
-  return (
-    <Page>
-      <Helmet title="通知" />
-      <div>
+    return (
+      <Page>
+        <Helmet title="通知" />
         <div>
-          <RaisedButton
-            label="最新"
-            onClick={async () => {
-              if (reses.data === undefined) {
-                return;
-              }
-              const first = arrayLast(reses.data.reses);
-              if (first === undefined) {
-                await reses.refetch();
-              } else {
-                reses.fetchMore({
-                  variables: {
-                    query: {
-                      date: {
-                        date: first.date,
-                        type: "gt",
+          <div>
+            <RaisedButton
+              label="最新"
+              onClick={async () => {
+                if (reses.data === undefined) {
+                  return;
+                }
+                const first = arrayLast(reses.data.reses);
+                if (first === undefined) {
+                  await reses.refetch();
+                } else {
+                  reses.fetchMore({
+                    variables: {
+                      query: {
+                        date: {
+                          date: first.date,
+                          type: "gt",
+                        },
+                        notice: true,
                       },
-                      notice: true,
                     },
-                  },
-                  updateQuery: (prev, { fetchMoreResult }) => {
-                    if (!fetchMoreResult) { return prev; }
-                    return {
-                      ...prev,
-                      msgs: [...fetchMoreResult.reses, ...prev.reses],
-                    };
-                  },
-                });
-              }
-            }}
-          />
-        </div>
-        <div>
-          {reses.data !== undefined
-            ? reses.data.reses.map(r => <Paper key={r.id}>
-              <Res
-                res={r}
-              />
-            </Paper>)
-            : null}
-        </div>
-        <div>
-          <RaisedButton
-            label="前"
-            onClick={async () => {
-              if (reses.data === undefined) {
-                return;
-              }
-              const last = arrayLast(reses.data.reses);
-              if (last === undefined) {
-                await reses.refetch();
-              } else {
-                reses.fetchMore({
-                  variables: {
-                    query: {
-                      date: {
-                        date: last.date,
-                        type: "lt",
+                    updateQuery: (prev, { fetchMoreResult }) => {
+                      if (!fetchMoreResult) {
+                        return prev;
+                      }
+                      return {
+                        ...prev,
+                        msgs: [...fetchMoreResult.reses, ...prev.reses],
+                      };
+                    },
+                  });
+                }
+              }}
+            />
+          </div>
+          <div>
+            {reses.data !== undefined
+              ? reses.data.reses.map(r => (
+                  <Paper key={r.id}>
+                    <Res res={r} />
+                  </Paper>
+                ))
+              : null}
+          </div>
+          <div>
+            <RaisedButton
+              label="前"
+              onClick={async () => {
+                if (reses.data === undefined) {
+                  return;
+                }
+                const last = arrayLast(reses.data.reses);
+                if (last === undefined) {
+                  await reses.refetch();
+                } else {
+                  reses.fetchMore({
+                    variables: {
+                      query: {
+                        date: {
+                          date: last.date,
+                          type: "lt",
+                        },
+                        notice: true,
                       },
-                      notice: true,
                     },
-                  },
-                  updateQuery: (prev, { fetchMoreResult }) => {
-                    if (!fetchMoreResult) { return prev; }
-                    return {
-                      ...prev,
-                      reses: [...prev.reses, ...fetchMoreResult.reses],
-                    };
-                  },
-                });
-              }
-            }}
-          />
+                    updateQuery: (prev, { fetchMoreResult }) => {
+                      if (!fetchMoreResult) {
+                        return prev;
+                      }
+                      return {
+                        ...prev,
+                        reses: [...prev.reses, ...fetchMoreResult.reses],
+                      };
+                    },
+                  });
+                }
+              }}
+            />
+          </div>
         </div>
-      </div>
-    </Page>
-  );
-});
+      </Page>
+    );
+  },
+);

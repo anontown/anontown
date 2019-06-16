@@ -1,8 +1,5 @@
 import * as React from "react";
-import {
-  RGBColor,
-  SketchPicker,
-} from "react-color";
+import { RGBColor, SketchPicker } from "react-color";
 import { toColorString } from "../utils";
 
 export interface ColorPickerProps {
@@ -15,7 +12,10 @@ interface ColorPickerState {
 }
 
 // http://casesandberg.github.io/react-color/
-export class ColorPicker extends React.Component<ColorPickerProps, ColorPickerState> {
+export class ColorPicker extends React.Component<
+  ColorPickerProps,
+  ColorPickerState
+> {
   constructor(props: ColorPickerProps) {
     super(props);
     this.state = {
@@ -46,7 +46,7 @@ export class ColorPicker extends React.Component<ColorPickerProps, ColorPickerSt
             }}
           />
         </div>
-        {this.state.display ?
+        {this.state.display ? (
           <div
             style={{
               position: "absolute",
@@ -71,8 +71,8 @@ export class ColorPicker extends React.Component<ColorPickerProps, ColorPickerSt
                 }
               }}
             />
-          </div> : null}
-
+          </div>
+        ) : null}
       </div>
     );
   }

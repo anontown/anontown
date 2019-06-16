@@ -8,18 +8,24 @@ import { AccountSettingPage } from "./account-setting";
 import { AppsSettingPage } from "./apps-setting";
 import { DevSettingPage } from "./dev-setting";
 
-interface SettingsPageProps extends RouteComponentProps<{}> {
-
-}
+interface SettingsPageProps extends RouteComponentProps<{}> {}
 
 export const SettingsPage = withRouter((_props: SettingsPageProps) => {
   return (
     <Page
-      sidebar={<List>
-        <ListItem containerElement={<Link to="/settings/account" />}>アカウント設定</ListItem>
-        <ListItem containerElement={<Link to="/settings/apps" />}>連携アプリ</ListItem>
-        <ListItem containerElement={<Link to="/settings/dev" />}>開発者向け</ListItem>
-      </List>}
+      sidebar={
+        <List>
+          <ListItem containerElement={<Link to="/settings/account" />}>
+            アカウント設定
+          </ListItem>
+          <ListItem containerElement={<Link to="/settings/apps" />}>
+            連携アプリ
+          </ListItem>
+          <ListItem containerElement={<Link to="/settings/dev" />}>
+            開発者向け
+          </ListItem>
+        </List>
+      }
     >
       <Helmet title="アカウント設定" />
       <Switch>

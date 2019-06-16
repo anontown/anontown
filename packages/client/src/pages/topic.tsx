@@ -11,11 +11,7 @@ import {
 } from "material-ui";
 import * as moment from "moment";
 import * as React from "react";
-import {
-  Link,
-  RouteComponentProps,
-  withRouter,
-} from "react-router-dom";
+import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import { useTitle } from "react-use";
 import * as rx from "rxjs";
 import * as G from "../../generated/graphql";
@@ -32,9 +28,7 @@ import { queryResultConvert, useUserContext } from "../utils";
 import * as style from "./topic.scss";
 // TODO:NGのtransparent
 
-interface TopicPageProps extends RouteComponentProps<{ id: string }> {
-
-}
+interface TopicPageProps extends RouteComponentProps<{ id: string }> {}
 
 export const TopicPage = withRouter((props: TopicPageProps) => {
   const now = React.useMemo(() => new Date().toISOString(), []);
@@ -43,7 +37,9 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
   const [isAutoScrollDialog, setIsAutoScrollDialog] = React.useState(false);
   const [isNGDialog, setIsNGDialog] = React.useState(false);
   const user = useUserContext();
-  const topics = G.useFindTopicsQuery({ variables: { query: { id: [props.match.params.id] } } });
+  const topics = G.useFindTopicsQuery({
+    variables: { query: { id: [props.match.params.id] } },
+  });
   queryResultConvert(topics);
   const topic = topics.data !== undefined ? topics.data.topics[0] : null;
   const [autoScrollSpeed, setAutoScrollSpeed] = React.useState(15);
@@ -64,7 +60,9 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
   }, []);
   const [jumpValue, setJumpValue] = React.useState(new Date(now).valueOf());
 
-  const isFavo = user.value !== null && user.value.storage.topicFavo.has(props.match.params.id);
+  const isFavo =
+    user.value !== null &&
+    user.value.storage.topicFavo.has(props.match.params.id);
 
   function storageSaveDate(date: string | null) {
     if (user.value === null || topic === null) {
@@ -106,12 +104,16 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
   return (
     <Page
       disableScroll={true}
-      sidebar={user.value !== null
-        ? <TopicFavo detail={false} userData={user.value} />
-        : undefined}
+      sidebar={
+        user.value !== null ? (
+          <TopicFavo detail={false} userData={user.value} />
+        ) : (
+          undefined
+        )
+      }
     >
-      {topic !== null
-        ? <>
+      {topic !== null ? (
+        <>
           <Modal
             isOpen={isAutoScrollDialog}
             onRequestClose={() => setIsAutoScrollDialog(false)}
@@ -128,7 +130,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
               onChange={(_e, v) => setAutoScrollSpeed(v)}
             />
           </Modal>
-          {user.value !== null ?
+          {user.value !== null ? (
             <Modal
               isOpen={isNGDialog}
               onRequestClose={() => setIsNGDialog(false)}
@@ -146,8 +148,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                 }}
               />
             </Modal>
-            : null
-          }
+          ) : null}
           <Modal
             isOpen={isJumpDialog}
             onRequestClose={() => setIsJumpDialog(false)}
@@ -159,9 +160,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
               value={jumpValue}
               onChange={(_e, v) => setJumpValue(v)}
             />
-            <div>
-              {moment(new Date(jumpValue)).format("YYYY-MM-DD")}
-            </div>
+            <div>{moment(new Date(jumpValue)).format("YYYY-MM-DD")}</div>
             <div>
               <RaisedButton
                 onClick={() => {
@@ -175,17 +174,17 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
           <div className={style.main}>
             <Paper className={style.header}>
               <div className={style.subject}>
-                {topic.__typename === "TopicFork"
-                  ? <FontIcon className="material-icons">call_split</FontIcon>
-                  : null}
-                {topic.__typename === "TopicOne"
-                  ? <FontIcon className="material-icons">looks_one</FontIcon>
-                  : null}
+                {topic.__typename === "TopicFork" ? (
+                  <FontIcon className="material-icons">call_split</FontIcon>
+                ) : null}
+                {topic.__typename === "TopicOne" ? (
+                  <FontIcon className="material-icons">looks_one</FontIcon>
+                ) : null}
                 {topic.title}
               </div>
               <div className={style.toolbar}>
-                {user.value !== null
-                  ? <IconButton
+                {user.value !== null ? (
+                  <IconButton
                     onClick={() => {
                       if (user.value === null) {
                         return;
@@ -196,58 +195,71 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                         ...user.value,
                         storage: {
                           ...storage,
-                          topicFavo: isFavo ? tf.delete(props.match.params.id) : tf.add(props.match.params.id),
+                          topicFavo: isFavo
+                            ? tf.delete(props.match.params.id)
+                            : tf.add(props.match.params.id),
                         },
                       });
                     }}
                   >
-                    {isFavo
-                      ? <FontIcon className="material-icons">star</FontIcon>
-                      : <FontIcon className="material-icons">star_border</FontIcon>}
+                    {isFavo ? (
+                      <FontIcon className="material-icons">star</FontIcon>
+                    ) : (
+                      <FontIcon className="material-icons">
+                        star_border
+                      </FontIcon>
+                    )}
                   </IconButton>
-                  : null}
-                {user.value !== null && topic.active
-                  ? <IconButton onClick={() => setIsResWrite(!isResWrite)}>
+                ) : null}
+                {user.value !== null && topic.active ? (
+                  <IconButton onClick={() => setIsResWrite(!isResWrite)}>
                     <FontIcon className="material-icons">create</FontIcon>
                   </IconButton>
-                  : null}
+                ) : null}
                 <IconMenu
                   iconButtonElement={
                     <IconButton touch={true}>
                       <FontIcon className="material-icons">more_vert</FontIcon>
-                    </IconButton>}
+                    </IconButton>
+                  }
                 >
                   <MenuItem
                     primaryText="詳細データ"
-                    containerElement={<Link
-                      to={{
-                        pathname: `/topic/${props.match.params.id}/data`,
-                        state: { modal: true },
-                      }}
-                    />}
+                    containerElement={
+                      <Link
+                        to={{
+                          pathname: `/topic/${props.match.params.id}/data`,
+                          state: { modal: true },
+                        }}
+                      />
+                    }
                   />
-                  {topic.__typename === "TopicNormal" && user.value !== null
-                    ? <MenuItem
+                  {topic.__typename === "TopicNormal" && user.value !== null ? (
+                    <MenuItem
                       primaryText="トピック編集"
-                      containerElement={<Link
-                        to={{
-                          pathname: `/topic/${props.match.params.id}/edit`,
-                          state: { modal: true },
-                        }}
-                      />}
+                      containerElement={
+                        <Link
+                          to={{
+                            pathname: `/topic/${props.match.params.id}/edit`,
+                            state: { modal: true },
+                          }}
+                        />
+                      }
                     />
-                    : null}
-                  {topic.__typename === "TopicNormal"
-                    ? <MenuItem
+                  ) : null}
+                  {topic.__typename === "TopicNormal" ? (
+                    <MenuItem
                       primaryText="派生トピック"
-                      containerElement={<Link
-                        to={{
-                          pathname: `/topic/${props.match.params.id}/fork`,
-                          state: { modal: true },
-                        }}
-                      />}
+                      containerElement={
+                        <Link
+                          to={{
+                            pathname: `/topic/${props.match.params.id}/fork`,
+                            state: { modal: true },
+                          }}
+                        />
+                      }
                     />
-                    : null}
+                  ) : null}
                   <MenuItem
                     primaryText="自動スクロール"
                     onClick={() => setIsAutoScrollDialog(true)}
@@ -263,11 +275,13 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                 </IconMenu>
               </div>
             </Paper>
-            <Scroll<G.ResFragment,
+            <Scroll<
+              G.ResFragment,
               G.FindResesQuery,
               G.FindResesQueryVariables,
               G.ResAddedSubscription,
-              G.ResAddedSubscriptionVariables>
+              G.ResAddedSubscriptionVariables
+            >
               query={G.FindResesDocument}
               queryVariables={date => ({ query: { date, topic: topic.id } })}
               queryResultConverter={x => x.reses}
@@ -287,21 +301,23 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
               onSubscription={x => {
                 topics.updateQuery(ts => ({
                   ...ts,
-                  topics: ts.topics.map(t => ({ ...t, resCount: x.resAdded.count })),
+                  topics: ts.topics.map(t => ({
+                    ...t,
+                    resCount: x.resAdded.count,
+                  })),
                 }));
               }}
-              dataToEl={res =>
+              dataToEl={res => (
                 <Paper>
-                  <Res
-                    res={res}
-                  />
-                </Paper>}
+                  <Res res={res} />
+                </Paper>
+              )}
               changeItems={x => {
                 items.current = x;
               }}
             />
-            {isResWrite && user.value !== null
-              ? <Paper className={style.resWrite}>
+            {isResWrite && user.value !== null ? (
+              <Paper className={style.resWrite}>
                 <ResWrite
                   topic={topic.id}
                   reply={null}
@@ -316,11 +332,10 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                   }}
                 />
               </Paper>
-              : null}
+            ) : null}
           </div>
         </>
-        : null
-      }
+      ) : null}
     </Page>
   );
 });

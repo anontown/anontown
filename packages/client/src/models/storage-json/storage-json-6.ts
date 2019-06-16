@@ -5,10 +5,13 @@ export const storageJSON6 = t.strict({
   ver: t.literal("6"),
   topicFavo: t.array(t.string),
   tagsFavo: t.array(t.array(t.string)),
-  topicRead: t.record(t.string, t.strict({
-    res: t.string,
-    count: t.number,
-  })),
+  topicRead: t.record(
+    t.string,
+    t.strict({
+      res: t.string,
+      count: t.number,
+    }),
+  ),
 });
 
 export type StorageJSON6 = t.TypeOf<typeof storageJSON6>;

@@ -1,8 +1,4 @@
-import {
-  Paper,
-  RaisedButton,
-  TextField,
-} from "material-ui";
+import { Paper, RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import {
@@ -12,10 +8,7 @@ import {
   withRouter,
 } from "react-router-dom";
 import * as G from "../../generated/graphql";
-import {
-  Errors,
-  Page,
-} from "../components";
+import { Errors, Page } from "../components";
 import { createUserData, useUserContext } from "../utils";
 
 type LoginPageProps = RouteComponentProps<{}>;
@@ -30,9 +23,10 @@ export const LoginPage = withRouter((_props: LoginPageProps) => {
   return (
     <Page>
       <Helmet title="ログイン" />
-      {userContext.value !== null
-        ? <Redirect to="/" />
-        : <Paper>
+      {userContext.value !== null ? (
+        <Redirect to="/" />
+      ) : (
+        <Paper>
           <Errors errors={errors} />
           <form>
             <div>
@@ -50,29 +44,35 @@ export const LoginPage = withRouter((_props: LoginPageProps) => {
                 type="password"
               />
             </div>
-            <div><RaisedButton
-              label="ログイン"
-              onClick={async () => {
-                try {
-                  const token = await submit({
-                    variables: {
-                      auth: {
-                        sn, pass,
+            <div>
+              <RaisedButton
+                label="ログイン"
+                onClick={async () => {
+                  try {
+                    const token = await submit({
+                      variables: {
+                        auth: {
+                          sn,
+                          pass,
+                        },
                       },
-                    },
-                  });
-                  if (token.data !== undefined) {
-                    userContext.update(await createUserData(token.data.createTokenMaster as G.TokenMasterFragment));
+                    });
+                    if (token.data !== undefined) {
+                      userContext.update(
+                        await createUserData(token.data
+                          .createTokenMaster as G.TokenMasterFragment),
+                      );
+                    }
+                  } catch {
+                    setErrors(["ログインに失敗しました。"]);
                   }
-                } catch {
-                  setErrors(["ログインに失敗しました。"]);
-                }
-              }}
-            /></div>
+                }}
+              />
+            </div>
             <Link to="/signup">登録</Link>
           </form>
-        </Paper>}
+        </Paper>
+      )}
     </Page>
   );
-
 });

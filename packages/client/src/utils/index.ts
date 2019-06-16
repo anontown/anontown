@@ -10,14 +10,7 @@ export * from "./user";
 export * from "./use";
 export * from "./lock";
 
-export {
-  dateFormat,
-  mdParser,
-  camo,
-  imgur,
-  storageAPI,
-  list,
-};
+export { dateFormat, mdParser, camo, imgur, storageAPI, list };
 
 export { Command } from "./command";
 export { createUserData } from "./create-user-data";

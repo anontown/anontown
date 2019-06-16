@@ -9,24 +9,25 @@ export function parse(text: string): Root {
     .parse(text);
 }
 
-export type MdNode = Paragraph |
-  Blockquote |
-  Heading |
-  Code |
-  InlineCode |
-  List |
-  ListItem |
-  Table |
-  TableRow |
-  TableCell |
-  ThematicBreak |
-  Break |
-  Emphasis |
-  Strong |
-  Delete |
-  Link |
-  Image |
-  Text;
+export type MdNode =
+  | Paragraph
+  | Blockquote
+  | Heading
+  | Code
+  | InlineCode
+  | List
+  | ListItem
+  | Table
+  | TableRow
+  | TableCell
+  | ThematicBreak
+  | Break
+  | Emphasis
+  | Strong
+  | Delete
+  | Link
+  | Image
+  | Text;
 
 interface ParentBase {
   children: MdNode[];

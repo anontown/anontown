@@ -1,8 +1,4 @@
-import {
-  Paper,
-  RaisedButton,
-  TextField,
-} from "material-ui";
+import { Paper, RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import * as G from "../../generated/graphql";
 import { useUserContext } from "../utils";
@@ -21,8 +17,8 @@ export const TopicFork = (props: TopicForkProps) => {
 
   return (
     <div>
-      {user.value !== null
-        ? <G.CreateTopicForkComponent
+      {user.value !== null ? (
+        <G.CreateTopicForkComponent
           variables={{
             title,
             parent: props.topic.id,
@@ -32,9 +28,10 @@ export const TopicFork = (props: TopicForkProps) => {
               props.onCreate(data.createTopicFork);
             }
           }}
-        >{
-            (submit, { error }) => {
-              return (<form>
+        >
+          {(submit, { error }) => {
+            return (
+              <form>
                 {error && <Errors errors={["作成に失敗"]} />}
                 <TextField
                   floatingLabelText="タイトル"
@@ -42,26 +39,30 @@ export const TopicFork = (props: TopicForkProps) => {
                   onChange={(_e, v) => setTitle(v)}
                 />
                 <RaisedButton onClick={() => submit()} label="新規作成" />
-              </form>);
-            }}
-        </G.CreateTopicForkComponent>
-        : null}
-      <hr />
-      <G.FindTopicsComponent
-        variables={{ query: { parent: props.topic.id } }}
-      >{
-          ({ loading, error, data }) => {
-            if (loading) { return "Loading..."; }
-            if (error || !data) { return (<Snack msg="派生トピック取得に失敗しました" />); }
-            return (<div>
-              {data.topics.map(t => <Paper key={t.id}>
-                <TopicListItem
-                  topic={t}
-                  detail={false}
-                />
-              </Paper>)}
-            </div>);
+              </form>
+            );
           }}
+        </G.CreateTopicForkComponent>
+      ) : null}
+      <hr />
+      <G.FindTopicsComponent variables={{ query: { parent: props.topic.id } }}>
+        {({ loading, error, data }) => {
+          if (loading) {
+            return "Loading...";
+          }
+          if (error || !data) {
+            return <Snack msg="派生トピック取得に失敗しました" />;
+          }
+          return (
+            <div>
+              {data.topics.map(t => (
+                <Paper key={t.id}>
+                  <TopicListItem topic={t} detail={false} />
+                </Paper>
+              ))}
+            </div>
+          );
+        }}
       </G.FindTopicsComponent>
     </div>
   );

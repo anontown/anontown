@@ -12,20 +12,17 @@ interface CheckBoxProps {
 
 export function CheckBox(props: CheckBoxProps) {
   return (
-    <label
-      className={style.comp}
-      style={props.style}
-    >
+    <label className={style.comp} style={props.style}>
       <input
         type="checkbox"
         checked={props.value}
         style={props.checkBoxStyle}
         className={style.checkbox}
-        onChange={e =>
-          props.onChange(e.target.checked)
-        }
+        onChange={e => props.onChange(e.target.checked)}
       />
-      <span style={props.labelStyle} className={style.label}>{props.label}</span>
+      <span style={props.labelStyle} className={style.label}>
+        {props.label}
+      </span>
     </label>
   );
 }

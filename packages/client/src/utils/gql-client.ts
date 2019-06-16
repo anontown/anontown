@@ -1,4 +1,7 @@
-import { InMemoryCache, IntrospectionFragmentMatcher } from "apollo-cache-inmemory";
+import {
+  InMemoryCache,
+  IntrospectionFragmentMatcher,
+} from "apollo-cache-inmemory";
 import { ApolloClient } from "apollo-client";
 import { ApolloLink, Operation, split } from "apollo-link";
 import { onError } from "apollo-link-error";
@@ -26,7 +29,8 @@ const wsLink = new WebSocketLink({
   options: {
     reconnect: true,
     lazy: true,
-    connectionParams: () => auth !== null ? createHeaders(auth.id, auth.key) : {},
+    connectionParams: () =>
+      auth !== null ? createHeaders(auth.id, auth.key) : {},
   },
 });
 
@@ -38,24 +42,27 @@ const request = async (opt: Operation) => {
   }
 };
 
-const requestLink = new ApolloLink((operation, forward) =>
-  new zen.Observable(observer => {
-    let handle: zen.ZenObservable.Subscription | undefined;
-    Promise.resolve(operation)
-      .then(oper => request(oper))
-      .then(() => {
-        handle = forward!(operation).subscribe({
-          next: observer.next.bind(observer),
-          error: observer.error.bind(observer),
-          complete: observer.complete.bind(observer),
-        });
-      })
-      .catch(observer.error.bind(observer));
+const requestLink = new ApolloLink(
+  (operation, forward) =>
+    new zen.Observable(observer => {
+      let handle: zen.ZenObservable.Subscription | undefined;
+      Promise.resolve(operation)
+        .then(oper => request(oper))
+        .then(() => {
+          handle = forward!(operation).subscribe({
+            next: observer.next.bind(observer),
+            error: observer.error.bind(observer),
+            complete: observer.complete.bind(observer),
+          });
+        })
+        .catch(observer.error.bind(observer));
 
-    return () => {
-      if (handle) { handle.unsubscribe(); }
-    };
-  }),
+      return () => {
+        if (handle) {
+          handle.unsubscribe();
+        }
+      };
+    }),
 );
 
 const fragmentMatcher = new IntrospectionFragmentMatcher({
@@ -72,7 +79,9 @@ export const gqlClient = new ApolloClient({
           ),
         );
       }
-      if (networkError) { console.log("[Network error]", networkError); }
+      if (networkError) {
+        console.log("[Network error]", networkError);
+      }
     }),
     requestLink,
     split(

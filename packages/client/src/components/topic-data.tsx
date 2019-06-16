@@ -9,14 +9,12 @@ export interface TopicDataProps {
   topic: G.TopicFragment;
 }
 
-interface TopicDataState {
-}
+interface TopicDataState {}
 
 export class TopicData extends React.Component<TopicDataProps, TopicDataState> {
   constructor(props: TopicDataProps) {
     super(props);
-    this.state = {
-    };
+    this.state = {};
   }
   render() {
     return (
@@ -26,8 +24,9 @@ export class TopicData extends React.Component<TopicDataProps, TopicDataState> {
           <dd>{dateFormat.format(this.props.topic.date)}</dd>
           <dt>更新</dt>
           <dd>{dateFormat.format(this.props.topic.update)}</dd>
-          {this.props.topic.__typename === "TopicNormal" || this.props.topic.__typename === "TopicOne"
-            ? <>
+          {this.props.topic.__typename === "TopicNormal" ||
+          this.props.topic.__typename === "TopicOne" ? (
+            <>
               <dt>カテゴリ</dt>
               <dd>
                 <TagsLink tags={this.props.topic.tags} />
@@ -37,16 +36,17 @@ export class TopicData extends React.Component<TopicDataProps, TopicDataState> {
                 <Md text={this.props.topic.text} />
               </dd>
             </>
-            : null
-          }
-          {this.props.topic.__typename === "TopicFork"
-            ? <>
+          ) : null}
+          {this.props.topic.__typename === "TopicFork" ? (
+            <>
               <dt>派生元</dt>
               <dd>
-                <Link to={`/topic/${this.props.topic.parent.id}`}>{this.props.topic.parent.title}</Link>
+                <Link to={`/topic/${this.props.topic.parent.id}`}>
+                  {this.props.topic.parent.title}
+                </Link>
               </dd>
             </>
-            : null}
+          ) : null}
           {
             // TODO: 編集履歴を別ページにしてここからリンク
           }

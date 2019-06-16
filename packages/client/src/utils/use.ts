@@ -1,6 +1,10 @@
 import * as React from "react";
 
-export function useEffectSkipN(effect: React.EffectCallback, deps?: React.DependencyList, n = 1) {
+export function useEffectSkipN(
+  effect: React.EffectCallback,
+  deps?: React.DependencyList,
+  n = 1,
+) {
   const countRef = React.useRef(0);
 
   React.useEffect(() => {
@@ -12,7 +16,12 @@ export function useEffectSkipN(effect: React.EffectCallback, deps?: React.Depend
   }, deps);
 }
 
-export function useEffectCond(effect: React.EffectCallback, cond = () => true, deps?: React.DependencyList, n = 1) {
+export function useEffectCond(
+  effect: React.EffectCallback,
+  cond = () => true,
+  deps?: React.DependencyList,
+  n = 1,
+) {
   const countRef = React.useRef(0);
 
   React.useEffect(() => {
@@ -33,7 +42,9 @@ export function useValueRef<T>(val: T) {
   return ref;
 }
 
-export function useFunctionRef<T extends any[], R>(f: (...args: T) => R): (...args: T) => R {
+export function useFunctionRef<T extends any[], R>(
+  f: (...args: T) => R,
+): (...args: T) => R {
   const ref = useValueRef(f);
   return (...args: T): R => {
     return ref.current(...args);
@@ -43,7 +54,8 @@ export function useFunctionRef<T extends any[], R>(f: (...args: T) => R): (...ar
 export function useEffectRef<T>(
   effect: (ref: React.MutableRefObject<T>) => void | (() => void | undefined),
   val: T,
-  deps?: React.DependencyList) {
+  deps?: React.DependencyList,
+) {
   const ref = useValueRef(val);
   React.useEffect(() => effect(ref), deps);
 }

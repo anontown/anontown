@@ -25,32 +25,46 @@ export const TopicListItem = (props: TopicListItemProps) => {
   return (
     <div className={style.container}>
       <div>
-        {!props.topic.active ? <FontIcon className="material-icons">not_interested</FontIcon> : null}
-        {props.topic.__typename === "TopicOne" ? <FontIcon className="material-icons">looks_one</FontIcon> : null}
-        {props.topic.__typename === "TopicFork" ? <FontIcon className="material-icons">call_split</FontIcon> : null}
-        {newRes !== null && newRes !== 0 ? <FontIcon className="material-icons">fiber_new</FontIcon> : null}
-        <Link className={style.title} to={`/topic/${props.topic.id}`}>{props.topic.title}</Link>
-      </div >
-      {props.detail
-        ? <div>
-          {props.topic.__typename === "TopicOne" || props.topic.__typename === "TopicNormal"
-            ? <div>
+        {!props.topic.active ? (
+          <FontIcon className="material-icons">not_interested</FontIcon>
+        ) : null}
+        {props.topic.__typename === "TopicOne" ? (
+          <FontIcon className="material-icons">looks_one</FontIcon>
+        ) : null}
+        {props.topic.__typename === "TopicFork" ? (
+          <FontIcon className="material-icons">call_split</FontIcon>
+        ) : null}
+        {newRes !== null && newRes !== 0 ? (
+          <FontIcon className="material-icons">fiber_new</FontIcon>
+        ) : null}
+        <Link className={style.title} to={`/topic/${props.topic.id}`}>
+          {props.topic.title}
+        </Link>
+      </div>
+      {props.detail ? (
+        <div>
+          {props.topic.__typename === "TopicOne" ||
+          props.topic.__typename === "TopicNormal" ? (
+            <div>
               <TagsLink tags={props.topic.tags} mini={true} />
-            </div >
-            : null}
-          {props.topic.__typename === "TopicFork"
-            ? <Link to={`/topic/${props.topic.parent}`}>親トピック</Link>
-            : null}
+            </div>
+          ) : null}
+          {props.topic.__typename === "TopicFork" ? (
+            <Link to={`/topic/${props.topic.parent}`}>親トピック</Link>
+          ) : null}
 
           <div>
-            作成 {dateFormat.format(props.topic.date)} 更新 {dateFormat.format(props.topic.update)}
+            作成 {dateFormat.format(props.topic.date)} 更新{" "}
+            {dateFormat.format(props.topic.update)}
           </div>
           <div>
-            総レス数 {props.topic.resCount} {newRes !== null && newRes !== 0 ? <span>新着 {newRes}</span> : null}
+            総レス数 {props.topic.resCount}{" "}
+            {newRes !== null && newRes !== 0 ? (
+              <span>新着 {newRes}</span>
+            ) : null}
           </div>
-        </div >
-        : null
-      }
+        </div>
+      ) : null}
     </div>
   );
 };

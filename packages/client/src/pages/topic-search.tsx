@@ -11,19 +11,12 @@ import * as qs from "query-string";
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import { withRouter } from "react-router";
-import {
-  Link,
-  RouteComponentProps,
-} from "react-router-dom";
+import { Link, RouteComponentProps } from "react-router-dom";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { isArray } from "util";
 import * as G from "../../generated/graphql";
-import {
-  Page,
-  TagsInput,
-  TopicListItem,
-} from "../components";
+import { Page, TagsInput, TopicListItem } from "../components";
 import { queryResultConvert, useEffectRef, useUserContext } from "../utils";
 import * as style from "./topic-search.scss";
 
@@ -36,9 +29,11 @@ function parseQuery(search: string) {
   const title = typeof qTitle === "string" ? qTitle : "";
 
   const qTags = query.tags;
-  const tags = isArray(qTags) ? qTags
-    : typeof qTags === "string" ? [qTags]
-      : [];
+  const tags = isArray(qTags)
+    ? qTags
+    : typeof qTags === "string"
+    ? [qTags]
+    : [];
 
   const dead = query.dead === "true";
 
@@ -71,33 +66,36 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
   });
   queryResultConvert(topics);
 
-  useEffectRef(f => {
-    const sub = formChange
-      .current
-      .pipe(op.debounceTime(500))
-      .subscribe(() => {
-        f.current();
+  useEffectRef(
+    f => {
+      const sub = formChange.current
+        .pipe(op.debounceTime(500))
+        .subscribe(() => {
+          f.current();
+        });
+      return () => {
+        sub.unsubscribe();
+      };
+    },
+    () => {
+      props.history.push({
+        pathname: "/topic/search",
+        search: qs.stringify({
+          title: formTitle,
+          dead: formDead.toString(),
+          tags: formTags.toArray(),
+        }),
       });
-    return () => {
-      sub.unsubscribe();
-    };
-  }, () => {
-    props.history.push({
-      pathname: "/topic/search",
-      search: qs.stringify({
-        title: formTitle,
-        dead: formDead.toString(),
-        tags: formTags.toArray(),
-      }),
-    });
-  }, [formChange.current]);
+    },
+    [formChange.current],
+  );
 
   return (
     <Page>
       <Helmet title="検索" />
       <Paper className={style.form}>
-        {user.value !== null
-          ? <IconButton
+        {user.value !== null ? (
+          <IconButton
             onClick={() => {
               if (user.value === null) {
                 return;
@@ -114,11 +112,13 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
               });
             }}
           >
-            {user.value.storage.tagsFavo.has(Im.Set(query.tags))
-              ? <FontIcon className="material-icons">star</FontIcon>
-              : <FontIcon className="material-icons">star_border</FontIcon>}
+            {user.value.storage.tagsFavo.has(Im.Set(query.tags)) ? (
+              <FontIcon className="material-icons">star</FontIcon>
+            ) : (
+              <FontIcon className="material-icons">star_border</FontIcon>
+            )}
           </IconButton>
-          : null}
+        ) : null}
         <div>
           <TagsInput
             fullWidth={true}
@@ -148,22 +148,22 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
         </div>
       </Paper>
       <div>
-        {user.value !== null
-          ? <IconButton containerElement={<Link to="/topic/create" />}>
+        {user.value !== null ? (
+          <IconButton containerElement={<Link to="/topic/create" />}>
             <FontIcon className="material-icons">edit</FontIcon>
           </IconButton>
-          : null}
+        ) : null}
         <IconButton onClick={() => topics.refetch()}>
           <FontIcon className="material-icons">refresh</FontIcon>
         </IconButton>
       </div>
       <div>
         {topics.data !== undefined
-          ? topics.data.topics.map(t =>
-            <Paper key={t.id}>
-              <TopicListItem topic={t} detail={true} />
-            </Paper>,
-          )
+          ? topics.data.topics.map(t => (
+              <Paper key={t.id}>
+                <TopicListItem topic={t} detail={true} />
+              </Paper>
+            ))
           : null}
       </div>
       <div>
@@ -174,7 +174,9 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
                 skip: topics.data !== undefined ? topics.data.topics.length : 0,
               },
               updateQuery: (prev, { fetchMoreResult }) => {
-                if (!fetchMoreResult) { return prev; }
+                if (!fetchMoreResult) {
+                  return prev;
+                }
                 return {
                   ...prev,
                   msgs: [...prev.topics, ...fetchMoreResult.topics],

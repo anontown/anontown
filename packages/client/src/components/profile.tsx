@@ -6,8 +6,7 @@ export interface ProfileProps {
   profile: G.ProfileFragment;
 }
 
-interface ProfileState {
-}
+interface ProfileState {}
 
 export class Profile extends React.Component<ProfileProps, ProfileState> {
   constructor(props: ProfileProps) {

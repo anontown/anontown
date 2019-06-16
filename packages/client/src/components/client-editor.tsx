@@ -15,7 +15,10 @@ interface ClientEditorState {
   name: string;
 }
 
-export class ClientEditor extends React.Component<ClientEditorProps, ClientEditorState> {
+export class ClientEditor extends React.Component<
+  ClientEditorProps,
+  ClientEditorState
+> {
   constructor(props: ClientEditorProps) {
     super(props);
     this.state = {
@@ -37,9 +40,10 @@ export class ClientEditor extends React.Component<ClientEditorProps, ClientEdito
             this.props.onUpdate(data.updateClient);
           }
         }}
-      >{
-          (submit, { error }) => {
-            return (<form>
+      >
+        {(submit, { error }) => {
+          return (
+            <form>
               {error && <Errors errors={["更新に失敗"]} />}
               <TextField
                 floatingLabelText="名前"
@@ -52,8 +56,9 @@ export class ClientEditor extends React.Component<ClientEditorProps, ClientEdito
                 onChange={(_e, v) => this.setState({ url: v })}
               />
               <RaisedButton onClick={() => submit()} label="OK" />
-            </form>);
-          }}
+            </form>
+          );
+        }}
       </G.UpdateClientComponent>
     );
   }

@@ -6,10 +6,13 @@ export const storageJSON5 = t.strict({
   ver: t.literal("5"),
   topicFavo: t.array(t.string),
   boardFavo: t.array(t.string),
-  topicRead: t.record(t.string, t.strict({
-    res: t.string,
-    count: t.number,
-  })),
+  topicRead: t.record(
+    t.string,
+    t.strict({
+      res: t.string,
+      count: t.number,
+    }),
+  ),
 });
 
 export type StorageJSON5 = t.TypeOf<typeof storageJSON5>;

@@ -1,7 +1,4 @@
-import {
-  FontIcon,
-  IconButton,
-} from "material-ui";
+import { FontIcon, IconButton } from "material-ui";
 import * as React from "react";
 import * as G from "../../generated/graphql";
 import { UserData } from "../models";
@@ -26,20 +23,26 @@ export class Client extends React.Component<ClientProps, ClientState> {
   }
 
   render() {
-    const clientEditor = this.state.edit && this.props.userData !== null
-      ? <ClientEditor client={this.props.client} onUpdate={this.props.onUpdate} userData={this.props.userData} />
-      : null;
+    const clientEditor =
+      this.state.edit && this.props.userData !== null ? (
+        <ClientEditor
+          client={this.props.client}
+          onUpdate={this.props.onUpdate}
+          userData={this.props.userData}
+        />
+      ) : null;
 
-    const edit = this.props.client.self
-      ? (
-        <div>
-          <IconButton type="button" onClick={() => this.setState({ edit: !this.state.edit })} >
-            <FontIcon className="material-icons">edit</FontIcon>
-          </IconButton>
-          {clientEditor}
-        </div>
-      )
-      : null;
+    const edit = this.props.client.self ? (
+      <div>
+        <IconButton
+          type="button"
+          onClick={() => this.setState({ edit: !this.state.edit })}
+        >
+          <FontIcon className="material-icons">edit</FontIcon>
+        </IconButton>
+        {clientEditor}
+      </div>
+    ) : null;
 
     return (
       <div>

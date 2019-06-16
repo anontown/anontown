@@ -6,17 +6,23 @@ export const storageJSON9 = t.strict({
   ver: t.literal("9"),
   topicFavo: t.array(t.string),
   tagsFavo: t.array(t.array(t.string)),
-  topicRead: t.record(t.string, t.strict({
-    date: t.string,
-    count: t.number,
-  })),
-  topicWrite: t.record(t.string, t.strict({
-    name: t.string,
-    profile: t.union([t.string, t.null]),
-    text: t.string,
-    age: t.boolean,
-    replyText: t.record(t.string, t.string),
-  })),
+  topicRead: t.record(
+    t.string,
+    t.strict({
+      date: t.string,
+      count: t.number,
+    }),
+  ),
+  topicWrite: t.record(
+    t.string,
+    t.strict({
+      name: t.string,
+      profile: t.union([t.string, t.null]),
+      text: t.string,
+      age: t.boolean,
+      replyText: t.record(t.string, t.string),
+    }),
+  ),
   ng: t.array(ngJson),
 });
 

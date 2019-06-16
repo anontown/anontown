@@ -42,20 +42,20 @@ export const ProfileEditor = (props: ProfileEditorProps) => {
           value={name}
           onChange={(_e, v) => setName(v)}
         />
-        <MdEditor
-          fullWidth={true}
-          value={text}
-          onChange={v => setText(v)}
-        />
+        <MdEditor fullWidth={true} value={text} onChange={v => setText(v)} />
         <RaisedButton
-          onClick={() => submit().then(data => {
-            if (props.onUpdate) {
-              props.onUpdate(data.data!.updateProfile);
-            }
-            setErrors([]);
-          }).catch(_e => {
-            setErrors(["エラーが発生しました"]);
-          })}
+          onClick={() =>
+            submit()
+              .then(data => {
+                if (props.onUpdate) {
+                  props.onUpdate(data.data!.updateProfile);
+                }
+                setErrors([]);
+              })
+              .catch(_e => {
+                setErrors(["エラーが発生しました"]);
+              })
+          }
           label="OK"
         />
       </form>

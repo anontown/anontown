@@ -35,7 +35,17 @@ export const initStorage: StorageJSONLatest = {
   topicWrite: {},
   ng: [],
 };
-export const verArray: Array<StorageJSON["ver"]> = ["9", "8", "7", "6", "5", "4", "3", "2", "1.0.0"];
+export const verArray: Array<StorageJSON["ver"]> = [
+  "9",
+  "8",
+  "7",
+  "6",
+  "5",
+  "4",
+  "3",
+  "2",
+  "1.0.0",
+];
 
 export async function convert(storage: unknown): Promise<StorageJSONLatest> {
   if (storageJSON.is(storage)) {

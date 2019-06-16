@@ -1,7 +1,4 @@
-import {
-  FontIcon,
-  IconButton,
-} from "material-ui";
+import { FontIcon, IconButton } from "material-ui";
 import * as React from "react";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import * as rx from "rxjs";
@@ -44,17 +41,22 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
 
   upload(datas: FormData[]) {
     rx.of(...datas)
-      .pipe(op.mergeMap(form => imgur.upload(form)),
+      .pipe(
+        op.mergeMap(form => imgur.upload(form)),
         op.map(url => `![](${url})`),
-        op.reduce((tags, tag) => tags + tag + "\n", ""))
-      .subscribe(tags => {
-        this.setState({ slowImage: false, oekakiErrors: undefined });
-        if (this.props.onChange) {
-          this.props.onChange(this.props.value + tags);
-        }
-      }, () => {
-        this.setState({ imageErrors: ["アップロードに失敗しました"] });
-      });
+        op.reduce((tags, tag) => tags + tag + "\n", ""),
+      )
+      .subscribe(
+        tags => {
+          this.setState({ slowImage: false, oekakiErrors: undefined });
+          if (this.props.onChange) {
+            this.props.onChange(this.props.value + tags);
+          }
+        },
+        () => {
+          this.setState({ imageErrors: ["アップロードに失敗しました"] });
+        },
+      );
   }
 
   render() {
@@ -80,7 +82,10 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
         >
           <h1>お絵かき</h1>
           <Errors errors={this.state.oekakiErrors} />
-          <Oekaki size={{ x: 320, y: 240 }} onSubmit={data => this.upload([data])} />
+          <Oekaki
+            size={{ x: 320, y: 240 }}
+            onSubmit={data => this.upload([data])}
+          />
         </Modal>
         <Modal
           isOpen={this.state.slowImage}
@@ -94,12 +99,11 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
               const target = e.target as HTMLInputElement;
               const files = target.files;
               if (files !== null) {
-                const datas = Array.from(files)
-                  .map(file => {
-                    const formData = new FormData();
-                    formData.append("image", file);
-                    return formData;
-                  });
+                const datas = Array.from(files).map(file => {
+                  const formData = new FormData();
+                  formData.append("image", file);
+                  return formData;
+                });
                 this.upload(datas);
               }
             }}

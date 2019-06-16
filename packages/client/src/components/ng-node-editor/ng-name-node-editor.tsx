@@ -1,6 +1,4 @@
-import {
-  ListItem,
-} from "material-ui";
+import { ListItem } from "material-ui";
 import * as React from "react";
 import { ng } from "../../models";
 import { Modal } from "../modal";
@@ -16,14 +14,15 @@ export interface NGNameNodeEditorProps {
   changeOpenDialog: (v: boolean) => void;
 }
 
-export interface NGNameNodeEditorState {
-}
+export interface NGNameNodeEditorState {}
 
-export class NGNameNodeEditor extends React.Component<NGNameNodeEditorProps, NGNameNodeEditorState> {
+export class NGNameNodeEditor extends React.Component<
+  NGNameNodeEditorProps,
+  NGNameNodeEditorState
+> {
   constructor(props: NGNameNodeEditorProps) {
     super(props);
-    this.state = {
-    };
+    this.state = {};
   }
 
   render() {

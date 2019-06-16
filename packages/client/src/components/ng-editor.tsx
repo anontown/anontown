@@ -1,7 +1,4 @@
-import {
-  List,
-  TextField,
-} from "material-ui";
+import { List, TextField } from "material-ui";
 import * as React from "react";
 import { ng } from "../models";
 import { NGNodeEditor } from "./ng-node-editor";

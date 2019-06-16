@@ -1,7 +1,5 @@
 import * as Im from "immutable";
-import {
-  RaisedButton,
-} from "material-ui";
+import { RaisedButton } from "material-ui";
 import * as React from "react";
 
 import * as G from "../../generated/graphql";
@@ -40,22 +38,35 @@ export const ResWrite = (props: ResWriteProps) => {
   const data = props.userData.storage.topicWrite.get(props.topic, formDefualt);
 
   const [errors, setErrors] = React.useState<string[]>([]);
-  const [textCache, setTextCache] = useInputCache(props.reply === null
-    ? data.text
-    : data.replyText.get(props.reply, ""), value => {
+  const [textCache, setTextCache] = useInputCache(
+    props.reply === null ? data.text : data.replyText.get(props.reply, ""),
+    value => {
       if (props.reply === null) {
-        setStorage(props.userData.storage.topicWrite.update(props.topic, formDefualt, x => ({
-          ...x,
-          value,
-        })));
+        setStorage(
+          props.userData.storage.topicWrite.update(
+            props.topic,
+            formDefualt,
+            x => ({
+              ...x,
+              value,
+            }),
+          ),
+        );
       } else {
         const reply = props.reply;
-        setStorage(props.userData.storage.topicWrite.update(props.topic, formDefualt, x => ({
-          ...x,
-          replyText: x.replyText.set(reply, value),
-        })));
+        setStorage(
+          props.userData.storage.topicWrite.update(
+            props.topic,
+            formDefualt,
+            x => ({
+              ...x,
+              replyText: x.replyText.set(reply, value),
+            }),
+          ),
+        );
       }
-    });
+    },
+  );
 
   const profiles = G.useFindProfilesQuery({
     variables: {
@@ -78,15 +89,17 @@ export const ResWrite = (props: ResWriteProps) => {
   });
 
   const submit = () => {
-    mutation().then(x => {
-      if (props.onSubmit !== undefined && x.data !== undefined) {
-        props.onSubmit(x.data.createRes);
-      }
-      setErrors([]);
-      setTextCache("");
-    }).catch(() => {
-      setErrors(["エラーが発生しました"]);
-    });
+    mutation()
+      .then(x => {
+        if (props.onSubmit !== undefined && x.data !== undefined) {
+          props.onSubmit(x.data.createRes);
+        }
+        setErrors([]);
+        setTextCache("");
+      })
+      .catch(() => {
+        setErrors(["エラーが発生しました"]);
+      });
   };
 
   return (
@@ -99,40 +112,60 @@ export const ResWrite = (props: ResWriteProps) => {
         placeholder="名前"
         value={data.name}
         onChange={v =>
-          setStorage(props.userData.storage.topicWrite
-            .update(props.topic, formDefualt, x => ({
-              ...x,
-              name: v,
-            })))}
+          setStorage(
+            props.userData.storage.topicWrite.update(
+              props.topic,
+              formDefualt,
+              x => ({
+                ...x,
+                name: v,
+              }),
+            ),
+          )
+        }
       />
-      {profiles.data !== undefined
-        ? <Select
+      {profiles.data !== undefined ? (
+        <Select
           style={{
             marginRight: "3px",
             backgroundColor: "#fff",
           }}
           value={data.profile || ""}
           onChange={v => {
-            setStorage(props.userData.storage.topicWrite
-              .update(props.topic, formDefualt, x => ({
-                ...x,
-                profile: v || null,
-              })));
+            setStorage(
+              props.userData.storage.topicWrite.update(
+                props.topic,
+                formDefualt,
+                x => ({
+                  ...x,
+                  profile: v || null,
+                }),
+              ),
+            );
           }}
           options={[
             { value: "", text: "(プロフなし)" },
-            ...profiles.data.profiles.map(p => ({ value: p.id, text: `●${p.sn} ${p.name}` })),
+            ...profiles.data.profiles.map(p => ({
+              value: p.id,
+              text: `●${p.sn} ${p.name}`,
+            })),
           ]}
         />
-        : null}
+      ) : null}
       <CheckBox
         value={data.age}
         onChange={v =>
-          setStorage(props.userData.storage.topicWrite
-            .update(props.topic, formDefualt, x => ({
-              ...x,
-              age: v,
-            })))}
+          setStorage(
+            props.userData.storage.topicWrite.update(
+              props.topic,
+              formDefualt,
+              x => ({
+                ...x,
+                age: v,
+              }),
+            ),
+          )
+        }
         label="Age"
       />
       <MdEditor
@@ -147,9 +180,7 @@ export const ResWrite = (props: ResWriteProps) => {
           }
         }}
         fullWidth={true}
-        actions={<RaisedButton onClick={submit}>
-          書き込む
-      </RaisedButton>}
+        actions={<RaisedButton onClick={submit}>書き込む</RaisedButton>}
       />
     </form>
   );

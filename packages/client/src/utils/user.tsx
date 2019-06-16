@@ -17,7 +17,7 @@ export interface UserContextType {
 export const UserContext = React.createContext<UserContextType>({
   value: null,
   // tslint:disable-next-line:no-empty
-  update: () => { },
+  update: () => {},
 });
 
 export function useUserContext() {
@@ -37,29 +37,35 @@ export const User = (props: UserProps) => {
     subjectRef.current.next(userData);
   }, [userData]);
   const storageSave = useSave();
-  useEffectRef(f => {
-    const subs = subjectRef
-      .current
-      .pipe(op.debounceTime(5000))
-      .subscribe(data => {
-        f.current(data);
-      });
+  useEffectRef(
+    f => {
+      const subs = subjectRef.current
+        .pipe(op.debounceTime(5000))
+        .subscribe(data => {
+          f.current(data);
+        });
 
-    return () => {
-      subs.unsubscribe();
-    };
-  }, (data: UserData | null) => {
-    if (data !== null) {
-      storageSave(data.storage);
-    }
-  }, []);
+      return () => {
+        subs.unsubscribe();
+      };
+    },
+    (data: UserData | null) => {
+      if (data !== null) {
+        storageSave(data.storage);
+      }
+    },
+    [],
+  );
 
   useEffectSkipN(() => {
     if (userData !== null) {
-      localStorage.setItem("token", JSON.stringify({
-        id: userData.token.id,
-        key: userData.token.key,
-      }));
+      localStorage.setItem(
+        "token",
+        JSON.stringify({
+          id: userData.token.id,
+          key: userData.token.key,
+        }),
+      );
     } else {
       localStorage.removeItem("token");
     }
@@ -78,9 +84,7 @@ export const User = (props: UserProps) => {
   };
 
   return (
-    <UserContext.Provider
-      value={context}
-    >
+    <UserContext.Provider value={context}>
       {props.children(context)}
     </UserContext.Provider>
   );

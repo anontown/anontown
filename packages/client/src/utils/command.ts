@@ -7,8 +7,8 @@ export class Command<T> {
 
   constructor(
     private readonly history: Im.List<T>,
-    private readonly index: number) {
-  }
+    private readonly index: number,
+  ) {}
 
   get value(): T {
     return this.history.get(this.index)!;
@@ -31,6 +31,12 @@ export class Command<T> {
   }
 
   change(val: T) {
-    return new Command(this.history.slice(0, this.index + 1).toList().push(val), this.index + 1);
+    return new Command(
+      this.history
+        .slice(0, this.index + 1)
+        .toList()
+        .push(val),
+      this.index + 1,
+    );
   }
 }

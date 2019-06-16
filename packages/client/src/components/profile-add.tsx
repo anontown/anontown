@@ -18,7 +18,10 @@ interface ProfileAddState {
   text: string;
 }
 
-export class ProfileAdd extends React.Component<ProfileAddProps, ProfileAddState> {
+export class ProfileAdd extends React.Component<
+  ProfileAddProps,
+  ProfileAddState
+> {
   constructor(props: ProfileAddProps) {
     super(props);
     this.state = {
@@ -42,29 +45,32 @@ export class ProfileAdd extends React.Component<ProfileAddProps, ProfileAddState
               this.props.onAdd(x.createProfile);
             }
           }}
-        >{(submit, { error }) => {
-          return (<form>
-            {error && <Errors errors={["エラーが発生しました"]} />}
-            <TextField
-              fullWidth={true}
-              floatingLabelText="ID"
-              value={this.state.sn}
-              onChange={(_e, v) => this.setState({ sn: v })}
-            />
-            <TextField
-              fullWidth={true}
-              floatingLabelText="名前"
-              value={this.state.name}
-              onChange={(_e, v) => this.setState({ name: v })}
-            />
-            <MdEditor
-              fullWidth={true}
-              value={this.state.text}
-              onChange={v => this.setState({ text: v })}
-            />
-            <RaisedButton onClick={() => submit()} label="OK" />
-          </form>);
-        }}
+        >
+          {(submit, { error }) => {
+            return (
+              <form>
+                {error && <Errors errors={["エラーが発生しました"]} />}
+                <TextField
+                  fullWidth={true}
+                  floatingLabelText="ID"
+                  value={this.state.sn}
+                  onChange={(_e, v) => this.setState({ sn: v })}
+                />
+                <TextField
+                  fullWidth={true}
+                  floatingLabelText="名前"
+                  value={this.state.name}
+                  onChange={(_e, v) => this.setState({ name: v })}
+                />
+                <MdEditor
+                  fullWidth={true}
+                  value={this.state.text}
+                  onChange={v => this.setState({ text: v })}
+                />
+                <RaisedButton onClick={() => submit()} label="OK" />
+              </form>
+            );
+          }}
         </G.CreateProfileComponent>
       </Paper>
     );
