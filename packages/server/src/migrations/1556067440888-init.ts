@@ -1,6 +1,6 @@
 import { DB, ESClient } from "../db";
 
-export async function up(next: () => void) {
+export async function migrate_1556067440888_init() {
   const db = await DB();
 
   const clients = await db.createCollection("clients");
@@ -267,27 +267,4 @@ export async function up(next: () => void) {
     name: "topics",
     index: "topics_1",
   });
-
-  next();
-}
-
-export async function down(next: () => void) {
-  const db = await DB();
-
-  await db.collection("clients").drop();
-  await db.collection("profiles").drop();
-  await db.collection("tokens").drop();
-  await db.collection("users").drop();
-  await db.collection("storages").drop();
-
-  const es = ESClient();
-
-  await es.indices.deleteAlias({ name: "reses", index: "reses_1" });
-  await es.indices.deleteAlias({ name: "histories", index: "histories_1" });
-  await es.indices.deleteAlias({ name: "msgs", index: "msgs_1" });
-  await es.indices.deleteAlias({ name: "topics", index: "topics_1" });
-  await es.indices.delete({ index: ["reses_1", "histories_1", "msgs_1", "topics_1"] });
-  await es.deleteTemplate({ id: "template" });
-
-  next();
 }
