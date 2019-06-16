@@ -2,7 +2,7 @@ import { FontIcon, IconButton } from "material-ui";
 import * as React from "react";
 import { Rnd } from "react-rnd";
 import { Link } from "react-router-dom";
-import { Config } from "../env";
+import { Env } from "../env";
 import { camo, mdParser, safeURL } from "../utils";
 import * as style from "./md.scss";
 import { Modal } from "./modal";
@@ -98,10 +98,10 @@ function urlEnum(url: string): URLType {
     };
   }
 
-  if (url.indexOf(Config.client.origin) === 0) {
+  if (url.indexOf(Env.client.origin) === 0) {
     return {
       type: "router",
-      path: url.substring(Config.client.origin.length),
+      path: url.substring(Env.client.origin.length),
     };
   }
 

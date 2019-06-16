@@ -10,7 +10,7 @@ import {
 } from "react-router-dom";
 import * as G from "../../generated/graphql";
 import { Errors, Page } from "../components";
-import { Config } from "../env";
+import { Env } from "../env";
 import { createUserData, UserContext } from "../utils";
 
 interface SignupPageProps extends RouteComponentProps<{}> {}
@@ -63,7 +63,7 @@ export const SignupPage = withRouter(
                       />
                     </div>
                     <Recaptcha
-                      sitekey={Config.recaptcha.siteKey}
+                      sitekey={Env.recaptcha.siteKey}
                       ref={this.recaptchaRef}
                       onChange={(v: string) => this.setState({ recaptcha: v })}
                     />

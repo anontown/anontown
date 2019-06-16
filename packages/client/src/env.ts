@@ -25,6 +25,6 @@ declare var __BUILD_DATE__: number;
 
 export const BUILD_DATE = __BUILD_DATE__;
 
-export const Config = __ENV__;
+export const Env = __ENV__;
 
 export const gaID = "UA-108693999-1";

@@ -1,7 +1,7 @@
-import { Config } from "../env";
+import { Env } from "../env";
 
 export async function getServerStatus() {
-  const server = await fetch(Config.api.origin + "/ping", {
+  const server = await fetch(Env.api.origin + "/ping", {
     mode: "cors",
     cache: "no-store",
   })

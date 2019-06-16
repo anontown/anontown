@@ -1,5 +1,5 @@
 import * as CryptoJS from "crypto-js";
-import { Config } from "../env";
+import { Env } from "../env";
 
 export function getCamoUrl(url: string): string {
   // 既にHTTPSなら
@@ -7,7 +7,7 @@ export function getCamoUrl(url: string): string {
     return url;
   }
 
-  const digest = CryptoJS.HmacSHA1(url, Config.camo.key);
+  const digest = CryptoJS.HmacSHA1(url, Env.camo.key);
   const urlEncode = encodeURIComponent(url);
-  return `${Config.camo.origin}/${digest}?url=${urlEncode}`;
+  return `${Env.camo.origin}/${digest}?url=${urlEncode}`;
 }

@@ -10,7 +10,7 @@ import { WebSocketLink } from "apollo-link-ws";
 import { getMainDefinition } from "apollo-utilities";
 import * as zen from "zen-observable-ts";
 import introspectionResult from "../../generated/introspection-result";
-import { Config } from "../env";
+import { Env } from "../env";
 import { auth } from "./user";
 
 export function createHeaders(id: string, key: string): {} {
@@ -20,12 +20,12 @@ export function createHeaders(id: string, key: string): {} {
 }
 
 const httpLink = new HttpLink({
-  uri: Config.api.origin,
+  uri: Env.api.origin,
   credentials: "same-origin",
 });
 
 const wsLink = new WebSocketLink({
-  uri: Config.socket.origin + "/",
+  uri: Env.socket.origin + "/",
   options: {
     reconnect: true,
     lazy: true,
