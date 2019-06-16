@@ -58,12 +58,10 @@ export class TokenRepo implements ITokenRepo {
     clientID: string,
   ): Promise<void> {
     const db = await DB();
-    await db
-      .collection("tokens")
-      .deleteMany({
-        user: new ObjectID(token.user),
-        client: new ObjectID(clientID),
-      });
+    await db.collection("tokens").deleteMany({
+      user: new ObjectID(token.user),
+      client: new ObjectID(clientID),
+    });
   }
 
   async delMasterToken(user: IAuthUser): Promise<void> {

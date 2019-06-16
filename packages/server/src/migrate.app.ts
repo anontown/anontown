@@ -3,6 +3,7 @@ import * as path from "path";
 import { Config } from "./config";
 import { migrate } from "./migrate";
 
+// tslint:disable-next-line:no-floating-promises
 (async () => {
   const migrateFile = path.join(Config.saveDir, "./data/.migrate.json");
 
