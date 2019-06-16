@@ -1,4 +1,4 @@
-import { Mongo, ESClient } from "../db";
+import { ESClient, Mongo } from "../db";
 
 export async function migrate_1556067440888_init() {
   const db = await Mongo();

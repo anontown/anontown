@@ -1,4 +1,4 @@
-import { Mongo, ESClient } from "./db";
+import { ESClient, Mongo } from "./db";
 
 export async function dbDrop() {
   const db = await Mongo();
