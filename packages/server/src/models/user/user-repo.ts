@@ -1,14 +1,14 @@
 import { CronJob } from "cron";
 import { ObjectID, WriteError } from "mongodb";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
-import { DB } from "../../db";
+import { Mongo } from "../../db";
 import { Logger } from "../../logger";
 import { IUserRepo } from "./iuser-repo";
 import { IUserDB, ResWaitCountKey, User } from "./user";
 
 export class UserRepo implements IUserRepo {
   async findOne(id: string): Promise<User> {
-    const db = await DB();
+    const db = await Mongo();
     const user: IUserDB | null = await db
       .collection("users")
       .findOne({ _id: new ObjectID(id) });
@@ -21,7 +21,7 @@ export class UserRepo implements IUserRepo {
   }
 
   async findID(sn: string): Promise<string> {
-    const db = await DB();
+    const db = await Mongo();
     const user: IUserDB | null = await db.collection("users").findOne({ sn });
 
     if (user === null) {
@@ -32,7 +32,7 @@ export class UserRepo implements IUserRepo {
   }
 
   async insert(user: User): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
     try {
       await db.collection("users").insertOne(user.toDB());
     } catch (ex) {
@@ -46,7 +46,7 @@ export class UserRepo implements IUserRepo {
   }
 
   async update(user: User): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
     try {
       await db
         .collection("users")
@@ -62,12 +62,12 @@ export class UserRepo implements IUserRepo {
   }
 
   async cronPointReset(): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
     await db.collection("users").updateMany({}, { $set: { point: 0 } });
   }
 
   async cronCountReset(key: ResWaitCountKey): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
     await db
       .collection("users")
       .updateMany({}, { $set: { ["resWait." + key]: 0 } });

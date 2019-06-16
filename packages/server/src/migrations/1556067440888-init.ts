@@ -1,7 +1,7 @@
-import { DB, ESClient } from "../db";
+import { Mongo, ESClient } from "../db";
 
 export async function migrate_1556067440888_init() {
-  const db = await DB();
+  const db = await Mongo();
 
   const clients = await db.createCollection("clients");
   await clients.createIndex({ user: 1 });

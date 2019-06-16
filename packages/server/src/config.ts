@@ -6,8 +6,8 @@ export const Config = {
   server: {
     port: Number(process.env.SERVER_PORT),
   },
-  db: {
-    host: process.env.DB_HOST as string,
+  mongo: {
+    host: process.env.MONGO_HOST as string,
   },
   es: {
     host: process.env.ES_HOST as string,

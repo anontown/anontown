@@ -1,7 +1,7 @@
 import { isNullish } from "@kgtkr/utils";
 import { ObjectID, WriteError } from "mongodb";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
-import { DB } from "../../db";
+import { Mongo } from "../../db";
 import * as G from "../../generated/graphql";
 import { AuthContainer } from "../../server/auth-container";
 import { IProfileRepo } from "./iprofile-repo";
@@ -9,7 +9,7 @@ import { IProfileDB, Profile } from "./profile";
 
 export class ProfileRepo implements IProfileRepo {
   async findOne(id: string): Promise<Profile> {
-    const db = await DB();
+    const db = await Mongo();
     const profile: IProfileDB | null = await db
       .collection("profiles")
       .findOne({ _id: new ObjectID(id) });
@@ -29,7 +29,7 @@ export class ProfileRepo implements IProfileRepo {
     if (!isNullish(query.id)) {
       q._id = { $in: query.id.map(x => new ObjectID(x)) };
     }
-    const db = await DB();
+    const db = await Mongo();
     const profiles: IProfileDB[] = await db
       .collection("profiles")
       .find(q)
@@ -39,7 +39,7 @@ export class ProfileRepo implements IProfileRepo {
   }
 
   async insert(profile: Profile): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
     try {
       await db.collection("profiles").insertOne(profile.toDB());
     } catch (ex) {
@@ -53,7 +53,7 @@ export class ProfileRepo implements IProfileRepo {
   }
 
   async update(profile: Profile): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
     try {
       await db
         .collection("profiles")

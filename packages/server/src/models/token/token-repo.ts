@@ -1,13 +1,13 @@
 import { ObjectID } from "mongodb";
 import { AtNotFoundError } from "../../at-error";
 import { IAuthTokenMaster, IAuthUser } from "../../auth";
-import { DB } from "../../db";
+import { Mongo } from "../../db";
 import { ITokenRepo } from "./itoken-repo";
 import { ITokenDB, Token, TokenGeneral, TokenMaster } from "./token";
 
 export class TokenRepo implements ITokenRepo {
   async findOne(id: string): Promise<Token> {
-    const db = await DB();
+    const db = await Mongo();
     const token: ITokenDB | null = await db
       .collection("tokens")
       .findOne({ _id: new ObjectID(id) });
@@ -24,7 +24,7 @@ export class TokenRepo implements ITokenRepo {
   }
 
   async findAll(authToken: IAuthTokenMaster): Promise<Token[]> {
-    const db = await DB();
+    const db = await Mongo();
     const tokens: ITokenDB[] = await db
       .collection("tokens")
       .find({ user: new ObjectID(authToken.user) })
@@ -42,12 +42,12 @@ export class TokenRepo implements ITokenRepo {
   }
 
   async insert(token: Token): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
     await db.collection("tokens").insertOne(token.toDB());
   }
 
   async update(token: Token): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
     await db
       .collection("tokens")
       .replaceOne({ _id: new ObjectID(token.id) }, token.toDB());
@@ -57,7 +57,7 @@ export class TokenRepo implements ITokenRepo {
     token: IAuthTokenMaster,
     clientID: string,
   ): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
     await db.collection("tokens").deleteMany({
       user: new ObjectID(token.user),
       client: new ObjectID(clientID),
@@ -65,7 +65,7 @@ export class TokenRepo implements ITokenRepo {
   }
 
   async delMasterToken(user: IAuthUser): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
     await db
       .collection("tokens")
       .deleteMany({ user: new ObjectID(user.id), type: "master" });

@@ -9,7 +9,7 @@ services:
     restart: always
     environment:
       SERVER_PORT: "8080"
-      DB_HOST: "mongo:27017S"
+      MONGO_HOST: "mongo:27017S"
       ES_HOST: "es:9200"
       REDIS_HOST: "redis:6379"
       SAVE_DIR: ../../

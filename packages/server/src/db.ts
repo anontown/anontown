@@ -5,10 +5,13 @@ import { MongoClient } from "mongodb";
 import { Config } from "./config";
 import { Logger } from "./logger";
 
-export const DB = lazy(async () => {
-  const db = await MongoClient.connect(`mongodb://${Config.db.host}/anontown`, {
-    useNewUrlParser: true,
-  });
+export const Mongo = lazy(async () => {
+  const db = await MongoClient.connect(
+    `mongodb://${Config.mongo.host}/anontown`,
+    {
+      useNewUrlParser: true,
+    },
+  );
   Logger.system.info("db:connect");
   return db.db();
 });

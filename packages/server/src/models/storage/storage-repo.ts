@@ -2,14 +2,14 @@ import { isNullish } from "@kgtkr/utils";
 import { ObjectID } from "mongodb";
 import { AtNotFoundError } from "../../at-error";
 import { IAuthToken } from "../../auth";
-import { DB } from "../../db";
+import { Mongo } from "../../db";
 import * as G from "../../generated/graphql";
 import { IStorageRepo } from "./istorage-repo";
 import { IStorageDB, Storage } from "./storage";
 
 export class StorageRepo implements IStorageRepo {
   async find(token: IAuthToken, query: G.StorageQuery): Promise<Storage[]> {
-    const db = await DB();
+    const db = await Mongo();
     const q: any = {
       user: new ObjectID(token.user),
       client: token.type === "general" ? new ObjectID(token.client) : null,
@@ -25,7 +25,7 @@ export class StorageRepo implements IStorageRepo {
   }
 
   async findOneKey(token: IAuthToken, key: string): Promise<Storage> {
-    const db = await DB();
+    const db = await Mongo();
     const storage: IStorageDB | null = await db.collection("storages").findOne({
       user: new ObjectID(token.user),
       client: token.type === "general" ? new ObjectID(token.client) : null,
@@ -37,7 +37,7 @@ export class StorageRepo implements IStorageRepo {
     return Storage.fromDB(storage);
   }
   async save(storage: Storage): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
 
     await db.collection("storages").replaceOne(
       {
@@ -50,7 +50,7 @@ export class StorageRepo implements IStorageRepo {
     );
   }
   async del(storage: Storage): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
 
     await db.collection("storages").deleteOne({
       user: new ObjectID(storage.user),

@@ -1,7 +1,7 @@
-import { DB, ESClient } from "./db";
+import { Mongo, ESClient } from "./db";
 
 export async function dbDrop() {
-  const db = await DB();
+  const db = await Mongo();
   const cls = await db.collections();
   for (const cl of cls) {
     if (cl.collectionName.indexOf("system.") !== 0) {

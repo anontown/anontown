@@ -3,14 +3,14 @@ import { Option } from "fp-ts/lib/Option";
 import { ObjectID } from "mongodb";
 import { AtAuthError, AtNotFoundError } from "../../at-error";
 import { IAuthTokenMaster } from "../../auth";
-import { DB } from "../../db";
+import { Mongo } from "../../db";
 import * as G from "../../generated/graphql";
 import { Client, IClientDB } from "./client";
 import { IClientRepo } from "./iclient-repo";
 
 export class ClientRepo implements IClientRepo {
   async findOne(id: string): Promise<Client> {
-    const db = await DB();
+    const db = await Mongo();
     const client: IClientDB | null = await db
       .collection("clients")
       .findOne({ _id: new ObjectID(id) });
@@ -28,7 +28,7 @@ export class ClientRepo implements IClientRepo {
     if (query.self && authToken.isNone()) {
       throw new AtAuthError("認証が必要です");
     }
-    const db = await DB();
+    const db = await Mongo();
     const q: any = {};
     if (query.self && authToken.isSome()) {
       q.user = new ObjectID(authToken.value.user);
@@ -45,13 +45,13 @@ export class ClientRepo implements IClientRepo {
   }
 
   async insert(client: Client): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
 
     await db.collection("clients").insertOne(client.toDB());
   }
 
   async update(client: Client): Promise<void> {
-    const db = await DB();
+    const db = await Mongo();
     await db
       .collection("clients")
       .replaceOne({ _id: new ObjectID(client.id) }, client.toDB());
