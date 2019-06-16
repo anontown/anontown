@@ -25,7 +25,7 @@ RECAPTCHA_SITE_KET、RECAPTCHA_SECRET_KETはGoogleのサイトでキーを取得
 
 ## Test
 ```sh
-circleci local execute --job server
+docker-compose -f docker-compose.test.yml run --rm app npx lerna exec --scope @anontown/server -- npm run test:io
 ```
 
 ## 公式サーバー

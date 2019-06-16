@@ -4,8 +4,6 @@ services:
   mongo:
     restart: always
     image: "mongo:3.6.3"
-    volumes:
-      - ./data/db:/data/db
   app:
     build: .
     restart: always
@@ -15,19 +13,15 @@ services:
       ES_HOST: "es:9200"
       REDIS_URL: "redis://redis:6379/0"
       SAVE_DIR: ../../
-    env_file: .env
+    env_file: .env.sample
     ports:
       - "8080:8080"
     depends_on:
       - mongo
       - es
       - redis
-    volumes:
-      - ./data/app/logs:/home/app/.anontown/logs
-      - ./data/app/data:/home/app/.anontown/data
-      - ./data/app/coverage:/home/app/.anontown/coverage
   es:
-    image: "anontown/elasticsearch:5.6.16-1"
+    build: es
     restart: always
     environment:
       ES_JAVA_OPTS: -Xms512m -Xmx512m
@@ -35,8 +29,6 @@ services:
       nofile:
         soft: 65536
         hard: 65536
-    volumes:
-      - ./data/es:/usr/share/elasticsearch/data
   redis:
     restart: always
     image: "redis:5.0.4"
