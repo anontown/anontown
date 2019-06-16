@@ -27,7 +27,6 @@ jobs:
           xpack.security.enabled: false
           ES_JAVA_OPTS: '-Xms256m -Xmx256m'
       - image: redis:5.0.4
-        command: redis-server --appendonly yes
     steps:
       - checkout
       - run:
