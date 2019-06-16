@@ -30,7 +30,7 @@ async function createToken(raw: any, repo: IRepo) {
 export async function createContext(headers: any, repo: IRepo): Promise<AppContext> {
   const ip = headers["x-real-ip"] || "<unknown_ip>";
 
-  const token = await createToken(headers["x-token"], repo);
+  const token = await createToken(headers["x-token"] || headers["X-Token"], repo);
 
   const auth = new AuthContainer(token);
 

@@ -22,7 +22,7 @@ const httpLink = new HttpLink({
 });
 
 const wsLink = new WebSocketLink({
-  uri: Config.socket.origin + "/graphql",
+  uri: Config.socket.origin + "/",
   options: {
     reconnect: true,
     lazy: true,
@@ -77,8 +77,11 @@ export const gqlClient = new ApolloClient({
     requestLink,
     split(
       ({ query }) => {
-        const { kind, operation } = getMainDefinition(query) as any;
-        return kind === "OperationDefinition" && operation === "subscription";
+        const definition = getMainDefinition(query);
+        return (
+          definition.kind === "OperationDefinition" &&
+          definition.operation === "subscription"
+        );
       },
       wsLink,
       httpLink,

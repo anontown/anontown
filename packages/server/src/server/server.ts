@@ -2,7 +2,7 @@ import { combineResolvers } from "apollo-resolvers";
 import { ApolloServer, gql, IResolvers } from "apollo-server-express";
 import * as cors from "cors";
 import * as express from "express";
-import * as fs from "fs";
+import * as fs from "fs-promise";
 import {
   GraphQLDateTime,
 } from "graphql-iso-date";
@@ -11,26 +11,32 @@ import { Config } from "../config";
 import { IRepo } from "../models";
 import { resolvers as appResolvers } from "../resolvers";
 import { AppContext, createContext } from "./context";
+import { createServer } from 'http';
 
 export async function serverRun(repo: IRepo) {
-  const typeDefs = gql(fs.readFileSync("node_modules/@anontown/schema/app.gql", "utf8"));
+  const typeDefs = gql(await fs.readFile("node_modules/@anontown/schema/app.gql", "utf8"));
   const resolvers: IResolvers = combineResolvers([
     {
       DateTime: GraphQLDateTime,
     },
     appResolvers,
   ]);
+
+  const app = express();
+
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({ req }: any): Promise<AppContext> => {
-      return createContext(req !== undefined ? req.headers : {}, repo);
-    },
-    subscriptions: {
-      onConnect: (connectionParams, _webSocket): Promise<AppContext> => {
-        return createContext(connectionParams, repo);
-      },
-      path: "/",
+    context: ({ req, connection }: any): Promise<AppContext> => {
+      if (req) {
+        return createContext(req.headers, repo);
+      }
+
+      if (connection) {
+        return createContext(connection.context, repo);
+      }
+
+      return createContext({}, repo);
     },
     introspection: true,
     playground: {
@@ -53,15 +59,20 @@ export async function serverRun(repo: IRepo) {
         return new AtServerError().data;
       }
     },
+    subscriptions: {
+      path: "/",
+    }
   });
 
   repo.cron();
 
-  const app = express();
   app.get("/ping", cors(), (_req, res) => res.send("OK"));
   server.applyMiddleware({ app, path: "/" });
 
-  app.listen({ port: Config.server.port }, () => {
+  const httpServer = createServer(app);
+  server.installSubscriptionHandlers(httpServer);
+
+  httpServer.listen({ port: Config.server.port }, () => {
     console.log(`Server ready at ${server.graphqlPath}, ${server.subscriptionsPath}`);
   });
 }
