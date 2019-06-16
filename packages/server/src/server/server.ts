@@ -13,7 +13,7 @@ import { AppContext, createContext } from "./context";
 
 export async function serverRun(repo: IRepo) {
   const typeDefs = gql(
-    await fs.readFile("node_modules/@anontown/schema/app.gql", "utf8"),
+    await fs.readFile(require.resolve("@anontown/schema/app.gql"), "utf8"),
   );
   const resolvers: IResolvers = combineResolvers([
     {
