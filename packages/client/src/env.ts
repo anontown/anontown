@@ -18,6 +18,9 @@ export interface Env {
   imgur: {
     clientID: string;
   };
+  ga: {
+    id: string;
+  } | null;
 }
 
 declare var __ENV__: Env;
@@ -26,5 +29,3 @@ declare var __BUILD_DATE__: number;
 export const BUILD_DATE = __BUILD_DATE__;
 
 export const Env = __ENV__;
-
-export const gaID = "UA-108693999-1";

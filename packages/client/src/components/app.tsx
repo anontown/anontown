@@ -24,7 +24,7 @@ import {
 import { TwitterTimelineEmbed } from "react-twitter-embed";
 import { UserData } from "src/models";
 import * as G from "../../generated/graphql";
-import { BUILD_DATE, gaID } from "../env";
+import { BUILD_DATE, Env } from "../env";
 import * as pages from "../pages";
 import {
   createHeaders,
@@ -71,9 +71,11 @@ export const App = withRouter(
 
     changeLocation(prop: AppProps) {
       const path = prop.location.pathname;
-      gtag("config", gaID, {
-        page_path: path,
-      });
+      if (Env.ga !== null) {
+        gtag("config", Env.ga.id, {
+          page_path: path,
+        });
+      }
     }
 
     async componentWillMount() {
