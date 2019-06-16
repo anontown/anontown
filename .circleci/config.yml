@@ -18,14 +18,14 @@ jobs:
           REDIS_URL: redis://localhost:6379/0
           AT_MODE: TEST
           DOCKERIZE_VERSION: v0.6.1
-          NODE_OPTIONS: --max_old_space_size=1024
+          NODE_OPTIONS: --max_old_space_size=700
       - image: mongo:3.6.3
       - image: anontown/elasticsearch:5.6.16-1
         environment:
           http.host: '0.0.0.0'
           http.port: 9200
           xpack.security.enabled: false
-          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+          ES_JAVA_OPTS: '-Xms256m -Xmx256m'
       - image: redis:5.0.4
     steps:
       - checkout
