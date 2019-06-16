@@ -25,11 +25,7 @@ export const topicSearch: G.TopicSearchResolvers = {
 };
 
 export const topicFork: G.TopicForkResolvers = {
-  parent: async (
-    token,
-    _args,
-    context,
-    _info) => {
+  parent: async (token, _args, context, _info) => {
     const parent = await context.loader.topic.load(token.parentID);
     if (parent.type !== "normal") {
       throw new Error();

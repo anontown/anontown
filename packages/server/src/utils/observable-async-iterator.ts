@@ -1,8 +1,12 @@
 import { $$asyncIterator } from "iterall";
 import { Observable, Subscription } from "rxjs";
 // https://github.com/apollographql/graphql-subscriptions/blob/master/src/event-emitter-to-async-iterator.ts
-export function observableAsyncIterator<T>(obs: Observable<T>): AsyncIterator<T> {
-  const pullQueue: ((value?: IteratorResult<T> | PromiseLike<IteratorResult<T>> | undefined) => void)[] = [];
+export function observableAsyncIterator<T>(
+  obs: Observable<T>,
+): AsyncIterator<T> {
+  const pullQueue: ((
+    value?: IteratorResult<T> | PromiseLike<IteratorResult<T>> | undefined,
+  ) => void)[] = [];
   const pushQueue: T[] = [];
   let subs: Subscription[] = [];
   let listening = true;
@@ -29,8 +33,12 @@ export function observableAsyncIterator<T>(obs: Observable<T>): AsyncIterator<T>
   const emptyQueue = () => {
     if (listening) {
       listening = false;
-      if (addedListeners) { removeEventListeners(); }
-      pullQueue.forEach(resolve => resolve({ value: undefined as any, done: true }));
+      if (addedListeners) {
+        removeEventListeners();
+      }
+      pullQueue.forEach(resolve =>
+        resolve({ value: undefined as any, done: true }),
+      );
       pullQueue.length = 0;
       pushQueue.length = 0;
     }
@@ -47,7 +55,9 @@ export function observableAsyncIterator<T>(obs: Observable<T>): AsyncIterator<T>
 
   return {
     next() {
-      if (!listening) { return (this as any).return(); }
+      if (!listening) {
+        return (this as any).return();
+      }
       if (!addedListeners) {
         addEventListeners();
         addedListeners = true;

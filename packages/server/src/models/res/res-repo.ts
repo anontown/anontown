@@ -14,14 +14,20 @@ interface ResPubSub {
 }
 
 export class ResRepo implements IResRepo {
-  readonly insertEvent: Subject<{ res: Res, count: number }> = new Subject<{ res: Res, count: number }>();
+  readonly insertEvent: Subject<{ res: Res; count: number }> = new Subject<{
+    res: Res;
+    count: number;
+  }>();
   private subRedis = createRedisClient();
 
   constructor(private refresh?: boolean) {
     this.subRedis.subscribe("res/add");
     this.subRedis.on("message", (_channel, message) => {
       const data: ResPubSub = JSON.parse(message);
-      this.insertEvent.next({ res: fromDBToRes(data.res, data.replyCount), count: data.count });
+      this.insertEvent.next({
+        res: fromDBToRes(data.res, data.replyCount),
+        count: data.count,
+      });
     });
   }
 
@@ -66,7 +72,10 @@ export class ResRepo implements IResRepo {
       type: "doc",
       id: rDB.id,
       body: rDB.body,
-      refresh: this.refresh !== undefined ? this.refresh.toString() as "true" | "false" : undefined,
+      refresh:
+        this.refresh !== undefined
+          ? (this.refresh.toString() as "true" | "false")
+          : undefined,
     });
   }
 
@@ -95,7 +104,8 @@ export class ResRepo implements IResRepo {
       },
     });
 
-    const countArr: { key: string, doc_count: number }[] = data.aggregations.res_count.buckets;
+    const countArr: { key: string; doc_count: number }[] =
+      data.aggregations.res_count.buckets;
     return new Map(countArr.map<[string, number]>(x => [x.key, x.doc_count]));
   }
 
@@ -135,14 +145,16 @@ export class ResRepo implements IResRepo {
       },
     });
 
-    const countArr: { key: string, doc_count: number }[] = data.aggregations.reply_count.reply_count.buckets;
+    const countArr: { key: string; doc_count: number }[] =
+      data.aggregations.reply_count.reply_count.buckets;
     return new Map(countArr.map<[string, number]>(x => [x.key, x.doc_count]));
   }
 
   async find(
     auth: AuthContainer,
     query: G.ResQuery,
-    limit: number): Promise<Res[]> {
+    limit: number,
+  ): Promise<Res[]> {
     const filter: object[] = [];
 
     if (!isNullish(query.date)) {
@@ -244,16 +256,23 @@ export class ResRepo implements IResRepo {
         },
         sort: {
           date: {
-            order: !isNullish(query.date) && (query.date.type === "gt" || query.date.type === "gte")
-              ? "asc"
-              : "desc",
+            order:
+              !isNullish(query.date) &&
+              (query.date.type === "gt" || query.date.type === "gte")
+                ? "asc"
+                : "desc",
           },
         },
       },
     });
 
-    const result = await this.aggregate(reses.hits.hits.map(r => ({ id: r._id, body: r._source })));
-    if (!isNullish(query.date) && (query.date.type === "gt" || query.date.type === "gte")) {
+    const result = await this.aggregate(
+      reses.hits.hits.map(r => ({ id: r._id, body: r._source })),
+    );
+    if (
+      !isNullish(query.date) &&
+      (query.date.type === "gt" || query.date.type === "gte")
+    ) {
       result.reverse();
     }
     return result;

@@ -1,11 +1,6 @@
 import { some } from "fp-ts/lib/Option";
 import * as Im from "immutable";
-import {
-  IAuthToken,
-  ResTopic,
-  TopicOne,
-  User,
-} from "../../";
+import { IAuthToken, ResTopic, TopicOne, User } from "../../";
 
 describe("ResTopic", () => {
   const topicOne = new TopicOne(
@@ -37,7 +32,8 @@ describe("ResTopic", () => {
     new Date(10),
     new Date(0),
     0,
-    new Date(20));
+    new Date(20),
+  );
 
   const token: IAuthToken = {
     id: "token",
@@ -46,50 +42,71 @@ describe("ResTopic", () => {
     type: "master",
   };
 
-  const resTopic = new ResTopic("res",
+  const resTopic = new ResTopic(
+    "res",
     "topic",
     new Date(400),
     "user",
     Im.List(),
     5,
     "hash",
-    10);
+    10,
+  );
 
   describe("fromDB", () => {
     it("正常に作れるか", () => {
-      expect(ResTopic.fromDB({
-        id: "id",
-        body: {
-          type: "topic",
-          topic: "topic",
-          date: new Date(100).toISOString(),
-          user: "user",
-          votes: [],
-          lv: 5,
-          hash: "hash",
-        },
-      }, 3)).toEqual(new ResTopic("id",
-        "topic",
-        new Date(100),
-        "user",
-        Im.List(),
-        5,
-        "hash",
-        3));
+      expect(
+        ResTopic.fromDB(
+          {
+            id: "id",
+            body: {
+              type: "topic",
+              topic: "topic",
+              date: new Date(100).toISOString(),
+              user: "user",
+              votes: [],
+              lv: 5,
+              hash: "hash",
+            },
+          },
+          3,
+        ),
+      ).toEqual(
+        new ResTopic(
+          "id",
+          "topic",
+          new Date(100),
+          "user",
+          Im.List(),
+          5,
+          "hash",
+          3,
+        ),
+      );
     });
   });
 
   describe("create", () => {
     it("正常に作れるか", () => {
-      const { res, topic: newTopic } = ResTopic.create(() => "res", topicOne, user, token, new Date(100));
-      expect(res).toEqual(new ResTopic("res",
-        "topic",
+      const { res, topic: newTopic } = ResTopic.create(
+        () => "res",
+        topicOne,
+        user,
+        token,
         new Date(100),
-        "user",
-        Im.List(),
-        5,
-        topicOne.hash(new Date(100), user),
-        0));
+      );
+      expect(res).toEqual(
+        new ResTopic(
+          "res",
+          "topic",
+          new Date(100),
+          "user",
+          Im.List(),
+          5,
+          topicOne.hash(new Date(100), user),
+          0,
+        ),
+      );
 
       expect(newTopic).toEqual(topicOne.copy({ update: new Date(100) }));
     });
@@ -103,7 +120,9 @@ describe("ResTopic", () => {
 
   describe("toAPI", () => {
     it("正常に変換出来るか", () => {
-      expect(resTopic.toAPI(some(token))).toEqual(resTopic.toBaseAPI(some(token)));
+      expect(resTopic.toAPI(some(token))).toEqual(
+        resTopic.toBaseAPI(some(token)),
+      );
     });
   });
 });

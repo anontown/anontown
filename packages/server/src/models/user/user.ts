@@ -1,5 +1,9 @@
 import { ObjectID } from "mongodb";
-import { AtPrerequisiteError, AtUserAuthError, paramsErrorMaker } from "../../at-error";
+import {
+  AtPrerequisiteError,
+  AtUserAuthError,
+  paramsErrorMaker,
+} from "../../at-error";
 import { IAuthUser } from "../../auth";
 import { Config } from "../../config";
 import { IGenerator } from "../../generator";
@@ -37,10 +41,25 @@ export interface IResWait {
 
 export class User extends Copyable<User> {
   static fromDB(u: IUserDB): User {
-    return new User(u._id.toString(), u.sn, u.pass, u.lv, u.resWait, u.lastTopic, u.date, u.point, u.lastOneTopic);
+    return new User(
+      u._id.toString(),
+      u.sn,
+      u.pass,
+      u.lv,
+      u.resWait,
+      u.lastTopic,
+      u.date,
+      u.point,
+      u.lastOneTopic,
+    );
   }
 
-  static create(objidGenerator: IGenerator<string>, sn: string, pass: string, now: Date): User {
+  static create(
+    objidGenerator: IGenerator<string>,
+    sn: string,
+    pass: string,
+    now: Date,
+  ): User {
     paramsErrorMaker([
       {
         field: "pass",
@@ -56,7 +75,8 @@ export class User extends Copyable<User> {
       },
     ]);
 
-    return new User(objidGenerator(),
+    return new User(
+      objidGenerator(),
       sn,
       hash(pass + Config.salt.pass),
       1,
@@ -64,7 +84,8 @@ export class User extends Copyable<User> {
       now,
       now,
       0,
-      now);
+      now,
+    );
   }
 
   constructor(
@@ -77,7 +98,8 @@ export class User extends Copyable<User> {
     readonly date: Date,
     // 毎日リセットされ、特殊動作をすると増えるポイント
     readonly point: number,
-    readonly lastOneTopic: Date) {
+    readonly lastOneTopic: Date,
+  ) {
     super(User);
   }
 
@@ -102,7 +124,11 @@ export class User extends Copyable<User> {
     };
   }
 
-  change(_authUser: IAuthUser, pass: string | undefined, sn: string | undefined): User {
+  change(
+    _authUser: IAuthUser,
+    pass: string | undefined,
+    sn: string | undefined,
+  ): User {
     paramsErrorMaker([
       {
         field: "pass",
@@ -118,7 +144,10 @@ export class User extends Copyable<User> {
       },
     ]);
 
-    return this.copy({ pass: pass !== undefined ? hash(pass + Config.salt.pass) : undefined, sn });
+    return this.copy({
+      pass: pass !== undefined ? hash(pass + Config.salt.pass) : undefined,
+      sn,
+    });
   }
 
   auth(pass: string): IAuthUser {
@@ -138,9 +167,7 @@ export class User extends Copyable<User> {
 
   changeLv(lv: number): User {
     return this.copy({
-      lv: lv < 1 ? 1
-        : lv > Config.user.lvMax ? Config.user.lvMax
-          : lv,
+      lv: lv < 1 ? 1 : lv > Config.user.lvMax ? Config.user.lvMax : lv,
     });
   }
 
@@ -156,7 +183,8 @@ export class User extends Copyable<User> {
       this.resWait.h1 < Config.res.wait.h1 * coe &&
       this.resWait.m30 < Config.res.wait.m30 * coe &&
       this.resWait.m10 < Config.res.wait.m10 * coe &&
-      this.resWait.last.getTime() + 1000 * Config.res.wait.minSecond < lastRes.getTime()
+      this.resWait.last.getTime() + 1000 * Config.res.wait.minSecond <
+        lastRes.getTime()
     ) {
       return this.copy({
         resWait: {

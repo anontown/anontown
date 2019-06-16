@@ -1,6 +1,4 @@
-import {
-  MsgRepoMock,
-} from "../../";
+import { MsgRepoMock } from "../../";
 
 import { run } from "./imsg-repo.th";
 

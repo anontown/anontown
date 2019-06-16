@@ -27,7 +27,8 @@ describe("ResNormal", () => {
     Im.List(),
     5,
     "hash",
-    1);
+    1,
+  );
 
   const topicNormal = new TopicNormal(
     "topic",
@@ -58,7 +59,8 @@ describe("ResNormal", () => {
     new Date(10),
     new Date(0),
     0,
-    new Date(15));
+    new Date(15),
+  );
 
   const token: IAuthToken = {
     id: "token",
@@ -74,47 +76,57 @@ describe("ResNormal", () => {
     "text",
     new Date(94),
     new Date(95),
-    "sn");
+    "sn",
+  );
 
   describe("fromDB", () => {
     it("正常に変換出来るか", () => {
-      expect(ResNormal.fromDB({
-        id: "res",
-        body: {
-          type: "normal",
-          topic: "topic",
-          date: new Date(100).toISOString(),
-          user: "user",
-          votes: [],
-          lv: 10,
-          hash: "hash",
-          name: "name",
-          text: "text",
-          reply: {
+      expect(
+        ResNormal.fromDB(
+          {
+            id: "res",
+            body: {
+              type: "normal",
+              topic: "topic",
+              date: new Date(100).toISOString(),
+              user: "user",
+              votes: [],
+              lv: 10,
+              hash: "hash",
+              name: "name",
+              text: "text",
+              reply: {
+                res: "replyres",
+                user: "replyuser",
+              },
+              deleteFlag: "active",
+              profile: "profile",
+              age: true,
+            },
+          },
+          2,
+        ),
+      ).toEqual(
+        new ResNormal(
+          some("name"),
+          "text",
+          some({
             res: "replyres",
             user: "replyuser",
-          },
-          deleteFlag: "active",
-          profile: "profile",
-          age: true,
-        },
-      }, 2)).toEqual(new ResNormal(some("name"),
-        "text",
-        some({
-          res: "replyres",
-          user: "replyuser",
-        }),
-        "active",
-        some("profile"),
-        true,
-        "res",
-        "topic",
-        new Date(100),
-        "user",
-        Im.List(),
-        10,
-        "hash",
-        2));
+          }),
+          "active",
+          some("profile"),
+          true,
+          "res",
+          "topic",
+          new Date(100),
+          "user",
+          Im.List(),
+          10,
+          "hash",
+          2,
+        ),
+      );
     });
   });
 
@@ -130,40 +142,49 @@ describe("ResNormal", () => {
         none,
         none,
         true,
-        new Date(60000));
-
-      expect(res).toEqual(new ResNormal(some("name"),
-        "text",
-        none,
-        "active",
-        none,
-        true,
-        "res",
-        "topic",
         new Date(60000),
-        "user",
-        Im.List(),
-        5,
-        topicNormal.hash(new Date(60000), user),
-        0));
+      );
 
-      expect(newUser).toEqual(user.copy({
-        resWait: {
-          last: new Date(60000),
-          m10: 1,
-          m30: 1,
-          h1: 1,
-          h6: 1,
-          h12: 1,
-          d1: 1,
-        },
-      }));
+      expect(res).toEqual(
+        new ResNormal(
+          some("name"),
+          "text",
+          none,
+          "active",
+          none,
+          true,
+          "res",
+          "topic",
+          new Date(60000),
+          "user",
+          Im.List(),
+          5,
+          topicNormal.hash(new Date(60000), user),
+          0,
+        ),
+      );
 
-      expect(newTopic).toEqual(topicNormal.copy({
-        date: new Date(30),
-        update: new Date(60000),
-        ageUpdate: new Date(60000),
-      }));
+      expect(newUser).toEqual(
+        user.copy({
+          resWait: {
+            last: new Date(60000),
+            m10: 1,
+            m30: 1,
+            h1: 1,
+            h6: 1,
+            h12: 1,
+            d1: 1,
+          },
+        }),
+      );
+
+      expect(newTopic).toEqual(
+        topicNormal.copy({
+          date: new Date(30),
+          update: new Date(60000),
+          ageUpdate: new Date(60000),
+        }),
+      );
     });
 
     it("replyがnullでない時正常に作れるか", () => {
@@ -177,40 +198,49 @@ describe("ResNormal", () => {
         some(resNormal.copy({ id: "res2", user: "res2" })),
         none,
         true,
-        new Date(60000));
-
-      expect(res).toEqual(new ResNormal(none,
-        "text",
-        some({ res: "res2", user: "res2" }),
-        "active",
-        none,
-        true,
-        "res",
-        "topic",
         new Date(60000),
-        "user",
-        Im.List(),
-        5,
-        topicNormal.hash(new Date(60000), user),
-        0));
+      );
 
-      expect(newUser).toEqual(user.copy({
-        resWait: {
-          last: new Date(60000),
-          m10: 1,
-          m30: 1,
-          h1: 1,
-          h6: 1,
-          h12: 1,
-          d1: 1,
-        },
-      }));
+      expect(res).toEqual(
+        new ResNormal(
+          none,
+          "text",
+          some({ res: "res2", user: "res2" }),
+          "active",
+          none,
+          true,
+          "res",
+          "topic",
+          new Date(60000),
+          "user",
+          Im.List(),
+          5,
+          topicNormal.hash(new Date(60000), user),
+          0,
+        ),
+      );
 
-      expect(newTopic).toEqual(topicNormal.copy({
-        date: new Date(30),
-        update: new Date(60000),
-        ageUpdate: new Date(60000),
-      }));
+      expect(newUser).toEqual(
+        user.copy({
+          resWait: {
+            last: new Date(60000),
+            m10: 1,
+            m30: 1,
+            h1: 1,
+            h6: 1,
+            h12: 1,
+            d1: 1,
+          },
+        }),
+      );
+
+      expect(newTopic).toEqual(
+        topicNormal.copy({
+          date: new Date(30),
+          update: new Date(60000),
+          ageUpdate: new Date(60000),
+        }),
+      );
     });
 
     it("profileがnullでない時正常に作れるか", () => {
@@ -225,40 +255,49 @@ describe("ResNormal", () => {
         none,
         some(profile),
         true,
-        date);
+        date,
+      );
 
-      expect(res).toEqual(new ResNormal(none,
-        "text",
-        none,
-        "active",
-        some("profile"),
-        true,
-        "res",
-        "topic",
-        new Date(60000),
-        "user",
-        Im.List(),
-        5,
-        topicNormal.hash(new Date(60000), user),
-        0));
+      expect(res).toEqual(
+        new ResNormal(
+          none,
+          "text",
+          none,
+          "active",
+          some("profile"),
+          true,
+          "res",
+          "topic",
+          new Date(60000),
+          "user",
+          Im.List(),
+          5,
+          topicNormal.hash(new Date(60000), user),
+          0,
+        ),
+      );
 
-      expect(newUser).toEqual(user.copy({
-        resWait: {
-          last: new Date(60000),
-          m10: 1,
-          m30: 1,
-          h1: 1,
-          h6: 1,
-          h12: 1,
-          d1: 1,
-        },
-      }));
+      expect(newUser).toEqual(
+        user.copy({
+          resWait: {
+            last: new Date(60000),
+            m10: 1,
+            m30: 1,
+            h1: 1,
+            h6: 1,
+            h12: 1,
+            d1: 1,
+          },
+        }),
+      );
 
-      expect(newTopic).toEqual(topicNormal.copy({
-        date: new Date(30),
-        update: new Date(60000),
-        ageUpdate: new Date(60000),
-      }));
+      expect(newTopic).toEqual(
+        topicNormal.copy({
+          date: new Date(30),
+          update: new Date(60000),
+          ageUpdate: new Date(60000),
+        }),
+      );
     });
 
     it("他のトピックへのリプライでエラーになるか", () => {
@@ -273,7 +312,8 @@ describe("ResNormal", () => {
           some(resNormal.copy({ id: "res2", user: "res2", topic: "topic2" })),
           none,
           true,
-          new Date(60000));
+          new Date(60000),
+        );
       }).toThrow(AtError);
     });
 
@@ -289,7 +329,8 @@ describe("ResNormal", () => {
           none,
           some(profile.copy({ user: "user2" })),
           true,
-          new Date(60000));
+          new Date(60000),
+        );
       }).toThrow(AtError);
     });
 
@@ -306,7 +347,8 @@ describe("ResNormal", () => {
             none,
             none,
             true,
-            new Date(60000));
+            new Date(60000),
+          );
         }).toThrow(AtError);
       }
     });
@@ -325,7 +367,8 @@ describe("ResNormal", () => {
               none,
               none,
               true,
-              new Date(60000));
+              new Date(60000),
+            );
           }).toThrow(AtError);
         }
       });
@@ -406,14 +449,20 @@ describe("ResNormal", () => {
 
     describe("#del", () => {
       it("正常に削除出来るか", () => {
-        const { res: newRes, resUser: newUser } = resNormal.del(user.copy({ lv: 3 }), token);
+        const { res: newRes, resUser: newUser } = resNormal.del(
+          user.copy({ lv: 3 }),
+          token,
+        );
         expect(newUser).toEqual(user.copy({ lv: 2 }));
         expect(newRes).toEqual(resNormal.copy({ deleteFlag: "self" }));
       });
 
       it("人のレスを削除しようとするとエラーになるか", () => {
         expect(() => {
-          resNormal.del(user.copy({ id: "user2" }), { ...token, user: "user2" });
+          resNormal.del(user.copy({ id: "user2" }), {
+            ...token,
+            user: "user2",
+          });
         }).toThrow(AtError);
       });
 

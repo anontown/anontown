@@ -18,105 +18,111 @@ import {
 import * as authFromApiParam from "../server/auth-from-api-param";
 
 export const mutation: G.MutationResolvers = {
-  createUser: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  createUser: async (_obj, args, context, _info) => {
     await authFromApiParam.recaptcha(args.recaptcha);
 
-    const user = User.create(ObjectIDGenerator, args.sn, args.pass, context.now);
+    const user = User.create(
+      ObjectIDGenerator,
+      args.sn,
+      args.pass,
+      context.now,
+    );
     await context.repo.user.insert(user);
 
-    const token = TokenMaster.create(ObjectIDGenerator, user.auth(args.pass), context.now, RandomGenerator);
+    const token = TokenMaster.create(
+      ObjectIDGenerator,
+      user.auth(args.pass),
+      context.now,
+      RandomGenerator,
+    );
     await context.repo.token.insert(token);
 
     return { user: user.toAPI(), token: token.toAPI() };
   },
-  updateUser: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  updateUser: async (_obj, args, context, _info) => {
     const authUser = await authFromApiParam.user(context.repo.user, args.auth);
     const user = await context.repo.user.findOne(authUser.id);
-    const newUser = user.change(authUser, nullToUndefined(args.pass), nullToUndefined(args.sn));
+    const newUser = user.change(
+      authUser,
+      nullToUndefined(args.pass),
+      nullToUndefined(args.sn),
+    );
     await context.repo.user.update(newUser);
     await context.repo.token.delMasterToken(authUser);
 
-    const token = TokenMaster.create(ObjectIDGenerator, authUser, context.now, RandomGenerator);
+    const token = TokenMaster.create(
+      ObjectIDGenerator,
+      authUser,
+      context.now,
+      RandomGenerator,
+    );
     await context.repo.token.insert(token);
     return { user: newUser.toAPI(), token: token.toAPI() };
   },
-  createClient: async (
-    _obj,
-    args,
-    context,
-    _info) => {
-    const client = Client.create(ObjectIDGenerator, context.auth.tokenMaster, args.name, args.url, context.now);
+  createClient: async (_obj, args, context, _info) => {
+    const client = Client.create(
+      ObjectIDGenerator,
+      context.auth.tokenMaster,
+      args.name,
+      args.url,
+      context.now,
+    );
     await context.repo.client.insert(client);
     context.log("clients", client.id);
     return client.toAPI(some(context.auth.tokenMaster));
   },
-  updateClient: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  updateClient: async (_obj, args, context, _info) => {
     const client = await context.repo.client.findOne(args.id);
     const newClient = client.changeData(
       context.auth.tokenMaster,
       nullToUndefined(args.name),
       nullToUndefined(args.url),
-      context.now);
+      context.now,
+    );
     await context.repo.client.update(newClient);
     context.log("clients", newClient.id);
     return newClient.toAPI(some(context.auth.tokenMaster));
   },
-  createProfile: async (
-    _obj,
-    args,
-    context,
-    _info) => {
-    const profile = Profile.create(ObjectIDGenerator,
+  createProfile: async (_obj, args, context, _info) => {
+    const profile = Profile.create(
+      ObjectIDGenerator,
       context.auth.token,
       args.name,
       args.text,
       args.sn,
-      context.now);
+      context.now,
+    );
     await context.repo.profile.insert(profile);
     context.log("profiles", profile.id);
     return profile.toAPI(some(context.auth.token));
   },
-  updateProfile: async (
-    _obj,
-    args,
-    context,
-    _info: any) => {
+  updateProfile: async (_obj, args, context, _info: any) => {
     const profile = await context.repo.profile.findOne(args.id);
     const newProfile = profile.changeData(
       context.auth.token,
       nullToUndefined(args.name),
       nullToUndefined(args.text),
       nullToUndefined(args.sn),
-      context.now);
+      context.now,
+    );
     await context.repo.profile.update(newProfile);
     context.log("profiles", newProfile.id);
     return newProfile.toAPI(some(context.auth.token));
   },
-  createRes: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  createRes: async (_obj, args, context, _info) => {
     const [topic, user, reply, profile] = await Promise.all([
       context.repo.topic.findOne(args.topic),
       context.repo.user.findOne(context.auth.token.user),
-      !isNullish(args.reply) ? context.repo.res.findOne(args.reply) : Promise.resolve(null),
-      !isNullish(args.profile) ? context.repo.profile.findOne(args.profile) : Promise.resolve(null),
+      !isNullish(args.reply)
+        ? context.repo.res.findOne(args.reply)
+        : Promise.resolve(null),
+      !isNullish(args.profile)
+        ? context.repo.profile.findOne(args.profile)
+        : Promise.resolve(null),
     ]);
 
-    const { res, user: newUser, topic: newTopic } = ResNormal.create(ObjectIDGenerator,
+    const { res, user: newUser, topic: newTopic } = ResNormal.create(
+      ObjectIDGenerator,
       topic,
       user,
       context.auth.token,
@@ -125,7 +131,8 @@ export const mutation: G.MutationResolvers = {
       fromNullable(reply),
       fromNullable(profile),
       args.age,
-      context.now);
+      context.now,
+    );
 
     await Promise.all([
       context.repo.res.insert(res),
@@ -140,11 +147,7 @@ export const mutation: G.MutationResolvers = {
     }
     return api;
   },
-  voteRes: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  voteRes: async (_obj, args, context, _info) => {
     if (args.type === "cv") {
       const [res, user] = await Promise.all([
         context.repo.res.findOne(args.res),
@@ -154,7 +157,11 @@ export const mutation: G.MutationResolvers = {
       // レスを書き込んだユーザー
       const resUser = await context.repo.user.findOne(res.user);
 
-      const { res: newRes, resUser: newResUser } = res.cv(resUser, user, context.auth.token);
+      const { res: newRes, resUser: newResUser } = res.cv(
+        resUser,
+        user,
+        context.auth.token,
+      );
 
       await Promise.all([
         context.repo.res.update(newRes),
@@ -172,7 +179,12 @@ export const mutation: G.MutationResolvers = {
       // レスを書き込んだユーザー
       const resUser = await context.repo.user.findOne(res.user);
 
-      const { res: newRes, resUser: newResUser } = res.v(resUser, user, args.type, context.auth.token);
+      const { res: newRes, resUser: newResUser } = res.v(
+        resUser,
+        user,
+        args.type,
+        context.auth.token,
+      );
 
       await Promise.all([
         context.repo.res.update(newRes),
@@ -183,11 +195,7 @@ export const mutation: G.MutationResolvers = {
       return newRes.toAPI(some(context.auth.token));
     }
   },
-  delRes: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  delRes: async (_obj, args, context, _info) => {
     const res = await context.repo.res.findOne(args.res);
 
     if (res.type !== "normal") {
@@ -197,7 +205,10 @@ export const mutation: G.MutationResolvers = {
     // レスを書き込んだユーザー
     const resUser = await context.repo.user.findOne(res.user);
 
-    const { res: newRes, resUser: newResUser } = res.del(resUser, context.auth.token);
+    const { res: newRes, resUser: newResUser } = res.del(
+      resUser,
+      context.auth.token,
+    );
 
     await Promise.all([
       context.repo.res.update(newRes),
@@ -210,46 +221,41 @@ export const mutation: G.MutationResolvers = {
     }
     return api;
   },
-  setStorage: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  setStorage: async (_obj, args, context, _info) => {
     const storage = Storage.create(context.auth.token, args.key, args.value);
     await context.repo.storage.save(storage);
     return storage.toAPI(context.auth.token);
   },
-  delStorage: async (
-    _obj,
-    args,
-    context,
-    _info) => {
-    const storage = await context.repo.storage.findOneKey(context.auth.token, args.key);
+  delStorage: async (_obj, args, context, _info) => {
+    const storage = await context.repo.storage.findOneKey(
+      context.auth.token,
+      args.key,
+    );
     await context.repo.storage.del(storage);
     return null;
   },
-  delTokenClient: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  delTokenClient: async (_obj, args, context, _info) => {
     const client = await context.repo.client.findOne(args.client);
-    await context.repo.token.delClientToken(context.auth.tokenMaster, client.id);
+    await context.repo.token.delClientToken(
+      context.auth.tokenMaster,
+      client.id,
+    );
     return null;
   },
-  createTokenGeneral: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  createTokenGeneral: async (_obj, args, context, _info) => {
     const client = await context.repo.client.findOne(args.client);
-    const token = TokenGeneral.create(ObjectIDGenerator,
+    const token = TokenGeneral.create(
+      ObjectIDGenerator,
       context.auth.tokenMaster,
       client,
       context.now,
-      RandomGenerator);
+      RandomGenerator,
+    );
 
-    const { req, token: newToken } = token.createReq(context.now, RandomGenerator);
+    const { req, token: newToken } = token.createReq(
+      context.now,
+      RandomGenerator,
+    );
 
     await context.repo.token.insert(newToken);
 
@@ -258,22 +264,19 @@ export const mutation: G.MutationResolvers = {
       req,
     };
   },
-  createTokenMaster: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  createTokenMaster: async (_obj, args, context, _info) => {
     const authUser = await authFromApiParam.user(context.repo.user, args.auth);
-    const token = TokenMaster.create(ObjectIDGenerator, authUser, context.now, RandomGenerator);
+    const token = TokenMaster.create(
+      ObjectIDGenerator,
+      authUser,
+      context.now,
+      RandomGenerator,
+    );
     await context.repo.token.insert(token);
 
     return token.toAPI();
   },
-  authTokenReq: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  authTokenReq: async (_obj, args, context, _info) => {
     const token = await context.repo.token.findOne(args.id);
     if (token.type !== "general") {
       throw new AtNotFoundError("トークンが見つかりません");
@@ -281,34 +284,31 @@ export const mutation: G.MutationResolvers = {
     token.authReq(args.key, context.now);
     return token.toAPI();
   },
-  createTokenReq: async (
-    _obj,
-    _args,
-    context,
-    _info) => {
+  createTokenReq: async (_obj, _args, context, _info) => {
     const token = await context.repo.token.findOne(context.auth.token.id);
     if (token.type !== "general") {
       throw new AtNotFoundError("トークンが見つかりません");
     }
-    const { req, token: newToken } = token.createReq(context.now, RandomGenerator);
+    const { req, token: newToken } = token.createReq(
+      context.now,
+      RandomGenerator,
+    );
 
     await context.repo.token.update(newToken);
 
     return req;
   },
-  createTopicNormal: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  createTopicNormal: async (_obj, args, context, _info) => {
     const user = await context.repo.user.findOne(context.auth.token.user);
-    const create = TopicNormal.create(ObjectIDGenerator,
+    const create = TopicNormal.create(
+      ObjectIDGenerator,
       args.title,
       args.tags,
       args.text,
       user,
       context.auth.token,
-      context.now);
+      context.now,
+    );
 
     await context.repo.topic.insert(create.topic);
     await Promise.all([
@@ -321,19 +321,17 @@ export const mutation: G.MutationResolvers = {
     context.log("histories", create.history.id);
     return create.topic.toAPI();
   },
-  createTopicOne: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  createTopicOne: async (_obj, args, context, _info) => {
     const user = await context.repo.user.findOne(context.auth.token.user);
-    const create = TopicOne.create(ObjectIDGenerator,
+    const create = TopicOne.create(
+      ObjectIDGenerator,
       args.title,
       args.tags,
       args.text,
       user,
       context.auth.token,
-      context.now);
+      context.now,
+    );
 
     await context.repo.topic.insert(create.topic);
     await Promise.all([
@@ -346,11 +344,7 @@ export const mutation: G.MutationResolvers = {
 
     return create.topic.toAPI();
   },
-  createTopicFork: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  createTopicFork: async (_obj, args, context, _info) => {
     const user = await context.repo.user.findOne(context.auth.token.user);
     const parent = await context.repo.topic.findOne(args.parent);
 
@@ -358,12 +352,14 @@ export const mutation: G.MutationResolvers = {
       throw new AtNotFoundError("トピックが見つかりません");
     }
 
-    const create = TopicFork.create(ObjectIDGenerator,
+    const create = TopicFork.create(
+      ObjectIDGenerator,
       args.title,
       parent,
       user,
       context.auth.token,
-      context.now);
+      context.now,
+    );
 
     await context.repo.topic.insert(create.topic);
     await context.repo.topic.update(create.parent);
@@ -379,11 +375,7 @@ export const mutation: G.MutationResolvers = {
 
     return create.topic.toAPI();
   },
-  updateTopic: async (
-    _obj,
-    args,
-    context,
-    _info) => {
+  updateTopic: async (_obj, args, context, _info) => {
     const [topic, user] = await Promise.all([
       context.repo.topic.findOne(args.id),
       context.repo.user.findOne(context.auth.token.user),
@@ -393,13 +385,15 @@ export const mutation: G.MutationResolvers = {
       throw new AtNotFoundError("トピックが見つかりません");
     }
 
-    const val = topic.changeData(ObjectIDGenerator,
+    const val = topic.changeData(
+      ObjectIDGenerator,
       user,
       context.auth.token,
       nullToUndefined(args.title),
       nullToUndefined(args.tags),
       nullToUndefined(args.text),
-      context.now);
+      context.now,
+    );
 
     await Promise.all([
       context.repo.res.insert(val.res),

@@ -123,9 +123,15 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
 
       await repo.save(storage);
 
-      await expect(repo.findOneKey({ ...authGeneral, user: ObjectIDGenerator() }, key)).rejects.toThrow(AtError);
-      await expect(repo.findOneKey({ ...authGeneral, client: ObjectIDGenerator() }, key)).rejects.toThrow(AtError);
-      await expect(repo.findOneKey(authGeneral, "key2")).rejects.toThrow(AtError);
+      await expect(
+        repo.findOneKey({ ...authGeneral, user: ObjectIDGenerator() }, key),
+      ).rejects.toThrow(AtError);
+      await expect(
+        repo.findOneKey({ ...authGeneral, client: ObjectIDGenerator() }, key),
+      ).rejects.toThrow(AtError);
+      await expect(repo.findOneKey(authGeneral, "key2")).rejects.toThrow(
+        AtError,
+      );
       await expect(repo.findOneKey(authMaster, key)).rejects.toThrow(AtError);
     });
   });

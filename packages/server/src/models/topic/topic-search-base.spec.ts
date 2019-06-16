@@ -12,8 +12,7 @@ import {
 import { Copyable } from "../../utils";
 
 describe("TopicSearchBase", () => {
-  class TopicSearchBaseTest
-    extends Copyable<TopicSearchBaseTest>
+  class TopicSearchBaseTest extends Copyable<TopicSearchBaseTest>
     implements TopicSearchBase<"normal", TopicSearchBaseTest> {
     readonly type: "normal" = "normal";
 
@@ -22,7 +21,9 @@ describe("TopicSearchBase", () => {
     toAPI!: () => ITopicSearchBaseAPI<"normal">;
     resUpdate!: (res: Res) => TopicSearchBaseTest;
     toDB!: () => ITopicSearchBaseDB<"normal">;
-    toBaseDB!: <Body extends object>(body: Body) => ITopicBaseDB<"normal", Body>;
+    toBaseDB!: <Body extends object>(
+      body: Body,
+    ) => ITopicBaseDB<"normal", Body>;
 
     constructor(
       readonly id: string,
@@ -33,13 +34,15 @@ describe("TopicSearchBase", () => {
       readonly date: Date,
       readonly resCount: number,
       readonly ageUpdate: Date,
-      readonly active: boolean) {
+      readonly active: boolean,
+    ) {
       super(TopicSearchBaseTest);
     }
   }
   applyMixins(TopicSearchBaseTest, [TopicSearchBase]);
 
-  const topic = new TopicSearchBaseTest("topic",
+  const topic = new TopicSearchBaseTest(
+    "topic",
     "title",
     Im.List(),
     "text",
@@ -47,14 +50,17 @@ describe("TopicSearchBase", () => {
     new Date(0),
     10,
     new Date(50),
-    true);
+    true,
+  );
 
   describe("toDB", () => {
     it("正常に変換出来るか", () => {
-      expect(topic.toDB()).toEqual(topic.toBaseDB({
-        tags: [],
-        text: "text",
-      }));
+      expect(topic.toDB()).toEqual(
+        topic.toBaseDB({
+          tags: [],
+          text: "text",
+        }),
+      );
     });
   });
 

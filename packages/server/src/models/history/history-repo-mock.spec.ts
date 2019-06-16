@@ -1,6 +1,4 @@
-import {
-  HistoryRepoMock,
-} from "../../";
+import { HistoryRepoMock } from "../../";
 
 import { run } from "./ihistory-repo.th";
 

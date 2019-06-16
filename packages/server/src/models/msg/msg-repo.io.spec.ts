@@ -1,6 +1,4 @@
-import {
-  MsgRepo,
-} from "../../";
+import { MsgRepo } from "../../";
 
 import { run } from "./imsg-repo.th";
 

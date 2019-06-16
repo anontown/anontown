@@ -28,7 +28,15 @@ export interface IProfileAPI {
 
 export class Profile extends Copyable<Profile> {
   static fromDB(p: IProfileDB): Profile {
-    return new Profile(p._id.toString(), p.user.toString(), p.name, p.text, p.date, p.update, p.sn);
+    return new Profile(
+      p._id.toString(),
+      p.user.toString(),
+      p.name,
+      p.text,
+      p.date,
+      p.update,
+      p.sn,
+    );
   }
 
   static create(
@@ -37,7 +45,8 @@ export class Profile extends Copyable<Profile> {
     name: string,
     text: string,
     sn: string,
-    now: Date): Profile {
+    now: Date,
+  ): Profile {
     paramsErrorMaker([
       {
         field: "name",
@@ -59,13 +68,15 @@ export class Profile extends Copyable<Profile> {
       },
     ]);
 
-    return new Profile(objidGenerator(),
+    return new Profile(
+      objidGenerator(),
       authToken.user,
       name,
       text,
       now,
       now,
-      sn);
+      sn,
+    );
   }
 
   constructor(
@@ -75,7 +86,8 @@ export class Profile extends Copyable<Profile> {
     readonly text: string,
     readonly date: Date,
     readonly update: Date,
-    readonly sn: string) {
+    readonly sn: string,
+  ) {
     super(Profile);
   }
 
@@ -94,7 +106,9 @@ export class Profile extends Copyable<Profile> {
   toAPI(authToken: Option<IAuthToken>): IProfileAPI {
     return {
       id: this.id,
-      self: authToken.map(authToken => authToken.user === this.user).toNullable(),
+      self: authToken
+        .map(authToken => authToken.user === this.user)
+        .toNullable(),
       name: this.name,
       text: this.text,
       date: this.date.toISOString(),
@@ -108,7 +122,8 @@ export class Profile extends Copyable<Profile> {
     name: string | undefined,
     text: string | undefined,
     sn: string | undefined,
-    now: Date) {
+    now: Date,
+  ) {
     if (authToken.user !== this.user) {
       throw new AtRightError("人のプロフィール変更は出来ません");
     }

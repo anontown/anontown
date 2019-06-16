@@ -1,6 +1,4 @@
-import {
-  HistoryRepo,
-} from "../../";
+import { HistoryRepo } from "../../";
 
 import { run } from "./ihistory-repo.th";
 

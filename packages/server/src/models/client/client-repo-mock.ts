@@ -23,17 +23,29 @@ export class ClientRepoMock implements IClientRepo {
   }
 
   async update(client: Client): Promise<void> {
-    this.clients[this.clients.findIndex(c => c._id.toHexString() === client.id)] = client.toDB();
+    this.clients[
+      this.clients.findIndex(c => c._id.toHexString() === client.id)
+    ] = client.toDB();
   }
 
-  async find(authToken: Option<IAuthTokenMaster>, query: G.ClientQuery): Promise<Client[]> {
+  async find(
+    authToken: Option<IAuthTokenMaster>,
+    query: G.ClientQuery,
+  ): Promise<Client[]> {
     if (query.self && authToken.isNone()) {
       throw new AtAuthError("認証が必要です");
     }
 
     const clients = this.clients
-      .filter(c => !query.self || authToken.isNone() || c.user.toHexString() === authToken.value.user)
-      .filter(x => isNullish(query.id) || query.id.includes(x._id.toHexString()))
+      .filter(
+        c =>
+          !query.self ||
+          authToken.isNone() ||
+          c.user.toHexString() === authToken.value.user,
+      )
+      .filter(
+        x => isNullish(query.id) || query.id.includes(x._id.toHexString()),
+      )
       .sort((a, b) => b.date.valueOf() - a.date.valueOf());
 
     return clients.map(c => Client.fromDB(c));

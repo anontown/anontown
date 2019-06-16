@@ -1,10 +1,5 @@
 import { ObjectID } from "mongodb";
-import {
-  AtError,
-  ObjectIDGenerator,
-  TokenBase,
-  TokenMaster,
-} from "../../";
+import { AtError, ObjectIDGenerator, TokenBase, TokenMaster } from "../../";
 
 describe("TokenMaster", () => {
   const tokenID = ObjectIDGenerator();
@@ -13,27 +8,38 @@ describe("TokenMaster", () => {
 
   describe("fromDB", () => {
     it("正常に変換出来るか", () => {
-      expect(TokenMaster.fromDB({
-        _id: new ObjectID(tokenID),
-        key: "key",
-        type: "master",
-        user: new ObjectID(userID),
-        date: new Date(0),
-      })).toEqual(tokenMaster);
+      expect(
+        TokenMaster.fromDB({
+          _id: new ObjectID(tokenID),
+          key: "key",
+          type: "master",
+          user: new ObjectID(userID),
+          date: new Date(0),
+        }),
+      ).toEqual(tokenMaster);
     });
   });
 
   describe("create", () => {
     it("正常に生成出来るか", () => {
-      expect(TokenMaster.create(() => "token", {
-        id: "user",
-        pass: "pass",
-      },
-        new Date(100),
-        () => "key")).toEqual(new TokenMaster("token",
+      expect(
+        TokenMaster.create(
+          () => "token",
+          {
+            id: "user",
+            pass: "pass",
+          },
+          new Date(100),
+          () => "key",
+        ),
+      ).toEqual(
+        new TokenMaster(
+          "token",
           TokenBase.createTokenKey(() => "key"),
           "user",
-          new Date(100)));
+          new Date(100),
+        ),
+      );
     });
   });
 
@@ -54,7 +60,12 @@ describe("TokenMaster", () => {
   describe("auth", () => {
     it("正常に認証出来るか", () => {
       const auth = tokenMaster.auth("key");
-      expect(auth).toEqual({ id: tokenMaster.id, key: "key", user: tokenMaster.user, type: "master" });
+      expect(auth).toEqual({
+        id: tokenMaster.id,
+        key: "key",
+        user: tokenMaster.user,
+        type: "master",
+      });
     });
 
     it("keyが違う時エラーになるか", () => {

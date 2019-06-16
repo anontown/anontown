@@ -9,13 +9,13 @@ import { User } from "../user";
 export interface IHistoryDB {
   readonly id: string;
   readonly body: {
-    readonly topic: string,
-    readonly title: string,
-    readonly tags: string[],
-    readonly text: string,
-    readonly date: string,
-    readonly hash: string,
-    readonly user: string,
+    readonly topic: string;
+    readonly title: string;
+    readonly tags: string[];
+    readonly text: string;
+    readonly date: string;
+    readonly hash: string;
+    readonly user: string;
   };
 }
 
@@ -32,14 +32,16 @@ export interface IHistoryAPI {
 
 export class History extends Copyable<History> {
   static fromDB(h: IHistoryDB): History {
-    return new History(h.id,
+    return new History(
+      h.id,
       h.body.topic,
       h.body.title,
       Im.List(h.body.tags),
       h.body.text,
       new Date(h.body.date),
       h.body.hash,
-      h.body.user);
+      h.body.user,
+    );
   }
 
   static create(
@@ -47,15 +49,18 @@ export class History extends Copyable<History> {
     topic: TopicNormal,
     date: Date,
     hash: string,
-    user: User): History {
+    user: User,
+  ): History {
     return new History(
       objidGenerator(),
       topic.id,
       topic.title,
       Im.List(topic.tags),
       topic.text,
-      date, hash,
-      user.id);
+      date,
+      hash,
+      user.id,
+    );
   }
 
   constructor(
@@ -66,7 +71,8 @@ export class History extends Copyable<History> {
     readonly text: string,
     readonly date: Date,
     readonly hash: string,
-    readonly user: string) {
+    readonly user: string,
+  ) {
     super(History);
   }
 
@@ -94,7 +100,9 @@ export class History extends Copyable<History> {
       text: this.text,
       date: this.date.toISOString(),
       hash: this.hash,
-      self: authToken.map(authToken => authToken.user === this.user).toNullable(),
+      self: authToken
+        .map(authToken => authToken.user === this.user)
+        .toNullable(),
     };
   }
 }

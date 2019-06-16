@@ -12,7 +12,9 @@ export class HistoryRepoMock implements IHistoryRepo {
   }
 
   async update(history: History): Promise<void> {
-    this.histories[this.histories.findIndex(h => h.id === history.id)] = history.toDB();
+    this.histories[
+      this.histories.findIndex(h => h.id === history.id)
+    ] = history.toDB();
   }
 
   async findOne(id: string): Promise<History> {
@@ -49,12 +51,18 @@ export class HistoryRepoMock implements IHistoryRepo {
       .sort((a, b) => {
         const av = new Date(a.body.date).valueOf();
         const bv = new Date(b.body.date).valueOf();
-        return !isNullish(query.date) && (query.date.type === "gt" || query.date.type === "gte") ? av - bv : bv - av;
+        return !isNullish(query.date) &&
+          (query.date.type === "gt" || query.date.type === "gte")
+          ? av - bv
+          : bv - av;
       })
       .slice(0, limit);
 
     const result = histories.map(h => History.fromDB(h));
-    if (!isNullish(query.date) && (query.date.type === "gt" || query.date.type === "gte")) {
+    if (
+      !isNullish(query.date) &&
+      (query.date.type === "gt" || query.date.type === "gte")
+    ) {
       result.reverse();
     }
     return result;

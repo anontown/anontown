@@ -1,6 +1,4 @@
-import {
-  ProfileRepoMock,
-} from "../../";
+import { ProfileRepoMock } from "../../";
 
 import { run } from "./iprofile-repo.th";
 

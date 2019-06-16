@@ -1,22 +1,20 @@
 import { ObjectID } from "mongodb";
 
 import { none, some } from "fp-ts/lib/Option";
-import {
-  IAuthTokenMaster,
-  ObjectIDGenerator,
-  Profile,
-} from "../../";
+import { IAuthTokenMaster, ObjectIDGenerator, Profile } from "../../";
 
 describe("Profile", () => {
   const profileID = ObjectIDGenerator();
   const userID = ObjectIDGenerator();
-  const profile = new Profile(profileID,
+  const profile = new Profile(
+    profileID,
     userID,
     "name",
     "text",
     new Date(0),
     new Date(100),
-    "sn");
+    "sn",
+  );
 
   const auth: IAuthTokenMaster = {
     type: "master",
@@ -53,10 +51,14 @@ describe("Profile", () => {
     });
 
     it("認証あり(別ユーザー)", () => {
-      expect(profile.toAPI(some({
-        ...auth,
-        user: ObjectIDGenerator(),
-      }))).toEqual({
+      expect(
+        profile.toAPI(
+          some({
+            ...auth,
+            user: ObjectIDGenerator(),
+          }),
+        ),
+      ).toEqual({
         id: profileID,
         self: false,
         name: "name",
@@ -82,12 +84,16 @@ describe("Profile", () => {
   // TODO: createの異常系とchangeDataのテスト
   describe("create", () => {
     it("正常に作れるか", () => {
-      expect(Profile.create(() => profileID,
-        auth,
-        "name",
-        "text",
-        "scn",
-        new Date(0))).toEqual(profile.copy({ update: new Date(0), sn: "scn" }));
+      expect(
+        Profile.create(
+          () => profileID,
+          auth,
+          "name",
+          "text",
+          "scn",
+          new Date(0),
+        ),
+      ).toEqual(profile.copy({ update: new Date(0), sn: "scn" }));
     });
   });
 });

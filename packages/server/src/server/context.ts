@@ -27,10 +27,16 @@ async function createToken(raw: any, repo: IRepo) {
   return some(await authFromApiParam.token(repo.token, { id, key }));
 }
 
-export async function createContext(headers: any, repo: IRepo): Promise<AppContext> {
+export async function createContext(
+  headers: any,
+  repo: IRepo,
+): Promise<AppContext> {
   const ip = headers["x-real-ip"] || "<unknown_ip>";
 
-  const token = await createToken(headers["x-token"] || headers["X-Token"], repo);
+  const token = await createToken(
+    headers["x-token"] || headers["X-Token"],
+    repo,
+  );
 
   const auth = new AuthContainer(token);
 

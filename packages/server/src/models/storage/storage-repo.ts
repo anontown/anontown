@@ -17,7 +17,8 @@ export class StorageRepo implements IStorageRepo {
     if (!isNullish(query.key)) {
       q.key = { $in: query.key };
     }
-    const storages: IStorageDB[] = await db.collection("storages")
+    const storages: IStorageDB[] = await db
+      .collection("storages")
       .find(q)
       .toArray();
     return storages.map(x => Storage.fromDB(x));
@@ -25,12 +26,11 @@ export class StorageRepo implements IStorageRepo {
 
   async findOneKey(token: IAuthToken, key: string): Promise<Storage> {
     const db = await DB();
-    const storage: IStorageDB | null = await db.collection("storages")
-      .findOne({
-        user: new ObjectID(token.user),
-        client: token.type === "general" ? new ObjectID(token.client) : null,
-        key,
-      });
+    const storage: IStorageDB | null = await db.collection("storages").findOne({
+      user: new ObjectID(token.user),
+      client: token.type === "general" ? new ObjectID(token.client) : null,
+      key,
+    });
     if (storage === null) {
       throw new AtNotFoundError("ストレージが見つかりません");
     }
@@ -39,21 +39,23 @@ export class StorageRepo implements IStorageRepo {
   async save(storage: Storage): Promise<void> {
     const db = await DB();
 
-    await db.collection("storages")
-      .replaceOne({
+    await db.collection("storages").replaceOne(
+      {
         user: new ObjectID(storage.user),
         client: storage.client.map(client => new ObjectID(client)).toNullable(),
         key: storage.key,
-      }, storage.toDB(), { upsert: true });
+      },
+      storage.toDB(),
+      { upsert: true },
+    );
   }
   async del(storage: Storage): Promise<void> {
     const db = await DB();
 
-    await db.collection("storages")
-      .deleteOne({
-        user: new ObjectID(storage.user),
-        client: storage.client.map(client => new ObjectID(client)).toNullable(),
-        key: storage.key,
-      });
+    await db.collection("storages").deleteOne({
+      user: new ObjectID(storage.user),
+      client: storage.client.map(client => new ObjectID(client)).toNullable(),
+      key: storage.key,
+    });
   }
 }

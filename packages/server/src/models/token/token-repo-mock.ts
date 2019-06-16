@@ -40,17 +40,28 @@ export class TokenRepoMock implements ITokenRepo {
   }
 
   async update(token: Token): Promise<void> {
-    this.tokens[this.tokens.findIndex(x => x._id.toHexString() === token.id)] = token.toDB();
+    this.tokens[
+      this.tokens.findIndex(x => x._id.toHexString() === token.id)
+    ] = token.toDB();
   }
 
-  async delClientToken(token: IAuthTokenMaster, clientID: string): Promise<void> {
-    this.tokens = this.tokens.filter(x => !(x.user.toHexString() === token.user
-      && x.type === "general"
-      && x.client.toHexString() === clientID));
+  async delClientToken(
+    token: IAuthTokenMaster,
+    clientID: string,
+  ): Promise<void> {
+    this.tokens = this.tokens.filter(
+      x =>
+        !(
+          x.user.toHexString() === token.user &&
+          x.type === "general" &&
+          x.client.toHexString() === clientID
+        ),
+    );
   }
 
   async delMasterToken(user: IAuthUser): Promise<void> {
-    this.tokens = this.tokens.filter(x => !(x.user.toHexString() === user.id
-      && x.type === "master"));
+    this.tokens = this.tokens.filter(
+      x => !(x.user.toHexString() === user.id && x.type === "master"),
+    );
   }
 }

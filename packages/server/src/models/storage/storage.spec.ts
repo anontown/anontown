@@ -14,10 +14,7 @@ describe("Storage", () => {
   const authMasterID = ObjectIDGenerator();
   const authGeneralID = ObjectIDGenerator();
 
-  const storage = new Storage(some(cleintID),
-    userID,
-    "key",
-    "value");
+  const storage = new Storage(some(cleintID), userID, "key", "value");
 
   const authMaster: IAuthTokenMaster = {
     id: authMasterID,
@@ -36,29 +33,39 @@ describe("Storage", () => {
 
   describe("fromDB", () => {
     it("正常に変換出来るか", () => {
-      expect(Storage.fromDB({
-        client: new ObjectID(cleintID),
-        user: new ObjectID(userID),
-        key: "key",
-        value: "value",
-      })).toEqual(storage);
+      expect(
+        Storage.fromDB({
+          client: new ObjectID(cleintID),
+          user: new ObjectID(userID),
+          key: "key",
+          value: "value",
+        }),
+      ).toEqual(storage);
 
-      expect(Storage.fromDB({
-        client: null,
-        user: new ObjectID(userID),
-        key: "key",
-        value: "value",
-      })).toEqual(storage.copy({ client: none }));
+      expect(
+        Storage.fromDB({
+          client: null,
+          user: new ObjectID(userID),
+          key: "key",
+          value: "value",
+        }),
+      ).toEqual(storage.copy({ client: none }));
     });
   });
 
   describe("toAPI", () => {
     it("通常トークンで正常に変換出来るか", () => {
-      expect(storage.toAPI(authGeneral)).toEqual({ key: "key", value: "value" });
+      expect(storage.toAPI(authGeneral)).toEqual({
+        key: "key",
+        value: "value",
+      });
     });
 
     it("マスタートークンで正常に変換出来るか", () => {
-      expect(storage.copy({ client: none }).toAPI(authMaster)).toEqual({ key: "key", value: "value" });
+      expect(storage.copy({ client: none }).toAPI(authMaster)).toEqual({
+        key: "key",
+        value: "value",
+      });
     });
 
     it("ユーザーが違う時エラーになるか", () => {
@@ -83,7 +90,9 @@ describe("Storage", () => {
   describe("create", () => {
     it("正常に作成出来るか", () => {
       expect(Storage.create(authGeneral, "key", "value")).toEqual(storage);
-      expect(Storage.create(authMaster, "key", "value")).toEqual(storage.copy({ client: none }));
+      expect(Storage.create(authMaster, "key", "value")).toEqual(
+        storage.copy({ client: none }),
+      );
     });
 
     it("keyが不正な時エラーになるか", () => {

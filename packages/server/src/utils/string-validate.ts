@@ -11,7 +11,15 @@ hira:ひらがな
 kana:カタカナ
 han:漢字
 */
-export type CharType = "lc" | "uc" | "d" | "ub" | "hy" | "hira" | "kana" | "han";
+export type CharType =
+  | "lc"
+  | "uc"
+  | "d"
+  | "ub"
+  | "hy"
+  | "hira"
+  | "kana"
+  | "han";
 
 export interface ValidateData {
   char: CharType[] | null;
@@ -27,12 +35,15 @@ export interface ValidateDataCache {
 export interface ValidateError {
   type: "validate";
   data: {
-    validate: ValidateData,
-    value: string,
+    validate: ValidateData;
+    value: string;
   };
 }
 
-export function checkString(validate: ValidateDataCache, value: string): Either<ValidateError, string> {
+export function checkString(
+  validate: ValidateDataCache,
+  value: string,
+): Either<ValidateError, string> {
   if (validate.reg.test(value)) {
     return right(value);
   } else {
@@ -46,12 +57,15 @@ export function checkString(validate: ValidateDataCache, value: string): Either<
   }
 }
 
-export function validateData(char: CharType[] | null, min: number | null, max: number | null): ValidateDataCache {
+export function validateData(
+  char: CharType[] | null,
+  min: number | null,
+  max: number | null,
+): ValidateDataCache {
   const validate = {
     char,
     min,
     max,
-
   };
   return {
     validate,
@@ -81,8 +95,13 @@ function charTypeToReg(type: CharType): string {
 }
 
 function validateToReg(data: ValidateData): RegExp {
-  const char = data.char !== null ? `[${data.char.map(x => charTypeToReg(x)).join("")}]` : ".";
-  const len = `{${data.min !== null ? data.min : 0},${data.max !== null ? data.max : ""}}`;
+  const char =
+    data.char !== null
+      ? `[${data.char.map(x => charTypeToReg(x)).join("")}]`
+      : ".";
+  const len = `{${data.min !== null ? data.min : 0},${
+    data.max !== null ? data.max : ""
+  }}`;
   const reg = `^${char}${len}$`;
   return new RegExp(reg, "us");
 }
@@ -90,12 +109,15 @@ function validateToReg(data: ValidateData): RegExp {
 export interface ValidateRegExpError {
   type: "validate_regexp";
   data: {
-    regexp: string,
-    value: string,
+    regexp: string;
+    value: string;
   };
 }
 
-export function checkRegExp(reg: RegExp, value: string): Either<ValidateRegExpError, string> {
+export function checkRegExp(
+  reg: RegExp,
+  value: string,
+): Either<ValidateRegExpError, string> {
   if (reg.test(value)) {
     return right(value);
   } else {

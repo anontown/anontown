@@ -3,18 +3,18 @@ import { ApolloServer, gql, IResolvers } from "apollo-server-express";
 import * as cors from "cors";
 import * as express from "express";
 import * as fs from "fs-promise";
-import {
-  GraphQLDateTime,
-} from "graphql-iso-date";
+import { GraphQLDateTime } from "graphql-iso-date";
+import { createServer } from "http";
 import { AtErrorSymbol, AtServerError } from "../at-error";
 import { Config } from "../config";
 import { IRepo } from "../models";
 import { resolvers as appResolvers } from "../resolvers";
 import { AppContext, createContext } from "./context";
-import { createServer } from 'http';
 
 export async function serverRun(repo: IRepo) {
-  const typeDefs = gql(await fs.readFile("node_modules/@anontown/schema/app.gql", "utf8"));
+  const typeDefs = gql(
+    await fs.readFile("node_modules/@anontown/schema/app.gql", "utf8"),
+  );
   const resolvers: IResolvers = combineResolvers([
     {
       DateTime: GraphQLDateTime,
@@ -61,7 +61,7 @@ export async function serverRun(repo: IRepo) {
     },
     subscriptions: {
       path: "/",
-    }
+    },
   });
 
   repo.cron();
@@ -73,6 +73,8 @@ export async function serverRun(repo: IRepo) {
   server.installSubscriptionHandlers(httpServer);
 
   httpServer.listen({ port: Config.server.port }, () => {
-    console.log(`Server ready at ${server.graphqlPath}, ${server.subscriptionsPath}`);
+    console.log(
+      `Server ready at ${server.graphqlPath}, ${server.subscriptionsPath}`,
+    );
   });
 }

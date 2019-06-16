@@ -8,7 +8,9 @@ import { ITokenDB, Token, TokenGeneral, TokenMaster } from "./token";
 export class TokenRepo implements ITokenRepo {
   async findOne(id: string): Promise<Token> {
     const db = await DB();
-    const token: ITokenDB | null = await db.collection("tokens").findOne({ _id: new ObjectID(id) });
+    const token: ITokenDB | null = await db
+      .collection("tokens")
+      .findOne({ _id: new ObjectID(id) });
     if (token === null) {
       throw new AtNotFoundError("トークンが存在しません");
     }
@@ -23,7 +25,8 @@ export class TokenRepo implements ITokenRepo {
 
   async findAll(authToken: IAuthTokenMaster): Promise<Token[]> {
     const db = await DB();
-    const tokens: ITokenDB[] = await db.collection("tokens")
+    const tokens: ITokenDB[] = await db
+      .collection("tokens")
       .find({ user: new ObjectID(authToken.user) })
       .sort({ date: -1 })
       .toArray();
@@ -45,18 +48,28 @@ export class TokenRepo implements ITokenRepo {
 
   async update(token: Token): Promise<void> {
     const db = await DB();
-    await db.collection("tokens").replaceOne({ _id: new ObjectID(token.id) }, token.toDB());
+    await db
+      .collection("tokens")
+      .replaceOne({ _id: new ObjectID(token.id) }, token.toDB());
   }
 
-  async delClientToken(token: IAuthTokenMaster, clientID: string): Promise<void> {
+  async delClientToken(
+    token: IAuthTokenMaster,
+    clientID: string,
+  ): Promise<void> {
     const db = await DB();
-    await db.collection("tokens")
-      .deleteMany({ user: new ObjectID(token.user), client: new ObjectID(clientID) });
+    await db
+      .collection("tokens")
+      .deleteMany({
+        user: new ObjectID(token.user),
+        client: new ObjectID(clientID),
+      });
   }
 
   async delMasterToken(user: IAuthUser): Promise<void> {
     const db = await DB();
-    await db.collection("tokens")
+    await db
+      .collection("tokens")
       .deleteMany({ user: new ObjectID(user.id), type: "master" });
   }
 }

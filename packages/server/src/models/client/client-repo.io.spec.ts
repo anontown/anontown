@@ -1,6 +1,4 @@
-import {
-  ClientRepo,
-} from "../../";
+import { ClientRepo } from "../../";
 
 import { run } from "./iclient-repo.th";
 

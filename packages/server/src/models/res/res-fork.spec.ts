@@ -1,12 +1,6 @@
 import { some } from "fp-ts/lib/Option";
 import * as Im from "immutable";
-import {
-  IAuthToken,
-  ResFork,
-  TopicFork,
-  TopicNormal,
-  User,
-} from "../../";
+import { IAuthToken, ResFork, TopicFork, TopicNormal, User } from "../../";
 
 describe("ResFork", () => {
   const topicNormal = new TopicNormal(
@@ -21,14 +15,16 @@ describe("ResFork", () => {
     true,
   );
 
-  const topicFork = new TopicFork("topicfork",
+  const topicFork = new TopicFork(
+    "topicfork",
     "title",
     new Date(0),
     new Date(100),
     30,
     new Date(50),
     true,
-    "topic");
+    "topic",
+  );
 
   const user = new User(
     "user",
@@ -47,7 +43,8 @@ describe("ResFork", () => {
     new Date(20),
     new Date(10),
     0,
-    new Date(30));
+    new Date(30),
+  );
 
   const token: IAuthToken = {
     id: "token",
@@ -56,7 +53,8 @@ describe("ResFork", () => {
     type: "master",
   };
 
-  const resFork = new ResFork("topicfork",
+  const resFork = new ResFork(
+    "topicfork",
     "res",
     "topic",
     new Date(500),
@@ -64,52 +62,67 @@ describe("ResFork", () => {
     Im.List(),
     5,
     "hash",
-    10);
+    10,
+  );
 
   describe("fromDB", () => {
     it("正常に作れるか", () => {
-      expect(ResFork.fromDB({
-        id: "id",
-        body: {
-          type: "fork",
-          topic: "topic",
-          date: new Date(400).toISOString(),
-          user: "user",
-          votes: [],
-          lv: 5,
-          hash: "hash",
-          fork: "topicfork",
-        },
-      }, 3)).toEqual(new ResFork("topicfork",
-        "id",
-        "topic",
-        new Date(400),
-        "user",
-        Im.List(),
-        5,
-        "hash",
-        3));
+      expect(
+        ResFork.fromDB(
+          {
+            id: "id",
+            body: {
+              type: "fork",
+              topic: "topic",
+              date: new Date(400).toISOString(),
+              user: "user",
+              votes: [],
+              lv: 5,
+              hash: "hash",
+              fork: "topicfork",
+            },
+          },
+          3,
+        ),
+      ).toEqual(
+        new ResFork(
+          "topicfork",
+          "id",
+          "topic",
+          new Date(400),
+          "user",
+          Im.List(),
+          5,
+          "hash",
+          3,
+        ),
+      );
     });
   });
 
   describe("create", () => {
     it("正常に作れるか", () => {
-      const { res, topic } = ResFork.create(() => "res",
+      const { res, topic } = ResFork.create(
+        () => "res",
         topicNormal,
         user,
         token,
         topicFork,
-        new Date(90));
-      expect(res).toEqual(new ResFork("topicfork",
-        "res",
-        "topic",
         new Date(90),
-        "user",
-        Im.List(),
-        5,
-        topicNormal.hash(new Date(90), user),
-        0,
-      ));
+      );
+      expect(res).toEqual(
+        new ResFork(
+          "topicfork",
+          "res",
+          "topic",
+          new Date(90),
+          "user",
+          Im.List(),
+          5,
+          topicNormal.hash(new Date(90), user),
+          0,
+        ),
+      );
       expect(topic).toEqual(topicNormal.copy({ update: new Date(90) }));
     });
   });
@@ -122,7 +135,10 @@ describe("ResFork", () => {
 
   describe("toAPI", () => {
     it("正常に変換出来るか", () => {
-      expect(resFork.toAPI(some(token))).toEqual({ ...resFork.toBaseAPI(some(token)), forkID: "topicfork" });
+      expect(resFork.toAPI(some(token))).toEqual({
+        ...resFork.toBaseAPI(some(token)),
+        forkID: "topicfork",
+      });
     });
   });
 });

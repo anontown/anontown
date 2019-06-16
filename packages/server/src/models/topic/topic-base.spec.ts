@@ -14,12 +14,15 @@ import {
 import { Copyable } from "../../utils";
 
 describe("TopicBase", () => {
-  class TopicBaseTest extends Copyable<TopicBaseTest> implements TopicBase<"normal", TopicBaseTest> {
+  class TopicBaseTest extends Copyable<TopicBaseTest>
+    implements TopicBase<"normal", TopicBaseTest> {
     readonly type: "normal" = "normal";
     toBaseAPI!: () => ITopicBaseAPI<"normal">;
     hash!: (date: Date, user: User) => string;
     resUpdate!: (res: Res) => TopicBaseTest;
-    toBaseDB!: <Body extends object>(body: Body) => ITopicBaseDB<"normal", Body>;
+    toBaseDB!: <Body extends object>(
+      body: Body,
+    ) => ITopicBaseDB<"normal", Body>;
 
     constructor(
       readonly id: string,
@@ -28,19 +31,22 @@ describe("TopicBase", () => {
       readonly date: Date,
       readonly resCount: number,
       readonly ageUpdate: Date,
-      readonly active: boolean) {
+      readonly active: boolean,
+    ) {
       super(TopicBaseTest);
     }
   }
   applyMixins(TopicBaseTest, [TopicBase]);
 
-  const topicBase = new TopicBaseTest("topic",
+  const topicBase = new TopicBaseTest(
+    "topic",
     "title",
     new Date(100),
     new Date(0),
     10,
     new Date(50),
-    true);
+    true,
+  );
 
   describe("checkData", () => {
     it("正常に動くか", () => {
@@ -137,7 +143,8 @@ describe("TopicBase", () => {
   });
 
   describe("resUpdate", () => {
-    const resNormal = new ResNormal(none,
+    const resNormal = new ResNormal(
+      none,
       "text",
       none,
       "active",
@@ -150,35 +157,44 @@ describe("TopicBase", () => {
       Im.List(),
       10,
       "hash",
-      0);
+      0,
+    );
 
-    const resTopic = new ResTopic("res",
+    const resTopic = new ResTopic(
+      "res",
       "topic",
       new Date(200),
       "user",
       Im.List(),
       10,
       "hash",
-      10);
+      10,
+    );
     it("ageの時正常に呼び出せるか", () => {
-      expect(topicBase.resUpdate(resNormal)).toEqual(topicBase.copy({
-        update: new Date(200),
-        ageUpdate: new Date(200),
-      }));
+      expect(topicBase.resUpdate(resNormal)).toEqual(
+        topicBase.copy({
+          update: new Date(200),
+          ageUpdate: new Date(200),
+        }),
+      );
     });
 
     it("ResNormalかつageでない時正常に呼び出せるか", () => {
-      expect(topicBase.resUpdate(resNormal.copy({ age: false }))).toEqual(topicBase.copy({
-        update: new Date(200),
-        ageUpdate: new Date(50),
-      }));
+      expect(topicBase.resUpdate(resNormal.copy({ age: false }))).toEqual(
+        topicBase.copy({
+          update: new Date(200),
+          ageUpdate: new Date(50),
+        }),
+      );
     });
 
     it("ResNormalでない時正常に呼び出されるか", () => {
-      expect(topicBase.resUpdate(resTopic)).toEqual(topicBase.copy({
-        update: new Date(200),
-        ageUpdate: new Date(50),
-      }));
+      expect(topicBase.resUpdate(resTopic)).toEqual(
+        topicBase.copy({
+          update: new Date(200),
+          ageUpdate: new Date(50),
+        }),
+      );
     });
 
     it("Topicが死んでいる時エラーになるか", () => {
@@ -189,7 +205,8 @@ describe("TopicBase", () => {
   });
 
   describe("hash", () => {
-    const user = new User("user",
+    const user = new User(
+      "user",
       "sn",
       "pass",
       10,
@@ -205,41 +222,51 @@ describe("TopicBase", () => {
       new Date(0),
       new Date(0),
       0,
-      new Date(0));
+      new Date(0),
+    );
 
     it("時分秒msだけが違う時同じhashが生成されるか", () => {
-      expect(topicBase.hash(new Date(2000, 11, 6, 12), user))
-        .toBe(topicBase.hash(new Date(2000, 11, 6, 11), user));
+      expect(topicBase.hash(new Date(2000, 11, 6, 12), user)).toBe(
+        topicBase.hash(new Date(2000, 11, 6, 11), user),
+      );
 
-      expect(topicBase.hash(new Date(2000, 11, 6, 12, 10), user))
-        .toBe(topicBase.hash(new Date(2000, 11, 6, 12, 11), user));
+      expect(topicBase.hash(new Date(2000, 11, 6, 12, 10), user)).toBe(
+        topicBase.hash(new Date(2000, 11, 6, 12, 11), user),
+      );
 
-      expect(topicBase.hash(new Date(2000, 11, 6, 12, 10, 10), user))
-        .toBe(topicBase.hash(new Date(2000, 11, 6, 12, 10, 11), user));
+      expect(topicBase.hash(new Date(2000, 11, 6, 12, 10, 10), user)).toBe(
+        topicBase.hash(new Date(2000, 11, 6, 12, 10, 11), user),
+      );
 
-      expect(topicBase.hash(new Date(2000, 11, 6, 12, 10, 10, 100), user))
-        .toBe(topicBase.hash(new Date(2000, 11, 6, 12, 10, 10, 101), user));
+      expect(topicBase.hash(new Date(2000, 11, 6, 12, 10, 10, 100), user)).toBe(
+        topicBase.hash(new Date(2000, 11, 6, 12, 10, 10, 101), user),
+      );
     });
 
     it("トピックが違う時別のhashが生成されるか", () => {
-      expect(topicBase.hash(new Date(0), user))
-        .not.toBe(topicBase.copy({ id: "topic2" }).hash(new Date(0), user));
+      expect(topicBase.hash(new Date(0), user)).not.toBe(
+        topicBase.copy({ id: "topic2" }).hash(new Date(0), user),
+      );
     });
 
     it("ユーザーが違う時別のhashが生成されるか", () => {
-      expect(topicBase.hash(new Date(0), user))
-        .not.toBe(topicBase.hash(new Date(0), user.copy({ id: "user2" })));
+      expect(topicBase.hash(new Date(0), user)).not.toBe(
+        topicBase.hash(new Date(0), user.copy({ id: "user2" })),
+      );
     });
 
     it("年月日が違う時別のhashが生成されるか", () => {
-      expect(topicBase.hash(new Date(2000, 11, 6), user))
-        .not.toBe(topicBase.hash(new Date(2000, 11, 7), user));
+      expect(topicBase.hash(new Date(2000, 11, 6), user)).not.toBe(
+        topicBase.hash(new Date(2000, 11, 7), user),
+      );
 
-      expect(topicBase.hash(new Date(2000, 11, 6), user))
-        .not.toBe(topicBase.hash(new Date(2000, 12, 6), user));
+      expect(topicBase.hash(new Date(2000, 11, 6), user)).not.toBe(
+        topicBase.hash(new Date(2000, 12, 6), user),
+      );
 
-      expect(topicBase.hash(new Date(2000, 11, 6), user))
-        .not.toBe(topicBase.hash(new Date(2001, 11, 6), user));
+      expect(topicBase.hash(new Date(2000, 11, 6), user)).not.toBe(
+        topicBase.hash(new Date(2001, 11, 6), user),
+      );
     });
   });
 });

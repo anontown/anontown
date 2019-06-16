@@ -21,9 +21,12 @@ export class MsgRepoMock implements IMsgRepo {
   async find(
     authToken: IAuthToken,
     query: G.MsgQuery,
-    limit: number): Promise<Msg[]> {
+    limit: number,
+  ): Promise<Msg[]> {
     const msgs = this.msgs
-      .filter(x => x.body.receiver === null || x.body.receiver === authToken.user)
+      .filter(
+        x => x.body.receiver === null || x.body.receiver === authToken.user,
+      )
       .filter(x => isNullish(query.id) || query.id.includes(x.id))
       .filter(x => {
         if (isNullish(query.date)) {
@@ -45,12 +48,18 @@ export class MsgRepoMock implements IMsgRepo {
       .sort((a, b) => {
         const av = new Date(a.body.date).valueOf();
         const bv = new Date(b.body.date).valueOf();
-        return !isNullish(query.date) && (query.date.type === "gt" || query.date.type === "gte") ? av - bv : bv - av;
+        return !isNullish(query.date) &&
+          (query.date.type === "gt" || query.date.type === "gte")
+          ? av - bv
+          : bv - av;
       })
       .slice(0, limit);
 
     const result = msgs.map(x => Msg.fromDB(x));
-    if (!isNullish(query.date) && (query.date.type === "gt" || query.date.type === "gte")) {
+    if (
+      !isNullish(query.date) &&
+      (query.date.type === "gt" || query.date.type === "gte")
+    ) {
       result.reverse();
     }
     return result;

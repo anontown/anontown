@@ -1,6 +1,4 @@
-import {
-  StorageRepo,
-} from "../../";
+import { StorageRepo } from "../../";
 
 import { run } from "./istorage-repo.th";
 

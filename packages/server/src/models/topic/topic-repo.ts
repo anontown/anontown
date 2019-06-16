@@ -5,13 +5,7 @@ import { ESClient } from "../../db";
 import * as G from "../../generated/graphql";
 import { IResRepo } from "../res";
 import { ITopicRepo } from "./itopic-repo";
-import {
-  ITopicDB,
-  Topic,
-  TopicFork,
-  TopicNormal,
-  TopicOne,
-} from "./topic";
+import { ITopicDB, Topic, TopicFork, TopicNormal, TopicOne } from "./topic";
 
 export interface ITagsAPI {
   name: string;
@@ -19,7 +13,7 @@ export interface ITagsAPI {
 }
 
 export class TopicRepo implements ITopicRepo {
-  constructor(public resRepo: IResRepo, private refresh?: boolean) { }
+  constructor(public resRepo: IResRepo, private refresh?: boolean) {}
 
   async findOne(id: string): Promise<Topic> {
     let topic;
@@ -32,7 +26,9 @@ export class TopicRepo implements ITopicRepo {
     } catch {
       throw new AtNotFoundError("トピックが存在しません");
     }
-    return (await this.aggregate([{ id: topic._id, body: topic._source } as ITopicDB]))[0];
+    return (await this.aggregate([
+      { id: topic._id, body: topic._source } as ITopicDB,
+    ]))[0];
   }
 
   async findTags(limit: number): Promise<ITagsAPI[]> {
@@ -55,7 +51,8 @@ export class TopicRepo implements ITopicRepo {
       },
     });
 
-    const tags: { key: string, doc_count: number }[] = data.aggregations.tags_count.buckets;
+    const tags: { key: string; doc_count: number }[] =
+      data.aggregations.tags_count.buckets;
 
     return tags.map(x => ({ name: x.key, count: x.doc_count }));
   }
@@ -63,7 +60,8 @@ export class TopicRepo implements ITopicRepo {
   async find(
     query: G.TopicQuery,
     skip: number,
-    limit: number): Promise<Topic[]> {
+    limit: number,
+  ): Promise<Topic[]> {
     const filter: any[] = [];
     if (!isNullish(query.id)) {
       filter.push({
@@ -86,11 +84,13 @@ export class TopicRepo implements ITopicRepo {
     }
 
     if (!isNullish(query.tags)) {
-      filter.push(...query.tags.map(t => ({
-        term: {
-          tags: t,
-        },
-      })));
+      filter.push(
+        ...query.tags.map(t => ({
+          term: {
+            tags: t,
+          },
+        })),
+      );
     }
 
     if (query.activeOnly) {
@@ -121,7 +121,9 @@ export class TopicRepo implements ITopicRepo {
       },
     });
 
-    return this.aggregate(topics.hits.hits.map(x => ({ id: x._id, body: x._source })));
+    return this.aggregate(
+      topics.hits.hits.map(x => ({ id: x._id, body: x._source })),
+    );
   }
 
   async cronTopicCheck(now: Date): Promise<void> {
@@ -138,7 +140,9 @@ export class TopicRepo implements ITopicRepo {
               {
                 range: {
                   update: {
-                    lt: new Date(now.valueOf() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+                    lt: new Date(
+                      now.valueOf() - 1000 * 60 * 60 * 24 * 7,
+                    ).toISOString(),
                   },
                 },
               },
@@ -185,7 +189,10 @@ export class TopicRepo implements ITopicRepo {
       type: "doc",
       id: tDB.id,
       body: tDB.body,
-      refresh: this.refresh !== undefined ? this.refresh.toString() as "true" | "false" : undefined,
+      refresh:
+        this.refresh !== undefined
+          ? (this.refresh.toString() as "true" | "false")
+          : undefined,
     });
   }
 
@@ -203,6 +210,5 @@ export class TopicRepo implements ITopicRepo {
           return TopicFork.fromDB({ id: x.id, body: x.body }, c);
       }
     });
-
   }
 }

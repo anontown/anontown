@@ -1,9 +1,14 @@
 import { Omit } from "type-zoo";
 
-export interface ID { id: string; }
+export interface ID {
+  id: string;
+}
 
-interface EntityObject { [key: string]: ID; }
-export type IDEntity<T extends EntityObject, E extends keyof T> = Pick<T, E> & Omit<ToID<T>, E>;
+interface EntityObject {
+  [key: string]: ID;
+}
+export type IDEntity<T extends EntityObject, E extends keyof T> = Pick<T, E> &
+  Omit<ToID<T>, E>;
 type ToID<T extends EntityObject> = {
   [P in keyof T]: ID;
 };

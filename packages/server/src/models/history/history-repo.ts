@@ -5,7 +5,7 @@ import * as G from "../../generated/graphql";
 import { History, IHistoryDB } from "./history";
 import { IHistoryRepo } from "./ihistory-repo";
 export class HistoryRepo implements IHistoryRepo {
-  constructor(private refresh?: boolean) { }
+  constructor(private refresh?: boolean) {}
 
   async insert(history: History): Promise<void> {
     const hDB = history.toDB();
@@ -25,7 +25,10 @@ export class HistoryRepo implements IHistoryRepo {
       type: "doc",
       id: hDB.id,
       body: hDB.body,
-      refresh: this.refresh !== undefined ? this.refresh.toString() as | "true" | "false" : undefined,
+      refresh:
+        this.refresh !== undefined
+          ? (this.refresh.toString() as "true" | "false")
+          : undefined,
     });
   }
 
@@ -41,7 +44,7 @@ export class HistoryRepo implements IHistoryRepo {
       throw new AtNotFoundError("編集履歴が存在しません");
     }
 
-    return History.fromDB(({ id: history._id, body: history._source }));
+    return History.fromDB({ id: history._id, body: history._source });
   }
 
   async find(query: G.HistoryQuery, limit: number): Promise<History[]> {
@@ -83,16 +86,23 @@ export class HistoryRepo implements IHistoryRepo {
         },
         sort: {
           date: {
-            order: !isNullish(query.date) && (query.date.type === "gt" || query.date.type === "gte")
-              ? "asc"
-              : "desc",
+            order:
+              !isNullish(query.date) &&
+              (query.date.type === "gt" || query.date.type === "gte")
+                ? "asc"
+                : "desc",
           },
         },
       },
     });
 
-    const result = histories.hits.hits.map(h => History.fromDB({ id: h._id, body: h._source }));
-    if (!isNullish(query.date) && (query.date.type === "gt" || query.date.type === "gte")) {
+    const result = histories.hits.hits.map(h =>
+      History.fromDB({ id: h._id, body: h._source }),
+    );
+    if (
+      !isNullish(query.date) &&
+      (query.date.type === "gt" || query.date.type === "gte")
+    ) {
       result.reverse();
     }
     return result;

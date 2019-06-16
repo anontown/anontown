@@ -11,7 +11,8 @@ import { IClientRepo } from "./iclient-repo";
 export class ClientRepo implements IClientRepo {
   async findOne(id: string): Promise<Client> {
     const db = await DB();
-    const client: IClientDB | null = await db.collection("clients")
+    const client: IClientDB | null = await db
+      .collection("clients")
       .findOne({ _id: new ObjectID(id) });
 
     if (client === null) {
@@ -20,7 +21,10 @@ export class ClientRepo implements IClientRepo {
     return Client.fromDB(client);
   }
 
-  async find(authToken: Option<IAuthTokenMaster>, query: G.ClientQuery): Promise<Client[]> {
+  async find(
+    authToken: Option<IAuthTokenMaster>,
+    query: G.ClientQuery,
+  ): Promise<Client[]> {
     if (query.self && authToken.isNone()) {
       throw new AtAuthError("認証が必要です");
     }
@@ -32,7 +36,8 @@ export class ClientRepo implements IClientRepo {
     if (!isNullish(query.id)) {
       q._id = { $in: query.id.map(id => new ObjectID(id)) };
     }
-    const clients: IClientDB[] = await db.collection("clients")
+    const clients: IClientDB[] = await db
+      .collection("clients")
       .find(q)
       .sort({ date: -1 })
       .toArray();
@@ -42,12 +47,13 @@ export class ClientRepo implements IClientRepo {
   async insert(client: Client): Promise<void> {
     const db = await DB();
 
-    await db.collection("clients")
-      .insertOne(client.toDB());
+    await db.collection("clients").insertOne(client.toDB());
   }
 
   async update(client: Client): Promise<void> {
     const db = await DB();
-    await db.collection("clients").replaceOne({ _id: new ObjectID(client.id) }, client.toDB());
+    await db
+      .collection("clients")
+      .replaceOne({ _id: new ObjectID(client.id) }, client.toDB());
   }
 }

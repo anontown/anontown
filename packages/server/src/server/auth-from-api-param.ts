@@ -1,18 +1,10 @@
-import {
-  IAuthToken,
-  IAuthUser,
-} from "../auth";
+import { IAuthToken, IAuthUser } from "../auth";
 
 import * as request from "request";
 
-import {
-  ITokenRepo,
-  IUserRepo,
-} from "../models";
+import { ITokenRepo, IUserRepo } from "../models";
 
-import {
-  AtAuthError, AtCaptchaError,
-} from "../at-error";
+import { AtAuthError, AtCaptchaError } from "../at-error";
 
 import { isNullish } from "@kgtkr/utils";
 import { isNull } from "util";
@@ -21,8 +13,8 @@ import * as G from "../generated/graphql";
 
 export async function token(
   tokenRepo: ITokenRepo,
-  apiParamToken: { id: string, key: string }): Promise<IAuthToken> {
-
+  apiParamToken: { id: string; key: string },
+): Promise<IAuthToken> {
   const token = await tokenRepo.findOne(apiParamToken.id);
   const authToken = token.auth(apiParamToken.key);
 
@@ -31,7 +23,8 @@ export async function token(
 
 export async function user(
   userRepo: IUserRepo,
-  apiParamUser: G.AuthUser): Promise<IAuthUser> {
+  apiParamUser: G.AuthUser,
+): Promise<IAuthUser> {
   let id;
   if (!isNullish(apiParamUser.id) && isNullish(apiParamUser.sn)) {
     id = apiParamUser.id;
@@ -48,19 +41,22 @@ export async function user(
 
 export async function recaptcha(apiParamRecaptcha: string) {
   const result = await new Promise<string>((resolve, reject) => {
-    request.post("https://www.google.com/recaptcha/api/siteverify", {
-      form: {
-        secret: Config.recaptcha.secretKey,
-        response: apiParamRecaptcha,
+    request.post(
+      "https://www.google.com/recaptcha/api/siteverify",
+      {
+        form: {
+          secret: Config.recaptcha.secretKey,
+          response: apiParamRecaptcha,
+        },
       },
-    },
       (err, _res, body: string) => {
         if (err) {
           reject("キャプチャAPIでエラー");
         } else {
           resolve(body);
         }
-      });
+      },
+    );
   });
 
   if (!JSON.parse(result).success) {

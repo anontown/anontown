@@ -22,7 +22,9 @@ export class ProfileRepoMock implements IProfileRepo {
     const self = query.self ? auth.token.user : null;
     const profiles = this.profiles
       .filter(x => self === null || x.user.toHexString() === self)
-      .filter(x => isNullish(query.id) || query.id.includes(x._id.toHexString()))
+      .filter(
+        x => isNullish(query.id) || query.id.includes(x._id.toHexString()),
+      )
       .sort((a, b) => b.date.valueOf() - a.date.valueOf());
 
     return profiles.map(p => Profile.fromDB(p));
@@ -37,10 +39,16 @@ export class ProfileRepoMock implements IProfileRepo {
   }
 
   async update(profile: Profile): Promise<void> {
-    if (this.profiles.findIndex(x => x.sn === profile.sn && x._id.toHexString() !== profile.id) !== -1) {
+    if (
+      this.profiles.findIndex(
+        x => x.sn === profile.sn && x._id.toHexString() !== profile.id,
+      ) !== -1
+    ) {
       throw new AtConflictError("スクリーンネームが使われています");
     }
 
-    this.profiles[this.profiles.findIndex(x => x._id.toHexString() === profile.id)] = profile.toDB();
+    this.profiles[
+      this.profiles.findIndex(x => x._id.toHexString() === profile.id)
+    ] = profile.toDB();
   }
 }

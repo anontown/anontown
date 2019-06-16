@@ -9,7 +9,8 @@ import { Copyable } from "../../utils";
 import { applyMixins } from "../../utils";
 
 describe("TokenBase", () => {
-  class TokenBaseTest extends Copyable<TokenBaseTest> implements TokenBase<"general", TokenBaseTest> {
+  class TokenBaseTest extends Copyable<TokenBaseTest>
+    implements TokenBase<"general", TokenBaseTest> {
     readonly type: "general" = "general";
 
     toBaseAPI!: () => ITokenBaseAPI<"general">;
@@ -19,7 +20,8 @@ describe("TokenBase", () => {
       readonly id: string,
       readonly key: string,
       readonly user: string,
-      readonly date: Date) {
+      readonly date: Date,
+    ) {
       super(TokenBaseTest);
     }
   }
@@ -27,8 +29,9 @@ describe("TokenBase", () => {
 
   describe("createTokenKey", () => {
     it("正常に生成出来るか", () => {
-      expect(TokenBase.createTokenKey(() => "a")).not.toBe(TokenBase.createTokenKey(() => "b"));
-
+      expect(TokenBase.createTokenKey(() => "a")).not.toBe(
+        TokenBase.createTokenKey(() => "b"),
+      );
     });
   });
 

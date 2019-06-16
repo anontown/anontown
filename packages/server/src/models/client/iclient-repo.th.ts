@@ -9,12 +9,14 @@ import {
 import { IAuthTokenMaster } from "../../auth";
 
 export function run(repoGene: () => IClientRepo, isReset: boolean) {
-  const client = new Client(ObjectIDGenerator(),
+  const client = new Client(
+    ObjectIDGenerator(),
     "name",
     "https://hoge.com",
     ObjectIDGenerator(),
     new Date(0),
-    new Date(100));
+    new Date(100),
+  );
 
   beforeEach(async () => {
     if (isReset) {
@@ -34,12 +36,16 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
     it("存在しない時エラーになるか", async () => {
       const repo = repoGene();
 
-      await repo.insert(new Client(ObjectIDGenerator(),
-        "name",
-        "https://hoge.com",
-        ObjectIDGenerator(),
-        new Date(0),
-        new Date(10)));
+      await repo.insert(
+        new Client(
+          ObjectIDGenerator(),
+          "name",
+          "https://hoge.com",
+          ObjectIDGenerator(),
+          new Date(0),
+          new Date(10),
+        ),
+      );
 
       await expect(repo.findOne(ObjectIDGenerator())).rejects.toThrow(AtError);
     });
@@ -52,10 +58,26 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
       const user1 = ObjectIDGenerator();
       const user2 = ObjectIDGenerator();
 
-      const client1 = client.copy({ id: ObjectIDGenerator(), user: user1, date: new Date(50) });
-      const client2 = client.copy({ id: ObjectIDGenerator(), user: user1, date: new Date(80) });
-      const client3 = client.copy({ id: ObjectIDGenerator(), user: user1, date: new Date(30) });
-      const client4 = client.copy({ id: ObjectIDGenerator(), user: user2, date: new Date(90) });
+      const client1 = client.copy({
+        id: ObjectIDGenerator(),
+        user: user1,
+        date: new Date(50),
+      });
+      const client2 = client.copy({
+        id: ObjectIDGenerator(),
+        user: user1,
+        date: new Date(80),
+      });
+      const client3 = client.copy({
+        id: ObjectIDGenerator(),
+        user: user1,
+        date: new Date(30),
+      });
+      const client4 = client.copy({
+        id: ObjectIDGenerator(),
+        user: user2,
+        date: new Date(90),
+      });
 
       await repo.insert(client1);
       await repo.insert(client2);
@@ -73,17 +95,23 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
 
       // id
 
-      expect(await repo.find(none, {
-        id: [],
-      })).toEqual([]);
+      expect(
+        await repo.find(none, {
+          id: [],
+        }),
+      ).toEqual([]);
 
-      expect(await repo.find(none, {
-        id: [client1.id],
-      })).toEqual([client1]);
+      expect(
+        await repo.find(none, {
+          id: [client1.id],
+        }),
+      ).toEqual([client1]);
 
-      expect(await repo.find(none, {
-        id: [client1.id, ObjectIDGenerator()],
-      })).toEqual([client1]);
+      expect(
+        await repo.find(none, {
+          id: [client1.id, ObjectIDGenerator()],
+        }),
+      ).toEqual([client1]);
 
       // self
 
@@ -94,26 +122,30 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
         client3,
       ]);
 
-      expect(await repo.find(some<IAuthTokenMaster>({
-        id: ObjectIDGenerator(),
-        key: "key",
-        user: user1,
-        type: "master",
-      }), { self: true })).toEqual([
-        client2,
-        client1,
-        client3,
-      ]);
+      expect(
+        await repo.find(
+          some<IAuthTokenMaster>({
+            id: ObjectIDGenerator(),
+            key: "key",
+            user: user1,
+            type: "master",
+          }),
+          { self: true },
+        ),
+      ).toEqual([client2, client1, client3]);
 
       // 複合
-      expect(await repo.find(some<IAuthTokenMaster>({
-        id: ObjectIDGenerator(),
-        key: "key",
-        user: user1,
-        type: "master",
-      }), { self: true, id: [client1.id, client4.id] })).toEqual([
-        client1,
-      ]);
+      expect(
+        await repo.find(
+          some<IAuthTokenMaster>({
+            id: ObjectIDGenerator(),
+            key: "key",
+            user: user1,
+            type: "master",
+          }),
+          { self: true, id: [client1.id, client4.id] },
+        ),
+      ).toEqual([client1]);
     });
 
     it("トークンがnullでselfがtrueの時エラーになるか", async () => {

@@ -4,7 +4,7 @@ import { AuthContainer } from "../../server/auth-container";
 import { Res } from "./res";
 
 export interface IResRepo {
-  readonly insertEvent: Subject<{ res: Res, count: number }>;
+  readonly insertEvent: Subject<{ res: Res; count: number }>;
 
   findOne(id: string): Promise<Res>;
 
@@ -16,8 +16,5 @@ export interface IResRepo {
 
   replyCount(resIDs: string[]): Promise<Map<string, number>>;
 
-  find(
-    auth: AuthContainer,
-    query: G.ResQuery,
-    limit: number): Promise<Res[]>;
+  find(auth: AuthContainer, query: G.ResQuery, limit: number): Promise<Res[]>;
 }

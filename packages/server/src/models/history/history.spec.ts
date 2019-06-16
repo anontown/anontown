@@ -1,40 +1,43 @@
 import { none, some } from "fp-ts/lib/Option";
 import * as Im from "immutable";
-import {
-  History,
-  TopicNormal,
-  User,
-} from "../../";
+import { History, TopicNormal, User } from "../../";
 import { IAuthToken } from "../../auth";
 
 describe("History", () => {
   describe("fromDB", () => {
     it("正常に変換出来るか", () => {
-      expect(History.fromDB({
-        id: "history",
-        body: {
-          topic: "topic",
-          title: "title",
-          tags: ["x"],
-          text: "text",
-          date: new Date(0).toISOString(),
-          hash: "hash",
-          user: "user",
-        },
-      })).toEqual(new History("history",
-        "topic",
-        "title",
-        Im.List(["x"]),
-        "text",
-        new Date(0),
-        "hash",
-        "user"));
+      expect(
+        History.fromDB({
+          id: "history",
+          body: {
+            topic: "topic",
+            title: "title",
+            tags: ["x"],
+            text: "text",
+            date: new Date(0).toISOString(),
+            hash: "hash",
+            user: "user",
+          },
+        }),
+      ).toEqual(
+        new History(
+          "history",
+          "topic",
+          "title",
+          Im.List(["x"]),
+          "text",
+          new Date(0),
+          "hash",
+          "user",
+        ),
+      );
     });
   });
 
   describe("create", () => {
     it("正常に作れるか", () => {
-      const topic = new TopicNormal("topic",
+      const topic = new TopicNormal(
+        "topic",
         "title",
         Im.List(),
         "text",
@@ -42,9 +45,11 @@ describe("History", () => {
         new Date(0),
         10,
         new Date(50),
-        true);
+        true,
+      );
 
-      const user = new User("user",
+      const user = new User(
+        "user",
         "sn",
         "pass",
         5,
@@ -60,20 +65,23 @@ describe("History", () => {
         new Date(80),
         new Date(20),
         0,
-        new Date(90));
+        new Date(90),
+      );
 
-      expect(History.create(() => "history",
-        topic,
-        new Date(300),
-        "hash",
-        user)).toEqual(new History("history",
+      expect(
+        History.create(() => "history", topic, new Date(300), "hash", user),
+      ).toEqual(
+        new History(
+          "history",
           "topic",
           "title",
           Im.List(),
           "text",
           new Date(300),
           "hash",
-          "user"));
+          "user",
+        ),
+      );
     });
   });
 
@@ -121,12 +129,16 @@ describe("History", () => {
     });
 
     it("正常に変換できるか(tokenが投稿ユーザー)", () => {
-      expect(history.toAPI(some<IAuthToken>({
-        id: "token",
-        key: "key",
-        user: "user",
-        type: "master",
-      }))).toEqual({
+      expect(
+        history.toAPI(
+          some<IAuthToken>({
+            id: "token",
+            key: "key",
+            user: "user",
+            type: "master",
+          }),
+        ),
+      ).toEqual({
         id: "history",
         topicID: "topic",
         title: "title",
@@ -139,12 +151,16 @@ describe("History", () => {
     });
 
     it("正常に変換できるか(tokenが別ユーザー)", () => {
-      expect(history.toAPI(some<IAuthToken>({
-        id: "token",
-        key: "key",
-        user: "user2",
-        type: "master",
-      }))).toEqual({
+      expect(
+        history.toAPI(
+          some<IAuthToken>({
+            id: "token",
+            key: "key",
+            user: "user2",
+            type: "master",
+          }),
+        ),
+      ).toEqual({
         id: "history",
         topicID: "topic",
         title: "title",

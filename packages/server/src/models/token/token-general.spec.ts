@@ -12,12 +12,14 @@ import {
 describe("TokenMaster", () => {
   const clientID = ObjectIDGenerator();
   const userID = ObjectIDGenerator();
-  const client = new Client(clientID,
+  const client = new Client(
+    clientID,
     "name",
     "https://hoge.com",
     userID,
     new Date(100),
-    new Date(200));
+    new Date(200),
+  );
 
   const auth: IAuthTokenMaster = {
     id: ObjectIDGenerator(),
@@ -27,34 +29,42 @@ describe("TokenMaster", () => {
   };
 
   const tokenID = ObjectIDGenerator();
-  const token = new TokenGeneral(tokenID,
+  const token = new TokenGeneral(
+    tokenID,
     "key",
     clientID,
     userID,
     Im.List(),
-    new Date(300));
+    new Date(300),
+  );
 
   describe("fromDB", () => {
     it("正常に変換出来るか", () => {
-      expect(TokenGeneral.fromDB({
-        _id: new ObjectID(tokenID),
-        key: "key",
-        type: "general",
-        client: new ObjectID(clientID),
-        user: new ObjectID(userID),
-        date: new Date(300),
-        req: [],
-      })).toEqual(token);
+      expect(
+        TokenGeneral.fromDB({
+          _id: new ObjectID(tokenID),
+          key: "key",
+          type: "general",
+          client: new ObjectID(clientID),
+          user: new ObjectID(userID),
+          date: new Date(300),
+          req: [],
+        }),
+      ).toEqual(token);
     });
   });
 
   describe("create", () => {
     it("正常に作成出来るか", () => {
-      expect(TokenGeneral.create(() => tokenID,
-        auth,
-        client,
-        new Date(300),
-        () => "random")).toEqual(token.copy({ key: TokenBase.createTokenKey(() => "random") }));
+      expect(
+        TokenGeneral.create(
+          () => tokenID,
+          auth,
+          client,
+          new Date(300),
+          () => "random",
+        ),
+      ).toEqual(token.copy({ key: TokenBase.createTokenKey(() => "random") }));
     });
   });
 
@@ -92,56 +102,62 @@ describe("TokenMaster", () => {
 
     it("期限切れのトークンと死んでいるトークンが削除されてるか", () => {
       const date = new Date(100);
-      const { token: newToken, req } = token.copy({
-        req: Im.List([
-          {
-            key: "a",
-            expireDate: new Date(50),
-            active: true,
-          },
-          {
-            key: "b",
-            expireDate: new Date(150),
-            active: false,
-          },
-          {
-            key: "c",
-            expireDate: new Date(150),
-            active: true,
-          },
-        ]),
-      }).createReq(date, () => "random");
+      const { token: newToken, req } = token
+        .copy({
+          req: Im.List([
+            {
+              key: "a",
+              expireDate: new Date(50),
+              active: true,
+            },
+            {
+              key: "b",
+              expireDate: new Date(150),
+              active: false,
+            },
+            {
+              key: "c",
+              expireDate: new Date(150),
+              active: true,
+            },
+          ]),
+        })
+        .createReq(date, () => "random");
       const r = {
         key: TokenBase.createTokenKey(() => "random"),
         expireDate: new Date(300100),
         active: true,
       };
       expect(req).toEqual({ token: token.id, key: r.key });
-      expect(newToken).toEqual(token.copy({
-        req: Im.List([
-          {
-            key: "c",
-            expireDate: new Date(150),
-            active: true,
-          },
-          { ...r, active: true },
-        ]),
-      }));
+      expect(newToken).toEqual(
+        token.copy({
+          req: Im.List([
+            {
+              key: "c",
+              expireDate: new Date(150),
+              active: true,
+            },
+            { ...r, active: true },
+          ]),
+        }),
+      );
     });
   });
 
   describe("authReq", () => {
     it("正常に認証出来るか", () => {
       const date = new Date(0);
-      const authToken = token.copy({
-        req: Im.List([
-          {
-            key: "a",
-            expireDate: new Date(50),
-            active: true,
-          },
-        ]),
-      }).authReq("a", date);
+      const authToken = token
+        .copy({
+          req: Im.List([
+            {
+              key: "a",
+              expireDate: new Date(50),
+              active: true,
+            },
+          ]),
+        })
+        .authReq("a", date);
 
       expect(authToken).toEqual({
         id: token.id,
@@ -154,43 +170,49 @@ describe("TokenMaster", () => {
 
     it("有効期限切れでエラーになるか", () => {
       expect(() => {
-        token.copy({
-          req: Im.List([
-            {
-              key: "a",
-              expireDate: new Date(50),
-              active: true,
-            },
-          ]),
-        }).authReq("a", new Date(100));
+        token
+          .copy({
+            req: Im.List([
+              {
+                key: "a",
+                expireDate: new Date(50),
+                active: true,
+              },
+            ]),
+          })
+          .authReq("a", new Date(100));
       }).toThrow(AtError);
     });
 
     it("死んでいるとエラーになるか", () => {
       expect(() => {
-        token.copy({
-          req: Im.List([
-            {
-              key: "a",
-              expireDate: new Date(50),
-              active: false,
-            },
-          ]),
-        }).authReq("a", new Date(0));
+        token
+          .copy({
+            req: Im.List([
+              {
+                key: "a",
+                expireDate: new Date(50),
+                active: false,
+              },
+            ]),
+          })
+          .authReq("a", new Date(0));
       }).toThrow(AtError);
     });
 
     it("トークンが存在しないとエラーに鳴るか", () => {
       expect(() => {
-        token.copy({
-          req: Im.List([
-            {
-              key: "a",
-              expireDate: new Date(50),
-              active: true,
-            },
-          ]),
-        }).authReq("b", new Date(0));
+        token
+          .copy({
+            req: Im.List([
+              {
+                key: "a",
+                expireDate: new Date(50),
+                active: true,
+              },
+            ]),
+          })
+          .authReq("b", new Date(0));
       }).toThrow(AtError);
     });
   });

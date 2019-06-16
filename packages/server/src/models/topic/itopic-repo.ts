@@ -7,7 +7,7 @@ export interface ITopicRepo {
 
   findOne(id: string): Promise<Topic>;
 
-  findTags(limit: number): Promise<{ name: string, count: number }[]>;
+  findTags(limit: number): Promise<{ name: string; count: number }[]>;
 
   cron(): void;
 
@@ -17,8 +17,5 @@ export interface ITopicRepo {
 
   cronTopicCheck(now: Date): Promise<void>;
 
-  find(
-    query: G.TopicQuery,
-    skip: number,
-    limit: number): Promise<Topic[]>;
+  find(query: G.TopicQuery, skip: number, limit: number): Promise<Topic[]>;
 }

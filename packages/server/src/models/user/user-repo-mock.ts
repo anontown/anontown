@@ -36,11 +36,17 @@ export class UserRepoMock implements IUserRepo {
   }
 
   async update(user: User): Promise<void> {
-    if (this.users.findIndex(x => x.sn === user.sn && x._id.toHexString() !== user.id) !== -1) {
+    if (
+      this.users.findIndex(
+        x => x.sn === user.sn && x._id.toHexString() !== user.id,
+      ) !== -1
+    ) {
       throw new AtConflictError("スクリーンネームが使われています");
     }
 
-    this.users[this.users.findIndex(x => x._id.toHexString() === user.id)] = user.toDB();
+    this.users[
+      this.users.findIndex(x => x._id.toHexString() === user.id)
+    ] = user.toDB();
   }
 
   async cronPointReset(): Promise<void> {
@@ -48,7 +54,10 @@ export class UserRepoMock implements IUserRepo {
   }
 
   async cronCountReset(key: ResWaitCountKey): Promise<void> {
-    this.users = this.users.map(x => ({ ...x, resWait: { ...x.resWait, [key]: 0 } }));
+    this.users = this.users.map(x => ({
+      ...x,
+      resWait: { ...x.resWait, [key]: 0 },
+    }));
   }
 
   cron() {

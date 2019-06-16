@@ -3,8 +3,7 @@ import { AtAuthError } from "../at-error";
 import { IAuthToken, IAuthTokenMaster } from "../auth";
 
 export class AuthContainer {
-  constructor(private _token: Option<IAuthToken>) {
-  }
+  constructor(private _token: Option<IAuthToken>) {}
 
   get token(): IAuthToken {
     if (this._token.isNone()) {
@@ -27,6 +26,8 @@ export class AuthContainer {
   }
 
   get TokenMasterOrNull(): Option<IAuthTokenMaster> {
-    return this._token.chain(token => token.type === "master" ? some(token) : none);
+    return this._token.chain(token =>
+      token.type === "master" ? some(token) : none,
+    );
   }
 }

@@ -13,12 +13,27 @@ import { Copyable } from "../../utils";
 import { applyMixins } from "../../utils";
 
 describe("ResBase", () => {
-  class ResBaseTest extends Copyable<ResBaseTest> implements ResBase<"normal", ResBaseTest> {
+  class ResBaseTest extends Copyable<ResBaseTest>
+    implements ResBase<"normal", ResBaseTest> {
     toBaseAPI!: (authToken: Option<IAuthToken>) => IResBaseAPI<"normal">;
     toBaseDB!: <Body extends object>(body: Body) => IResBaseDB<"normal", Body>;
-    cv!: (resUser: User, user: User, _authToken: IAuthToken) => { res: ResBaseTest, resUser: User };
-    _v!: (resUser: User, user: User, type: "uv" | "dv", _authToken: IAuthToken) => { res: ResBaseTest, resUser: User };
-    v!: (resUser: User, user: User, type: "uv" | "dv", _authToken: IAuthToken) => { res: ResBaseTest, resUser: User };
+    cv!: (
+      resUser: User,
+      user: User,
+      _authToken: IAuthToken,
+    ) => { res: ResBaseTest; resUser: User };
+    _v!: (
+      resUser: User,
+      user: User,
+      type: "uv" | "dv",
+      _authToken: IAuthToken,
+    ) => { res: ResBaseTest; resUser: User };
+    v!: (
+      resUser: User,
+      user: User,
+      type: "uv" | "dv",
+      _authToken: IAuthToken,
+    ) => { res: ResBaseTest; resUser: User };
 
     readonly type: "normal" = "normal";
 
@@ -30,7 +45,8 @@ describe("ResBase", () => {
       readonly votes: Im.List<IVote>,
       readonly lv: number,
       readonly hash: string,
-      readonly replyCount: number) {
+      readonly replyCount: number,
+    ) {
       super(ResBaseTest);
     }
   }
@@ -53,7 +69,8 @@ describe("ResBase", () => {
     new Date(300),
     new Date(10),
     0,
-    new Date(200));
+    new Date(200),
+  );
 
   const token: IAuthToken = {
     id: "token",
@@ -62,72 +79,88 @@ describe("ResBase", () => {
     type: "master",
   };
 
-  const res = new ResBaseTest("id",
+  const res = new ResBaseTest(
+    "id",
     "topic",
     new Date(0),
     "user",
     Im.List(),
     1,
     "hash",
-    10);
+    10,
+  );
 
   describe("#v", () => {
     it("正常に投票出来るか", () => {
       const voteUser = user.copy({ id: "voteuser", lv: 100 });
-      const { res: newRes, resUser: newResUser } = res.v(user,
-        voteUser,
-        "uv",
-        { ...token, user: "voteuser" });
+      const { res: newRes, resUser: newResUser } = res.v(user, voteUser, "uv", {
+        ...token,
+        user: "voteuser",
+      });
 
-      expect(newRes).toEqual(res.copy({ votes: Im.List([{ user: voteUser.id, value: 2 }]) }));
+      expect(newRes).toEqual(
+        res.copy({ votes: Im.List([{ user: voteUser.id, value: 2 }]) }),
+      );
       expect(newResUser).toEqual(user.copy({ lv: 3 }));
 
       const voteUser2 = voteUser.copy({ id: "voteuser2", lv: 50 });
-      const { res: newNewRes, resUser: newNewResUser } = newRes.v(newResUser,
+      const { res: newNewRes, resUser: newNewResUser } = newRes.v(
+        newResUser,
         voteUser2,
         "dv",
-        { ...token, user: "voteuser2" });
+        { ...token, user: "voteuser2" },
+      );
 
-      expect(newNewRes).toEqual(newRes.copy({
-        votes: Im.List([
-          { user: voteUser.id, value: 2 },
-          { user: voteUser2.id, value: -1 }]),
-      }));
+      expect(newNewRes).toEqual(
+        newRes.copy({
+          votes: Im.List([
+            { user: voteUser.id, value: 2 },
+            { user: voteUser2.id, value: -1 },
+          ]),
+        }),
+      );
       expect(newNewResUser).toEqual(newResUser.copy({ lv: 2 }));
     });
 
     it("自分に投票するとエラーになるか", () => {
       expect(() => {
-        res.v(user,
-          user,
-          "uv",
-          token);
+        res.v(user, user, "uv", token);
       }).toThrow(AtError);
     });
 
     it("異なる重複投票を正常に出来るか", () => {
       {
-        const votedRes = res.copy({ votes: Im.List([{ user: "voteuser", value: 2 }]) });
+        const votedRes = res.copy({
+          votes: Im.List([{ user: "voteuser", value: 2 }]),
+        });
         const voteUser = user.copy({ id: "voteuser" });
         const auth = { ...token, user: "voteuser" };
         const data = votedRes.cv(user, voteUser, auth);
 
-        expect(votedRes.v(user, voteUser, "dv", auth)).toEqual(data.res.v(data.resUser, voteUser, "dv", auth));
+        expect(votedRes.v(user, voteUser, "dv", auth)).toEqual(
+          data.res.v(data.resUser, voteUser, "dv", auth),
+        );
       }
 
       {
-        const votedRes = res.copy({ votes: Im.List([{ user: "voteuser", value: -2 }]) });
+        const votedRes = res.copy({
+          votes: Im.List([{ user: "voteuser", value: -2 }]),
+        });
         const voteUser = user.copy({ id: "voteuser" });
         const auth = { ...token, user: "voteuser" };
         const data = votedRes.cv(user, voteUser, auth);
 
-        expect(votedRes.v(user, voteUser, "uv", auth)).toEqual(data.res.v(data.resUser, voteUser, "uv", auth));
+        expect(votedRes.v(user, voteUser, "uv", auth)).toEqual(
+          data.res.v(data.resUser, voteUser, "uv", auth),
+        );
       }
     });
 
     it("同様の重複投票でエラーになるか", () => {
       {
-        const votedRes = res.copy({ votes: Im.List([{ user: "voteuser", value: 2 }]) });
+        const votedRes = res.copy({
+          votes: Im.List([{ user: "voteuser", value: 2 }]),
+        });
         const voteUser = user.copy({ id: "voteuser" });
 
         expect(() => {
@@ -136,7 +169,9 @@ describe("ResBase", () => {
       }
 
       {
-        const votedRes = res.copy({ votes: Im.List([{ user: "voteuser", value: -2 }]) });
+        const votedRes = res.copy({
+          votes: Im.List([{ user: "voteuser", value: -2 }]),
+        });
         const voteUser = user.copy({ id: "voteuser" });
 
         expect(() => {
@@ -148,18 +183,25 @@ describe("ResBase", () => {
 
   describe("#cv", () => {
     it("正常にcv出来るか", () => {
-      const votedRes = res.copy({ votes: Im.List([{ user: "voteuser", value: 2 }]) });
+      const votedRes = res.copy({
+        votes: Im.List([{ user: "voteuser", value: 2 }]),
+      });
       const resUser = user.copy({ lv: 5 });
       const voteUser = user.copy({ id: "voteuser" });
-      const { res: newRes, resUser: newResUser }
-        = votedRes.cv(resUser, voteUser, { ...token, user: "voteuser" });
+      const { res: newRes, resUser: newResUser } = votedRes.cv(
+        resUser,
+        voteUser,
+        { ...token, user: "voteuser" },
+      );
 
       expect(newRes).toEqual(res.copy({ votes: Im.List() }));
       expect(newResUser).toEqual(resUser.copy({ lv: 3 }));
     });
 
     it("投票していない時エラーになるか", () => {
-      const votedRes = res.copy({ votes: Im.List([{ user: "voteuser", value: 2 }]) });
+      const votedRes = res.copy({
+        votes: Im.List([{ user: "voteuser", value: 2 }]),
+      });
       const resUser = user.copy({ lv: 5 });
       const voteUser = user.copy({ id: "voteuser2" });
       expect(() => {
@@ -220,9 +262,11 @@ describe("ResBase", () => {
     });
 
     it("tokenが投稿ユーザーでない時", () => {
-      const api = res.copy({
-        votes: Im.List([{ user: "user2", value: -2 }]),
-      }).toBaseAPI(some({ ...token, user: "user1" }));
+      const api = res
+        .copy({
+          votes: Im.List([{ user: "user2", value: -2 }]),
+        })
+        .toBaseAPI(some({ ...token, user: "user1" }));
       expect(api).toEqual({
         id: res.id,
         topicID: res.topic,
@@ -238,9 +282,13 @@ describe("ResBase", () => {
     });
 
     it("uvした時", () => {
-      const api = res.copy({
-        votes: Im.List([{ user: "user2", value: -2 }, { user: "user1", value: 5 }]),
-      })
+      const api = res
+        .copy({
+          votes: Im.List([
+            { user: "user2", value: -2 },
+            { user: "user1", value: 5 },
+          ]),
+        })
         .toBaseAPI(some({ ...token, user: "user1" }));
 
       expect(api).toEqual({
@@ -258,9 +306,13 @@ describe("ResBase", () => {
     });
 
     it("dvした時", () => {
-      const api = res.copy({
-        votes: Im.List([{ user: "user1", value: -1 }, { user: "user2", value: 1 }]),
-      })
+      const api = res
+        .copy({
+          votes: Im.List([
+            { user: "user1", value: -1 },
+            { user: "user2", value: 1 },
+          ]),
+        })
         .toBaseAPI(some({ ...token, user: "user1" }));
 
       expect(api).toEqual({

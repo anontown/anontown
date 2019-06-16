@@ -14,7 +14,8 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
     }
   });
 
-  const user = new User(ObjectIDGenerator(),
+  const user = new User(
+    ObjectIDGenerator(),
     "sn",
     "pass",
     1,
@@ -30,7 +31,8 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
     new Date(100),
     new Date(0),
     0,
-    new Date(200));
+    new Date(200),
+  );
 
   describe("findOne", () => {
     it("正常に取得出来るか", async () => {
@@ -84,7 +86,9 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
 
       await repo.insert(user);
 
-      await expect(repo.insert(user.copy({ id: ObjectIDGenerator() }))).rejects.toThrow(AtError);
+      await expect(
+        repo.insert(user.copy({ id: ObjectIDGenerator() })),
+      ).rejects.toThrow(AtError);
     });
   });
 
@@ -144,13 +148,22 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
   });
 
   describe("cronCountReset", () => {
-    for (const t of ["m10", "m30", "h1", "h6", "h12", "d1"] as ResWaitCountKey[]) {
+    for (const t of [
+      "m10",
+      "m30",
+      "h1",
+      "h6",
+      "h12",
+      "d1",
+    ] as ResWaitCountKey[]) {
       it("正常に更新出来るか:" + t, async () => {
         const repo = repoGene();
 
         const users = [
           user.copy({
-            id: ObjectIDGenerator(), sn: "sn1", resWait: {
+            id: ObjectIDGenerator(),
+            sn: "sn1",
+            resWait: {
               last: new Date(310),
               m10: 0,
               m30: 10,
@@ -161,7 +174,9 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
             },
           }),
           user.copy({
-            id: ObjectIDGenerator(), sn: "sn2", resWait: {
+            id: ObjectIDGenerator(),
+            sn: "sn2",
+            resWait: {
               last: new Date(330),
               m10: 10,
               m30: 20,
@@ -172,7 +187,9 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
             },
           }),
           user.copy({
-            id: ObjectIDGenerator(), sn: "sn3", resWait: {
+            id: ObjectIDGenerator(),
+            sn: "sn3",
+            resWait: {
               last: new Date(320),
               m10: 20,
               m30: 0,
@@ -191,7 +208,9 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
         await repo.cronCountReset(t);
 
         for (const u of users) {
-          expect(await repo.findOne(u.id)).toEqual(u.copy({ resWait: { ...u.resWait, [t]: 0 } }));
+          expect(await repo.findOne(u.id)).toEqual(
+            u.copy({ resWait: { ...u.resWait, [t]: 0 } }),
+          );
         }
       });
     }

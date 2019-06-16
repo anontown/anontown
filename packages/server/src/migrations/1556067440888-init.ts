@@ -40,15 +40,12 @@ export async function migrate_1556067440888_init() {
       index_patterns: ["*"],
       settings: {
         "mapping.single_type": true,
-        "analysis": {
+        analysis: {
           analyzer: {
             default: {
               type: "custom",
               tokenizer: "kuromoji_tokenizer",
-              char_filter: [
-                "icu_normalizer",
-                "kuromoji_iteration_mark",
-              ],
+              char_filter: ["icu_normalizer", "kuromoji_iteration_mark"],
               filter: [
                 "kuromoji_baseform",
                 "kuromoji_part_of_speech",

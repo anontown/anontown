@@ -32,8 +32,7 @@ export interface ITokenBaseDB<T extends TokenType> {
   readonly date: Date;
 }
 
-export interface ITokenMasterDB extends ITokenBaseDB<"master"> {
-}
+export interface ITokenMasterDB extends ITokenBaseDB<"master"> {}
 
 export interface ITokenGeneralDB extends ITokenBaseDB<"general"> {
   readonly client: ObjectID;
@@ -49,8 +48,7 @@ export interface ITokenBaseAPI<T extends TokenType> {
   readonly type: T;
 }
 
-export interface ITokenMasterAPI extends ITokenBaseAPI<"master"> {
-}
+export interface ITokenMasterAPI extends ITokenBaseAPI<"master"> {}
 
 export interface ITokenGeneralAPI extends ITokenBaseAPI<"general"> {
   readonly clientID: string;
@@ -58,7 +56,10 @@ export interface ITokenGeneralAPI extends ITokenBaseAPI<"general"> {
 
 export type Token = TokenMaster | TokenGeneral;
 
-export abstract class TokenBase<T extends TokenType, C extends TokenBase<T, C>> {
+export abstract class TokenBase<
+  T extends TokenType,
+  C extends TokenBase<T, C>
+> {
   static createTokenKey(randomGenerator: IGenerator<string>): string {
     return hash(randomGenerator() + Config.salt.token);
   }
@@ -91,7 +92,8 @@ export abstract class TokenBase<T extends TokenType, C extends TokenBase<T, C>> 
   }
 }
 
-export class TokenMaster extends Copyable<TokenMaster> implements TokenBase<"master", TokenMaster> {
+export class TokenMaster extends Copyable<TokenMaster>
+  implements TokenBase<"master", TokenMaster> {
   static fromDB(t: ITokenMasterDB): TokenMaster {
     return new TokenMaster(t._id.toString(), t.key, t.user.toString(), t.date);
   }
@@ -100,11 +102,14 @@ export class TokenMaster extends Copyable<TokenMaster> implements TokenBase<"mas
     objidGenerator: IGenerator<string>,
     authUser: IAuthUser,
     now: Date,
-    randomGenerator: IGenerator<string>): TokenMaster {
-    return new TokenMaster(objidGenerator(),
+    randomGenerator: IGenerator<string>,
+  ): TokenMaster {
+    return new TokenMaster(
+      objidGenerator(),
       TokenBase.createTokenKey(randomGenerator),
       authUser.id,
-      now);
+      now,
+    );
   }
 
   readonly type: "master" = "master";
@@ -116,7 +121,8 @@ export class TokenMaster extends Copyable<TokenMaster> implements TokenBase<"mas
     readonly id: string,
     readonly key: string,
     readonly user: string,
-    readonly date: Date) {
+    readonly date: Date,
+  ) {
     super(TokenMaster);
   }
 
@@ -138,9 +144,17 @@ export class TokenMaster extends Copyable<TokenMaster> implements TokenBase<"mas
 }
 applyMixins(TokenMaster, [TokenBase]);
 
-export class TokenGeneral extends Copyable<TokenGeneral> implements TokenBase<"general", TokenGeneral> {
+export class TokenGeneral extends Copyable<TokenGeneral>
+  implements TokenBase<"general", TokenGeneral> {
   static fromDB(t: ITokenGeneralDB): TokenGeneral {
-    return new TokenGeneral(t._id.toString(), t.key, t.client.toString(), t.user.toString(), Im.List(t.req), t.date);
+    return new TokenGeneral(
+      t._id.toString(),
+      t.key,
+      t.client.toString(),
+      t.user.toString(),
+      Im.List(t.req),
+      t.date,
+    );
   }
 
   static create(
@@ -148,13 +162,16 @@ export class TokenGeneral extends Copyable<TokenGeneral> implements TokenBase<"g
     authToken: IAuthTokenMaster,
     client: Client,
     now: Date,
-    randomGenerator: IGenerator<string>): TokenGeneral {
-    return new TokenGeneral(objidGenerator(),
+    randomGenerator: IGenerator<string>,
+  ): TokenGeneral {
+    return new TokenGeneral(
+      objidGenerator(),
       TokenBase.createTokenKey(randomGenerator),
       client.id,
       authToken.user,
       Im.List(),
-      now);
+      now,
+    );
   }
 
   readonly type: "general" = "general";
@@ -168,7 +185,8 @@ export class TokenGeneral extends Copyable<TokenGeneral> implements TokenBase<"g
     readonly client: string,
     readonly user: string,
     readonly req: Im.List<ITokenReq>,
-    readonly date: Date) {
+    readonly date: Date,
+  ) {
     super(TokenGeneral);
   }
 
@@ -187,11 +205,16 @@ export class TokenGeneral extends Copyable<TokenGeneral> implements TokenBase<"g
     };
   }
 
-  createReq(now: Date, randomGenerator: IGenerator<string>): { token: TokenGeneral, req: ITokenReqAPI } {
+  createReq(
+    now: Date,
+    randomGenerator: IGenerator<string>,
+  ): { token: TokenGeneral; req: ITokenReqAPI } {
     const nowNum = now.getTime();
 
     // ゴミを削除
-    const reqFilter = this.req.filter(r => r.active && nowNum < r.expireDate.getTime());
+    const reqFilter = this.req.filter(
+      r => r.active && nowNum < r.expireDate.getTime(),
+    );
 
     // キーの被り防止
     // TODO: uuidにして被らないようにしてこのコード消す
@@ -199,7 +222,9 @@ export class TokenGeneral extends Copyable<TokenGeneral> implements TokenBase<"g
     do {
       req = {
         key: TokenBase.createTokenKey(randomGenerator),
-        expireDate: new Date(nowNum + 1000 * 60 * Config.user.token.req.expireMinute),
+        expireDate: new Date(
+          nowNum + 1000 * 60 * Config.user.token.req.expireMinute,
+        ),
         active: true,
       };
     } while (reqFilter.find(x => x.key === req.key) !== undefined);
@@ -218,11 +243,21 @@ export class TokenGeneral extends Copyable<TokenGeneral> implements TokenBase<"g
   authReq(key: string, now: Date): IAuthTokenGeneral {
     // TODO: 自動削除
     const req = this.req.find(x => x.key === key);
-    if (req === undefined || !req.active || req.expireDate.getTime() < now.getTime()) {
+    if (
+      req === undefined ||
+      !req.active ||
+      req.expireDate.getTime() < now.getTime()
+    ) {
       throw new AtNotFoundError("トークンリクエストが見つかりません");
     }
 
-    return { id: this.id, key: this.key, user: this.user, type: "general", client: this.client };
+    return {
+      id: this.id,
+      key: this.key,
+      user: this.user,
+      type: "general",
+      client: this.client,
+    };
   }
 
   auth(key: string): IAuthTokenGeneral {
@@ -230,7 +265,13 @@ export class TokenGeneral extends Copyable<TokenGeneral> implements TokenBase<"g
       throw new AtTokenAuthError();
     }
 
-    return { id: this.id, key: this.key, user: this.user, type: this.type, client: this.client };
+    return {
+      id: this.id,
+      key: this.key,
+      user: this.user,
+      type: this.type,
+      client: this.client,
+    };
   }
 }
 applyMixins(TokenGeneral, [TokenBase]);

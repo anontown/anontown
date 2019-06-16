@@ -2,7 +2,14 @@ import * as G from "../generated/graphql";
 import { history } from "./history";
 import { mutation } from "./mutation";
 import { query } from "./query";
-import { res, resDelete, resFork, resHistory, resNormal, resTopic } from "./res";
+import {
+  res,
+  resDelete,
+  resFork,
+  resHistory,
+  resNormal,
+  resTopic,
+} from "./res";
 import { subscription } from "./subscription";
 import { token, tokenGeneral } from "./token";
 import { topic, topicFork, topicSearch } from "./topic";

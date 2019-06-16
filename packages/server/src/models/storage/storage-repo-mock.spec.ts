@@ -1,6 +1,4 @@
-import {
-  StorageRepoMock,
-} from "../../";
+import { StorageRepoMock } from "../../";
 
 import { run } from "./istorage-repo.th";
 

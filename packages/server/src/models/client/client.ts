@@ -25,9 +25,15 @@ export interface IClientAPI {
 }
 
 export class Client extends Copyable<Client> {
-
   static fromDB(c: IClientDB): Client {
-    return new Client(c._id.toString(), c.name, c.url, c.user.toString(), c.date, c.update);
+    return new Client(
+      c._id.toString(),
+      c.name,
+      c.url,
+      c.user.toString(),
+      c.date,
+      c.update,
+    );
   }
 
   static create(
@@ -35,7 +41,8 @@ export class Client extends Copyable<Client> {
     authToken: IAuthTokenMaster,
     name: string,
     url: string,
-    now: Date): Client {
+    now: Date,
+  ): Client {
     paramsErrorMaker([
       {
         field: "name",
@@ -51,12 +58,7 @@ export class Client extends Copyable<Client> {
       },
     ]);
 
-    return new Client(objidGenerator(),
-      name,
-      url,
-      authToken.user,
-      now,
-      now);
+    return new Client(objidGenerator(), name, url, authToken.user, now, now);
   }
 
   constructor(
@@ -65,7 +67,8 @@ export class Client extends Copyable<Client> {
     readonly url: string,
     readonly user: string,
     readonly date: Date,
-    readonly update: Date) {
+    readonly update: Date,
+  ) {
     super(Client);
   }
 
@@ -85,13 +88,20 @@ export class Client extends Copyable<Client> {
       id: this.id,
       name: this.name,
       url: this.url,
-      self: authToken.map(authToken => authToken.user === this.user).toNullable(),
+      self: authToken
+        .map(authToken => authToken.user === this.user)
+        .toNullable(),
       date: this.date.toISOString(),
       update: this.update.toISOString(),
     };
   }
 
-  changeData(authToken: IAuthTokenMaster, name: string | undefined, url: string | undefined, now: Date): Client {
+  changeData(
+    authToken: IAuthTokenMaster,
+    name: string | undefined,
+    url: string | undefined,
+    now: Date,
+  ): Client {
     if (authToken.user !== this.user) {
       throw new AtRightError("人のクライアント変更は出来ません");
     }

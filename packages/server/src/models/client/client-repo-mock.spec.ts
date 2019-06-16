@@ -1,6 +1,4 @@
-import {
-  ClientRepoMock,
-} from "../../";
+import { ClientRepoMock } from "../../";
 
 import { run } from "./iclient-repo.th";
 

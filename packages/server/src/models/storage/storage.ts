@@ -19,16 +19,15 @@ export interface IStorageAPI {
 
 export class Storage extends Copyable<Storage> {
   static fromDB(db: IStorageDB): Storage {
-    return new Storage(fromNullable(db.client).map(client => client.toHexString()),
+    return new Storage(
+      fromNullable(db.client).map(client => client.toHexString()),
       db.user.toHexString(),
       db.key,
-      db.value);
+      db.value,
+    );
   }
 
-  static create(
-    authToken: IAuthToken,
-    key: string,
-    value: string): Storage {
+  static create(authToken: IAuthToken, key: string, value: string): Storage {
     paramsErrorMaker([
       {
         field: "key",
@@ -44,17 +43,20 @@ export class Storage extends Copyable<Storage> {
       },
     ]);
 
-    return new Storage(authToken.type === "general" ? some(authToken.client) : none,
+    return new Storage(
+      authToken.type === "general" ? some(authToken.client) : none,
       authToken.user,
       key,
-      value);
+      value,
+    );
   }
 
   constructor(
     readonly client: Option<string>,
     readonly user: string,
     readonly key: string,
-    readonly value: string) {
+    readonly value: string,
+  ) {
     super(Storage);
   }
 
@@ -68,8 +70,11 @@ export class Storage extends Copyable<Storage> {
   }
 
   toAPI(authToken: IAuthToken): IStorageAPI {
-    if (authToken.user !== this.user ||
-      (authToken.type === "master" ? null : authToken.client) !== this.client.toNullable()) {
+    if (
+      authToken.user !== this.user ||
+      (authToken.type === "master" ? null : authToken.client) !==
+        this.client.toNullable()
+    ) {
       throw new AtRightError("権限がありません");
     }
 

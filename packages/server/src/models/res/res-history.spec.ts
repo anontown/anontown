@@ -1,12 +1,6 @@
 import { none } from "fp-ts/lib/Option";
 import * as Im from "immutable";
-import {
-  History,
-  IAuthToken,
-  ResHistory,
-  TopicNormal,
-  User,
-} from "../../";
+import { History, IAuthToken, ResHistory, TopicNormal, User } from "../../";
 
 describe("ResHistory", () => {
   const topicNormal = new TopicNormal(
@@ -38,7 +32,8 @@ describe("ResHistory", () => {
     new Date(240),
     new Date(200),
     0,
-    new Date(260));
+    new Date(260),
+  );
 
   const token: IAuthToken = {
     id: "token",
@@ -55,33 +50,53 @@ describe("ResHistory", () => {
     "text",
     new Date(600),
     "hash",
-    "user");
+    "user",
+  );
 
-  const resHistory = new ResHistory("history", "res", "topic", new Date(700), "user", Im.List(), 5, "hash", 1);
+  const resHistory = new ResHistory(
+    "history",
+    "res",
+    "topic",
+    new Date(700),
+    "user",
+    Im.List(),
+    5,
+    "hash",
+    1,
+  );
 
   describe("fromDB", () => {
     it("正常に作れるか", () => {
-      expect(ResHistory.fromDB({
-        id: "id",
-        body: {
-          type: "history",
-          topic: "topic",
-          date: new Date(1000).toISOString(),
-          user: "user",
-          votes: [],
-          lv: 5,
-          hash: "hash",
-          history: "history",
-        },
-      }, 3)).toEqual(new ResHistory("history",
-        "id",
-        "topic",
-        new Date(1000),
-        "user",
-        Im.List(),
-        5,
-        "hash",
-        3));
+      expect(
+        ResHistory.fromDB(
+          {
+            id: "id",
+            body: {
+              type: "history",
+              topic: "topic",
+              date: new Date(1000).toISOString(),
+              user: "user",
+              votes: [],
+              lv: 5,
+              hash: "hash",
+              history: "history",
+            },
+          },
+          3,
+        ),
+      ).toEqual(
+        new ResHistory(
+          "history",
+          "id",
+          "topic",
+          new Date(1000),
+          "user",
+          Im.List(),
+          5,
+          "hash",
+          3,
+        ),
+      );
     });
   });
 
@@ -93,17 +108,22 @@ describe("ResHistory", () => {
         user,
         token,
         history,
-        new Date(1000));
-
-      expect(res).toEqual(new ResHistory("history",
-        "res",
-        "topic",
         new Date(1000),
-        "user",
-        Im.List(),
-        5,
-        topicNormal.hash(new Date(1000), user),
-        0));
+      );
+
+      expect(res).toEqual(
+        new ResHistory(
+          "history",
+          "res",
+          "topic",
+          new Date(1000),
+          "user",
+          Im.List(),
+          5,
+          topicNormal.hash(new Date(1000), user),
+          0,
+        ),
+      );
 
       expect(newTopic).toEqual(topicNormal.copy({ update: new Date(1000) }));
     });
@@ -113,9 +133,11 @@ describe("ResHistory", () => {
     it("正常に変換できるか", () => {
       const db = resHistory.toDB();
 
-      expect(db).toEqual(resHistory.toBaseDB({
-        history: resHistory.history,
-      }));
+      expect(db).toEqual(
+        resHistory.toBaseDB({
+          history: resHistory.history,
+        }),
+      );
     });
   });
 

@@ -7,7 +7,7 @@ import { IMsgRepo } from "./imsg-repo";
 import { IMsgDB, Msg } from "./msg";
 
 export class MsgRepo implements IMsgRepo {
-  constructor(private refresh?: boolean) { }
+  constructor(private refresh?: boolean) {}
 
   async findOne(id: string): Promise<Msg> {
     let msg;
@@ -21,29 +21,32 @@ export class MsgRepo implements IMsgRepo {
       throw new AtNotFoundError("メッセージが存在しません");
     }
 
-    return Msg.fromDB(({ id: msg._id, body: msg._source }));
+    return Msg.fromDB({ id: msg._id, body: msg._source });
   }
 
   async find(
     authToken: IAuthToken,
     query: G.MsgQuery,
-    limit: number): Promise<Msg[]> {
-    const filter: any[] = [{
-      bool: {
-        should: [
-          {
-            bool: {
-              must_not: {
-                exists: {
-                  field: "receiver",
+    limit: number,
+  ): Promise<Msg[]> {
+    const filter: any[] = [
+      {
+        bool: {
+          should: [
+            {
+              bool: {
+                must_not: {
+                  exists: {
+                    field: "receiver",
+                  },
                 },
               },
             },
-          },
-          { term: { receiver: authToken.user } },
-        ],
+            { term: { receiver: authToken.user } },
+          ],
+        },
       },
-    }];
+    ];
     if (!isNullish(query.date)) {
       filter.push({
         range: {
@@ -71,16 +74,23 @@ export class MsgRepo implements IMsgRepo {
         },
         sort: {
           date: {
-            order: !isNullish(query.date) && (query.date.type === "gt" || query.date.type === "gte")
-              ? "asc"
-              : "desc",
+            order:
+              !isNullish(query.date) &&
+              (query.date.type === "gt" || query.date.type === "gte")
+                ? "asc"
+                : "desc",
           },
         },
       },
     });
 
-    const result = msgs.hits.hits.map(m => Msg.fromDB({ id: m._id, body: m._source }));
-    if (!isNullish(query.date) && (query.date.type === "gt" || query.date.type === "gte")) {
+    const result = msgs.hits.hits.map(m =>
+      Msg.fromDB({ id: m._id, body: m._source }),
+    );
+    if (
+      !isNullish(query.date) &&
+      (query.date.type === "gt" || query.date.type === "gte")
+    ) {
       result.reverse();
     }
     return result;
@@ -104,7 +114,10 @@ export class MsgRepo implements IMsgRepo {
       type: "doc",
       id: mDB.id,
       body: mDB.body,
-      refresh: this.refresh !== undefined ? this.refresh.toString() as "true" | "false" : undefined,
+      refresh:
+        this.refresh !== undefined
+          ? (this.refresh.toString() as "true" | "false")
+          : undefined,
     });
   }
 }

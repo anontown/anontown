@@ -16,13 +16,15 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
     }
   });
 
-  const profile = new Profile(ObjectIDGenerator(),
+  const profile = new Profile(
+    ObjectIDGenerator(),
     ObjectIDGenerator(),
     "name",
     "text",
     new Date(0),
     new Date(10),
-    "sn");
+    "sn",
+  );
 
   describe("findOne", () => {
     it("正常に探せるか", async () => {
@@ -37,13 +39,17 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
     it("存在しない時エラーになるか", async () => {
       const repo = repoGene();
 
-      await repo.insert(new Profile(ObjectIDGenerator(),
-        ObjectIDGenerator(),
-        "name",
-        "text",
-        new Date(0),
-        new Date(10),
-        "sn"));
+      await repo.insert(
+        new Profile(
+          ObjectIDGenerator(),
+          ObjectIDGenerator(),
+          "name",
+          "text",
+          new Date(0),
+          new Date(10),
+          "sn",
+        ),
+      );
 
       await expect(repo.findOne(ObjectIDGenerator())).rejects.toThrow(AtError);
     });
@@ -56,10 +62,30 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
       const user1 = ObjectIDGenerator();
       const user2 = ObjectIDGenerator();
 
-      const profile1 = profile.copy({ id: ObjectIDGenerator(), user: user1, date: new Date(50), sn: "sn1" });
-      const profile2 = profile.copy({ id: ObjectIDGenerator(), user: user1, date: new Date(80), sn: "sn2" });
-      const profile3 = profile.copy({ id: ObjectIDGenerator(), user: user1, date: new Date(30), sn: "sn3" });
-      const profile4 = profile.copy({ id: ObjectIDGenerator(), user: user2, date: new Date(90), sn: "sn4" });
+      const profile1 = profile.copy({
+        id: ObjectIDGenerator(),
+        user: user1,
+        date: new Date(50),
+        sn: "sn1",
+      });
+      const profile2 = profile.copy({
+        id: ObjectIDGenerator(),
+        user: user1,
+        date: new Date(80),
+        sn: "sn2",
+      });
+      const profile3 = profile.copy({
+        id: ObjectIDGenerator(),
+        user: user1,
+        date: new Date(30),
+        sn: "sn3",
+      });
+      const profile4 = profile.copy({
+        id: ObjectIDGenerator(),
+        user: user2,
+        date: new Date(90),
+        sn: "sn4",
+      });
 
       await repo.insert(profile1);
       await repo.insert(profile2);
@@ -75,51 +101,56 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
       ]);
 
       // self
-      expect(await repo.find(new AuthContainer(some<IAuthToken>({
-        id: ObjectIDGenerator(),
-        key: "key",
-        user: user1,
-        type: "master",
-      })), { self: true })).toEqual([
-        profile2,
-        profile1,
-        profile3,
-      ]);
+      expect(
+        await repo.find(
+          new AuthContainer(
+            some<IAuthToken>({
+              id: ObjectIDGenerator(),
+              key: "key",
+              user: user1,
+              type: "master",
+            }),
+          ),
+          { self: true },
+        ),
+      ).toEqual([profile2, profile1, profile3]);
 
-      expect(await repo.find(new AuthContainer(none), {
-        self: false,
-      })).toEqual([
-        profile4,
-        profile2,
-        profile1,
-        profile3,
-      ]);
+      expect(
+        await repo.find(new AuthContainer(none), {
+          self: false,
+        }),
+      ).toEqual([profile4, profile2, profile1, profile3]);
 
       // id
       expect(await repo.find(new AuthContainer(none), { id: [] })).toEqual([]);
-      expect(await repo.find(new AuthContainer(none),
-        { id: [profile1.id, profile2.id, ObjectIDGenerator()] })).toEqual([
-          profile2,
-          profile1,
-        ]);
+      expect(
+        await repo.find(new AuthContainer(none), {
+          id: [profile1.id, profile2.id, ObjectIDGenerator()],
+        }),
+      ).toEqual([profile2, profile1]);
 
       // 複合
-      expect(await repo.find(new AuthContainer(some<IAuthToken>({
-        id: ObjectIDGenerator(),
-        key: "key",
-        user: user1,
-        type: "master",
-      })), { self: true, id: [profile1.id, profile2.id, profile4.id] })).toEqual([
-        profile2,
-        profile1,
-      ]);
+      expect(
+        await repo.find(
+          new AuthContainer(
+            some<IAuthToken>({
+              id: ObjectIDGenerator(),
+              key: "key",
+              user: user1,
+              type: "master",
+            }),
+          ),
+          { self: true, id: [profile1.id, profile2.id, profile4.id] },
+        ),
+      ).toEqual([profile2, profile1]);
     });
 
     it("認証していない状態でselfしたらエラーになるか", async () => {
       const repo = repoGene();
 
-      await expect(repo.find(new AuthContainer(none),
-        { self: true })).rejects.toThrow(AtError);
+      await expect(
+        repo.find(new AuthContainer(none), { self: true }),
+      ).rejects.toThrow(AtError);
     });
   });
 

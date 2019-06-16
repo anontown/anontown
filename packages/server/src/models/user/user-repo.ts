@@ -9,7 +9,9 @@ import { IUserDB, ResWaitCountKey, User } from "./user";
 export class UserRepo implements IUserRepo {
   async findOne(id: string): Promise<User> {
     const db = await DB();
-    const user: IUserDB | null = await db.collection("users").findOne({ _id: new ObjectID(id) });
+    const user: IUserDB | null = await db
+      .collection("users")
+      .findOne({ _id: new ObjectID(id) });
 
     if (user === null) {
       throw new AtNotFoundError("ユーザーが存在しません");
@@ -46,7 +48,9 @@ export class UserRepo implements IUserRepo {
   async update(user: User): Promise<void> {
     const db = await DB();
     try {
-      await db.collection("users").replaceOne({ _id: new ObjectID(user.id) }, user.toDB());
+      await db
+        .collection("users")
+        .replaceOne({ _id: new ObjectID(user.id) }, user.toDB());
     } catch (ex) {
       const e: WriteError = ex;
       if (e.code === 11000) {
@@ -64,7 +68,9 @@ export class UserRepo implements IUserRepo {
 
   async cronCountReset(key: ResWaitCountKey): Promise<void> {
     const db = await DB();
-    await db.collection("users").updateMany({}, { $set: { ["resWait." + key]: 0 } });
+    await db
+      .collection("users")
+      .updateMany({}, { $set: { ["resWait." + key]: 0 } });
   }
 
   cron() {

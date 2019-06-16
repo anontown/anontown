@@ -1,6 +1,4 @@
-import {
-  ProfileRepo,
-} from "../../";
+import { ProfileRepo } from "../../";
 
 import { run } from "./iprofile-repo.th";
 

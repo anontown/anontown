@@ -1,4 +1,3 @@
-
 import { IResAPI } from "./res";
 import { ITokenGeneralAPI, ITokenReqAPI } from "./token";
 

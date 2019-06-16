@@ -1,11 +1,5 @@
 import { none, some } from "fp-ts/lib/Option";
-import {
-  AtError,
-  dbReset,
-  IAuthTokenMaster,
-  IMsgRepo,
-  Msg,
-} from "../../";
+import { AtError, dbReset, IAuthTokenMaster, IMsgRepo, Msg } from "../../";
 
 export function run(repoGene: () => IMsgRepo, isReset: boolean) {
   beforeEach(async () => {
@@ -14,10 +8,7 @@ export function run(repoGene: () => IMsgRepo, isReset: boolean) {
     }
   });
 
-  const msg = new Msg("msg",
-    some("user"),
-    "text",
-    new Date(0));
+  const msg = new Msg("msg", some("user"), "text", new Date(0));
 
   describe("findOne", () => {
     it("正常に探せるか", async () => {
@@ -32,10 +23,7 @@ export function run(repoGene: () => IMsgRepo, isReset: boolean) {
     it("存在しない時エラーになるか", async () => {
       const repo = repoGene();
 
-      await repo.insert(new Msg("msg",
-        some("user"),
-        "text",
-        new Date(0)));
+      await repo.insert(new Msg("msg", some("user"), "text", new Date(0)));
 
       await expect(repo.findOne("msg2")).rejects.toThrow(AtError);
     });
@@ -56,14 +44,46 @@ export function run(repoGene: () => IMsgRepo, isReset: boolean) {
       };
 
       const msg1 = msg.copy({ id: "msg1", date: new Date(50), receiver: none });
-      const msg2 = msg.copy({ id: "msg2", date: new Date(80), receiver: some(user2) });
-      const msg3 = msg.copy({ id: "msg3", date: new Date(30), receiver: some(user1) });
-      const msg4 = msg.copy({ id: "msg4", date: new Date(90), receiver: some(user1) });
-      const msg5 = msg.copy({ id: "msg5", date: new Date(20), receiver: some(user1) });
-      const msg6 = msg.copy({ id: "msg6", date: new Date(10), receiver: some(user1) });
-      const msg7 = msg.copy({ id: "msg7", date: new Date(60), receiver: some(user1) });
-      const msg8 = msg.copy({ id: "msg8", date: new Date(40), receiver: some(user1) });
-      const msg9 = msg.copy({ id: "msg9", date: new Date(70), receiver: some(user1) });
+      const msg2 = msg.copy({
+        id: "msg2",
+        date: new Date(80),
+        receiver: some(user2),
+      });
+      const msg3 = msg.copy({
+        id: "msg3",
+        date: new Date(30),
+        receiver: some(user1),
+      });
+      const msg4 = msg.copy({
+        id: "msg4",
+        date: new Date(90),
+        receiver: some(user1),
+      });
+      const msg5 = msg.copy({
+        id: "msg5",
+        date: new Date(20),
+        receiver: some(user1),
+      });
+      const msg6 = msg.copy({
+        id: "msg6",
+        date: new Date(10),
+        receiver: some(user1),
+      });
+      const msg7 = msg.copy({
+        id: "msg7",
+        date: new Date(60),
+        receiver: some(user1),
+      });
+      const msg8 = msg.copy({
+        id: "msg8",
+        date: new Date(40),
+        receiver: some(user1),
+      });
+      const msg9 = msg.copy({
+        id: "msg9",
+        date: new Date(70),
+        receiver: some(user1),
+      });
 
       await repo.insert(msg1);
       await repo.insert(msg2);
@@ -87,77 +107,98 @@ export function run(repoGene: () => IMsgRepo, isReset: boolean) {
         msg6,
       ]);
 
-      expect(await repo.find(token, {}, 3)).toEqual([
-        msg4,
-        msg9,
-        msg7,
-      ]);
+      expect(await repo.find(token, {}, 3)).toEqual([msg4, msg9, msg7]);
 
       // id
 
-      expect(await repo.find(token, {
-        id: [],
-      }, 100)).toEqual([]);
+      expect(
+        await repo.find(
+          token,
+          {
+            id: [],
+          },
+          100,
+        ),
+      ).toEqual([]);
 
-      expect(await repo.find(token, {
-        id: ["msg1", "msg2", "msg3"],
-      }, 100)).toEqual([
-        msg1,
-        msg3,
-      ]);
+      expect(
+        await repo.find(
+          token,
+          {
+            id: ["msg1", "msg2", "msg3"],
+          },
+          100,
+        ),
+      ).toEqual([msg1, msg3]);
 
       // date
 
-      expect(await repo.find(token, {
-        date: {
-          type: "gte",
-          date: new Date(70).toISOString(),
-        },
-      }, 100)).toEqual([
-        msg4,
-        msg9,
-      ]);
+      expect(
+        await repo.find(
+          token,
+          {
+            date: {
+              type: "gte",
+              date: new Date(70).toISOString(),
+            },
+          },
+          100,
+        ),
+      ).toEqual([msg4, msg9]);
 
-      expect(await repo.find(token, {
-        date: {
-          type: "gt",
-          date: new Date(70).toISOString(),
-        },
-      }, 100)).toEqual([
-        msg4,
-      ]);
+      expect(
+        await repo.find(
+          token,
+          {
+            date: {
+              type: "gt",
+              date: new Date(70).toISOString(),
+            },
+          },
+          100,
+        ),
+      ).toEqual([msg4]);
 
-      expect(await repo.find(token, {
-        date: {
-          type: "lte",
-          date: new Date(30).toISOString(),
-        },
-      }, 100)).toEqual([
-        msg3,
-        msg5,
-        msg6,
-      ]);
+      expect(
+        await repo.find(
+          token,
+          {
+            date: {
+              type: "lte",
+              date: new Date(30).toISOString(),
+            },
+          },
+          100,
+        ),
+      ).toEqual([msg3, msg5, msg6]);
 
-      expect(await repo.find(token, {
-        date: {
-          type: "lt",
-          date: new Date(30).toISOString(),
-        },
-      }, 100)).toEqual([
-        msg5,
-        msg6,
-      ]);
+      expect(
+        await repo.find(
+          token,
+          {
+            date: {
+              type: "lt",
+              date: new Date(30).toISOString(),
+            },
+          },
+          100,
+        ),
+      ).toEqual([msg5, msg6]);
 
       // 複合
-      expect(await repo.find(token, {
-        date: {
-          type: "lt",
-          date: new Date(30).toISOString(),
-        },
-        id: ["msg5", "msg3"],
-      }, 100)).toEqual([
-        msg5,
-      ]);
+      expect(
+        await repo.find(
+          token,
+          {
+            date: {
+              type: "lt",
+              date: new Date(30).toISOString(),
+            },
+            id: ["msg5", "msg3"],
+          },
+          100,
+        ),
+      ).toEqual([msg5]);
     });
   });
 

@@ -1,6 +1,4 @@
-import {
-  TokenRepoMock,
-} from "../../";
+import { TokenRepoMock } from "../../";
 
 import { run } from "./itoken-repo.th";
 

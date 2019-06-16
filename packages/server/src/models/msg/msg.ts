@@ -8,9 +8,9 @@ import { User } from "../user";
 export interface IMsgDB {
   readonly id: string;
   readonly body: {
-    readonly receiver: string | null,
-    readonly text: string,
-    readonly date: string,
+    readonly receiver: string | null;
+    readonly text: string;
+    readonly date: string;
   };
 }
 
@@ -23,21 +23,29 @@ export interface IMsgAPI {
 
 export class Msg extends Copyable<Msg> {
   static fromDB(m: IMsgDB): Msg {
-    return new Msg(m.id, fromNullable(m.body.receiver), m.body.text, new Date(m.body.date));
+    return new Msg(
+      m.id,
+      fromNullable(m.body.receiver),
+      m.body.text,
+      new Date(m.body.date),
+    );
   }
 
-  static create(objidGenerator: IGenerator<string>, receiver: Option<User>, text: string, now: Date): Msg {
-    return new Msg(objidGenerator(),
-      receiver.map(x => x.id),
-      text,
-      now);
+  static create(
+    objidGenerator: IGenerator<string>,
+    receiver: Option<User>,
+    text: string,
+    now: Date,
+  ): Msg {
+    return new Msg(objidGenerator(), receiver.map(x => x.id), text, now);
   }
 
   constructor(
     readonly id: string,
     readonly receiver: Option<string>,
     readonly text: string,
-    readonly date: Date) {
+    readonly date: Date,
+  ) {
     super(Msg);
   }
 

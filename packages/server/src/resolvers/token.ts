@@ -12,11 +12,7 @@ export const token: G.TokenResolvers = {
 };
 
 export const tokenGeneral: G.TokenGeneralResolvers = {
-  client: async (
-    token,
-    _args,
-    context,
-    _info) => {
+  client: async (token, _args, context, _info) => {
     const client = await context.loader.client.load(token.clientID);
     return client.toAPI(context.auth.TokenMasterOrNull);
   },
