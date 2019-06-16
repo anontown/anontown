@@ -11,6 +11,8 @@ matrix:
         - curl -L https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
         - chmod +x docker-compose
         - sudo mv docker-compose /usr/local/bin
+      before_script:
+        - docker-compose -f docker-compose.test.yml build
       script:
         - docker-compose -f docker-compose.test.yml run --rm app npx lerna exec --scope @anontown/server -- npm run test:io
     - language: node_js
