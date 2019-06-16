@@ -26,7 +26,7 @@ jobs:
           http.port: 9200
           xpack.security.enabled: false
           ES_JAVA_OPTS: '-Xms512m -Xmx512m'
-      - image: redis:5.0.4
+      #- image: redis:5.0.4
     steps:
       - checkout
       - run:
