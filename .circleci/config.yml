@@ -52,7 +52,7 @@ jobs:
     docker:
       - image: node:10.15.3
         environment:
-          NODE_OPTIONS: --max_old_space_size=1024
+          NODE_OPTIONS: --max_old_space_size=2048
     steps:
       - checkout
       - run:
