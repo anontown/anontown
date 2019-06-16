@@ -1,6 +1,10 @@
 {
+  "rulesDirectory": [
+    "tslint-plugin-prettier"
+  ],
   "extends": [
-    "tslint:recommended"
+    "tslint:recommended",
+    "tslint-config-prettier"
   ],
   "jsRules": {},
   "rules": {
@@ -35,7 +39,7 @@
       "array"
     ],
     "strict-type-predicates": true,
-    "no-floating-promises": true
+    "no-floating-promises": true,
+    "prettier": true
   },
-  "rulesDirectory": []
 }
