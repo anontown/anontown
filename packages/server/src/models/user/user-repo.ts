@@ -59,12 +59,12 @@ export class UserRepo implements IUserRepo {
 
   async cronPointReset(): Promise<void> {
     const db = await DB();
-    await db.collection("users").update({}, { $set: { point: 0 } }, { multi: true });
+    await db.collection("users").updateMany({}, { $set: { point: 0 } });
   }
 
   async cronCountReset(key: ResWaitCountKey): Promise<void> {
     const db = await DB();
-    await db.collection("users").update({}, { $set: { ["resWait." + key]: 0 } }, { multi: true });
+    await db.collection("users").updateMany({}, { $set: { ["resWait." + key]: 0 } });
   }
 
   cron() {
