@@ -3,7 +3,7 @@ import { AtNotFoundError } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { IStorageDB, Storage } from "../../entities";
 import * as G from "../../generated/graphql";
-import { IStorageRepo } from "./istorage-repo";
+import { IStorageRepo } from "../../ports";
 
 export class StorageRepoMock implements IStorageRepo {
   private storages: IStorageDB[] = [];

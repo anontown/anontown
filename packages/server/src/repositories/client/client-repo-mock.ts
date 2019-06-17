@@ -4,7 +4,7 @@ import { AtAuthError, AtNotFoundError } from "../../at-error";
 import { IAuthTokenMaster } from "../../auth";
 import { Client, IClientDB } from "../../entities";
 import * as G from "../../generated/graphql";
-import { IClientRepo } from "./iclient-repo";
+import { IClientRepo } from "../../ports";
 
 export class ClientRepoMock implements IClientRepo {
   private clients: IClientDB[] = [];

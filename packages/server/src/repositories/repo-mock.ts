@@ -1,6 +1,6 @@
+import { IRepo } from "../ports";
 import { ClientRepoMock } from "./client";
 import { HistoryRepoMock } from "./history";
-import { IRepo } from "./irepo";
 import { MsgRepoMock } from "./msg";
 import { ProfileRepoMock } from "./profile";
 import { ResRepoMock } from "./res";

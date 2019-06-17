@@ -1,7 +1,7 @@
 import { none, some } from "fp-ts/lib/Option";
 import { AtAuthError } from "../at-error";
 import { Logger } from "../logger";
-import { createLoader, IRepo, Loader } from "../repositories";
+import { createLoader, IRepo, Loader } from "../ports";
 import { AuthContainer } from "./auth-container";
 import * as authFromApiParam from "./auth-from-api-param";
 

@@ -3,7 +3,7 @@ import { AtNotFoundError } from "../../at-error";
 import { ESClient } from "../../db";
 import { History, IHistoryDB } from "../../entities";
 import * as G from "../../generated/graphql";
-import { IHistoryRepo } from "./ihistory-repo";
+import { IHistoryRepo } from "../../ports";
 export class HistoryRepo implements IHistoryRepo {
   constructor(private refresh?: boolean) {}
 

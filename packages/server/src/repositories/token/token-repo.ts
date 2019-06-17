@@ -3,7 +3,7 @@ import { AtNotFoundError } from "../../at-error";
 import { IAuthTokenMaster, IAuthUser } from "../../auth";
 import { Mongo } from "../../db";
 import { ITokenDB, Token, TokenGeneral, TokenMaster } from "../../entities";
-import { ITokenRepo } from "./itoken-repo";
+import { ITokenRepo } from "../../ports";
 
 export class TokenRepo implements ITokenRepo {
   async findOne(id: string): Promise<Token> {

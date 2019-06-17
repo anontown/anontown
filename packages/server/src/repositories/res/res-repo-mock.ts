@@ -3,8 +3,8 @@ import { Subject } from "rxjs";
 import { AtNotFoundError } from "../../at-error";
 import { fromDBToRes, IResDB, Res } from "../../entities";
 import * as G from "../../generated/graphql";
+import { IResRepo } from "../../ports";
 import { AuthContainer } from "../../server/auth-container";
-import { IResRepo } from "./ires-repo";
 
 export class ResRepoMock implements IResRepo {
   readonly insertEvent: Subject<{ res: Res; count: number }> = new Subject<{

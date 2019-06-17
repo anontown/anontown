@@ -4,8 +4,8 @@ import { AtNotFoundError } from "../../at-error";
 import { createRedisClient, ESClient, RedisClient } from "../../db";
 import { fromDBToRes, IResDB, Res, ResNormal } from "../../entities";
 import * as G from "../../generated/graphql";
+import { IResRepo } from "../../ports";
 import { AuthContainer } from "../../server/auth-container";
-import { IResRepo } from "./ires-repo";
 
 interface ResPubSub {
   res: IResDB;

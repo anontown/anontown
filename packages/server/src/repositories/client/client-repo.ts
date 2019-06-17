@@ -6,7 +6,7 @@ import { IAuthTokenMaster } from "../../auth";
 import { Mongo } from "../../db";
 import { Client, IClientDB } from "../../entities";
 import * as G from "../../generated/graphql";
-import { IClientRepo } from "./iclient-repo";
+import { IClientRepo } from "../../ports";
 
 export class ClientRepo implements IClientRepo {
   async findOne(id: string): Promise<Client> {

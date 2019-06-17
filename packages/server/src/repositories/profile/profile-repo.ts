@@ -4,8 +4,8 @@ import { AtConflictError, AtNotFoundError } from "../../at-error";
 import { Mongo } from "../../db";
 import { IProfileDB, Profile } from "../../entities";
 import * as G from "../../generated/graphql";
+import { IProfileRepo } from "../../ports";
 import { AuthContainer } from "../../server/auth-container";
-import { IProfileRepo } from "./iprofile-repo";
 
 export class ProfileRepo implements IProfileRepo {
   async findOne(id: string): Promise<Profile> {

@@ -3,7 +3,7 @@ import { AtNotFoundError } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { IMsgDB, Msg } from "../../entities";
 import * as G from "../../generated/graphql";
-import { IMsgRepo } from "./imsg-repo";
+import { IMsgRepo } from "../../ports";
 
 export class MsgRepoMock implements IMsgRepo {
   private msgs: IMsgDB[] = [];

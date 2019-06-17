@@ -4,7 +4,7 @@ import { IAuthToken } from "../../auth";
 import { ESClient } from "../../db";
 import { IMsgDB, Msg } from "../../entities";
 import * as G from "../../generated/graphql";
-import { IMsgRepo } from "./imsg-repo";
+import { IMsgRepo } from "../../ports";
 
 export class MsgRepo implements IMsgRepo {
   constructor(private refresh?: boolean) {}

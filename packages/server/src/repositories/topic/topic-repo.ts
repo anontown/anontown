@@ -11,8 +11,7 @@ import {
   TopicOne,
 } from "../../entities";
 import * as G from "../../generated/graphql";
-import { IResRepo } from "../res";
-import { ITopicRepo } from "./itopic-repo";
+import { IResRepo, ITopicRepo } from "../../ports";
 
 export class TopicRepo implements ITopicRepo {
   constructor(public resRepo: IResRepo, private refresh?: boolean) {}

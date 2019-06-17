@@ -1,6 +1,6 @@
+import { IRepo } from "../ports";
 import { ClientRepo } from "./client";
 import { HistoryRepo } from "./history";
-import { IRepo } from "./irepo";
 import { MsgRepo } from "./msg";
 import { ProfileRepo } from "./profile";
 import { ResRepo } from "./res";

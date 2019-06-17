@@ -4,7 +4,7 @@ import { AtConflictError, AtNotFoundError } from "../../at-error";
 import { Mongo } from "../../db";
 import { IUserDB, ResWaitCountKey, User } from "../../entities";
 import { Logger } from "../../logger";
-import { IUserRepo } from "./iuser-repo";
+import { IUserRepo } from "../../ports";
 
 export class UserRepo implements IUserRepo {
   async findOne(id: string): Promise<User> {

@@ -1,7 +1,7 @@
 import * as DataLoader from "dataloader";
 import { Client, History, Msg, Profile, Res, Topic } from "../entities";
+import { IRepo } from "../ports";
 import { AuthContainer } from "../server/auth-container";
-import { IRepo } from "./irepo";
 
 function sort<T extends { id: string }>(
   ids: string[],

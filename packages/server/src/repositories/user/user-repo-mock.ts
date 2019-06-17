@@ -2,7 +2,7 @@ import { CronJob } from "cron";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
 import { IUserDB, ResWaitCountKey, User } from "../../entities";
 import { Logger } from "../../logger";
-import { IUserRepo } from "./iuser-repo";
+import { IUserRepo } from "../../ports";
 
 export class UserRepoMock implements IUserRepo {
   private users: IUserDB[] = [];

@@ -1,7 +1,7 @@
 import { AtNotFoundError } from "../../at-error";
 import { IAuthTokenMaster, IAuthUser } from "../../auth";
 import { ITokenDB, Token, TokenGeneral, TokenMaster } from "../../entities";
-import { ITokenRepo } from "./itoken-repo";
+import { ITokenRepo } from "../../ports";
 
 export class TokenRepoMock implements ITokenRepo {
   private tokens: ITokenDB[] = [];
