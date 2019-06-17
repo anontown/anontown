@@ -9,8 +9,8 @@ import { HttpLink } from "apollo-link-http";
 import { WebSocketLink } from "apollo-link-ws";
 import { getMainDefinition } from "apollo-utilities";
 import * as zen from "zen-observable-ts";
-import introspectionResult from "../generated/introspection-result";
 import { Env } from "../env";
+import introspectionResult from "../generated/introspection-result";
 import { auth } from "./user";
 
 export function createHeaders(id: string, key: string): {} {

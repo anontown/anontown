@@ -23,8 +23,8 @@ import {
 } from "react-router-dom";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
 import { UserData } from "src/models";
-import * as G from "../generated/graphql";
 import { BUILD_DATE, Env } from "../env";
+import * as G from "../generated/graphql";
 import * as pages from "../pages";
 import {
   createHeaders,

@@ -7,8 +7,8 @@ import {
   RouteComponentProps,
   withRouter,
 } from "react-router-dom";
-import * as G from "../generated/graphql";
 import { Errors, Page } from "../components";
+import * as G from "../generated/graphql";
 import { createUserData, useUserContext } from "../utils";
 
 type LoginPageProps = RouteComponentProps<{}>;

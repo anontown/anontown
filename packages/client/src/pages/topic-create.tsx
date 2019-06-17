@@ -10,8 +10,8 @@ import * as React from "react";
 import { Mutation } from "react-apollo";
 import { Helmet } from "react-helmet";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import * as G from "../generated/graphql";
 import { Errors, MdEditor, Modal, Page, TagsInput } from "../components";
+import * as G from "../generated/graphql";
 import { userSwitch, UserSwitchProps } from "../utils";
 
 type TopicCreatePageProps = RouteComponentProps<{}> & UserSwitchProps;

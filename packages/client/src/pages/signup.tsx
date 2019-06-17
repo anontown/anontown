@@ -8,9 +8,9 @@ import {
   RouteComponentProps,
   withRouter,
 } from "react-router-dom";
-import * as G from "../generated/graphql";
 import { Errors, Page } from "../components";
 import { Env } from "../env";
+import * as G from "../generated/graphql";
 import { createUserData, UserContext } from "../utils";
 
 interface SignupPageProps extends RouteComponentProps<{}> {}

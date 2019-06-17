@@ -14,7 +14,6 @@ import * as React from "react";
 import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import { useTitle } from "react-use";
 import * as rx from "rxjs";
-import * as G from "../generated/graphql";
 import {
   Modal,
   NG,
@@ -24,6 +23,7 @@ import {
   Scroll,
   TopicFavo,
 } from "../components";
+import * as G from "../generated/graphql";
 import { queryResultConvert, useUserContext } from "../utils";
 import * as style from "./topic.scss";
 // TODO:NGのtransparent

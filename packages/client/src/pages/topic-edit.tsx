@@ -2,8 +2,8 @@ import { Paper } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import * as G from "../generated/graphql";
 import { Page, TopicEditor } from "../components";
+import * as G from "../generated/graphql";
 import {
   queryResultConvert,
   userSwitch,

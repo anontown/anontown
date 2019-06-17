@@ -15,8 +15,8 @@ import { Link, RouteComponentProps } from "react-router-dom";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { isArray } from "util";
-import * as G from "../generated/graphql";
 import { Page, TagsInput, TopicListItem } from "../components";
+import * as G from "../generated/graphql";
 import { queryResultConvert, useEffectRef, useUserContext } from "../utils";
 import * as style from "./topic-search.scss";
 
