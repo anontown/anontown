@@ -2,7 +2,7 @@ import { IAuthToken, IAuthUser } from "../auth";
 
 import * as request from "request";
 
-import { ITokenRepo, IUserRepo } from "../models";
+import { ITokenRepo, IUserRepo } from "../repositories";
 
 import { AtAuthError, AtCaptchaError } from "../at-error";
 

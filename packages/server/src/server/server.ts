@@ -7,7 +7,7 @@ import { GraphQLDateTime } from "graphql-iso-date";
 import { createServer } from "http";
 import { AtErrorSymbol, AtServerError } from "../at-error";
 import { Config } from "../config";
-import { IRepo } from "../models";
+import { IRepo } from "../repositories";
 import { resolvers as appResolvers } from "../resolvers";
 import { AppContext, createContext } from "./context";
 

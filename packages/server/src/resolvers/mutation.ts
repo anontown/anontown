@@ -1,8 +1,6 @@
 import { isNullish, nullToUndefined } from "@kgtkr/utils";
 import { fromNullable, some } from "fp-ts/lib/Option";
 import { AtNotFoundError } from "../at-error";
-import * as G from "../generated/graphql";
-import { ObjectIDGenerator, RandomGenerator } from "../generator";
 import {
   Client,
   Profile,
@@ -14,7 +12,9 @@ import {
   TopicNormal,
   TopicOne,
   User,
-} from "../models";
+} from "../entities";
+import * as G from "../generated/graphql";
+import { ObjectIDGenerator, RandomGenerator } from "../generator";
 import * as authFromApiParam from "../server/auth-from-api-param";
 
 export const mutation: G.MutationResolvers = {
