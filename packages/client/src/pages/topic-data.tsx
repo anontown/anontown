@@ -1,7 +1,7 @@
 import { Paper } from "material-ui";
 import * as React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import * as G from "../../generated/graphql";
+import * as G from "../generated/graphql";
 import { Page, Snack, TopicData } from "../components";
 import { withModal } from "../utils";
 

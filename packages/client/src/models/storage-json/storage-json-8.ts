@@ -1,5 +1,5 @@
 import * as t from "io-ts";
-import * as G from "../../../generated/graphql";
+import * as G from "../../generated/graphql";
 import { gqlClient } from "../../utils";
 import { ngJson } from "./ng-json";
 import { StorageJSON7 } from "./storage-json-7";

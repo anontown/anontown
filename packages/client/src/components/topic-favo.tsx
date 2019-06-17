@@ -1,7 +1,7 @@
 import { FontIcon, IconButton, Paper } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
-import * as G from "../../generated/graphql";
+import * as G from "../generated/graphql";
 import { UserData } from "../models";
 import { Snack } from "./snack";
 import { TopicListItem } from "./topic-list-item";

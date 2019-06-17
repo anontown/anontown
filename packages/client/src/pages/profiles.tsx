@@ -2,7 +2,7 @@ import { Tab, Tabs } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import { RouteComponentProps, withRouter } from "react-router";
-import * as G from "../../generated/graphql";
+import * as G from "../generated/graphql";
 import { Page, ProfileAdd, ProfileEditor, Snack } from "../components";
 import { userSwitch, UserSwitchProps } from "../utils";
 

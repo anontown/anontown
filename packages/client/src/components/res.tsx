@@ -3,7 +3,7 @@ import { FontIcon, IconButton, IconMenu, MenuItem, Paper } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as uuid from "uuid";
-import * as G from "../../generated/graphql";
+import * as G from "../generated/graphql";
 import { ng } from "../models";
 import { dateFormat, useUserContext } from "../utils";
 import { Md } from "./md";

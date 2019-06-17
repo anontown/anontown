@@ -45,6 +45,6 @@
     "prettier": true
   },
   "exclude": [
-    "generated/**/*"
+    "src/generated/**/*"
   ]
 }

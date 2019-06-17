@@ -18,7 +18,7 @@ import {
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { setTimeout } from "timers";
-import * as G from "../../generated/graphql";
+import * as G from "../generated/graphql";
 import {
   queryResultConvert,
   useEffectCond,

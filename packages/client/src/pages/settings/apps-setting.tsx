@@ -2,7 +2,7 @@ import { FontIcon, IconButton, Paper } from "material-ui";
 import * as React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { useTitle } from "react-use";
-import * as G from "../../../generated/graphql";
+import * as G from "../../generated/graphql";
 import { Errors, Snack } from "../../components";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../../utils";
 

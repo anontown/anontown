@@ -14,7 +14,7 @@ import * as React from "react";
 import { Link, RouteComponentProps, withRouter } from "react-router-dom";
 import { useTitle } from "react-use";
 import * as rx from "rxjs";
-import * as G from "../../generated/graphql";
+import * as G from "../generated/graphql";
 import {
   Modal,
   NG,

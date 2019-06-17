@@ -2,7 +2,7 @@ import * as Im from "immutable";
 import { RaisedButton } from "material-ui";
 import * as React from "react";
 
-import * as G from "../../generated/graphql";
+import * as G from "../generated/graphql";
 import { Storage, UserData } from "../models";
 import { queryResultConvert, useInputCache } from "../utils";
 import { CheckBox } from "./check-box";

@@ -3,7 +3,7 @@ import * as qs from "query-string";
 import * as React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { useTitle } from "react-use";
-import * as G from "../../generated/graphql";
+import * as G from "../generated/graphql";
 import { Errors, Page, Snack } from "../components";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
 

@@ -1,6 +1,6 @@
 import { FontIcon, IconButton } from "material-ui";
 import * as React from "react";
-import * as G from "../../generated/graphql";
+import * as G from "../generated/graphql";
 import { UserData } from "../models";
 import { ClientEditor } from "./client-editor";
 

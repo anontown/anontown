@@ -1,4 +1,4 @@
-import * as G from "../../generated/graphql";
+import * as G from "../generated/graphql";
 import { UserData } from "../models";
 import { createHeaders, gqlClient } from "./gql-client";
 import * as storageAPI from "./storage-api";

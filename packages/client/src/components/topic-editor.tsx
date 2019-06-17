@@ -1,7 +1,7 @@
 import * as Im from "immutable";
 import { RaisedButton, TextField } from "material-ui";
 import * as React from "react";
-import * as G from "../../generated/graphql";
+import * as G from "../generated/graphql";
 import { UserData } from "../models";
 import { Errors } from "./errors";
 import { MdEditor } from "./md-editor";

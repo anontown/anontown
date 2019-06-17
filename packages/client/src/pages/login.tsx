@@ -7,7 +7,7 @@ import {
   RouteComponentProps,
   withRouter,
 } from "react-router-dom";
-import * as G from "../../generated/graphql";
+import * as G from "../generated/graphql";
 import { Errors, Page } from "../components";
 import { createUserData, useUserContext } from "../utils";
 
