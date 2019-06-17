@@ -2,9 +2,10 @@ import { isNullish } from "@kgtkr/utils";
 import { Option } from "fp-ts/lib/Option";
 import { AtAuthError, AtNotFoundError } from "../../at-error";
 import { IAuthTokenMaster } from "../../auth";
-import { Client, IClientDB } from "../../entities";
+import { Client } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IClientRepo } from "../../ports";
+import { fromClient, IClientDB, toClient } from "./iclient-db";
 
 export class ClientRepoMock implements IClientRepo {
   private clients: IClientDB[] = [];
@@ -15,17 +16,17 @@ export class ClientRepoMock implements IClientRepo {
     if (client === undefined) {
       throw new AtNotFoundError("クライアントが存在しません");
     }
-    return Client.fromDB(client);
+    return toClient(client);
   }
 
   async insert(client: Client): Promise<void> {
-    this.clients.push(client.toDB());
+    this.clients.push(fromClient(client));
   }
 
   async update(client: Client): Promise<void> {
     this.clients[
       this.clients.findIndex(c => c._id.toHexString() === client.id)
-    ] = client.toDB();
+    ] = fromClient(client);
   }
 
   async find(
@@ -48,6 +49,6 @@ export class ClientRepoMock implements IClientRepo {
       )
       .sort((a, b) => b.date.valueOf() - a.date.valueOf());
 
-    return clients.map(c => Client.fromDB(c));
+    return clients.map(c => toClient(c));
   }
 }

@@ -142,32 +142,6 @@ describe("Client", () => {
     });
   });
 
-  describe("fromDB", () => {
-    it("正常にインスタンス化出来るか", () => {
-      const clientID = ObjectIDGenerator();
-      const userID = ObjectIDGenerator();
-      expect(
-        Client.fromDB({
-          _id: new ObjectID(clientID),
-          name: "name",
-          url: "https://hoge.com",
-          user: new ObjectID(userID),
-          date: new Date(0),
-          update: new Date(100),
-        }),
-      ).toEqual(
-        new Client(
-          clientID,
-          "name",
-          "https://hoge.com",
-          userID,
-          new Date(0),
-          new Date(100),
-        ),
-      );
-    });
-  });
-
   const clientID = ObjectIDGenerator();
   const userID = ObjectIDGenerator();
   const client = new Client(
@@ -345,19 +319,6 @@ describe("Client", () => {
         self: null,
         date: new Date(0).toISOString(),
         update: new Date(100).toISOString(),
-      });
-    });
-  });
-
-  describe("#toDB", () => {
-    it("正常に出力できるか", () => {
-      expect(client.toDB()).toEqual({
-        _id: new ObjectID(clientID),
-        name: "name",
-        url: "http://hoge.com",
-        user: new ObjectID(userID),
-        date: new Date(0),
-        update: new Date(100),
       });
     });
   });

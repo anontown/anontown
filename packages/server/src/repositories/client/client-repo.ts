@@ -4,9 +4,10 @@ import { ObjectID } from "mongodb";
 import { AtAuthError, AtNotFoundError } from "../../at-error";
 import { IAuthTokenMaster } from "../../auth";
 import { Mongo } from "../../db";
-import { Client, IClientDB } from "../../entities";
+import { Client } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IClientRepo } from "../../ports";
+import { fromClient, IClientDB, toClient } from "./iclient-db";
 
 export class ClientRepo implements IClientRepo {
   async findOne(id: string): Promise<Client> {
@@ -18,7 +19,7 @@ export class ClientRepo implements IClientRepo {
     if (client === null) {
       throw new AtNotFoundError("クライアントが存在しません");
     }
-    return Client.fromDB(client);
+    return toClient(client);
   }
 
   async find(
@@ -41,19 +42,19 @@ export class ClientRepo implements IClientRepo {
       .find(q)
       .sort({ date: -1 })
       .toArray();
-    return clients.map(c => Client.fromDB(c));
+    return clients.map(c => toClient(c));
   }
 
   async insert(client: Client): Promise<void> {
     const db = await Mongo();
 
-    await db.collection("clients").insertOne(client.toDB());
+    await db.collection("clients").insertOne(fromClient(client));
   }
 
   async update(client: Client): Promise<void> {
     const db = await Mongo();
     await db
       .collection("clients")
-      .replaceOne({ _id: new ObjectID(client.id) }, client.toDB());
+      .replaceOne({ _id: new ObjectID(client.id) }, fromClient(client));
   }
 }

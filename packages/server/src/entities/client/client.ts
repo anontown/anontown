@@ -1,19 +1,9 @@
 import { Option } from "fp-ts/lib/Option";
-import { ObjectID } from "mongodb";
 import { AtRightError, paramsErrorMaker } from "../../at-error";
 import { IAuthTokenMaster } from "../../auth";
 import { Config } from "../../config";
 import { IGenerator } from "../../generator";
 import { Copyable } from "../../utils";
-
-export interface IClientDB {
-  readonly _id: ObjectID;
-  readonly name: string;
-  readonly url: string;
-  readonly user: ObjectID;
-  readonly date: Date;
-  readonly update: Date;
-}
 
 export interface IClientAPI {
   readonly id: string;
@@ -25,17 +15,6 @@ export interface IClientAPI {
 }
 
 export class Client extends Copyable<Client> {
-  static fromDB(c: IClientDB): Client {
-    return new Client(
-      c._id.toString(),
-      c.name,
-      c.url,
-      c.user.toString(),
-      c.date,
-      c.update,
-    );
-  }
-
   static create(
     objidGenerator: IGenerator<string>,
     authToken: IAuthTokenMaster,
@@ -70,17 +49,6 @@ export class Client extends Copyable<Client> {
     readonly update: Date,
   ) {
     super(Client);
-  }
-
-  toDB(): IClientDB {
-    return {
-      _id: new ObjectID(this.id),
-      name: this.name,
-      url: this.url,
-      user: new ObjectID(this.user),
-      date: this.date,
-      update: this.update,
-    };
   }
 
   toAPI(authToken: Option<IAuthTokenMaster>): IClientAPI {
