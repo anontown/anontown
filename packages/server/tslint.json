@@ -40,7 +40,9 @@
     ],
     "strict-type-predicates": true,
     "no-floating-promises": true,
-    "prettier": true,
+    "prettier": true
+  },
+  "linterOptions": {
     "exclude": [
       "src/generated/**/*"
     ]

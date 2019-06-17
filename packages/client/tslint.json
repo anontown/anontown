@@ -44,7 +44,9 @@
     "jsx-no-lambda": false,
     "prettier": true
   },
-  "exclude": [
-    "src/generated/**/*"
-  ]
+  "linterOptions": {
+    "exclude": [
+      "src/generated/**/*"
+    ]
+  }
 }
