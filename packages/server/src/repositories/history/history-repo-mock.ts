@@ -1,20 +1,21 @@
 import { isNullish } from "@kgtkr/utils";
 import { AtNotFoundError } from "../../at-error";
-import { History, IHistoryDB } from "../../entities";
+import { History } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IHistoryRepo } from "../../ports";
+import { fromHistory, IHistoryDB, toHistory } from "./ihistory-db";
 
 export class HistoryRepoMock implements IHistoryRepo {
   private histories: IHistoryDB[] = [];
 
   async insert(history: History): Promise<void> {
-    this.histories.push(history.toDB());
+    this.histories.push(fromHistory(history));
   }
 
   async update(history: History): Promise<void> {
     this.histories[
       this.histories.findIndex(h => h.id === history.id)
-    ] = history.toDB();
+    ] = fromHistory(history);
   }
 
   async findOne(id: string): Promise<History> {
@@ -24,7 +25,7 @@ export class HistoryRepoMock implements IHistoryRepo {
       throw new AtNotFoundError("編集履歴が存在しません");
     }
 
-    return History.fromDB(history);
+    return toHistory(history);
   }
 
   async find(query: G.HistoryQuery, limit: number): Promise<History[]> {
@@ -58,7 +59,7 @@ export class HistoryRepoMock implements IHistoryRepo {
       })
       .slice(0, limit);
 
-    const result = histories.map(h => History.fromDB(h));
+    const result = histories.map(h => toHistory(h));
     if (
       !isNullish(query.date) &&
       (query.date.type === "gt" || query.date.type === "gte")

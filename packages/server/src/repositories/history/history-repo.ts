@@ -1,14 +1,15 @@
 import { isNullish } from "@kgtkr/utils";
 import { AtNotFoundError } from "../../at-error";
 import { ESClient } from "../../db";
-import { History, IHistoryDB } from "../../entities";
+import { History } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IHistoryRepo } from "../../ports";
+import { fromHistory, IHistoryDB, toHistory } from "./ihistory-db";
 export class HistoryRepo implements IHistoryRepo {
   constructor(private refresh?: boolean) {}
 
   async insert(history: History): Promise<void> {
-    const hDB = history.toDB();
+    const hDB = fromHistory(history);
     await ESClient().create({
       index: "histories",
       type: "doc",
@@ -19,7 +20,7 @@ export class HistoryRepo implements IHistoryRepo {
   }
 
   async update(history: History): Promise<void> {
-    const hDB = history.toDB();
+    const hDB = fromHistory(history);
     await ESClient().index({
       index: "histories",
       type: "doc",
@@ -44,7 +45,7 @@ export class HistoryRepo implements IHistoryRepo {
       throw new AtNotFoundError("編集履歴が存在しません");
     }
 
-    return History.fromDB({ id: history._id, body: history._source });
+    return toHistory({ id: history._id, body: history._source });
   }
 
   async find(query: G.HistoryQuery, limit: number): Promise<History[]> {
@@ -97,7 +98,7 @@ export class HistoryRepo implements IHistoryRepo {
     });
 
     const result = histories.hits.hits.map(h =>
-      History.fromDB({ id: h._id, body: h._source }),
+      toHistory({ id: h._id, body: h._source }),
     );
     if (
       !isNullish(query.date) &&

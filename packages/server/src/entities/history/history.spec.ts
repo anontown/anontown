@@ -4,36 +4,6 @@ import { History, TopicNormal, User } from "../../";
 import { IAuthToken } from "../../auth";
 
 describe("History", () => {
-  describe("fromDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(
-        History.fromDB({
-          id: "history",
-          body: {
-            topic: "topic",
-            title: "title",
-            tags: ["x"],
-            text: "text",
-            date: new Date(0).toISOString(),
-            hash: "hash",
-            user: "user",
-          },
-        }),
-      ).toEqual(
-        new History(
-          "history",
-          "topic",
-          "title",
-          Im.List(["x"]),
-          "text",
-          new Date(0),
-          "hash",
-          "user",
-        ),
-      );
-    });
-  });
-
   describe("create", () => {
     it("正常に作れるか", () => {
       const topic = new TopicNormal(
@@ -85,34 +55,16 @@ describe("History", () => {
     });
   });
 
-  const history = History.fromDB({
-    id: "history",
-    body: {
-      topic: "topic",
-      title: "title",
-      tags: ["x"],
-      text: "text",
-      date: new Date(0).toISOString(),
-      hash: "hash",
-      user: "user",
-    },
-  });
-  describe("#toDB", () => {
-    it("正常に変換できるか", () => {
-      expect(history.toDB()).toEqual({
-        id: "history",
-        body: {
-          topic: "topic",
-          title: "title",
-          tags: ["x"],
-          text: "text",
-          date: new Date(0).toISOString(),
-          hash: "hash",
-          user: "user",
-        },
-      });
-    });
-  });
+  const history = new History(
+    "history",
+    "topic",
+    "title",
+    Im.List("x"),
+    "text",
+    new Date(0),
+    "hash",
+    "user",
+  );
 
   describe("#toAPI", () => {
     it("正常に変換できるか(tokenがnull)", () => {
