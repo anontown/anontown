@@ -11,19 +11,6 @@ describe("Msg", () => {
     type: "master",
   };
 
-  describe("#toDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(msg.toDB()).toEqual({
-        id: "msg",
-        body: {
-          receiver: "user",
-          text: "text",
-          date: new Date(0).toISOString(),
-        },
-      });
-    });
-  });
-
   describe("#toAPI", () => {
     it("正常に変換出来るか", () => {
       expect(msg.toAPI(auth)).toEqual({
@@ -47,21 +34,6 @@ describe("Msg", () => {
       expect(() => {
         msg.toAPI({ ...auth, user: "user2" });
       }).toThrow(AtError);
-    });
-  });
-
-  describe("fromDB", () => {
-    it("正常に作成できるか", () => {
-      expect(
-        Msg.fromDB({
-          id: "msg",
-          body: {
-            receiver: "user",
-            text: "text",
-            date: new Date(0).toISOString(),
-          },
-        }),
-      ).toEqual(msg);
     });
   });
 

@@ -1,9 +1,10 @@
 import { isNullish } from "@kgtkr/utils";
 import { AtNotFoundError } from "../../at-error";
 import { IAuthToken } from "../../auth";
-import { IMsgDB, Msg } from "../../entities";
+import { Msg } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IMsgRepo } from "../../ports";
+import { fromMsg, IMsgDB, toMsg } from "./imsg-db";
 
 export class MsgRepoMock implements IMsgRepo {
   private msgs: IMsgDB[] = [];
@@ -15,7 +16,7 @@ export class MsgRepoMock implements IMsgRepo {
       throw new AtNotFoundError("メッセージが存在しません");
     }
 
-    return Msg.fromDB(msg);
+    return toMsg(msg);
   }
 
   async find(
@@ -55,7 +56,7 @@ export class MsgRepoMock implements IMsgRepo {
       })
       .slice(0, limit);
 
-    const result = msgs.map(x => Msg.fromDB(x));
+    const result = msgs.map(x => toMsg(x));
     if (
       !isNullish(query.date) &&
       (query.date.type === "gt" || query.date.type === "gte")
@@ -66,10 +67,10 @@ export class MsgRepoMock implements IMsgRepo {
   }
 
   async insert(msg: Msg): Promise<void> {
-    this.msgs.push(msg.toDB());
+    this.msgs.push(fromMsg(msg));
   }
 
   async update(msg: Msg): Promise<void> {
-    this.msgs[this.msgs.findIndex(x => x.id === msg.id)] = msg.toDB();
+    this.msgs[this.msgs.findIndex(x => x.id === msg.id)] = fromMsg(msg);
   }
 }

@@ -2,9 +2,10 @@ import { isNullish } from "@kgtkr/utils";
 import { AtNotFoundError } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { ESClient } from "../../db";
-import { IMsgDB, Msg } from "../../entities";
+import { Msg } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IMsgRepo } from "../../ports";
+import { fromMsg, IMsgDB, toMsg } from "./imsg-db";
 
 export class MsgRepo implements IMsgRepo {
   constructor(private refresh?: boolean) {}
@@ -21,7 +22,7 @@ export class MsgRepo implements IMsgRepo {
       throw new AtNotFoundError("メッセージが存在しません");
     }
 
-    return Msg.fromDB({ id: msg._id, body: msg._source });
+    return toMsg({ id: msg._id, body: msg._source });
   }
 
   async find(
@@ -85,7 +86,7 @@ export class MsgRepo implements IMsgRepo {
     });
 
     const result = msgs.hits.hits.map(m =>
-      Msg.fromDB({ id: m._id, body: m._source }),
+      toMsg({ id: m._id, body: m._source }),
     );
     if (
       !isNullish(query.date) &&
@@ -97,7 +98,7 @@ export class MsgRepo implements IMsgRepo {
   }
 
   async insert(msg: Msg): Promise<void> {
-    const mDB = msg.toDB();
+    const mDB = fromMsg(msg);
     await ESClient().create({
       index: "msgs",
       type: "doc",
@@ -108,7 +109,7 @@ export class MsgRepo implements IMsgRepo {
   }
 
   async update(msg: Msg): Promise<void> {
-    const mDB = msg.toDB();
+    const mDB = fromMsg(msg);
     await ESClient().index({
       index: "msgs",
       type: "doc",

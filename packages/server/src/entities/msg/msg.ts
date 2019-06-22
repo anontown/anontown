@@ -5,15 +5,6 @@ import { IGenerator } from "../../generator";
 import { Copyable } from "../../utils";
 import { User } from "../user";
 
-export interface IMsgDB {
-  readonly id: string;
-  readonly body: {
-    readonly receiver: string | null;
-    readonly text: string;
-    readonly date: string;
-  };
-}
-
 export interface IMsgAPI {
   readonly id: string;
   readonly priv: boolean;
@@ -22,15 +13,6 @@ export interface IMsgAPI {
 }
 
 export class Msg extends Copyable<Msg> {
-  static fromDB(m: IMsgDB): Msg {
-    return new Msg(
-      m.id,
-      fromNullable(m.body.receiver),
-      m.body.text,
-      new Date(m.body.date),
-    );
-  }
-
   static create(
     objidGenerator: IGenerator<string>,
     receiver: Option<User>,
@@ -47,17 +29,6 @@ export class Msg extends Copyable<Msg> {
     readonly date: Date,
   ) {
     super(Msg);
-  }
-
-  toDB(): IMsgDB {
-    return {
-      id: this.id,
-      body: {
-        receiver: this.receiver.toNullable(),
-        text: this.text,
-        date: this.date.toISOString(),
-      },
-    };
   }
 
   toAPI(authToken: IAuthToken): IMsgAPI {
