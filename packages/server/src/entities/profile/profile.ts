@@ -6,16 +6,6 @@ import { Config } from "../../config";
 import { IGenerator } from "../../generator";
 import { Copyable } from "../../utils";
 
-export interface IProfileDB {
-  readonly _id: ObjectID;
-  readonly user: ObjectID;
-  readonly name: string;
-  readonly text: string;
-  readonly date: Date;
-  readonly update: Date;
-  readonly sn: string;
-}
-
 export interface IProfileAPI {
   readonly id: string;
   readonly self: boolean | null;
@@ -27,18 +17,6 @@ export interface IProfileAPI {
 }
 
 export class Profile extends Copyable<Profile> {
-  static fromDB(p: IProfileDB): Profile {
-    return new Profile(
-      p._id.toString(),
-      p.user.toString(),
-      p.name,
-      p.text,
-      p.date,
-      p.update,
-      p.sn,
-    );
-  }
-
   static create(
     objidGenerator: IGenerator<string>,
     authToken: IAuthToken,
@@ -89,18 +67,6 @@ export class Profile extends Copyable<Profile> {
     readonly sn: string,
   ) {
     super(Profile);
-  }
-
-  toDB(): IProfileDB {
-    return {
-      _id: new ObjectID(this.id),
-      user: new ObjectID(this.user),
-      name: this.name,
-      text: this.text,
-      date: this.date,
-      update: this.update,
-      sn: this.sn,
-    };
   }
 
   toAPI(authToken: Option<IAuthToken>): IProfileAPI {

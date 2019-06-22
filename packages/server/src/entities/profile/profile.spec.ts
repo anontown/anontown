@@ -23,20 +23,6 @@ describe("Profile", () => {
     id: ObjectIDGenerator(),
   };
 
-  describe("#toDB", () => {
-    it("正常に変換できるか", () => {
-      expect(profile.toDB()).toEqual({
-        _id: new ObjectID(profileID),
-        user: new ObjectID(userID),
-        name: "name",
-        text: "text",
-        date: new Date(0),
-        update: new Date(100),
-        sn: "sn",
-      });
-    });
-  });
-
   describe("#toAPI", () => {
     it("認証あり(同一ユーザー)", () => {
       expect(profile.toAPI(some(auth))).toEqual({

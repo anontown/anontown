@@ -1,9 +1,10 @@
 import { isNullish } from "@kgtkr/utils";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
-import { IProfileDB, Profile } from "../../entities";
+import { Profile } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IProfileRepo } from "../../ports";
 import { AuthContainer } from "../../server/auth-container";
+import { fromProfile, IProfileDB, toProfile } from "./jprofile-db";
 
 export class ProfileRepoMock implements IProfileRepo {
   private profiles: IProfileDB[] = [];
@@ -15,7 +16,7 @@ export class ProfileRepoMock implements IProfileRepo {
       throw new AtNotFoundError("プロフィールが存在しません");
     }
 
-    return Profile.fromDB(profile);
+    return toProfile(profile);
   }
 
   async find(auth: AuthContainer, query: G.ProfileQuery): Promise<Profile[]> {
@@ -27,7 +28,7 @@ export class ProfileRepoMock implements IProfileRepo {
       )
       .sort((a, b) => b.date.valueOf() - a.date.valueOf());
 
-    return profiles.map(p => Profile.fromDB(p));
+    return profiles.map(p => toProfile(p));
   }
 
   async insert(profile: Profile): Promise<void> {
@@ -35,7 +36,7 @@ export class ProfileRepoMock implements IProfileRepo {
       throw new AtConflictError("スクリーンネームが使われています");
     }
 
-    this.profiles.push(profile.toDB());
+    this.profiles.push(fromProfile(profile));
   }
 
   async update(profile: Profile): Promise<void> {
@@ -49,6 +50,6 @@ export class ProfileRepoMock implements IProfileRepo {
 
     this.profiles[
       this.profiles.findIndex(x => x._id.toHexString() === profile.id)
-    ] = profile.toDB();
+    ] = fromProfile(profile);
   }
 }

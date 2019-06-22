@@ -2,10 +2,11 @@ import { isNullish } from "@kgtkr/utils";
 import { ObjectID, WriteError } from "mongodb";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
 import { Mongo } from "../../db";
-import { IProfileDB, Profile } from "../../entities";
+import { Profile } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IProfileRepo } from "../../ports";
 import { AuthContainer } from "../../server/auth-container";
+import { fromProfile, IProfileDB, toProfile } from "./jprofile-db";
 
 export class ProfileRepo implements IProfileRepo {
   async findOne(id: string): Promise<Profile> {
@@ -18,7 +19,7 @@ export class ProfileRepo implements IProfileRepo {
       throw new AtNotFoundError("プロフィールが存在しません");
     }
 
-    return Profile.fromDB(profile);
+    return toProfile(profile);
   }
 
   async find(auth: AuthContainer, query: G.ProfileQuery): Promise<Profile[]> {
@@ -35,13 +36,13 @@ export class ProfileRepo implements IProfileRepo {
       .find(q)
       .sort({ date: -1 })
       .toArray();
-    return profiles.map(p => Profile.fromDB(p));
+    return profiles.map(p => toProfile(p));
   }
 
   async insert(profile: Profile): Promise<void> {
     const db = await Mongo();
     try {
-      await db.collection("profiles").insertOne(profile.toDB());
+      await db.collection("profiles").insertOne(fromProfile(profile));
     } catch (ex) {
       const e: WriteError = ex;
       if (e.code === 11000) {
@@ -57,7 +58,7 @@ export class ProfileRepo implements IProfileRepo {
     try {
       await db
         .collection("profiles")
-        .replaceOne({ _id: new ObjectID(profile.id) }, profile.toDB());
+        .replaceOne({ _id: new ObjectID(profile.id) }, fromProfile(profile));
     } catch (ex) {
       const e: WriteError = ex;
       if (e.code === 11000) {
