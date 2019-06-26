@@ -22,9 +22,8 @@ $ ENV_NAME=dev lerna exec --scope @anontown/client -- npm start
 
 ## .env の編集
 
-DB_USER と DB_PASS は消して大丈夫です(セキュリティが心配な場合は mongodb コンテナに入りユーザーを作成して設定して下さい)  
-SALT_PASS、SALT_HASH、SALT_TOKEN、SALT_TOKEN_REQ を設定します。これはどのような文字列でも構いませんが、推測されないように出来るだけ長くし、記号や数字、アルファベット等を組み合わせて下さい。特に SALT_HASH はとても重要です。これが漏れると匿名掲示板ではなくなってしまいます。  
-RECAPTCHA_SITE_KET、RECAPTCHA_SECRET_KET は Google のサイトでキーを取得し設定しましょう。
+`SALT_PASS`、`SALT_HASH`、`SALT_TOKEN`、`SALT_TOKEN_REQ`を設定します。これはどのような文字列でも構いませんが、推測されないように出来るだけ長くし、記号や数字、アルファベット等を組み合わせて下さい。特に`SALT_HASH`はとても重要です。これが漏れると匿名掲示板ではなくなってしまいます。  
+`RECAPTCHA_SITE_KET`、`RECAPTCHA_SECRET_KET`はGoogleのサイトでキーを取得し設定しましょう。
 
 ## Test
 
