@@ -1,14 +1,6 @@
 import { none, Option, some } from "fp-ts/lib/Option";
 import * as Im from "immutable";
-import {
-  AtError,
-  IAuthToken,
-  IResBaseAPI,
-  IResBaseDB,
-  IVote,
-  ResBase,
-  User,
-} from "../../";
+import { AtError, IAuthToken, IResBaseAPI, IVote, ResBase, User } from "../../";
 import { Copyable } from "../../utils";
 import { applyMixins } from "../../utils";
 
@@ -16,7 +8,6 @@ describe("ResBase", () => {
   class ResBaseTest extends Copyable<ResBaseTest>
     implements ResBase<"normal", ResBaseTest> {
     toBaseAPI!: (authToken: Option<IAuthToken>) => IResBaseAPI<"normal">;
-    toBaseDB!: <Body extends object>(body: Body) => IResBaseDB<"normal", Body>;
     cv!: (
       resUser: User,
       user: User,
@@ -207,24 +198,6 @@ describe("ResBase", () => {
       expect(() => {
         votedRes.cv(resUser, voteUser, { ...token, user: "voteuser2" });
       }).toThrow(AtError);
-    });
-  });
-
-  describe("#toBaseDB", () => {
-    it("正常に変換出来るか", () => {
-      const db = res.toBaseDB({});
-      expect(db).toEqual({
-        id: res.id,
-        body: {
-          type: res.type,
-          topic: res.topic,
-          date: res.date.toISOString(),
-          user: res.user,
-          votes: res.votes.toArray(),
-          lv: res.lv,
-          hash: res.hash,
-        },
-      });
     });
   });
 

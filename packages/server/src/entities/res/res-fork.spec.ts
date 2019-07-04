@@ -65,41 +65,6 @@ describe("ResFork", () => {
     10,
   );
 
-  describe("fromDB", () => {
-    it("正常に作れるか", () => {
-      expect(
-        ResFork.fromDB(
-          {
-            id: "id",
-            body: {
-              type: "fork",
-              topic: "topic",
-              date: new Date(400).toISOString(),
-              user: "user",
-              votes: [],
-              lv: 5,
-              hash: "hash",
-              fork: "topicfork",
-            },
-          },
-          3,
-        ),
-      ).toEqual(
-        new ResFork(
-          "topicfork",
-          "id",
-          "topic",
-          new Date(400),
-          "user",
-          Im.List(),
-          5,
-          "hash",
-          3,
-        ),
-      );
-    });
-  });
-
   describe("create", () => {
     it("正常に作れるか", () => {
       const { res, topic } = ResFork.create(
@@ -124,12 +89,6 @@ describe("ResFork", () => {
         ),
       );
       expect(topic).toEqual(topicNormal.copy({ update: new Date(90) }));
-    });
-  });
-
-  describe("toDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(resFork.toDB()).toEqual(resFork.toBaseDB({ fork: "topicfork" }));
     });
   });
 

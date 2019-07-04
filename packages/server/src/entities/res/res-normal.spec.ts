@@ -79,57 +79,6 @@ describe("ResNormal", () => {
     "sn",
   );
 
-  describe("fromDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(
-        ResNormal.fromDB(
-          {
-            id: "res",
-            body: {
-              type: "normal",
-              topic: "topic",
-              date: new Date(100).toISOString(),
-              user: "user",
-              votes: [],
-              lv: 10,
-              hash: "hash",
-              name: "name",
-              text: "text",
-              reply: {
-                res: "replyres",
-                user: "replyuser",
-              },
-              deleteFlag: "active",
-              profile: "profile",
-              age: true,
-            },
-          },
-          2,
-        ),
-      ).toEqual(
-        new ResNormal(
-          some("name"),
-          "text",
-          some({
-            res: "replyres",
-            user: "replyuser",
-          }),
-          "active",
-          some("profile"),
-          true,
-          "res",
-          "topic",
-          new Date(100),
-          "user",
-          Im.List(),
-          10,
-          "hash",
-          2,
-        ),
-      );
-    });
-  });
-
   describe("create", () => {
     it("正常に作れるか", () => {
       const { res, user: newUser, topic: newTopic } = ResNormal.create(
@@ -375,102 +324,79 @@ describe("ResNormal", () => {
     }
   });
 
-  describe("#toDB", () => {
+  describe("#toAPI", () => {
     it("正常に変換出来るか", () => {
-      const db = resNormal.toDB();
-      expect(db).toEqual({
-        id: resNormal.id,
-        body: {
-          type: resNormal.type,
-          topic: resNormal.topic,
-          date: resNormal.date.toISOString(),
-          user: resNormal.user,
-          votes: resNormal.votes.toArray(),
-          lv: resNormal.lv,
-          hash: resNormal.hash,
-          name: resNormal.name.toNullable(),
-          text: resNormal.text,
-          reply: resNormal.reply.toNullable(),
-          deleteFlag: resNormal.deleteFlag,
-          profile: resNormal.profile.toNullable(),
-          age: resNormal.age,
-        },
-      });
-    });
-    describe("#toAPI", () => {
-      it("正常に変換出来るか", () => {
-        const api = resNormal.toAPI(none);
-        expect(api).toEqual({
-          ...resNormal.toBaseAPI(none),
-          name: resNormal.name.toNullable(),
-          text: resNormal.text,
-          replyID: "replyres",
-          profileID: resNormal.profile.toNullable(),
-          isReply: null,
-        });
-      });
-
-      it("自分に対するリプライ", () => {
-        const api = resNormal.toAPI(some({ ...token, user: "replyuser" }));
-        if (api.type === "normal") {
-          expect(api.isReply).toBe(true);
-        } else {
-          throw new Error();
-        }
-      });
-
-      it("他人に対するリプライ", () => {
-        const api = resNormal.toAPI(some({ ...token, user: "user2" }));
-        if (api.type === "normal") {
-          expect(api.isReply).toBe(false);
-        } else {
-          throw new Error();
-        }
-      });
-
-      it("自主削除されたレス", () => {
-        const api = resNormal.copy({ deleteFlag: "self" }).toAPI(none);
-        expect(api).toEqual({
-          ...resNormal.toBaseAPI(none),
-          type: "delete",
-          flag: "self",
-        });
-      });
-
-      it("強制削除されたレス", () => {
-        const api = resNormal.copy({ deleteFlag: "freeze" }).toAPI(none);
-        expect(api).toEqual({
-          ...resNormal.toBaseAPI(none),
-          type: "delete",
-          flag: "freeze",
-        });
+      const api = resNormal.toAPI(none);
+      expect(api).toEqual({
+        ...resNormal.toBaseAPI(none),
+        name: resNormal.name.toNullable(),
+        text: resNormal.text,
+        replyID: "replyres",
+        profileID: resNormal.profile.toNullable(),
+        isReply: null,
       });
     });
 
-    describe("#del", () => {
-      it("正常に削除出来るか", () => {
-        const { res: newRes, resUser: newUser } = resNormal.del(
-          user.copy({ lv: 3 }),
-          token,
-        );
-        expect(newUser).toEqual(user.copy({ lv: 2 }));
-        expect(newRes).toEqual(resNormal.copy({ deleteFlag: "self" }));
-      });
+    it("自分に対するリプライ", () => {
+      const api = resNormal.toAPI(some({ ...token, user: "replyuser" }));
+      if (api.type === "normal") {
+        expect(api.isReply).toBe(true);
+      } else {
+        throw new Error();
+      }
+    });
 
-      it("人のレスを削除しようとするとエラーになるか", () => {
-        expect(() => {
-          resNormal.del(user.copy({ id: "user2" }), {
-            ...token,
-            user: "user2",
-          });
-        }).toThrow(AtError);
-      });
+    it("他人に対するリプライ", () => {
+      const api = resNormal.toAPI(some({ ...token, user: "user2" }));
+      if (api.type === "normal") {
+        expect(api.isReply).toBe(false);
+      } else {
+        throw new Error();
+      }
+    });
 
-      it("削除済みのレスを削除しようとするとエラーになるか", () => {
-        expect(() => {
-          resNormal.copy({ deleteFlag: "self" }).del(user, token);
-        }).toThrow(AtError);
+    it("自主削除されたレス", () => {
+      const api = resNormal.copy({ deleteFlag: "self" }).toAPI(none);
+      expect(api).toEqual({
+        ...resNormal.toBaseAPI(none),
+        type: "delete",
+        flag: "self",
       });
+    });
+
+    it("強制削除されたレス", () => {
+      const api = resNormal.copy({ deleteFlag: "freeze" }).toAPI(none);
+      expect(api).toEqual({
+        ...resNormal.toBaseAPI(none),
+        type: "delete",
+        flag: "freeze",
+      });
+    });
+  });
+
+  describe("#del", () => {
+    it("正常に削除出来るか", () => {
+      const { res: newRes, resUser: newUser } = resNormal.del(
+        user.copy({ lv: 3 }),
+        token,
+      );
+      expect(newUser).toEqual(user.copy({ lv: 2 }));
+      expect(newRes).toEqual(resNormal.copy({ deleteFlag: "self" }));
+    });
+
+    it("人のレスを削除しようとするとエラーになるか", () => {
+      expect(() => {
+        resNormal.del(user.copy({ id: "user2" }), {
+          ...token,
+          user: "user2",
+        });
+      }).toThrow(AtError);
+    });
+
+    it("削除済みのレスを削除しようとするとエラーになるか", () => {
+      expect(() => {
+        resNormal.copy({ deleteFlag: "self" }).del(user, token);
+      }).toThrow(AtError);
     });
   });
 });

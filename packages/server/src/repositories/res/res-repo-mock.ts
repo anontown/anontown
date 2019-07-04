@@ -1,10 +1,11 @@
 import { isNullish } from "@kgtkr/utils";
 import { Subject } from "rxjs";
 import { AtNotFoundError } from "../../at-error";
-import { fromDBToRes, IResDB, Res } from "../../entities";
+import { Res } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IResRepo } from "../../ports";
 import { AuthContainer } from "../../server/auth-container";
+import { fromRes, IResDB, toRes } from "./ires-db";
 
 export class ResRepoMock implements IResRepo {
   readonly insertEvent: Subject<{ res: Res; count: number }> = new Subject<{
@@ -24,14 +25,14 @@ export class ResRepoMock implements IResRepo {
   }
 
   async insert(res: Res): Promise<void> {
-    this.reses.push(res.toDB());
+    this.reses.push(fromRes(res));
 
     const resCount = (await this.resCount([res.topic])).get(res.topic) || 0;
     this.insertEvent.next({ res, count: resCount });
   }
 
   async update(res: Res): Promise<void> {
-    this.reses[this.reses.findIndex(x => x.id === res.id)] = res.toDB();
+    this.reses[this.reses.findIndex(x => x.id === res.id)] = fromRes(res);
   }
 
   async resCount(topicIDs: string[]): Promise<Map<string, number>> {
@@ -139,6 +140,6 @@ export class ResRepoMock implements IResRepo {
 
   private async aggregate(reses: IResDB[]): Promise<Res[]> {
     const count = await this.replyCount(reses.map(x => x.id));
-    return reses.map(r => fromDBToRes(r, count.get(r.id) || 0));
+    return reses.map(r => toRes(r, count.get(r.id) || 0));
   }
 }

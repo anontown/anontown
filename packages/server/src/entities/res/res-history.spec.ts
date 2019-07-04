@@ -65,41 +65,6 @@ describe("ResHistory", () => {
     1,
   );
 
-  describe("fromDB", () => {
-    it("正常に作れるか", () => {
-      expect(
-        ResHistory.fromDB(
-          {
-            id: "id",
-            body: {
-              type: "history",
-              topic: "topic",
-              date: new Date(1000).toISOString(),
-              user: "user",
-              votes: [],
-              lv: 5,
-              hash: "hash",
-              history: "history",
-            },
-          },
-          3,
-        ),
-      ).toEqual(
-        new ResHistory(
-          "history",
-          "id",
-          "topic",
-          new Date(1000),
-          "user",
-          Im.List(),
-          5,
-          "hash",
-          3,
-        ),
-      );
-    });
-  });
-
   describe("create", () => {
     it("正常に作れるか", () => {
       const { res, topic: newTopic } = ResHistory.create(
@@ -126,18 +91,6 @@ describe("ResHistory", () => {
       );
 
       expect(newTopic).toEqual(topicNormal.copy({ update: new Date(1000) }));
-    });
-  });
-
-  describe("#toDB", () => {
-    it("正常に変換できるか", () => {
-      const db = resHistory.toDB();
-
-      expect(db).toEqual(
-        resHistory.toBaseDB({
-          history: resHistory.history,
-        }),
-      );
     });
   });
 

@@ -2,10 +2,11 @@ import { isNullish } from "@kgtkr/utils";
 import { Subject } from "rxjs";
 import { AtNotFoundError } from "../../at-error";
 import { createRedisClient, ESClient, RedisClient } from "../../db";
-import { fromDBToRes, IResDB, Res, ResNormal } from "../../entities";
+import { Res } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IResRepo } from "../../ports";
 import { AuthContainer } from "../../server/auth-container";
+import { IResDB, toRes, fromRes } from "./ires-db";
 
 interface ResPubSub {
   res: IResDB;
@@ -25,7 +26,7 @@ export class ResRepo implements IResRepo {
     this.subRedis.on("message", (_channel, message) => {
       const data: ResPubSub = JSON.parse(message);
       this.insertEvent.next({
-        res: fromDBToRes(data.res, data.replyCount),
+        res: toRes(data.res, data.replyCount),
         count: data.count,
       });
     });
@@ -46,7 +47,7 @@ export class ResRepo implements IResRepo {
   }
 
   async insert(res: Res): Promise<void> {
-    const rDB = res.toDB();
+    const rDB = fromRes(res);
     await ESClient().create({
       index: "reses",
       type: "doc",
@@ -58,7 +59,7 @@ export class ResRepo implements IResRepo {
 
     const resCount = (await this.resCount([res.topic])).get(res.topic) || 0;
     const data: ResPubSub = {
-      res: res.toDB(),
+      res: fromRes(res),
       replyCount: res.replyCount,
       count: resCount,
     };
@@ -66,7 +67,7 @@ export class ResRepo implements IResRepo {
   }
 
   async update(res: Res): Promise<void> {
-    const rDB = res.toDB();
+    const rDB = fromRes(res);
     await ESClient().index({
       index: "reses",
       type: "doc",
@@ -280,6 +281,6 @@ export class ResRepo implements IResRepo {
 
   private async aggregate(reses: IResDB[]): Promise<Res[]> {
     const count = await this.replyCount(reses.map(x => x.id));
-    return reses.map(r => fromDBToRes(r, count.get(r.id) || 0));
+    return reses.map(r => toRes(r, count.get(r.id) || 0));
   }
 }

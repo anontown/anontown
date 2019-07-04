@@ -1,4 +1,4 @@
-import { fromNullable, Option } from "fp-ts/lib/Option";
+import { Option } from "fp-ts/lib/Option";
 import * as Im from "immutable";
 import {
   AtPrerequisiteError,
@@ -21,74 +21,6 @@ export interface IVote {
 }
 
 export type ResType = "normal" | "history" | "topic" | "fork";
-
-export interface IResDB {
-  id: string;
-  body:
-    | IResNormalDB["body"]
-    | IResHistoryDB["body"]
-    | IResTopicDB["body"]
-    | IResForkDB["body"];
-}
-
-export function fromDBToRes(db: IResNormalDB, replyCount: number): ResNormal;
-export function fromDBToRes(db: IResHistoryDB, replyCount: number): ResHistory;
-export function fromDBToRes(db: IResTopicDB, replyCount: number): ResTopic;
-export function fromDBToRes(db: IResForkDB, replyCount: number): ResFork;
-export function fromDBToRes(db: IResDB, replyCount: number): Res;
-export function fromDBToRes(db: IResDB, replyCount: number): Res {
-  switch (db.body.type) {
-    case "normal":
-      return ResNormal.fromDB({ id: db.id, body: db.body }, replyCount);
-    case "history":
-      return ResHistory.fromDB({ id: db.id, body: db.body }, replyCount);
-    case "topic":
-      return ResTopic.fromDB({ id: db.id, body: db.body }, replyCount);
-    case "fork":
-      return ResFork.fromDB({ id: db.id, body: db.body }, replyCount);
-  }
-}
-
-export interface IResBaseDB<T extends ResType, Body> {
-  readonly id: string;
-  readonly body: {
-    readonly type: T;
-    readonly topic: string;
-    readonly date: string;
-    readonly user: string;
-    readonly votes: IVote[];
-    readonly lv: number;
-    readonly hash: string;
-  } & Body;
-}
-
-export type IResNormalDB = IResBaseDB<
-  "normal",
-  {
-    readonly name: string | null;
-    readonly text: string;
-    readonly reply: IReply | null;
-    readonly deleteFlag: ResDeleteFlag;
-    readonly profile: string | null;
-    readonly age: boolean;
-  }
->;
-
-export type IResHistoryDB = IResBaseDB<
-  "history",
-  {
-    history: string;
-  }
->;
-
-export type IResTopicDB = IResBaseDB<"topic", {}>;
-
-export type IResForkDB = IResBaseDB<
-  "fork",
-  {
-    fork: string;
-  }
->;
 
 export type ResAPIType = ResType | "delete";
 
@@ -210,21 +142,6 @@ export abstract class ResBase<T extends ResType, C extends ResBase<T, C>> {
     };
   }
 
-  toBaseDB<Body extends object>(body: Body): IResBaseDB<T, Body> {
-    return {
-      id: this.id,
-      body: Object.assign({}, body, {
-        type: this.type,
-        topic: this.topic,
-        date: this.date.toISOString(),
-        user: this.user,
-        votes: this.votes.toArray(),
-        lv: this.lv,
-        hash: this.hash,
-      }),
-    };
-  }
-
   toBaseAPI(authToken: Option<IAuthToken>): IResBaseAPI<T> {
     const voteFlag = authToken
       .map(authToken => {
@@ -258,25 +175,6 @@ export type Res = ResNormal | ResHistory | ResTopic | ResFork;
 
 export class ResNormal extends Copyable<ResNormal>
   implements ResBase<"normal", ResNormal> {
-  static fromDB(r: IResNormalDB, replyCount: number): ResNormal {
-    return new ResNormal(
-      fromNullable(r.body.name),
-      r.body.text,
-      fromNullable(r.body.reply),
-      r.body.deleteFlag,
-      fromNullable(r.body.profile),
-      r.body.age,
-      r.id,
-      r.body.topic,
-      new Date(r.body.date),
-      r.body.user,
-      Im.List(r.body.votes),
-      r.body.lv,
-      r.body.hash,
-      replyCount,
-    );
-  }
-
   static create(
     objidGenerator: IGenerator<string>,
     topic: Topic,
@@ -339,7 +237,6 @@ export class ResNormal extends Copyable<ResNormal>
   readonly type: "normal" = "normal";
 
   toBaseAPI!: (authToken: Option<IAuthToken>) => IResBaseAPI<"normal">;
-  toBaseDB!: <Body extends object>(body: Body) => IResBaseDB<"normal", Body>;
   cv!: (
     resUser: User,
     user: User,
@@ -375,17 +272,6 @@ export class ResNormal extends Copyable<ResNormal>
     readonly replyCount: number,
   ) {
     super(ResNormal);
-  }
-
-  toDB(): IResNormalDB {
-    return this.toBaseDB({
-      name: this.name.toNullable(),
-      text: this.text,
-      reply: this.reply.toNullable(),
-      deleteFlag: this.deleteFlag,
-      profile: this.profile.toNullable(),
-      age: this.age,
-    });
   }
 
   toAPI(authToken: Option<IAuthToken>): IResNormalAPI | IResDeleteAPI {
@@ -433,20 +319,6 @@ applyMixins(ResNormal, [ResBase]);
 
 export class ResHistory extends Copyable<ResHistory>
   implements ResBase<"history", ResHistory> {
-  static fromDB(r: IResHistoryDB, replyCount: number): ResHistory {
-    return new ResHistory(
-      r.body.history,
-      r.id,
-      r.body.topic,
-      new Date(r.body.date),
-      r.body.user,
-      Im.List(r.body.votes),
-      r.body.lv,
-      r.body.hash,
-      replyCount,
-    );
-  }
-
   static create(
     objidGenerator: IGenerator<string>,
     topic: TopicNormal,
@@ -472,7 +344,6 @@ export class ResHistory extends Copyable<ResHistory>
   }
 
   toBaseAPI!: (authToken: Option<IAuthToken>) => IResBaseAPI<"history">;
-  toBaseDB!: <Body extends object>(body: Body) => IResBaseDB<"history", Body>;
   cv!: (
     resUser: User,
     user: User,
@@ -507,10 +378,6 @@ export class ResHistory extends Copyable<ResHistory>
     super(ResHistory);
   }
 
-  toDB(): IResHistoryDB {
-    return this.toBaseDB({ history: this.history });
-  }
-
   toAPI(authToken: Option<IAuthToken>): IResHistoryAPI {
     return {
       ...this.toBaseAPI(authToken),
@@ -522,19 +389,6 @@ applyMixins(ResHistory, [ResBase]);
 
 export class ResTopic extends Copyable<ResTopic>
   implements ResBase<"topic", ResTopic> {
-  static fromDB(r: IResTopicDB, replyCount: number): ResTopic {
-    return new ResTopic(
-      r.id,
-      r.body.topic,
-      new Date(r.body.date),
-      r.body.user,
-      Im.List(r.body.votes),
-      r.body.lv,
-      r.body.hash,
-      replyCount,
-    );
-  }
-
   static create<TC extends TopicOne | TopicFork>(
     objidGenerator: IGenerator<string>,
     topic: TC,
@@ -559,7 +413,6 @@ export class ResTopic extends Copyable<ResTopic>
   }
 
   toBaseAPI!: (authToken: Option<IAuthToken>) => IResBaseAPI<"topic">;
-  toBaseDB!: <Body extends object>(body: Body) => IResBaseDB<"topic", Body>;
   cv!: (
     resUser: User,
     user: User,
@@ -593,10 +446,6 @@ export class ResTopic extends Copyable<ResTopic>
     super(ResTopic);
   }
 
-  toDB(): IResTopicDB {
-    return this.toBaseDB({});
-  }
-
   toAPI(authToken: Option<IAuthToken>): IResTopicAPI {
     return this.toBaseAPI(authToken);
   }
@@ -605,20 +454,6 @@ applyMixins(ResTopic, [ResBase]);
 
 export class ResFork extends Copyable<ResFork>
   implements ResBase<"fork", ResFork> {
-  static fromDB(r: IResForkDB, replyCount: number): ResFork {
-    return new ResFork(
-      r.body.fork,
-      r.id,
-      r.body.topic,
-      new Date(r.body.date),
-      r.body.user,
-      Im.List(r.body.votes),
-      r.body.lv,
-      r.body.hash,
-      replyCount,
-    );
-  }
-
   static create(
     objidGenerator: IGenerator<string>,
     topic: TopicNormal,
@@ -644,7 +479,6 @@ export class ResFork extends Copyable<ResFork>
   }
 
   toBaseAPI!: (authToken: Option<IAuthToken>) => IResBaseAPI<"fork">;
-  toBaseDB!: <Body extends object>(body: Body) => IResBaseDB<"fork", Body>;
   cv!: (
     resUser: User,
     user: User,
@@ -677,10 +511,6 @@ export class ResFork extends Copyable<ResFork>
     readonly replyCount: number,
   ) {
     super(ResFork);
-  }
-
-  toDB(): IResForkDB {
-    return this.toBaseDB({ fork: this.fork });
   }
 
   toAPI(authToken: Option<IAuthToken>): IResForkAPI {
