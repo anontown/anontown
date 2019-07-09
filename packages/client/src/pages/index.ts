@@ -19,3 +19,4 @@ export * from "./topic-fork";
 export * from "./topic-edit";
 export * from "./res-reply";
 export * from "./res-hash";
+export * from "./profile-edit";

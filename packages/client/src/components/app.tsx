@@ -299,6 +299,11 @@ export const App = withRouter(
                           />
                           <Route
                             exact={true}
+                            path="/profiles/:id"
+                            component={pages.ProfileEditPage}
+                          />
+                          <Route
+                            exact={true}
                             path="/notifications"
                             component={pages.NotificationsPage}
                           />
