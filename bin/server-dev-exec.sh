@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -eu
 export $(cat .env | xargs)
 export $(cat dev-env | xargs)
 
