@@ -20,3 +20,6 @@ export * from "./topic-edit";
 export * from "./res-reply";
 export * from "./res-hash";
 export * from "./profile-edit";
+export * from "./account-setting";
+export * from "./apps-setting";
+export * from "./dev-setting";

@@ -209,9 +209,7 @@ export const App = withRouter(
                                 <MenuItem
                                   key="3"
                                   primaryText="設定"
-                                  containerElement={
-                                    <Link to="/settings/account" />
-                                  }
+                                  containerElement={<Link to="/settings" />}
                                 />,
                                 <MenuItem
                                   key="4"
@@ -328,8 +326,24 @@ export const App = withRouter(
                             component={pages.AuthPage}
                           />
                           <Route
+                            exact={true}
                             path="/settings"
                             component={pages.SettingsPage}
+                          />
+                          <Route
+                            exact={true}
+                            path="/settings/account"
+                            component={pages.AccountSettingPage}
+                          />
+                          <Route
+                            exact={true}
+                            path="/settings/apps"
+                            component={pages.AppsSettingPage}
+                          />
+                          <Route
+                            exact={true}
+                            path="/settings/dev"
+                            component={pages.DevSettingPage}
                           />
                           <Route
                             exact={true}
