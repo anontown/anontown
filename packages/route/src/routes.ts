@@ -1,20 +1,53 @@
-import { RouteDataBuilder, queryArray, queryOne } from "./route-data";
-import * as t from "io-ts";
+import { PathDataBuilder, RouteData } from "./route-data";
+import * as qs from "query-string";
 
-export const Home = RouteDataBuilder.fromPath("/").value;
-export const Res = RouteDataBuilder.fromPath("/res/:id").params(
-  t.type({ id: t.string })
-).value;
-export const ResReply = RouteDataBuilder.fromPath("/res/:id/reply").params(
-  t.type({ id: t.string })
-).value;
-export const ResHash = RouteDataBuilder.fromPath("/hash/:hash").params(
-  t.type({ hash: t.string })
-).value;
-export const TopicSearch = RouteDataBuilder.fromPath("/topic/search").query(
-  t.partial({
-    title: queryOne(t.string),
-    tags: queryArray(t.string),
-    dead: queryOne(t.string)
-  })
-).value;
+export const Home = RouteData.create(PathDataBuilder.create().const(""));
+export const Res = RouteData.create(
+  PathDataBuilder.create()
+    .const("res")
+    .variable("id")
+);
+export const ResReply = RouteData.create(
+  PathDataBuilder.create()
+    .const("res")
+    .variable("id")
+    .const("reply")
+);
+export const ResHash = RouteData.create(
+  PathDataBuilder.create()
+    .const("hash")
+    .variable("hash")
+);
+
+export const TopicSearch = RouteData.createWithQuery(
+  PathDataBuilder.create()
+    .const("topic")
+    .const("search"),
+  query => {
+    const title = RouteData.encodeOne(query["title"]);
+    const tags = RouteData.encodeArray(query["tags"]);
+    const dead = RouteData.encodeOne(query["dead"]);
+
+    return {
+      title: title !== undefined ? title : "",
+      tags,
+      dead: dead === "true"
+    };
+  },
+  query => {
+    const res: qs.ParsedQuery = {};
+    if (query.title.length !== 0) {
+      res["title"] = query.title;
+    }
+
+    if (query.tags.length !== 0) {
+      res["tags"] = query.tags;
+    }
+
+    if (query.dead) {
+      res["dead"] = "true";
+    }
+
+    return res;
+  }
+);

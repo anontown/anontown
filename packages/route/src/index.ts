@@ -1,3 +1,3 @@
 import * as routes from "./routes";
-export { RouteData } from "./route-data";
+export { RouteData, RouteDataToParams } from "./route-data";
 export { routes };
