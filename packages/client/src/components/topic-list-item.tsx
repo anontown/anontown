@@ -40,7 +40,7 @@ export const TopicListItem = (props: TopicListItemProps) => {
         ) : null}
         <Link
           className={style.title}
-          to={routes.topic.path({ id: props.topic.id })}
+          to={routes.topic.to({ id: props.topic.id }, {})}
         >
           {props.topic.title}
         </Link>
@@ -55,9 +55,12 @@ export const TopicListItem = (props: TopicListItemProps) => {
           ) : null}
           {props.topic.__typename === "TopicFork" ? (
             <Link
-              to={routes.topic.path({
-                id: props.topic.parent.id,
-              })}
+              to={routes.topic.to(
+                {
+                  id: props.topic.parent.id,
+                },
+                {},
+              )}
             >
               親トピック
             </Link>

@@ -1,4 +1,5 @@
 import * as qs from "query-string";
+import { LocationDescriptor } from "history";
 
 export type PathDataElementConst = { type: "const"; value: string };
 export type PathDataElementVariable<T extends string> = {
@@ -64,7 +65,7 @@ type RouteDataToParamNames<T> = T extends RouteData<infer P, any> ? P : never;
 
 export type RouteDataToParams<T> = Record<RouteDataToParamNames<T>, string>;
 
-export class RouteData<P extends string, Q> {
+export class RouteData<P extends string, Q extends object> {
   static encodeOne = (x: ParsedQueryValue): string | undefined => {
     if (x === null || x === undefined) {
       return undefined;
@@ -101,7 +102,7 @@ export class RouteData<P extends string, Q> {
     return new RouteData(pathDataBuilder.value, () => ({}), () => ({}));
   }
 
-  static createWithQuery<P extends string, Q>(
+  static createWithQuery<P extends string, Q extends object>(
     pathDataBuilder: PathDataBuilder<P>,
     encodeQuery: (query: qs.ParsedQuery) => Q,
     decodeQuery: (query: Q) => qs.ParsedQuery
@@ -113,15 +114,18 @@ export class RouteData<P extends string, Q> {
     return pathDataToMatcher(this.pathData);
   }
 
-  path(params: Record<P, string>): string {
-    return pathDataToPath(this.pathData, params);
+  to(params: Record<P, string>, query: Q, state: any = {}): LocationDescriptor {
+    return {
+      pathname: pathDataToPath(this.pathData, params),
+      search:
+        Object.keys(query).length !== 0
+          ? qs.stringify(this.decodeQuery(query))
+          : undefined,
+      state: state
+    };
   }
 
   parseQuery(query: string): Q {
     return this.encodeQuery(qs.parse(query));
-  }
-
-  stringifyQuery(query: Q): string {
-    return qs.stringify(this.decodeQuery(query));
   }
 }

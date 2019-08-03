@@ -60,7 +60,12 @@ export class TopicFavo extends React.Component<TopicFavoProps, TopicFavoState> {
                         <div>
                           お気に入りトピックがありません。
                           <br />
-                          <Link to={routes.topicSearch.path({})}>
+                          <Link
+                            to={routes.topicSearch.to(
+                              {},
+                              { title: "", tags: [], dead: false },
+                            )}
+                          >
                             トピック一覧
                           </Link>
                         </div>

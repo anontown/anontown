@@ -108,7 +108,7 @@ export const SignupPage = withRouter(
                         </div>
                       )}
                     </G.CreateUserComponent>
-                    <Link to={routes.login.path({})}>ログイン</Link>
+                    <Link to={routes.login.to({}, {})}>ログイン</Link>
                   </form>
                 </Paper>
               )

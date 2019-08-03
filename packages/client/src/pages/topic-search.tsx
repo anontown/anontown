@@ -151,7 +151,7 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
       <div>
         {user.value !== null ? (
           <IconButton
-            containerElement={<Link to={routes.topicCreate.path({})} />}
+            containerElement={<Link to={routes.topicCreate.to({}, {})} />}
           >
             <FontIcon className="material-icons">edit</FontIcon>
           </IconButton>

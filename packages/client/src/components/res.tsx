@@ -138,33 +138,30 @@ export const Res = (props: ResProps) => {
           {props.res.__typename === "ResNormal" &&
           props.res.profile !== null ? (
             <Link
-              to={{
-                pathname: routes.profile.path({ id: props.res.profile.id }),
-                state: {
+              to={routes.profile.to(
+                { id: props.res.profile.id },
+                {},
+                {
                   modal: true,
                 },
-              }}
+              )}
             >
               ●{props.res.profile.sn}
             </Link>
           ) : null}
           &nbsp;
-          <Link
-            to={{
-              pathname: routes.res.path({ id: props.res.id }),
-              state: { modal: true },
-            }}
-          >
+          <Link to={routes.res.to({ id: props.res.id }, {}, { modal: true })}>
             {dateFormat.format(props.res.date)}
           </Link>
           &nbsp;
           <Link
-            to={{
-              pathname: routes.hash.path({ hash: props.res.hash }),
-              state: {
+            to={routes.hash.to(
+              { hash: props.res.hash },
+              {},
+              {
                 modal: true,
               },
-            }}
+            )}
           >
             #{props.res.hash.substr(0, 6)}
           </Link>
@@ -275,10 +272,11 @@ export const Res = (props: ResProps) => {
               <IconButton
                 containerElement={
                   <Link
-                    to={{
-                      pathname: routes.res.path({ id: props.res.reply.id }),
-                      state: { modal: true },
-                    }}
+                    to={routes.res.to(
+                      { id: props.res.reply.id },
+                      {},
+                      { modal: true },
+                    )}
                   />
                 }
                 style={small}
@@ -292,10 +290,11 @@ export const Res = (props: ResProps) => {
                 <IconButton
                   containerElement={
                     <Link
-                      to={{
-                        pathname: routes.resReply.path({ id: props.res.id }),
-                        state: { modal: true },
-                      }}
+                      to={routes.resReply.to(
+                        { id: props.res.id },
+                        {},
+                        { modal: true },
+                      )}
                     />
                   }
                   style={small}
@@ -325,7 +324,7 @@ export const Res = (props: ResProps) => {
             <div>
               <p>
                 派生トピック:
-                <Link to={routes.topic.path({ id: props.res.fork.id })}>
+                <Link to={routes.topic.to({ id: props.res.fork.id }, {})}>
                   {props.res.fork.title}
                 </Link>
               </p>

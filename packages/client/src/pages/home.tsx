@@ -28,7 +28,14 @@ export const HomePage = (_props: HomePageProps) => {
           <h1>匿名掲示板Anontownへようこそ</h1>
           <ul>
             <li>
-              <Link to={routes.topicSearch.path({})}>トピック一覧</Link>
+              <Link
+                to={routes.topicSearch.to(
+                  {},
+                  { title: "", tags: [], dead: false },
+                )}
+              >
+                トピック一覧
+              </Link>
             </li>
             <li>
               <a href="https://document.anontown.com/" target="_blank">

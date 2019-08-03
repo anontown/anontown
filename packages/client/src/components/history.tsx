@@ -39,12 +39,13 @@ export class History extends React.Component<HistoryProps, HistoryState> {
           </IconButton>
           {dateFormat.format(this.props.history.date)}
           <Link
-            to={{
-              pathname: routes.hash.path({ hash: this.props.history.hash }),
-              state: {
+            to={routes.hash.to(
+              { hash: this.props.history.hash },
+              {},
+              {
                 modal: true,
               },
-            }}
+            )}
           >
             HASH:{this.props.history.hash.substr(0, 6)}
           </Link>

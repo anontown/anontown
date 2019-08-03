@@ -228,12 +228,13 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                     primaryText="詳細データ"
                     containerElement={
                       <Link
-                        to={{
-                          pathname: routes.topicData.path({
+                        to={routes.topicData.to(
+                          {
                             id: props.match.params.id,
-                          }),
-                          state: { modal: true },
-                        }}
+                          },
+                          {},
+                          { modal: true },
+                        )}
                       />
                     }
                   />
@@ -242,12 +243,13 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                       primaryText="トピック編集"
                       containerElement={
                         <Link
-                          to={{
-                            pathname: routes.topicEdit.path({
+                          to={routes.topicEdit.to(
+                            {
                               id: props.match.params.id,
-                            }),
-                            state: { modal: true },
-                          }}
+                            },
+                            {},
+                            { modal: true },
+                          )}
                         />
                       }
                     />
@@ -257,12 +259,13 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                       primaryText="派生トピック"
                       containerElement={
                         <Link
-                          to={{
-                            pathname: routes.topicFork.path({
+                          to={routes.topicFork.path(
+                            {
                               id: props.match.params.id,
-                            }),
-                            state: { modal: true },
-                          }}
+                            },
+                            {},
+                            { modal: true },
+                          )}
                         />
                       }
                     />

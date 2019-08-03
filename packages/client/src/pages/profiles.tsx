@@ -28,7 +28,9 @@ export const ProfilesPage = userSwitch(
         {profiles.data !== undefined
           ? profiles.data.profiles.map(p => (
               <Paper key={p.id} style={{ padding: 10 }}>
-                <Link to={routes.profileEdit.path({ id: p.id })}>●{p.sn}</Link>
+                <Link to={routes.profileEdit.to({ id: p.id }, {})}>
+                  ●{p.sn}
+                </Link>
               </Paper>
             ))
           : null}

@@ -13,14 +13,14 @@ export function TagsLink(props: TagsLinkProps) {
   return (
     <Link
       className={props.mini ? style.mini : undefined}
-      to={{
-        pathname: routes.topicSearch.path({}),
-        search: routes.topicSearch.stringifyQuery({
+      to={routes.topicSearch.to(
+        {},
+        {
           title: "",
           tags: props.tags,
           dead: false,
-        }),
-      }}
+        },
+      )}
     >
       {props.tags.length !== 0 ? props.tags.join(",") : "(なし)"}
     </Link>
