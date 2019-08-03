@@ -33,7 +33,7 @@ function pathDataToPath<T extends string>(
   pathData: PathData<T>,
   params: Record<T, string>
 ): string {
-  return pathDataToString(pathData, name => params[name]);
+  return pathDataToString(pathData, name => encodeURIComponent(params[name]));
 }
 
 function pathDataToMatcher<T extends string>(pathData: PathData<T>): string {
