@@ -34,8 +34,7 @@ docker-compose -f docker-compose.test.yml run --rm app npx lerna exec --scope @a
 ## Lint
 
 ```sh
-lerna exec  --scope @anontown/server -- npm run lint:fix
-lerna exec  --scope @anontown/client -- npm run lint:fix
+lerna run lint:fix
 ```
 
 ## 公式サーバー
