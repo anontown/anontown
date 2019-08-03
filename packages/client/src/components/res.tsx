@@ -10,6 +10,7 @@ import { Md } from "./md";
 import { ResWrite } from "./res-write";
 import * as style from "./res.scss";
 import { Snack } from "./snack";
+import { routes } from "@anontown/route";
 
 interface ResProps {
   res: G.ResFragment;
@@ -138,7 +139,7 @@ export const Res = (props: ResProps) => {
           props.res.profile !== null ? (
             <Link
               to={{
-                pathname: `/profile/${props.res.profile.id}`,
+                pathname: routes.profile.path({ id: props.res.profile.id }),
                 state: {
                   modal: true,
                 },
@@ -150,7 +151,7 @@ export const Res = (props: ResProps) => {
           &nbsp;
           <Link
             to={{
-              pathname: `/res/${props.res.id}`,
+              pathname: routes.res.path({ id: props.res.id }),
               state: { modal: true },
             }}
           >
@@ -159,7 +160,7 @@ export const Res = (props: ResProps) => {
           &nbsp;
           <Link
             to={{
-              pathname: `/hash/${encodeURIComponent(props.res.hash)}`,
+              pathname: routes.hash.path({ hash: props.res.hash }),
               state: {
                 modal: true,
               },
@@ -275,7 +276,7 @@ export const Res = (props: ResProps) => {
                 containerElement={
                   <Link
                     to={{
-                      pathname: `/res/${props.res.reply.id}`,
+                      pathname: routes.res.path({ id: props.res.reply.id }),
                       state: { modal: true },
                     }}
                   />
@@ -292,7 +293,7 @@ export const Res = (props: ResProps) => {
                   containerElement={
                     <Link
                       to={{
-                        pathname: `/res/${props.res.id}/reply`,
+                        pathname: routes.resReply.path({ id: props.res.id }),
                         state: { modal: true },
                       }}
                     />
@@ -324,7 +325,7 @@ export const Res = (props: ResProps) => {
             <div>
               <p>
                 派生トピック:
-                <Link to={`/topic/${props.res.fork.id}`}>
+                <Link to={routes.topic.path({ id: props.res.fork.id })}>
                   {props.res.fork.title}
                 </Link>
               </p>

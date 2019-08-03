@@ -4,6 +4,7 @@ import * as G from "../generated/graphql";
 import { dateFormat } from "../utils";
 import { Md } from "./md";
 import { TagsLink } from "./tags-link";
+import { routes } from "@anontown/route";
 
 export interface TopicDataProps {
   topic: G.TopicFragment;
@@ -41,7 +42,9 @@ export class TopicData extends React.Component<TopicDataProps, TopicDataState> {
             <>
               <dt>派生元</dt>
               <dd>
-                <Link to={`/topic/${this.props.topic.parent.id}`}>
+                <Link
+                  to={routes.topic.path({ id: this.props.topic.parent.id })}
+                >
                   {this.props.topic.parent.title}
                 </Link>
               </dd>

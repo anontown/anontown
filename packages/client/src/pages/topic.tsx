@@ -26,6 +26,7 @@ import {
 import * as G from "../generated/graphql";
 import { queryResultConvert, useUserContext } from "../utils";
 import * as style from "./topic.scss";
+import { routes } from "@anontown/route";
 // TODO:NGのtransparent
 
 interface TopicPageProps extends RouteComponentProps<{ id: string }> {}
@@ -228,7 +229,9 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                     containerElement={
                       <Link
                         to={{
-                          pathname: `/topic/${props.match.params.id}/data`,
+                          pathname: routes.topicData.path({
+                            id: props.match.params.id,
+                          }),
                           state: { modal: true },
                         }}
                       />
@@ -240,7 +243,9 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                       containerElement={
                         <Link
                           to={{
-                            pathname: `/topic/${props.match.params.id}/edit`,
+                            pathname: routes.topicEdit.path({
+                              id: props.match.params.id,
+                            }),
                             state: { modal: true },
                           }}
                         />
@@ -253,7 +258,9 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                       containerElement={
                         <Link
                           to={{
-                            pathname: `/topic/${props.match.params.id}/fork`,
+                            pathname: routes.topicFork.path({
+                              id: props.match.params.id,
+                            }),
                             state: { modal: true },
                           }}
                         />

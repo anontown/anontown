@@ -2,6 +2,7 @@ import * as qs from "query-string";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as style from "./tags-link.scss";
+import { routes } from "@anontown/route";
 
 export interface TagsLinkProps {
   tags: string[];
@@ -13,8 +14,12 @@ export function TagsLink(props: TagsLinkProps) {
     <Link
       className={props.mini ? style.mini : undefined}
       to={{
-        pathname: "/topic/search",
-        search: qs.stringify({ tags: props.tags }),
+        pathname: routes.topicSearch.path({}),
+        search: routes.topicSearch.stringifyQuery({
+          title: "",
+          tags: props.tags,
+          dead: false,
+        }),
       }}
     >
       {props.tags.length !== 0 ? props.tags.join(",") : "(なし)"}

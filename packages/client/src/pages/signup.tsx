@@ -12,6 +12,7 @@ import { Errors, Page } from "../components";
 import { Env } from "../env";
 import * as G from "../generated/graphql";
 import { createUserData, UserContext } from "../utils";
+import { routes } from "@anontown/route";
 
 interface SignupPageProps extends RouteComponentProps<{}> {}
 
@@ -107,7 +108,7 @@ export const SignupPage = withRouter(
                         </div>
                       )}
                     </G.CreateUserComponent>
-                    <Link to="/login">ログイン</Link>
+                    <Link to={routes.login.path({})}>ログイン</Link>
                   </form>
                 </Paper>
               )

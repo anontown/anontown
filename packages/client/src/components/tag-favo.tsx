@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { UserData } from "../models";
 import * as style from "./tag-favo.scss";
 import { TagsLink } from "./tags-link";
+import { routes } from "@anontown/route";
 
 interface TagFavoProps {
   userData: UserData;
@@ -31,7 +32,7 @@ export class TagFavo extends React.Component<TagFavoProps, TagFavoState> {
           <div>
             お気に入りタグがありません。
             <br />
-            <Link to="/topic/search">検索</Link>
+            <Link to={routes.topicSearch.path({})}>検索</Link>
           </div>
         )}
       </Paper>

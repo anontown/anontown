@@ -5,6 +5,7 @@ import * as G from "../generated/graphql";
 import { UserData } from "../models";
 import { Snack } from "./snack";
 import { TopicListItem } from "./topic-list-item";
+import { routes } from "@anontown/route";
 
 interface TopicFavoProps {
   userData: UserData;
@@ -59,7 +60,9 @@ export class TopicFavo extends React.Component<TopicFavoProps, TopicFavoState> {
                         <div>
                           お気に入りトピックがありません。
                           <br />
-                          <Link to="/topic/search">トピック一覧</Link>
+                          <Link to={routes.topicSearch.path({})}>
+                            トピック一覧
+                          </Link>
                         </div>
                       )}
                     </Paper>

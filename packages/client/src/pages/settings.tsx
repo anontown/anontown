@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Link, Route, Switch } from "react-router-dom";
 import { Page } from "../components";
+import { routes } from "@anontown/route";
 
 interface SettingsPageProps extends RouteComponentProps<{}> {}
 
@@ -12,13 +13,13 @@ export const SettingsPage = withRouter((_props: SettingsPageProps) => {
     <Page>
       <Helmet title="アカウント設定" />
       <Paper>
-        <Link to="/settings/account">アカウント設定</Link>
+        <Link to={routes.accountSetting.path({})}>アカウント設定</Link>
       </Paper>
       <Paper>
-        <Link to="/settings/apps">連携アプリ</Link>
+        <Link to={routes.appsSetting.path({})}>連携アプリ</Link>
       </Paper>
       <Paper>
-        <Link to="/settings/dev">開発者向け</Link>
+        <Link to={routes.devSetting.path({})}>開発者向け</Link>
       </Paper>
     </Page>
   );

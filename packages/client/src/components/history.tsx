@@ -5,6 +5,7 @@ import * as G from "../generated/graphql";
 import { dateFormat } from "../utils";
 import { Md } from "./md";
 import { TagsLink } from "./tags-link";
+import { routes } from "@anontown/route";
 
 interface HistoryProps {
   history: G.HistoryFragment;
@@ -39,7 +40,7 @@ export class History extends React.Component<HistoryProps, HistoryState> {
           {dateFormat.format(this.props.history.date)}
           <Link
             to={{
-              pathname: `/hash/${encodeURIComponent(this.props.history.hash)}`,
+              pathname: routes.hash.path({ hash: this.props.history.hash }),
               state: {
                 modal: true,
               },

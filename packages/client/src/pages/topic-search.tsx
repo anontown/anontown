@@ -19,6 +19,7 @@ import { Page, TagsInput, TopicListItem } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, useEffectRef, useUserContext } from "../utils";
 import * as style from "./topic-search.scss";
+import { routes } from "@anontown/route";
 
 type TopicSearchPageProps = RouteComponentProps<{}>;
 
@@ -149,7 +150,9 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
       </Paper>
       <div>
         {user.value !== null ? (
-          <IconButton containerElement={<Link to="/topic/create" />}>
+          <IconButton
+            containerElement={<Link to={routes.topicCreate.path({})} />}
+          >
             <FontIcon className="material-icons">edit</FontIcon>
           </IconButton>
         ) : null}

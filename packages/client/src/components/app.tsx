@@ -36,6 +36,7 @@ import {
   UserContextType,
 } from "../utils";
 import * as style from "./app.scss";
+import { routes } from "@anontown/route";
 
 declare const gtag: any;
 
@@ -166,11 +167,17 @@ export const App = withRouter(
                           />
                         </ToolbarGroup>
                         <ToolbarGroup>
-                          <IconButton containerElement={<Link to="/" />}>
+                          <IconButton
+                            containerElement={
+                              <Link to={routes.home.path({})} />
+                            }
+                          >
                             <FontIcon className="material-icons">home</FontIcon>
                           </IconButton>
                           <IconButton
-                            containerElement={<Link to="/topic/search" />}
+                            containerElement={
+                              <Link to={routes.topicSearch.path({})} />
+                            }
                           >
                             <FontIcon className="material-icons">
                               search
@@ -178,7 +185,9 @@ export const App = withRouter(
                           </IconButton>
                           {user.value !== null ? (
                             <IconButton
-                              containerElement={<Link to="/notifications" />}
+                              containerElement={
+                                <Link to={routes.notifications.path({})} />
+                              }
                             >
                               <FontIcon className="material-icons">
                                 notifications
@@ -199,17 +208,21 @@ export const App = withRouter(
                                 <MenuItem
                                   key="1"
                                   primaryText="プロフ管理"
-                                  containerElement={<Link to="/profiles" />}
+                                  containerElement={routes.profiles.path({})}
                                 />,
                                 <MenuItem
                                   key="2"
                                   primaryText="お知らせ"
-                                  containerElement={<Link to="/messages" />}
+                                  containerElement={
+                                    <Link to={routes.messages.path({})} />
+                                  }
                                 />,
                                 <MenuItem
                                   key="3"
                                   primaryText="設定"
-                                  containerElement={<Link to="/settings" />}
+                                  containerElement={
+                                    <Link to={routes.settings.path({})} />
+                                  }
                                 />,
                                 <MenuItem
                                   key="4"
@@ -220,7 +233,9 @@ export const App = withRouter(
                             ) : (
                               <MenuItem
                                 primaryText="ログイン"
-                                containerElement={<Link to="/login" />}
+                                containerElement={
+                                  <Link to={routes.login.path({})} />
+                                }
                               />
                             )}
                           </IconMenu>
@@ -242,152 +257,155 @@ export const App = withRouter(
                         >
                           <Route
                             exact={true}
-                            path="/"
+                            path={routes.home.matcher()}
                             component={pages.HomePage}
                           />
                           <Route
                             exact={true}
-                            path="/res/:id"
+                            path={routes.res.matcher()}
                             component={pages.ResPage}
                           />
                           <Route
                             exact={true}
-                            path="/res/:id/reply"
+                            path={routes.resReply.matcher()}
                             component={pages.ResReplyPage}
                           />
                           <Route
                             exact={true}
-                            path="/hash/:hash"
+                            path={routes.hash.matcher()}
                             component={pages.ResHashPage}
                           />
                           <Route
                             exact={true}
-                            path="/topic/search"
+                            path={routes.topicSearch.matcher()}
                             component={pages.TopicSearchPage}
                           />
                           <Route
                             exact={true}
-                            path="/topic/create"
+                            path={routes.topicCreate.matcher()}
                             component={pages.TopicCreatePage}
                           />
                           <Route
                             exact={true}
-                            path="/topic/:id"
+                            path={routes.topic.matcher()}
                             component={pages.TopicPage}
                           />
                           <Route
                             exact={true}
-                            path="/topic/:id/data"
+                            path={routes.topicData.matcher()}
                             component={pages.TopicDataPage}
                           />
                           <Route
                             exact={true}
-                            path="/topic/:id/fork"
+                            path={routes.topicFork.matcher()}
                             component={pages.TopicForkPage}
                           />
                           <Route
                             exact={true}
-                            path="/topic/:id/edit"
+                            path={routes.topicEdit.matcher()}
                             component={pages.TopicEditPage}
                           />
                           <Route
                             exact={true}
-                            path="/profiles"
+                            path={routes.profiles.matcher()}
                             component={pages.ProfilesPage}
                           />
                           <Route
                             exact={true}
-                            path="/profiles/:id"
+                            path={routes.profileEdit.matcher()}
                             component={pages.ProfileEditPage}
                           />
                           <Route
                             exact={true}
-                            path="/notifications"
+                            path={routes.notifications.matcher()}
                             component={pages.NotificationsPage}
                           />
                           <Route
                             exact={true}
-                            path="/messages"
+                            path={routes.messages.matcher()}
                             component={pages.MessagesPage}
                           />
                           <Route
                             exact={true}
-                            path="/signup"
+                            path={routes.signup.matcher()}
                             component={pages.SignupPage}
                           />
                           <Route
                             exact={true}
-                            path="/login"
+                            path={routes.login.matcher()}
                             component={pages.LoginPage}
                           />
                           <Route
                             exact={true}
-                            path="/auth"
+                            path={routes.auth.matcher()}
                             component={pages.AuthPage}
                           />
                           <Route
                             exact={true}
-                            path="/settings"
+                            path={routes.settings.matcher()}
                             component={pages.SettingsPage}
                           />
                           <Route
                             exact={true}
-                            path="/settings/account"
+                            path={routes.accountSetting.matcher()}
                             component={pages.AccountSettingPage}
                           />
                           <Route
                             exact={true}
-                            path="/settings/apps"
+                            path={routes.appsSetting.matcher()}
                             component={pages.AppsSettingPage}
                           />
                           <Route
                             exact={true}
-                            path="/settings/dev"
+                            path={routes.devSetting.matcher()}
                             component={pages.DevSettingPage}
                           />
                           <Route
                             exact={true}
-                            path="/profile/:id"
+                            path={routes.profile.matcher()}
                             component={pages.ProfilePage}
                           />
                           <Route component={pages.NotFoundPage} />
                         </Switch>
                         {isModal ? (
-                          <Route path="/res/:id" component={pages.ResModal} />
+                          <Route
+                            path={routes.res.matcher()}
+                            component={pages.ResModal}
+                          />
                         ) : null}
                         {isModal ? (
                           <Route
-                            path="/res/:id/reply"
+                            path={routes.resReply.matcher()}
                             component={pages.ResReplyModal}
                           />
                         ) : null}
                         {isModal ? (
                           <Route
-                            path="/profile/:id"
+                            path={routes.profile.matcher()}
                             component={pages.ProfileModal}
                           />
                         ) : null}
                         {isModal ? (
                           <Route
-                            path="/topic/:id/data"
+                            path={routes.topicData.matcher()}
                             component={pages.TopicDataModal}
                           />
                         ) : null}
                         {isModal ? (
                           <Route
-                            path="/topic/:id/fork"
+                            path={routes.topicFork.matcher()}
                             component={pages.TopicForkModal}
                           />
                         ) : null}
                         {isModal ? (
                           <Route
-                            path="/topic/:id/edit"
+                            path={routes.topicEdit.matcher()}
                             component={pages.TopicEditModal}
                           />
                         ) : null}
                         {isModal ? (
                           <Route
-                            path="/hash/:hash"
+                            path={routes.hash.matcher()}
                             component={pages.ResHashModal}
                           />
                         ) : null}

@@ -5,6 +5,7 @@ import * as G from "../generated/graphql";
 import { dateFormat, useUserContext } from "../utils";
 import { TagsLink } from "./tags-link";
 import * as style from "./topic-list-item.scss";
+import { routes } from "@anontown/route";
 
 interface TopicListItemProps {
   topic: G.TopicFragment;
@@ -37,7 +38,10 @@ export const TopicListItem = (props: TopicListItemProps) => {
         {newRes !== null && newRes !== 0 ? (
           <FontIcon className="material-icons">fiber_new</FontIcon>
         ) : null}
-        <Link className={style.title} to={`/topic/${props.topic.id}`}>
+        <Link
+          className={style.title}
+          to={routes.topic.path({ id: props.topic.id })}
+        >
           {props.topic.title}
         </Link>
       </div>
@@ -50,7 +54,13 @@ export const TopicListItem = (props: TopicListItemProps) => {
             </div>
           ) : null}
           {props.topic.__typename === "TopicFork" ? (
-            <Link to={`/topic/${props.topic.parent}`}>親トピック</Link>
+            <Link
+              to={routes.topic.path({
+                id: props.topic.parent.id,
+              })}
+            >
+              親トピック
+            </Link>
           ) : null}
 
           <div>

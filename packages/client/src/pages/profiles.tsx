@@ -6,6 +6,7 @@ import { Page, ProfileAdd, ProfileEditor, Snack } from "../components";
 import * as G from "../generated/graphql";
 import { userSwitch, UserSwitchProps, queryResultConvert } from "../utils";
 import { Link } from "react-router-dom";
+import { routes } from "@anontown/route";
 
 type ProfilesPageProps = RouteComponentProps & UserSwitchProps;
 
@@ -27,7 +28,7 @@ export const ProfilesPage = userSwitch(
         {profiles.data !== undefined
           ? profiles.data.profiles.map(p => (
               <Paper key={p.id} style={{ padding: 10 }}>
-                <Link to={`/profiles/${p.id}`}>●{p.sn}</Link>
+                <Link to={routes.profileEdit.path({ id: p.id })}>●{p.sn}</Link>
               </Paper>
             ))
           : null}

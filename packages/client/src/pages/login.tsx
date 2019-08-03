@@ -10,6 +10,7 @@ import {
 import { Errors, Page } from "../components";
 import * as G from "../generated/graphql";
 import { createUserData, useUserContext } from "../utils";
+import { routes } from "@anontown/route";
 
 type LoginPageProps = RouteComponentProps<{}>;
 
@@ -69,7 +70,7 @@ export const LoginPage = withRouter((_props: LoginPageProps) => {
                 }}
               />
             </div>
-            <Link to="/signup">登録</Link>
+            <Link to={routes.signup.path({})}>登録</Link>
           </form>
         </Paper>
       )}
