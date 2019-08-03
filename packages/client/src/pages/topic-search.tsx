@@ -1,3 +1,4 @@
+import { routes } from "@anontown/route";
 import * as Im from "immutable";
 import {
   Checkbox,
@@ -19,7 +20,6 @@ import { Page, TagsInput, TopicListItem } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, useEffectRef, useUserContext } from "../utils";
 import * as style from "./topic-search.scss";
-import { routes } from "@anontown/route";
 
 type TopicSearchPageProps = RouteComponentProps<{}>;
 

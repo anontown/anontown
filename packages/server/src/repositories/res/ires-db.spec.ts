@@ -1,17 +1,17 @@
-import { ResFork, ResNormal, ResTopic, ResHistory } from "../../entities";
-import {
-  toResFork,
-  fromResFork,
-  fromResBase,
-  toResNormal,
-  fromResNormal,
-  toResTopic,
-  fromResTopic,
-  toResHistory,
-  fromResHistory,
-} from "./ires-db";
-import * as Im from "immutable";
 import { some } from "fp-ts/lib/Option";
+import * as Im from "immutable";
+import { ResFork, ResHistory, ResNormal, ResTopic } from "../../entities";
+import {
+  fromResBase,
+  fromResFork,
+  fromResHistory,
+  fromResNormal,
+  fromResTopic,
+  toResFork,
+  toResHistory,
+  toResNormal,
+  toResTopic,
+} from "./ires-db";
 
 describe("IResDB", () => {
   describe("toResFork", () => {

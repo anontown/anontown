@@ -1,3 +1,4 @@
+import { routes } from "@anontown/route";
 import { Paper, RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import Recaptcha from "react-google-recaptcha";
@@ -12,7 +13,6 @@ import { Errors, Page } from "../components";
 import { Env } from "../env";
 import * as G from "../generated/graphql";
 import { createUserData, UserContext } from "../utils";
-import { routes } from "@anontown/route";
 
 interface SignupPageProps extends RouteComponentProps<{}> {}
 

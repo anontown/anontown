@@ -1,3 +1,4 @@
+import { routes } from "@anontown/route";
 import { Paper, RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
@@ -10,7 +11,6 @@ import {
 import { Errors, Page } from "../components";
 import * as G from "../generated/graphql";
 import { createUserData, useUserContext } from "../utils";
-import { routes } from "@anontown/route";
 
 type LoginPageProps = RouteComponentProps<{}>;
 

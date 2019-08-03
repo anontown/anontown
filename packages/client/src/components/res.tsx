@@ -1,3 +1,4 @@
+import { routes } from "@anontown/route";
 import * as classNames from "classnames";
 import { FontIcon, IconButton, IconMenu, MenuItem, Paper } from "material-ui";
 import * as React from "react";
@@ -10,7 +11,6 @@ import { Md } from "./md";
 import { ResWrite } from "./res-write";
 import * as style from "./res.scss";
 import { Snack } from "./snack";
-import { routes } from "@anontown/route";
 
 interface ResProps {
   res: G.ResFragment;

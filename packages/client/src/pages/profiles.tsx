@@ -1,12 +1,12 @@
-import { Tab, Tabs, Paper } from "material-ui";
+import { routes } from "@anontown/route";
+import { Paper, Tab, Tabs } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import { RouteComponentProps, withRouter } from "react-router";
+import { Link } from "react-router-dom";
 import { Page, ProfileAdd, ProfileEditor, Snack } from "../components";
 import * as G from "../generated/graphql";
-import { userSwitch, UserSwitchProps, queryResultConvert } from "../utils";
-import { Link } from "react-router-dom";
-import { routes } from "@anontown/route";
+import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
 
 type ProfilesPageProps = RouteComponentProps & UserSwitchProps;
 

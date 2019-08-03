@@ -1,8 +1,8 @@
+import { routes } from "@anontown/route";
 import * as qs from "query-string";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as style from "./tags-link.scss";
-import { routes } from "@anontown/route";
 
 export interface TagsLinkProps {
   tags: string[];

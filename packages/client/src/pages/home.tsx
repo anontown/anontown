@@ -1,3 +1,4 @@
+import { routes } from "@anontown/route";
 import { Paper, Tab, Tabs } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
@@ -5,7 +6,6 @@ import { Link } from "react-router-dom";
 import { Page } from "../components";
 import { TagFavo, TopicFavo } from "../components";
 import { useUserContext } from "../utils";
-import { routes } from "@anontown/route";
 
 interface HomePageProps {}
 

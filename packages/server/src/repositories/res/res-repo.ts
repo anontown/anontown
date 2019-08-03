@@ -6,7 +6,7 @@ import { Res } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IResRepo } from "../../ports";
 import { AuthContainer } from "../../server/auth-container";
-import { IResDB, toRes, fromRes } from "./ires-db";
+import { fromRes, IResDB, toRes } from "./ires-db";
 
 interface ResPubSub {
   res: IResDB;

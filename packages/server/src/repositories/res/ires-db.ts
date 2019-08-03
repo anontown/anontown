@@ -1,18 +1,18 @@
-import {
-  ResDeleteFlag,
-  IVote,
-  IReply,
-  ResNormal,
-  ResHistory,
-  ResFork,
-  ResTopic,
-  Res,
-  ResType,
-  ResBase,
-  ResAPIType,
-} from "../../entities";
 import { fromNullable } from "fp-ts/lib/Option";
 import * as Im from "immutable";
+import {
+  IReply,
+  IVote,
+  Res,
+  ResAPIType,
+  ResBase,
+  ResDeleteFlag,
+  ResFork,
+  ResHistory,
+  ResNormal,
+  ResTopic,
+  ResType,
+} from "../../entities";
 
 export interface IResDB {
   id: string;

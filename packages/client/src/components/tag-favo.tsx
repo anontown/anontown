@@ -1,10 +1,10 @@
+import { routes } from "@anontown/route";
 import { Paper } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { UserData } from "../models";
 import * as style from "./tag-favo.scss";
 import { TagsLink } from "./tags-link";
-import { routes } from "@anontown/route";
 
 interface TagFavoProps {
   userData: UserData;

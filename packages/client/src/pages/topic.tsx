@@ -1,3 +1,4 @@
+import { routes } from "@anontown/route";
 import { arrayFirst } from "@kgtkr/utils";
 import {
   FontIcon,
@@ -26,7 +27,6 @@ import {
 import * as G from "../generated/graphql";
 import { queryResultConvert, useUserContext } from "../utils";
 import * as style from "./topic.scss";
-import { routes } from "@anontown/route";
 // TODO:NGのtransparent
 
 interface TopicPageProps extends RouteComponentProps<{ id: string }> {}

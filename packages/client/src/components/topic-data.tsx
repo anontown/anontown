@@ -1,10 +1,10 @@
+import { routes } from "@anontown/route";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as G from "../generated/graphql";
 import { dateFormat } from "../utils";
 import { Md } from "./md";
 import { TagsLink } from "./tags-link";
-import { routes } from "@anontown/route";
 
 export interface TopicDataProps {
   topic: G.TopicFragment;

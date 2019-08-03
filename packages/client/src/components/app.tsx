@@ -1,3 +1,4 @@
+import { routes } from "@anontown/route";
 import * as t from "io-ts";
 import {
   FontIcon,
@@ -36,7 +37,6 @@ import {
   UserContextType,
 } from "../utils";
 import * as style from "./app.scss";
-import { routes } from "@anontown/route";
 
 declare const gtag: any;
 
