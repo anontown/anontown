@@ -23,4 +23,4 @@ matrix:
       script:
         - npx lerna exec  --scope @anontown/client -- npm run lint
         - npx lerna exec  --scope @anontown/server -- npm run lint
-        - npx lerna exec --scope @anontown/client -- npm run build
+        - npx run build --scope @anontown/client --include-filtered-dependencies
