@@ -21,6 +21,7 @@
     "typescript": "^3.5.2"
   },
   "dependencies": {
-    "query-string": "^6.8.1"
+    "fp-ts": "^2.0.3",
+    "query-string": "^6.8.2"
   }
 }
