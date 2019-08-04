@@ -4,17 +4,23 @@ import * as qs from "query-string";
 export const home = RouteData.create(PathDataBuilder.create().const(""));
 export const res = RouteData.create(
   PathDataBuilder.create()
+    .const("topics")
+    .variable("topic")
     .const("reses")
     .variable("id")
 );
 export const resReply = RouteData.create(
   PathDataBuilder.create()
+    .const("topics")
+    .variable("topic")
     .const("reses")
     .variable("id")
     .const("reply")
 );
 export const hash = RouteData.create(
   PathDataBuilder.create()
+    .const("topics")
+    .variable("topic")
     .const("hashes")
     .variable("hash")
 );
