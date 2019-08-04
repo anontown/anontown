@@ -32,7 +32,7 @@ export class TagFavo extends React.Component<TagFavoProps, TagFavoState> {
           <div>
             お気に入りタグがありません。
             <br />
-            <Link to={routes.topicSearch.to({}, {})}>検索</Link>
+            <Link to={routes.topicSearch.to({})}>検索</Link>
           </div>
         )}
       </Paper>

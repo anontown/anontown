@@ -42,9 +42,7 @@ export class TopicData extends React.Component<TopicDataProps, TopicDataState> {
             <>
               <dt>派生元</dt>
               <dd>
-                <Link
-                  to={routes.topic.to({ id: this.props.topic.parent.id }, {})}
-                >
+                <Link to={routes.topic.to({ id: this.props.topic.parent.id })}>
                   {this.props.topic.parent.title}
                 </Link>
               </dd>

@@ -168,15 +168,13 @@ export const App = withRouter(
                         </ToolbarGroup>
                         <ToolbarGroup>
                           <IconButton
-                            containerElement={
-                              <Link to={routes.home.to({}, {})} />
-                            }
+                            containerElement={<Link to={routes.home.to({})} />}
                           >
                             <FontIcon className="material-icons">home</FontIcon>
                           </IconButton>
                           <IconButton
                             containerElement={
-                              <Link to={routes.topicSearch.to({}, {})} />
+                              <Link to={routes.topicSearch.to({})} />
                             }
                           >
                             <FontIcon className="material-icons">
@@ -186,7 +184,7 @@ export const App = withRouter(
                           {user.value !== null ? (
                             <IconButton
                               containerElement={
-                                <Link to={routes.notifications.to({}, {})} />
+                                <Link to={routes.notifications.to({})} />
                               }
                             >
                               <FontIcon className="material-icons">
@@ -208,20 +206,20 @@ export const App = withRouter(
                                 <MenuItem
                                   key="1"
                                   primaryText="プロフ管理"
-                                  containerElement={routes.profiles.to({}, {})}
+                                  containerElement={routes.profiles.to({})}
                                 />,
                                 <MenuItem
                                   key="2"
                                   primaryText="お知らせ"
                                   containerElement={
-                                    <Link to={routes.messages.to({}, {})} />
+                                    <Link to={routes.messages.to({})} />
                                   }
                                 />,
                                 <MenuItem
                                   key="3"
                                   primaryText="設定"
                                   containerElement={
-                                    <Link to={routes.settings.to({}, {})} />
+                                    <Link to={routes.settings.to({})} />
                                   }
                                 />,
                                 <MenuItem
@@ -234,7 +232,7 @@ export const App = withRouter(
                               <MenuItem
                                 primaryText="ログイン"
                                 containerElement={
-                                  <Link to={routes.login.to({}, {})} />
+                                  <Link to={routes.login.to({})} />
                                 }
                               />
                             )}

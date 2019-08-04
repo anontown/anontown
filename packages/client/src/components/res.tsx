@@ -140,9 +140,10 @@ export const Res = (props: ResProps) => {
             <Link
               to={routes.profile.to(
                 { id: props.res.profile.id },
-                {},
                 {
-                  modal: true,
+                  state: {
+                    modal: true,
+                  },
                 },
               )}
             >
@@ -150,16 +151,19 @@ export const Res = (props: ResProps) => {
             </Link>
           ) : null}
           &nbsp;
-          <Link to={routes.res.to({ id: props.res.id }, {}, { modal: true })}>
+          <Link
+            to={routes.res.to({ id: props.res.id }, { state: { modal: true } })}
+          >
             {dateFormat.format(props.res.date)}
           </Link>
           &nbsp;
           <Link
             to={routes.hash.to(
               { hash: props.res.hash },
-              {},
               {
-                modal: true,
+                state: {
+                  modal: true,
+                },
               },
             )}
           >
@@ -274,8 +278,7 @@ export const Res = (props: ResProps) => {
                   <Link
                     to={routes.res.to(
                       { id: props.res.reply.id },
-                      {},
-                      { modal: true },
+                      { state: { modal: true } },
                     )}
                   />
                 }
@@ -292,8 +295,7 @@ export const Res = (props: ResProps) => {
                     <Link
                       to={routes.resReply.to(
                         { id: props.res.id },
-                        {},
-                        { modal: true },
+                        { state: { modal: true } },
                       )}
                     />
                   }
@@ -324,7 +326,7 @@ export const Res = (props: ResProps) => {
             <div>
               <p>
                 派生トピック:
-                <Link to={routes.topic.to({ id: props.res.fork.id }, {})}>
+                <Link to={routes.topic.to({ id: props.res.fork.id })}>
                   {props.res.fork.title}
                 </Link>
               </p>

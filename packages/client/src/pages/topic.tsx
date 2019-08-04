@@ -232,8 +232,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                           {
                             id: props.match.params.id,
                           },
-                          {},
-                          { modal: true },
+                          { state: { modal: true } },
                         )}
                       />
                     }
@@ -247,8 +246,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                             {
                               id: props.match.params.id,
                             },
-                            {},
-                            { modal: true },
+                            { state: { modal: true } },
                           )}
                         />
                       }
@@ -259,12 +257,11 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                       primaryText="派生トピック"
                       containerElement={
                         <Link
-                          to={routes.topicFork.path(
+                          to={routes.topicFork.to(
                             {
                               id: props.match.params.id,
                             },
-                            {},
-                            { modal: true },
+                            { state: { modal: true } },
                           )}
                         />
                       }

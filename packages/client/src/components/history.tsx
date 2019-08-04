@@ -41,9 +41,10 @@ export class History extends React.Component<HistoryProps, HistoryState> {
           <Link
             to={routes.hash.to(
               { hash: this.props.history.hash },
-              {},
               {
-                modal: true,
+                state: {
+                  modal: true,
+                },
               },
             )}
           >

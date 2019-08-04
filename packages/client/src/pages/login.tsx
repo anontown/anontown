@@ -70,7 +70,7 @@ export const LoginPage = withRouter((_props: LoginPageProps) => {
                 }}
               />
             </div>
-            <Link to={routes.signup.to({}, {})}>登録</Link>
+            <Link to={routes.signup.to({})}>登録</Link>
           </form>
         </Paper>
       )}

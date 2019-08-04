@@ -13,13 +13,13 @@ export const SettingsPage = withRouter((_props: SettingsPageProps) => {
     <Page>
       <Helmet title="アカウント設定" />
       <Paper>
-        <Link to={routes.accountSetting.to({}, {})}>アカウント設定</Link>
+        <Link to={routes.accountSetting.to({})}>アカウント設定</Link>
       </Paper>
       <Paper>
-        <Link to={routes.appsSetting.to({}, {})}>連携アプリ</Link>
+        <Link to={routes.appsSetting.to({})}>連携アプリ</Link>
       </Paper>
       <Paper>
-        <Link to={routes.devSetting.to({}, {})}>開発者向け</Link>
+        <Link to={routes.devSetting.to({})}>開発者向け</Link>
       </Paper>
     </Page>
   );
