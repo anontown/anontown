@@ -93,7 +93,7 @@ export class RouteData<P extends string, Q extends object> {
   constructor(
     public pathData: PathData<P>,
     public encodeQuery: (query: qs.ParsedQuery) => Q,
-    public decodeQuery: (query: Q) => qs.ParsedQuery
+    public decodeQuery: (query: Partial<Q>) => qs.ParsedQuery
   ) {}
 
   static create<P extends string>(
@@ -105,7 +105,7 @@ export class RouteData<P extends string, Q extends object> {
   static createWithQuery<P extends string, Q extends object>(
     pathDataBuilder: PathDataBuilder<P>,
     encodeQuery: (query: qs.ParsedQuery) => Q,
-    decodeQuery: (query: Q) => qs.ParsedQuery
+    decodeQuery: (query: Partial<Q>) => qs.ParsedQuery
   ): RouteData<P, Q> {
     return new RouteData(pathDataBuilder.value, encodeQuery, decodeQuery);
   }
@@ -120,7 +120,7 @@ export class RouteData<P extends string, Q extends object> {
       query,
       state
     }: {
-      query?: Q;
+      query?: Partial<Q>;
       state?: any;
     } = {}
   ): LocationDescriptor {

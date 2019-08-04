@@ -35,15 +35,15 @@ export const topicSearch = RouteData.createWithQuery(
   },
   query => {
     const res: qs.ParsedQuery = {};
-    if (query.title.length !== 0) {
+    if (query.title !== undefined && query.title.length !== 0) {
       res["title"] = query.title;
     }
 
-    if (query.tags.length !== 0) {
+    if (query.tags !== undefined && query.tags.length !== 0) {
       res["tags"] = query.tags;
     }
 
-    if (query.dead) {
+    if (query.dead !== undefined && query.dead) {
       res["dead"] = "true";
     }
 
