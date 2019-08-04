@@ -114,15 +114,16 @@ export class RouteData<P extends string, Q extends object> {
     return pathDataToMatcher(this.pathData);
   }
 
-  to({
-    params,
-    query,
-    state
-  }: {
-    params: Record<P, string>;
-    query?: Q;
-    state?: any;
-  }): LocationDescriptor {
+  to(
+    params: Record<P, string>,
+    {
+      query,
+      state
+    }: {
+      query?: Q;
+      state?: any;
+    } = {}
+  ): LocationDescriptor {
     return {
       pathname: pathDataToPath(this.pathData, params),
       search:
