@@ -152,14 +152,17 @@ export const Res = (props: ResProps) => {
           ) : null}
           &nbsp;
           <Link
-            to={routes.res.to({ id: props.res.id }, { state: { modal: true } })}
+            to={routes.res.to(
+              { id: props.res.id, topic: props.res.topic.id },
+              { state: { modal: true } },
+            )}
           >
             {dateFormat.format(props.res.date)}
           </Link>
           &nbsp;
           <Link
             to={routes.hash.to(
-              { hash: props.res.hash },
+              { hash: props.res.hash, topic: props.res.topic.id },
               {
                 state: {
                   modal: true,
@@ -277,7 +280,7 @@ export const Res = (props: ResProps) => {
                 containerElement={
                   <Link
                     to={routes.res.to(
-                      { id: props.res.reply.id },
+                      { id: props.res.reply.id, topic: props.res.topic.id },
                       { state: { modal: true } },
                     )}
                   />
@@ -294,7 +297,7 @@ export const Res = (props: ResProps) => {
                   containerElement={
                     <Link
                       to={routes.resReply.to(
-                        { id: props.res.id },
+                        { id: props.res.id, topic: props.res.topic.id },
                         { state: { modal: true } },
                       )}
                     />
