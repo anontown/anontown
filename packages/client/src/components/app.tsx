@@ -206,7 +206,9 @@ export const App = withRouter(
                                 <MenuItem
                                   key="1"
                                   primaryText="プロフ管理"
-                                  containerElement={routes.profiles.to({})}
+                                  containerElement={
+                                    <Link to={routes.profiles.to({})} />
+                                  }
                                 />,
                                 <MenuItem
                                   key="2"
