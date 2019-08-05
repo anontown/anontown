@@ -8,6 +8,8 @@ interface CheckBoxProps {
   checkBoxStyle?: React.CSSProperties;
   onChange: (v: boolean) => void;
   label: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export function CheckBox(props: CheckBoxProps) {
@@ -19,6 +21,8 @@ export function CheckBox(props: CheckBoxProps) {
         style={props.checkBoxStyle}
         className={style.checkbox}
         onChange={e => props.onChange(e.target.checked)}
+        onFocus={props.onFocus}
+        onBlur={props.onBlur}
       />
       <span style={props.labelStyle} className={style.label}>
         {props.label}
