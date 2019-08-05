@@ -13,6 +13,7 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Errors, MdEditor, Modal, Page, TagsInput } from "../components";
 import * as G from "../generated/graphql";
 import { userSwitch, UserSwitchProps } from "../utils";
+import { routes } from "@anontown/route";
 
 type TopicCreatePageProps = RouteComponentProps<{}> & UserSwitchProps;
 
@@ -60,12 +61,12 @@ export const TopicCreatePage = userSwitch(
                 }}
                 onCompleted={x => {
                   this.props.history.push(
-                    `/topic/${
-                      ("createTopicNormal" in x
+                    routes.topic.to({
+                      id: ("createTopicNormal" in x
                         ? x.createTopicNormal
                         : x.createTopicOne
-                      ).id
-                    }`,
+                      ).id,
+                    }),
                   );
                 }}
               >

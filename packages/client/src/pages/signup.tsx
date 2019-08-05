@@ -43,7 +43,7 @@ export const SignupPage = withRouter(
           <UserContext.Consumer>
             {user =>
               user.value !== null ? (
-                <Redirect to="/" />
+                <Redirect to={routes.home.to({})} />
               ) : (
                 <Paper>
                   <form>

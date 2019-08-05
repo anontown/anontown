@@ -1,21 +1,21 @@
 import { RaisedButton } from "material-ui";
-import * as qs from "query-string";
 import * as React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { useTitle } from "react-use";
 import { Errors, Page, Snack } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
+import { routes } from "@anontown/route";
 
 type AuthPageProps = RouteComponentProps<{}> & UserSwitchProps;
 
 export const AuthPage = userSwitch(
   withRouter((props: AuthPageProps) => {
     const [snackMsg, setSnackMsg] = React.useState<string | null>(null);
-    const id = qs.parse(props.location.search).client;
+    const query = routes.auth.parseQuery(props.location.search);
     const clients = G.useFindClientsQuery({
-      skip: typeof id !== "string",
-      variables: { query: { id: typeof id === "string" ? [id] : [] } },
+      skip: typeof query.id === undefined,
+      variables: { query: { id: query.id !== undefined ? [query.id] : [] } },
     });
     queryResultConvert(clients);
     const submit = G.useCreateTokenGeneralMutation();
@@ -26,7 +26,7 @@ export const AuthPage = userSwitch(
       <Page>
         <Snack msg={snackMsg} onHide={() => setSnackMsg(null)} />
         {clients.loading ? <div>loading</div> : null}
-        {typeof id !== "string" ? <div>パラメーターが不正です</div> : null}
+        {query.id === undefined ? <div>パラメーターが不正です</div> : null}
         {clients.error !== undefined ? (
           <Errors errors={["クライアント取得に失敗しました。"]} />
         ) : null}

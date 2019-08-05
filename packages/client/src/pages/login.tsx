@@ -25,7 +25,7 @@ export const LoginPage = withRouter((_props: LoginPageProps) => {
     <Page>
       <Helmet title="ログイン" />
       {userContext.value !== null ? (
-        <Redirect to="/" />
+        <Redirect to={routes.home.to({})} />
       ) : (
         <Paper>
           <Errors errors={errors} />

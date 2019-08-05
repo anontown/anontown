@@ -8,7 +8,6 @@ import {
   RaisedButton,
   TextField,
 } from "material-ui";
-import * as qs from "query-string";
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import { withRouter } from "react-router";
@@ -23,26 +22,8 @@ import * as style from "./topic-search.scss";
 
 type TopicSearchPageProps = RouteComponentProps<{}>;
 
-function parseQuery(search: string) {
-  const query = qs.parse(search);
-
-  const qTitle = query.title;
-  const title = typeof qTitle === "string" ? qTitle : "";
-
-  const qTags = query.tags;
-  const tags = isArray(qTags)
-    ? qTags
-    : typeof qTags === "string"
-    ? [qTags]
-    : [];
-
-  const dead = query.dead === "true";
-
-  return { title, tags, dead };
-}
-
 export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
-  const query = parseQuery(props.location.search);
+  const query = routes.topicSearch.parseQuery(props.location.search);
   const formChange = React.useRef(new rx.Subject<void>());
   const [formTitle, setFormTitle] = React.useState(query.title);
   const [formDead, setFormDead] = React.useState(query.dead);
@@ -79,14 +60,18 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
       };
     },
     () => {
-      props.history.push({
-        pathname: "/topic/search",
-        search: qs.stringify({
-          title: formTitle,
-          dead: formDead.toString(),
-          tags: formTags.toArray(),
-        }),
-      });
+      props.history.push(
+        routes.topicSearch.to(
+          {},
+          {
+            query: {
+              title: formTitle,
+              dead: formDead,
+              tags: formTags.toArray(),
+            },
+          },
+        ),
+      );
     },
     [formChange.current],
   );

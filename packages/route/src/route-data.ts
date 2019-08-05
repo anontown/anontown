@@ -1,5 +1,5 @@
 import * as qs from "query-string";
-import { LocationDescriptor } from "history";
+import { LocationDescriptorObject } from "history";
 
 export type PathDataElementConst = { type: "const"; value: string };
 export type PathDataElementVariable<T extends string> = {
@@ -123,7 +123,7 @@ export class RouteData<P extends string, Q extends object> {
       query?: Partial<Q>;
       state?: any;
     } = {}
-  ): LocationDescriptor {
+  ): LocationDescriptorObject {
     return {
       pathname: pathDataToPath(this.pathData, params),
       search:

@@ -10,6 +10,7 @@ import {
   UserSwitchProps,
   withModal,
 } from "../utils";
+import { routes } from "@anontown/route";
 
 type TopicForkBaseProps = RouteComponentProps<{ id: string }> &
   UserSwitchProps & {
@@ -35,7 +36,7 @@ const TopicForkBase = withRouter(
           <TopicFork
             topic={topic}
             onCreate={x => {
-              props.history.push(`/topic/${x.id}`);
+              props.history.push(routes.topic.to({ id: x.id }));
             }}
           />
         ) : null}
