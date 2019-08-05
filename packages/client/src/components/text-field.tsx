@@ -6,6 +6,8 @@ interface TextFieldProps {
   onChange: (v: string) => void;
   style?: React.CSSProperties;
   placeholder?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export function TextField(props: TextFieldProps) {
@@ -17,6 +19,8 @@ export function TextField(props: TextFieldProps) {
       value={props.value}
       onChange={e => props.onChange(e.target.value)}
       placeholder={props.placeholder}
+      onFocus={props.onFocus}
+      onBlur={props.onBlur}
     />
   );
 }
