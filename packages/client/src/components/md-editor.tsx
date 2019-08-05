@@ -175,6 +175,17 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
               style={{ outline: "none", resize: "none" }}
             />
           </div>
+          {this.props.actions !== undefined ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {this.props.actions}
+            </div>
+          ) : null}
         </div>
       </div>
     );
