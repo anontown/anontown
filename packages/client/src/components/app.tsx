@@ -239,16 +239,6 @@ export const App = withRouter(
                               />
                             )}
                           </IconMenu>
-                          <IconButton
-                            containerElement={
-                              <a
-                                href="https://document.anontown.com/"
-                                target="_blank"
-                              />
-                            }
-                          >
-                            <FontIcon className="material-icons">help</FontIcon>
-                          </IconButton>
                         </ToolbarGroup>
                       </Toolbar>
                       <div className={style.main}>
