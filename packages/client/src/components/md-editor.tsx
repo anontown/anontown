@@ -18,6 +18,8 @@ export interface MdEditorProps {
   onKeyPress?: React.KeyboardEventHandler<{}>;
   onKeyDown?: React.KeyboardEventHandler<{}>;
   actions?: React.ReactNode;
+  onChangeFocus?: (isFocus: boolean) => void;
+  onChangeMenu?: (isOpen: boolean) => void;
 }
 
 interface MdEditorState {
@@ -126,6 +128,7 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
             }}
           >
             <IconMenu
+              onRequestChange={this.props.onChangeMenu}
               iconButtonElement={
                 <IconButton touch={true}>
                   <FontIcon className="material-icons">menu</FontIcon>
@@ -173,6 +176,16 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
               onKeyPress={this.props.onKeyPress}
               onKeyDown={this.props.onKeyDown}
               style={{ outline: "none", resize: "none" }}
+              onFocus={() => {
+                if (this.props.onChangeFocus) {
+                  this.props.onChangeFocus(true);
+                }
+              }}
+              onBlur={() => {
+                if (this.props.onChangeFocus) {
+                  this.props.onChangeFocus(false);
+                }
+              }}
             />
           </div>
           {this.props.actions !== undefined ? (
