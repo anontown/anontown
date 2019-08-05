@@ -18,9 +18,7 @@ ReactDOM.render(
   <ApolloProvider client={gqlClient}>
     <ApolloHooksProvider client={gqlClient}>
       <BrowserRouter>
-        <Switch>
-          <Route path="/" component={App} />
-        </Switch>
+        <App />
       </BrowserRouter>
     </ApolloHooksProvider>
   </ApolloProvider>,
