@@ -1,6 +1,5 @@
-import { FontIcon, IconButton } from "material-ui";
+import { FontIcon, IconButton, IconMenu, MenuItem } from "material-ui";
 import * as React from "react";
-import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { imgur } from "../utils";
@@ -26,6 +25,7 @@ interface MdEditorState {
   imageErrors?: string[];
   slowOekaki: boolean;
   slowImage: boolean;
+  showPreview: boolean;
 }
 
 export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
@@ -36,6 +36,7 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
     this.state = {
       slowOekaki: false,
       slowImage: false,
+      showPreview: false,
     };
   }
 
@@ -109,18 +110,61 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
             }}
           />
         </Modal>
-        <Tabs>
-          <TabList>
-            <Tab>Edit</Tab>
-            <Tab>Preview</Tab>
-          </TabList>
-
-          <TabPanel>
+        <Modal
+          isOpen={this.state.showPreview}
+          onRequestClose={() => this.setState({ showPreview: false })}
+        >
+          <h1>プレビュー</h1>
+          <Md text={this.props.value} />
+        </Modal>
+        <div style={{ display: "flex" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <IconMenu
+              iconButtonElement={
+                <IconButton touch={true}>
+                  <FontIcon className="material-icons">menu</FontIcon>
+                </IconButton>
+              }
+            >
+              <MenuItem
+                primaryText="プレビュー"
+                onClick={() =>
+                  this.setState({ showPreview: !this.state.showPreview })
+                }
+              />
+              <MenuItem
+                primaryText="画像"
+                onClick={() =>
+                  this.setState({ slowImage: !this.state.slowImage })
+                }
+              />
+              <MenuItem
+                primaryText="お絵かき"
+                onClick={() =>
+                  this.setState({ slowOekaki: !this.state.slowOekaki })
+                }
+              />
+            </IconMenu>
+          </div>
+          <div
+            style={{
+              backgroundColor: "#fff",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
             <TextArea
               rows={this.props.minRows || this.defaltMinRows}
               rowsMax={this.props.maxRows || this.defaltMinRows}
               value={this.props.value}
-              style={{ backgroundColor: "#fff" }}
               onChange={v => {
                 if (this.props.onChange) {
                   this.props.onChange(v);
@@ -128,22 +172,9 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
               }}
               onKeyPress={this.props.onKeyPress}
               onKeyDown={this.props.onKeyDown}
+              style={{ outline: "none", resize: "none" }}
             />
-          </TabPanel>
-          <TabPanel>
-            <div style={{ backgroundColor: "#fff" }}>
-              <Md text={this.props.value} />
-            </div>
-          </TabPanel>
-        </Tabs>
-        <div>
-          <IconButton onClick={() => this.setState({ slowImage: true })}>
-            <FontIcon className="material-icons">add_a_photo</FontIcon>
-          </IconButton>
-          <IconButton onClick={() => this.setState({ slowOekaki: true })}>
-            <FontIcon className="material-icons">create</FontIcon>
-          </IconButton>
-          {this.props.actions}
+          </div>
         </div>
       </div>
     );
