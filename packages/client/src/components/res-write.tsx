@@ -1,5 +1,5 @@
 import * as Im from "immutable";
-import { RaisedButton } from "material-ui";
+import { RaisedButton, IconButton, FontIcon } from "material-ui";
 import * as React from "react";
 
 import * as G from "../generated/graphql";
@@ -10,6 +10,7 @@ import { Errors } from "./errors";
 import { MdEditor } from "./md-editor";
 import { Select } from "./select";
 import { TextField } from "./text-field";
+import { useCounter } from "react-use";
 
 interface ResWriteProps {
   onSubmit?: (value: G.ResNormalFragment) => void;
@@ -102,72 +103,91 @@ export const ResWrite = (props: ResWriteProps) => {
       });
   };
 
+  const [
+    focusCounter,
+    { inc: incFocusCounter, dec: decFocusCounter },
+  ] = useCounter(0);
+
   return (
-    <form>
+    <form
+      onFocus={() => {
+        incFocusCounter();
+      }}
+      onBlur={() => {
+        setTimeout(() => {
+          decFocusCounter();
+        }, 100);
+      }}
+    >
       <Errors errors={errors} />
-      <TextField
-        style={{
-          marginRight: "3px",
-        }}
-        placeholder="名前"
-        value={data.name}
-        onChange={v =>
-          setStorage(
-            props.userData.storage.topicWrite.update(
-              props.topic,
-              formDefualt,
-              x => ({
-                ...x,
-                name: v,
-              }),
-            ),
-          )
-        }
-      />
-      {profiles.data !== undefined ? (
-        <Select
-          style={{
-            marginRight: "3px",
-            backgroundColor: "#fff",
-          }}
-          value={data.profile || ""}
-          onChange={v => {
-            setStorage(
-              props.userData.storage.topicWrite.update(
-                props.topic,
-                formDefualt,
-                x => ({
-                  ...x,
-                  profile: v || null,
-                }),
-              ),
-            );
-          }}
-          options={[
-            { value: "", text: "(プロフなし)" },
-            ...profiles.data.profiles.map(p => ({
-              value: p.id,
-              text: `●${p.sn} ${p.name}`,
-            })),
-          ]}
-        />
+      {focusCounter !== 0 || textCache.length !== 0 ? (
+        <>
+          <TextField
+            style={{
+              marginRight: "3px",
+            }}
+            placeholder="名前"
+            value={data.name}
+            onChange={v =>
+              setStorage(
+                props.userData.storage.topicWrite.update(
+                  props.topic,
+                  formDefualt,
+                  x => ({
+                    ...x,
+                    name: v,
+                  }),
+                ),
+              )
+            }
+          />
+          {profiles.data !== undefined ? (
+            <Select
+              style={{
+                marginRight: "3px",
+                backgroundColor: "#fff",
+              }}
+              value={data.profile || ""}
+              onChange={v => {
+                setStorage(
+                  props.userData.storage.topicWrite.update(
+                    props.topic,
+                    formDefualt,
+                    x => ({
+                      ...x,
+                      profile: v || null,
+                    }),
+                  ),
+                );
+              }}
+              options={[
+                { value: "", text: "(プロフなし)" },
+                ...profiles.data.profiles.map(p => ({
+                  value: p.id,
+                  text: `●${p.sn} ${p.name}`,
+                })),
+              ]}
+            />
+          ) : null}
+          <CheckBox
+            value={data.age}
+            onChange={v =>
+              setStorage(
+                props.userData.storage.topicWrite.update(
+                  props.topic,
+                  formDefualt,
+                  x => ({
+                    ...x,
+                    age: v,
+                  }),
+                ),
+              )
+            }
+            label="Age"
+          />
+        </>
       ) : null}
-      <CheckBox
-        value={data.age}
-        onChange={v =>
-          setStorage(
-            props.userData.storage.topicWrite.update(
-              props.topic,
-              formDefualt,
-              x => ({
-                ...x,
-                age: v,
-              }),
-            ),
-          )
-        }
-        label="Age"
-      />
+
       <MdEditor
         value={textCache}
         onChange={v => setTextCache(v)}
@@ -180,7 +200,11 @@ export const ResWrite = (props: ResWriteProps) => {
           }
         }}
         fullWidth={true}
-        actions={<RaisedButton onClick={submit}>書き込む</RaisedButton>}
+        actions={
+          <IconButton type="button" onClick={submit}>
+            <FontIcon className="material-icons">send</FontIcon>
+          </IconButton>
+        }
       />
     </form>
   );

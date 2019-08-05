@@ -19,7 +19,6 @@ export interface MdEditorProps {
   onKeyDown?: React.KeyboardEventHandler<{}>;
   actions?: React.ReactNode;
   onChangeFocus?: (isFocus: boolean) => void;
-  onChangeMenu?: (isOpen: boolean) => void;
 }
 
 interface MdEditorState {
@@ -128,7 +127,6 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
             }}
           >
             <IconMenu
-              onRequestChange={this.props.onChangeMenu}
               iconButtonElement={
                 <IconButton touch={true}>
                   <FontIcon className="material-icons">menu</FontIcon>

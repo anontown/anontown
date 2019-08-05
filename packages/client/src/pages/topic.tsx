@@ -33,7 +33,6 @@ interface TopicPageProps extends RouteComponentProps<{ id: string }> {}
 
 export const TopicPage = withRouter((props: TopicPageProps) => {
   const now = React.useMemo(() => new Date().toISOString(), []);
-  const [isResWrite, setIsResWrite] = React.useState(false);
   const [isJumpDialog, setIsJumpDialog] = React.useState(false);
   const [isAutoScrollDialog, setIsAutoScrollDialog] = React.useState(false);
   const [isNGDialog, setIsNGDialog] = React.useState(false);
@@ -212,11 +211,6 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                     )}
                   </IconButton>
                 ) : null}
-                {user.value !== null && topic.active ? (
-                  <IconButton onClick={() => setIsResWrite(!isResWrite)}>
-                    <FontIcon className="material-icons">create</FontIcon>
-                  </IconButton>
-                ) : null}
                 <IconMenu
                   iconButtonElement={
                     <IconButton touch={true}>
@@ -323,7 +317,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                 items.current = x;
               }}
             />
-            {isResWrite && user.value !== null ? (
+            {user.value !== null ? (
               <Paper className={style.resWrite}>
                 <ResWrite
                   topic={topic.id}
