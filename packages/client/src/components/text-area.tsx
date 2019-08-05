@@ -12,6 +12,8 @@ interface TextAreaProps {
   onKeyDown?: React.KeyboardEventHandler<{}>;
   onKeyUp?: React.KeyboardEventHandler<{}>;
   onKeyPress?: React.KeyboardEventHandler<{}>;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export function TextArea(props: TextAreaProps) {
@@ -27,6 +29,8 @@ export function TextArea(props: TextAreaProps) {
       onKeyPress={props.onKeyPress}
       rows={props.rows}
       maxRows={props.rowsMax}
+      onFocus={props.onFocus}
+      onBlur={props.onBlur}
     />
   );
 }
