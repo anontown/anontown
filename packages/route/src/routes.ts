@@ -87,7 +87,15 @@ export const topicEdit = RouteData.create(
     .const("edit")
 );
 export const profiles = RouteData.create(
-  PathDataBuilder.create().const("profiles")
+  PathDataBuilder.create()
+    .const("user")
+    .const("profiles")
+);
+export const profileCreate = RouteData.create(
+  PathDataBuilder.create()
+    .const("profiles")
+    .const("s")
+    .const("create")
 );
 export const profile = RouteData.create(
   PathDataBuilder.create()
@@ -129,20 +137,20 @@ export const auth = RouteData.createWithQuery(
   }
 );
 export const settings = RouteData.create(
-  PathDataBuilder.create().const("setting")
+  PathDataBuilder.create().const("settings")
 );
 export const accountSetting = RouteData.create(
   PathDataBuilder.create()
-    .const("setting")
+    .const("settings")
     .const("account")
 );
 export const appsSetting = RouteData.create(
   PathDataBuilder.create()
-    .const("setting")
+    .const("settings")
     .const("apps")
 );
 export const devSetting = RouteData.create(
   PathDataBuilder.create()
-    .const("setting")
+    .const("settings")
     .const("dev")
 );
