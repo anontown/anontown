@@ -317,6 +317,11 @@ export const App = withRouter(
                           />
                           <Route
                             exact={true}
+                            path={routes.profileCreate.matcher()}
+                            component={pages.ProfileCreatePage}
+                          />
+                          <Route
+                            exact={true}
                             path={routes.notifications.matcher()}
                             component={pages.NotificationsPage}
                           />

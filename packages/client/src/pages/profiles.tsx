@@ -24,7 +24,9 @@ export const ProfilesPage = userSwitch(
     return (
       <Page>
         <Helmet title="プロフィール管理" />
-        <ProfileAdd userData={props.userData} />
+        <Paper style={{ padding: 10 }}>
+          <Link to={routes.profileCreate.to({})}>作成</Link>
+        </Paper>
         {profiles.data !== undefined
           ? profiles.data.profiles.map(p => (
               <Paper key={p.id} style={{ padding: 10 }}>

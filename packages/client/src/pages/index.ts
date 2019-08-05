@@ -9,6 +9,7 @@ export * from "./messages";
 export * from "./not-found";
 export * from "./notifications";
 export * from "./profiles";
+export * from "./profile-create";
 export * from "./res";
 export * from "./topic-create";
 export * from "./topic-search";
