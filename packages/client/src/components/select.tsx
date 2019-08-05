@@ -6,6 +6,8 @@ interface SelectProps {
   options: Array<{ value: string; text: string }>;
   style?: React.CSSProperties;
   onChange: (v: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export function Select(props: SelectProps) {
@@ -17,6 +19,8 @@ export function Select(props: SelectProps) {
       onChange={e => {
         props.onChange(e.target.value);
       }}
+      onFocus={props.onFocus}
+      onBlur={props.onBlur}
     >
       {props.options.map(x => (
         <option value={x.value} key={x.value}>
