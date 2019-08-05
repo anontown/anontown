@@ -173,7 +173,7 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
               }}
               onKeyPress={this.props.onKeyPress}
               onKeyDown={this.props.onKeyDown}
-              style={{ outline: "none", resize: "none" }}
+              style={{ outline: "none", resize: "none", border: "none" }}
               onFocus={() => {
                 if (this.props.onChangeFocus) {
                   this.props.onChangeFocus(true);
