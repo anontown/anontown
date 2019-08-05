@@ -1,7 +1,8 @@
 import * as Im from "immutable";
-import { RaisedButton, IconButton, FontIcon } from "material-ui";
+import { FontIcon, IconButton, RaisedButton } from "material-ui";
 import * as React from "react";
 
+import { useCounter } from "react-use";
 import * as G from "../generated/graphql";
 import { Storage, UserData } from "../models";
 import { queryResultConvert, useInputCache } from "../utils";
@@ -10,7 +11,6 @@ import { Errors } from "./errors";
 import { MdEditor } from "./md-editor";
 import { Select } from "./select";
 import { TextField } from "./text-field";
-import { useCounter } from "react-use";
 
 interface ResWriteProps {
   onSubmit?: (value: G.ResNormalFragment) => void;
