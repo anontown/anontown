@@ -6,7 +6,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc -w"
+    "watch": "tsc -w --preserveWatchOutput"
   },
   "repository": {
     "type": "git",
