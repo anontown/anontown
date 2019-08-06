@@ -35,6 +35,17 @@ docker-compose -f docker-compose.test.yml run --rm app npx lerna exec --scope @a
 lerna run lint:fix
 ```
 
+## npm scripts
+(メモ段階)
+
+* build: ビルド
+* build:watch: ウォッチモード
+* start: サーバー起動。ビルドはしない
+* loc: 行数カウント
+* lint: lintチェック
+* lint:fix: lintのチェックとフォーマット
+* test: テスト実行
+
 ## 公式サーバー
 
 https://anontown.com/
