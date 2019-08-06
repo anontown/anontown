@@ -2,7 +2,7 @@ const webpack = require("webpack");
 const OfflinePlugin = require("offline-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
-const CopyWebpackPlugin = require('copy-webpack-plugin')
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
 const fs = require("fs");
 
@@ -46,14 +46,12 @@ module.exports = {
       template: "index.html",
     }),
     new CleanWebpackPlugin(),
-    new CopyWebpackPlugin(
-      [
-        {
-          from: "public",
-          to: "",
-        },
-      ],
-    ),
+    new CopyWebpackPlugin([
+      {
+        from: "public",
+        to: "",
+      },
+    ]),
   ],
   module: {
     rules: [
@@ -87,13 +85,6 @@ module.exports = {
     ],
   },
   devtool: "source-map",
-  devServer: {
-    contentBase: "public",
-    port: 3000,
-    host: "0.0.0.0",
-    disableHostCheck: true,
-    historyApiFallback: true,
-  },
   optimization: {
     splitChunks: {
       name: "vendor",
