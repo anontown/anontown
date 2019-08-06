@@ -10,7 +10,7 @@
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts{,x}'",
     "lint:fix": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts{,x}' --fix",
     "loc": "sloc --format cli-table ./src",
-    "codegen": "gql-gen --config codegen.yml"
+    "codegen": "graphql-codegen"
   },
   "author": "",
   "license": "ISC",
