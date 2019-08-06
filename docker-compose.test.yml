@@ -14,8 +14,6 @@ services:
       REDIS_HOST: "redis:6379"
       SAVE_DIR: ../../
     env_file: .env.sample
-    ports:
-      - "8080:8080"
     depends_on:
       - mongo
       - es
@@ -35,5 +33,3 @@ services:
     volumes:
       - ./data/redis:/data
     command: redis-server --appendonly yes
-    ports:
-      - "6379:6379"

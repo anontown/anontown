@@ -6,8 +6,6 @@ services:
     image: "mongo:3.6.3"
     volumes:
       - ./data/db:/data/db
-    ports:
-      - "27017:27017"
   app:
     build:
       context: .
@@ -46,8 +44,6 @@ services:
         hard: 65536
     volumes:
       - ./data/es:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
     es-head:
       image: "mobz/elasticsearch-head:5"
       restart: always
@@ -61,5 +57,4 @@ services:
     volumes:
       - ./data/redis:/data
     command: redis-server --appendonly yes
-    ports:
-      - "6379:6379"
+
