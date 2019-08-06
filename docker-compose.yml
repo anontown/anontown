@@ -25,7 +25,6 @@ services:
     volumes:
       - ./data/app/logs:/home/app/.anontown/logs
       - ./data/app/data:/home/app/.anontown/data
-      - ./data/app/coverage:/home/app/.anontown/coverage
   es:
     image: "anontown/elasticsearch:5.6.16-1"
     restart: always
