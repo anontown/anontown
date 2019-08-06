@@ -1,5 +1,0 @@
-SERVER_PORT=8080
-MONGO_HOST=localhost:27017S
-ES_HOST=localhost:9200
-REDIS_HOST=localhost:6379
-SAVE_DIR=../../data-app/
