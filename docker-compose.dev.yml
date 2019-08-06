@@ -28,11 +28,11 @@ services:
       - ./:/home/app/.anontown
   mongo-express:
     restart: always
-      image: "mongo-express:0.40.0"
-      ports:
-        - "8081:8081"
-      depends_on:
-        - mongo
+    image: "mongo-express:0.40.0"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongo
   es:
     build: es
     restart: always
@@ -44,17 +44,16 @@ services:
         hard: 65536
     volumes:
       - ./data/es:/usr/share/elasticsearch/data
-    es-head:
-      image: "mobz/elasticsearch-head:5"
-      restart: always
-      ports:
-        - "9100:9100"
-      depends_on:
-        - es
+  es-head:
+    image: "mobz/elasticsearch-head:5"
+    restart: always
+    ports:
+      - "9100:9100"
+    depends_on:
+      - es
   redis:
     restart: always
     image: "redis:5.0.4"
     volumes:
       - ./data/redis:/data
     command: redis-server --appendonly yes
-
