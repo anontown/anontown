@@ -26,7 +26,7 @@ services:
       - ./data/app/logs:/home/app/.anontown/logs
       - ./data/app/data:/home/app/.anontown/data
   es:
-    image: "anontown/elasticsearch:5.6.16-1"
+    build: es
     restart: always
     environment:
       ES_JAVA_OPTS: -Xms512m -Xmx512m
