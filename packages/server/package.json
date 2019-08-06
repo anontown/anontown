@@ -66,7 +66,8 @@
     "typescript": "^3.3.4000"
   },
   "scripts": {
-    "build": "npm run codegen&&tsc",
+    "build": "npm run codegen && tsc",
+    "watch": "npm run codegen:watch | xargs -L1 echo [codegen] & tsc -w | xargs -L1 echo [tsc]",
     "start": "node ./dist/app.js",
     "test": "jest",
     "test:io": "TEST_MODE=IO jest --runInBand --forceExit",
@@ -74,6 +75,7 @@
     "lint:fix": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts' --fix",
     "loc": "sloc --format cli-table ./src",
     "codegen": "graphql-codegen",
+    "codegen:watch": "graphql-codegen -w",
     "migrate": "node ./dist/jobs/migrate.js"
   }
 }

@@ -15,7 +15,6 @@ $ lerna run build --scope=@anontown/server --include-filtered-dependencies
 $ docker-compose -f docker-compose.dev.yml build
 $ docker-compose -f docker-compose.dev.yml run --rm app npx lerna run migrate --scope @anontown/server
 $ docker-compose -f docker-compose.dev.yml up
-$ lerna run codegen --scope=@anontown/client
 $ ENV_NAME=dev lerna run watch --parallel --scope=@anontown/client --include-filtered-dependencies
 ```
 

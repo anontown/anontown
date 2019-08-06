@@ -5,12 +5,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "webpack-dev-server --mode development",
+    "watch": "npm run codegen:watch | xargs -L1 echo [codegen] & webpack-dev-server --mode development | xargs -L1 echo [webpack]",
     "build": "npm run codegen && webpack -p --mode production && cp  -pR ./public/* ./dist",
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts{,x}'",
     "lint:fix": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts{,x}' --fix",
     "loc": "sloc --format cli-table ./src",
-    "codegen": "graphql-codegen"
+    "codegen": "graphql-codegen",
+    "codegen:watch": "graphql-codegen -w"
   },
   "author": "",
   "license": "ISC",
