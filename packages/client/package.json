@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "watch": "webpack-dev-server --mode development",
-    "build": "npm run codegen&&webpack -p --mode production&&cp  -pR ./public/* ./dist",
+    "build": "npm run codegen && webpack -p --mode production&&cp  -pR ./public/* ./dist",
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts{,x}'",
     "lint:fix": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts{,x}' --fix",
     "loc": "sloc --format cli-table ./src",
