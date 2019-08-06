@@ -2,6 +2,7 @@ const webpack = require("webpack");
 const OfflinePlugin = require("offline-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const path = require("path");
 const fs = require("fs");
 
@@ -45,6 +46,14 @@ module.exports = {
       template: "index.html",
     }),
     new CleanWebpackPlugin(),
+    new CopyWebpackPlugin(
+      [
+        {
+          from: "public",
+          to: "",
+        },
+      ],
+    ),
   ],
   module: {
     rules: [
