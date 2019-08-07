@@ -12,9 +12,9 @@ matrix:
         - chmod +x docker-compose
         - sudo mv docker-compose /usr/local/bin
       before_script:
-        - docker-compose -f docker-compose.test.yml build
+        - python3 docker-compose.py test | docker-compose -f - build
       script:
-        - docker-compose -f docker-compose.test.yml run --rm app npx lerna exec --scope @anontown/server -- npm run test:io
+        - python3 docker-compose.py test | docker-compose -f - run --rm app npx lerna exec --scope @anontown/server -- npm run test:io
     - language: node_js
       node_js: 10.15.3
       before_script:

@@ -12,9 +12,9 @@ $ npx lerna bootstrap
 $ cp .env.sample .env
 # edit .env
 $ lerna run build --scope=@anontown/server --include-filtered-dependencies
-$ docker-compose -f docker-compose.dev.yml build
-$ docker-compose -f docker-compose.dev.yml run --rm app npx lerna run migrate --scope @anontown/server
-$ docker-compose -f docker-compose.dev.yml up
+$ python3 docker-compose.py dev | docker-compose -f - build
+$ python3 docker-compose.py dev | docker-compose -f - run --rm app npx lerna run migrate --scope @anontown/server
+$ python3 docker-compose.py dev | docker-compose -f - up
 $ ENV_NAME=dev lerna run build:watch --parallel --scope=@anontown/client --include-filtered-dependencies
 ```
 
@@ -26,7 +26,7 @@ $ ENV_NAME=dev lerna run build:watch --parallel --scope=@anontown/client --inclu
 ## Test
 
 ```sh
-docker-compose -f docker-compose.test.yml run --rm app npx lerna exec --scope @anontown/server -- npm run test:io
+python3 docker-compose.py test | docker-compose -f - run --rm app npx lerna exec --scope @anontown/server -- npm run test:io
 ```
 
 ## Lint
