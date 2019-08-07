@@ -45,13 +45,20 @@ module.exports = {
       inject: true,
       template: "index.html",
     }),
-    new CleanWebpackPlugin(),
     new CopyWebpackPlugin([
       {
         from: "public",
         to: "",
       },
+      {
+        from: path.join(
+          path.dirname(require.resolve("@anontown/client-icon/package.json")),
+          "dist",
+        ),
+        to: "",
+      },
     ]),
+    new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
   ],
   module: {
     rules: [

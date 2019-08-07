@@ -64,6 +64,7 @@
     "webpack-cli": "^3.3.0"
   },
   "dependencies": {
+    "@anontown/client-icon": "^2.0.0",
     "@anontown/route": "^2.0.0",
     "@anontown/schema": "^2.0.0",
     "@kgtkr/utils": "^1.0.3",
