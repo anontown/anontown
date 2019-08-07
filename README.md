@@ -15,7 +15,7 @@ $ lerna run build --scope=@anontown/server --include-filtered-dependencies
 $ python3 docker-compose.py dev | docker-compose -f - build
 $ python3 docker-compose.py dev | docker-compose -f - run --rm app npx lerna run migrate --scope @anontown/server
 $ python3 docker-compose.py dev | docker-compose -f - up
-$ ENV_NAME=dev lerna run build:watch --parallel --scope=@anontown/client --include-filtered-dependencies
+$ ./bin/dev/watch-client.sh dev
 ```
 
 ## .env の編集
