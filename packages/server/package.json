@@ -67,7 +67,7 @@
   },
   "scripts": {
     "build": "npm run codegen && tsc",
-    "build:watch": "npm run codegen:watch | xargs -L1 echo [codegen] & tsc -w | xargs -L1 echo [tsc]",
+    "build:watch": "npm run codegen:watch | xargs -L1 echo [codegen] & tsc -w --preserveWatchOutput | xargs -L1 echo [tsc]",
     "start": "node ./dist/app.js",
     "test": "jest",
     "test:io": "TEST_MODE=IO jest --runInBand --forceExit",
