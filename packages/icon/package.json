@@ -6,13 +6,13 @@
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/anontown/icon.git"
+    "url": "git+https://github.com/anontown/anontown.git"
   },
   "author": "kgtkr",
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/anontown/icon/issues"
+    "url": "https://github.com/anontown/anontown/issues"
   },
-  "homepage": "https://github.com/anontown/icon#readme",
+  "homepage": "https://github.com/anontown/anontown#readme",
   "devDependencies": {}
 }

@@ -6,12 +6,12 @@
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/anontown/schema.git"
+    "url": "git+https://github.com/anontown/anontown.git"
   },
   "author": "kgtkr",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/anontown/schema/issues"
+    "url": "https://github.com/anontown/anontown/issues"
   },
-  "homepage": "https://github.com/anontown/schema#readme"
+  "homepage": "https://github.com/anontown/anontown#readme"
 }
