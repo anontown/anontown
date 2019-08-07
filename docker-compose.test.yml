@@ -30,6 +30,4 @@ services:
   redis:
     restart: always
     image: "redis:5.0.4"
-    volumes:
-      - ./data/redis:/data
     command: redis-server --appendonly yes
