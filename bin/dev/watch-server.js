@@ -2,6 +2,23 @@
 
 const { exec } = require("child_process");
 
+function runExec(cmd) {
+  return new Promise((resolve, _reject) => {
+    const prc = exec(cmd);
+    prc.stdout.on("data", data => {
+      process.stdout.write(data.toString());
+    });
+
+    prc.stderr.on("data", data => {
+      process.stderr.write(data.toString());
+    });
+
+    prc.on("close", code => {
+      resolve(code);
+    });
+  });
+}
+
 class App {
   constructor() {
     this.upProcessOut = [];
@@ -10,21 +27,14 @@ class App {
   }
 
   output() {
-    this.upProcessOut.forEach(({ type, data }) => {
-      switch (type) {
-        case "stdout":
-          process.stdout.write(data);
-          break;
-        case "stderr":
-          process.stderr.write(data);
-          break;
-      }
+    this.upProcessOut.forEach(({ prefix, type, data }) => {
+      process[type].write(`${`[${prefix}]`.padEnd(9, " ")} ${data}`);
     });
     this.upProcessOut = [];
   }
 
-  addUpProcessOut(type, data) {
-    this.upProcessOut.push({ type, data });
+  addUpProcessOut(prefix, type, data) {
+    this.upProcessOut.push({ prefix, type, data });
     if (this.input !== null && this.input.length === 0) {
       this.output();
     }
@@ -35,19 +45,33 @@ class App {
       "python3 docker-compose.py dev | docker-compose -f - up"
     );
     this.upProcess.stdout.on("data", data => {
-      this.addUpProcessOut("stdout", data.toString());
+      this.addUpProcessOut("docker", "stdout", data.toString());
     });
 
     this.upProcess.stderr.on("data", data => {
-      this.addUpProcessOut("stderr", data.toString());
+      this.addUpProcessOut("docker", "stderr", data.toString());
+    });
+  }
+
+  runBuildProcess() {
+    this.upProcess = exec(
+      "lerna run build:watch --parallel --scope=@anontown/server --include-filtered-dependencies"
+    );
+    this.upProcess.stdout.on("data", data => {
+      this.addUpProcessOut("build", "stdout", data.toString());
+    });
+
+    this.upProcess.stderr.on("data", data => {
+      this.addUpProcessOut("build", "stderr", data.toString());
     });
   }
 
   run() {
     this.runUpProcess();
+    this.runBuildProcess();
     process.stdin.setRawMode(true);
     process.stdin.setEncoding("utf8");
-    process.stdin.on("data", key => {
+    process.stdin.on("data", async key => {
       if (this.input === null) {
         return;
       }
@@ -55,40 +79,20 @@ class App {
       if (key === "\u0003") {
         console.log("exiting...");
         this.input = null;
-        const stopProcess = exec(
+        await runExec(
           "python3 docker-compose.py dev | docker-compose -f - stop"
         );
-        stopProcess.stdout.on("data", data => {
-          process.stdout.write(data.toString());
-        });
-
-        stopProcess.stderr.on("data", data => {
-          process.stderr.write(data.toString());
-        });
-
-        restartProcess.on("close", () => {
-          process.exit();
-        });
+        process.exit();
       } else if (key === "\r") {
         console.log();
         if (this.input === ":r") {
           this.output();
           console.log("restart...");
           this.input = null;
-          const restartProcess = exec(
+          await runExec(
             "python3 docker-compose.py dev | docker-compose -f - restart app"
           );
-          restartProcess.stdout.on("data", data => {
-            process.stdout.write(data.toString());
-          });
-
-          restartProcess.stderr.on("data", data => {
-            process.stderr.write(data.toString());
-          });
-
-          restartProcess.on("close", () => {
-            this.input = "";
-          });
+          this.input = "";
         } else {
           console.log(`unknown command: '${this.input}'`);
           this.input = "";
