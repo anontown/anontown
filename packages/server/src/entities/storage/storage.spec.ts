@@ -1,5 +1,4 @@
 import { none, some } from "fp-ts/lib/Option";
-import { ObjectID } from "mongodb";
 import {
   AtError,
   IAuthTokenGeneral,
@@ -30,28 +29,6 @@ describe("Storage", () => {
     type: "general",
     client: cleintID,
   };
-
-  describe("fromDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(
-        Storage.fromDB({
-          client: new ObjectID(cleintID),
-          user: new ObjectID(userID),
-          key: "key",
-          value: "value",
-        }),
-      ).toEqual(storage);
-
-      expect(
-        Storage.fromDB({
-          client: null,
-          user: new ObjectID(userID),
-          key: "key",
-          value: "value",
-        }),
-      ).toEqual(storage.copy({ client: none }));
-    });
-  });
 
   describe("toAPI", () => {
     it("通常トークンで正常に変換出来るか", () => {
@@ -107,24 +84,6 @@ describe("Storage", () => {
       expect(() => {
         Storage.create(authGeneral, "key", "x".repeat(100001));
       }).toThrow(AtError);
-    });
-  });
-
-  describe("toDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(storage.toDB()).toEqual({
-        client: new ObjectID(cleintID),
-        user: new ObjectID(userID),
-        key: "key",
-        value: "value",
-      });
-
-      expect(storage.copy({ client: none }).toDB()).toEqual({
-        client: null,
-        user: new ObjectID(userID),
-        key: "key",
-        value: "value",
-      });
     });
   });
 });

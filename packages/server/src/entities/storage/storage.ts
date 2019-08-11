@@ -1,16 +1,8 @@
-import { fromNullable, none, Option, some } from "fp-ts/lib/Option";
-import { ObjectID } from "mongodb";
+import { none, Option, some } from "fp-ts/lib/Option";
 import { AtRightError, paramsErrorMaker } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { Config } from "../../config";
 import { Copyable } from "../../utils";
-
-export interface IStorageDB {
-  client: ObjectID | null;
-  user: ObjectID;
-  key: string;
-  value: string;
-}
 
 export interface IStorageAPI {
   key: string;
@@ -18,15 +10,6 @@ export interface IStorageAPI {
 }
 
 export class Storage extends Copyable<Storage> {
-  static fromDB(db: IStorageDB): Storage {
-    return new Storage(
-      fromNullable(db.client).map(client => client.toHexString()),
-      db.user.toHexString(),
-      db.key,
-      db.value,
-    );
-  }
-
   static create(authToken: IAuthToken, key: string, value: string): Storage {
     paramsErrorMaker([
       {
@@ -58,15 +41,6 @@ export class Storage extends Copyable<Storage> {
     readonly value: string,
   ) {
     super(Storage);
-  }
-
-  toDB(): IStorageDB {
-    return {
-      client: this.client.map(client => new ObjectID(client)).toNullable(),
-      user: new ObjectID(this.user),
-      key: this.key,
-      value: this.value,
-    };
   }
 
   toAPI(authToken: IAuthToken): IStorageAPI {

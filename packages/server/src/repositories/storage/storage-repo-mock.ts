@@ -1,9 +1,10 @@
 import { isNullish } from "@kgtkr/utils";
 import { AtNotFoundError } from "../../at-error";
 import { IAuthToken } from "../../auth";
-import { IStorageDB, Storage } from "../../entities";
+import { Storage } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IStorageRepo } from "../../ports";
+import { toStorage, IStorageDB, fromStorage } from "./isotrage-db";
 
 export class StorageRepoMock implements IStorageRepo {
   private storages: IStorageDB[] = [];
@@ -18,7 +19,7 @@ export class StorageRepoMock implements IStorageRepo {
       )
       .filter(x => isNullish(query.key) || query.key.includes(x.key));
 
-    return storages.map(x => Storage.fromDB(x));
+    return storages.map(x => toStorage(x));
   }
 
   async findOneKey(token: IAuthToken, key: string): Promise<Storage> {
@@ -33,7 +34,7 @@ export class StorageRepoMock implements IStorageRepo {
     if (storage === undefined) {
       throw new AtNotFoundError("ストレージが見つかりません");
     }
-    return Storage.fromDB(storage);
+    return toStorage(storage);
   }
   async save(storage: Storage): Promise<void> {
     const index = this.storages.findIndex(
@@ -44,9 +45,9 @@ export class StorageRepoMock implements IStorageRepo {
         x.key === storage.key,
     );
     if (index === -1) {
-      this.storages.push(storage.toDB());
+      this.storages.push(fromStorage(storage));
     } else {
-      this.storages[index] = storage.toDB();
+      this.storages[index] = fromStorage(storage);
     }
   }
   async del(storage: Storage): Promise<void> {

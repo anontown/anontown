@@ -3,9 +3,10 @@ import { ObjectID } from "mongodb";
 import { AtNotFoundError } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { Mongo } from "../../db";
-import { IStorageDB, Storage } from "../../entities";
+import { Storage } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IStorageRepo } from "../../ports";
+import { IStorageDB, toStorage, fromStorage } from "./isotrage-db";
 
 export class StorageRepo implements IStorageRepo {
   async find(token: IAuthToken, query: G.StorageQuery): Promise<Storage[]> {
@@ -21,7 +22,7 @@ export class StorageRepo implements IStorageRepo {
       .collection("storages")
       .find(q)
       .toArray();
-    return storages.map(x => Storage.fromDB(x));
+    return storages.map(x => toStorage(x));
   }
 
   async findOneKey(token: IAuthToken, key: string): Promise<Storage> {
@@ -34,7 +35,7 @@ export class StorageRepo implements IStorageRepo {
     if (storage === null) {
       throw new AtNotFoundError("ストレージが見つかりません");
     }
-    return Storage.fromDB(storage);
+    return toStorage(storage);
   }
   async save(storage: Storage): Promise<void> {
     const db = await Mongo();
@@ -45,7 +46,7 @@ export class StorageRepo implements IStorageRepo {
         client: storage.client.map(client => new ObjectID(client)).toNullable(),
         key: storage.key,
       },
-      storage.toDB(),
+      fromStorage(storage),
       { upsert: true },
     );
   }
