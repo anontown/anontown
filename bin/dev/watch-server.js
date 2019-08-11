@@ -22,7 +22,6 @@ function runExec(cmd) {
 class App {
   constructor() {
     this.upProcessOut = [];
-    this.upProcess = null;
     this.input = "";
   }
 
@@ -41,27 +40,25 @@ class App {
   }
 
   runUpProcess() {
-    this.upProcess = exec(
-      "python3 docker-compose.py dev | docker-compose -f - up"
-    );
-    this.upProcess.stdout.on("data", data => {
+    const prc = exec("python3 docker-compose.py dev | docker-compose -f - up");
+    prc.stdout.on("data", data => {
       this.addUpProcessOut("docker", "stdout", data.toString());
     });
 
-    this.upProcess.stderr.on("data", data => {
+    prc.stderr.on("data", data => {
       this.addUpProcessOut("docker", "stderr", data.toString());
     });
   }
 
   runBuildProcess() {
-    this.upProcess = exec(
+    const prc = exec(
       "lerna run build:watch --parallel --scope=@anontown/server --include-filtered-dependencies"
     );
-    this.upProcess.stdout.on("data", data => {
+    prc.stdout.on("data", data => {
       this.addUpProcessOut("build", "stdout", data.toString());
     });
 
-    this.upProcess.stderr.on("data", data => {
+    prc.stderr.on("data", data => {
       this.addUpProcessOut("build", "stderr", data.toString());
     });
   }
