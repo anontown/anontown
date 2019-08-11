@@ -2,9 +2,10 @@ import { CronJob } from "cron";
 import { ObjectID, WriteError } from "mongodb";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
 import { Mongo } from "../../db";
-import { IUserDB, ResWaitCountKey, User } from "../../entities";
+import { ResWaitCountKey, User } from "../../entities";
 import { Logger } from "../../logger";
 import { IUserRepo } from "../../ports";
+import { fromUser, IUserDB, toUser } from "./iuser-db";
 
 export class UserRepo implements IUserRepo {
   async findOne(id: string): Promise<User> {
@@ -17,7 +18,7 @@ export class UserRepo implements IUserRepo {
       throw new AtNotFoundError("ユーザーが存在しません");
     }
 
-    return User.fromDB(user);
+    return toUser(user);
   }
 
   async findID(sn: string): Promise<string> {
@@ -34,7 +35,7 @@ export class UserRepo implements IUserRepo {
   async insert(user: User): Promise<void> {
     const db = await Mongo();
     try {
-      await db.collection("users").insertOne(user.toDB());
+      await db.collection("users").insertOne(fromUser(user));
     } catch (ex) {
       const e: WriteError = ex;
       if (e.code === 11000) {
@@ -50,7 +51,7 @@ export class UserRepo implements IUserRepo {
     try {
       await db
         .collection("users")
-        .replaceOne({ _id: new ObjectID(user.id) }, user.toDB());
+        .replaceOne({ _id: new ObjectID(user.id) }, fromUser(user));
     } catch (ex) {
       const e: WriteError = ex;
       if (e.code === 11000) {

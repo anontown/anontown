@@ -1,4 +1,3 @@
-import { ObjectID } from "mongodb";
 import {
   AtPrerequisiteError,
   AtUserAuthError,
@@ -9,18 +8,6 @@ import { Config } from "../../config";
 import { IGenerator } from "../../generator";
 import { Copyable } from "../../utils";
 import { hash } from "../../utils";
-
-export interface IUserDB {
-  readonly _id: ObjectID;
-  readonly sn: string;
-  readonly pass: string;
-  readonly lv: number;
-  readonly resWait: IResWait;
-  readonly lastTopic: Date;
-  readonly date: Date;
-  readonly point: number;
-  readonly lastOneTopic: Date;
-}
 
 export type ResWaitCountKey = Exclude<keyof IResWait, "last">;
 
@@ -40,20 +27,6 @@ export interface IResWait {
 }
 
 export class User extends Copyable<User> {
-  static fromDB(u: IUserDB): User {
-    return new User(
-      u._id.toString(),
-      u.sn,
-      u.pass,
-      u.lv,
-      u.resWait,
-      u.lastTopic,
-      u.date,
-      u.point,
-      u.lastOneTopic,
-    );
-  }
-
   static create(
     objidGenerator: IGenerator<string>,
     sn: string,
@@ -101,20 +74,6 @@ export class User extends Copyable<User> {
     readonly lastOneTopic: Date,
   ) {
     super(User);
-  }
-
-  toDB(): IUserDB {
-    return {
-      _id: new ObjectID(this.id),
-      sn: this.sn,
-      pass: this.pass,
-      lv: this.lv,
-      resWait: this.resWait,
-      lastTopic: this.lastTopic,
-      date: this.date,
-      point: this.point,
-      lastOneTopic: this.lastOneTopic,
-    };
   }
 
   toAPI(): IUserAPI {

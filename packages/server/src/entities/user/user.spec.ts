@@ -1,4 +1,3 @@
-import { ObjectID } from "mongodb";
 import { AtError, Config, hash, ObjectIDGenerator, User } from "../../";
 
 describe("User", () => {
@@ -22,32 +21,6 @@ describe("User", () => {
     0,
     new Date(150),
   );
-
-  describe("fromDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(
-        User.fromDB({
-          _id: new ObjectID(userID),
-          sn: "scn",
-          pass: hash("pass" + Config.salt.pass),
-          lv: 1,
-          resWait: {
-            last: new Date(300),
-            m10: 0,
-            m30: 0,
-            h1: 0,
-            h6: 0,
-            h12: 0,
-            d1: 0,
-          },
-          lastTopic: new Date(100),
-          date: new Date(0),
-          point: 0,
-          lastOneTopic: new Date(150),
-        }),
-      ).toEqual(user);
-    });
-  });
 
   describe("create", () => {
     it("正常に作れるか", () => {
@@ -94,30 +67,6 @@ describe("User", () => {
       expect(() => {
         User.create(() => userID, "あ", "pass", new Date(0));
       }).toThrow(AtError);
-    });
-  });
-
-  describe("toDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(user.toDB()).toEqual({
-        _id: new ObjectID(userID),
-        sn: "scn",
-        pass: hash("pass" + Config.salt.pass),
-        lv: 1,
-        resWait: {
-          last: new Date(300),
-          m10: 0,
-          m30: 0,
-          h1: 0,
-          h6: 0,
-          h12: 0,
-          d1: 0,
-        },
-        lastTopic: new Date(100),
-        date: new Date(0),
-        point: 0,
-        lastOneTopic: new Date(150),
-      });
     });
   });
 

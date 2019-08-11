@@ -1,8 +1,9 @@
 import { CronJob } from "cron";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
-import { IUserDB, ResWaitCountKey, User } from "../../entities";
+import { ResWaitCountKey, User } from "../../entities";
 import { Logger } from "../../logger";
 import { IUserRepo } from "../../ports";
+import { fromUser, IUserDB, toUser } from "./iuser-db";
 
 export class UserRepoMock implements IUserRepo {
   private users: IUserDB[] = [];
@@ -14,7 +15,7 @@ export class UserRepoMock implements IUserRepo {
       throw new AtNotFoundError("ユーザーが存在しません");
     }
 
-    return User.fromDB(user);
+    return toUser(user);
   }
 
   async findID(sn: string): Promise<string> {
@@ -32,7 +33,7 @@ export class UserRepoMock implements IUserRepo {
       throw new AtConflictError("スクリーンネームが使われています");
     }
 
-    this.users.push(user.toDB());
+    this.users.push(fromUser(user));
   }
 
   async update(user: User): Promise<void> {
@@ -46,7 +47,7 @@ export class UserRepoMock implements IUserRepo {
 
     this.users[
       this.users.findIndex(x => x._id.toHexString() === user.id)
-    ] = user.toDB();
+    ] = fromUser(user);
   }
 
   async cronPointReset(): Promise<void> {
