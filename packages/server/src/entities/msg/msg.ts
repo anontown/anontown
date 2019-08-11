@@ -1,4 +1,4 @@
-import { fromNullable, Option } from "fp-ts/lib/Option";
+import { Option } from "fp-ts/lib/Option";
 import { AtRightError } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { IGenerator } from "../../generator";

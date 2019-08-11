@@ -1,5 +1,4 @@
 import { none, some } from "fp-ts/lib/Option";
-import { ObjectID } from "mongodb";
 import { AtError, Client, IAuthTokenMaster, ObjectIDGenerator } from "../../";
 
 describe("Client", () => {

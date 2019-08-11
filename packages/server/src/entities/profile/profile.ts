@@ -1,5 +1,4 @@
 import { Option } from "fp-ts/lib/Option";
-import { ObjectID } from "mongodb";
 import { AtRightError, paramsErrorMaker } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { Config } from "../../config";

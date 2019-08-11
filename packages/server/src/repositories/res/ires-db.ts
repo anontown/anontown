@@ -4,7 +4,6 @@ import {
   IReply,
   IVote,
   Res,
-  ResAPIType,
   ResBase,
   ResDeleteFlag,
   ResFork,

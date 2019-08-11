@@ -1,5 +1,3 @@
-import { ObjectID } from "mongodb";
-
 import { none, some } from "fp-ts/lib/Option";
 import { IAuthTokenMaster, ObjectIDGenerator, Profile } from "../../";
 

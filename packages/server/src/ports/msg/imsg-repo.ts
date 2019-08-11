@@ -1,7 +1,6 @@
 import { IAuthToken } from "../../auth";
 import { Msg } from "../../entities";
 import * as G from "../../generated/graphql";
-import { DateType } from "../../server";
 
 export interface IMsgRepo {
   findOne(id: string): Promise<Msg>;
