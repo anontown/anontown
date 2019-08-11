@@ -20,8 +20,8 @@
     "moduleResolution": "node",
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noUnusedParameters": false,
-    "noUnusedLocals": false,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true
   }
