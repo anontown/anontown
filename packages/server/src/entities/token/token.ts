@@ -1,5 +1,4 @@
 import * as Im from "immutable";
-import { ObjectID } from "mongodb";
 import { AtNotFoundError, AtTokenAuthError } from "../../at-error";
 import { IAuthTokenGeneral, IAuthTokenMaster, IAuthUser } from "../../auth";
 import { Config } from "../../config";
@@ -21,23 +20,6 @@ export interface ITokenReqAPI {
 }
 
 export type TokenType = "master" | "general";
-
-export type ITokenDB = ITokenGeneralDB | ITokenMasterDB;
-
-export interface ITokenBaseDB<T extends TokenType> {
-  readonly _id: ObjectID;
-  readonly key: string;
-  readonly type: T;
-  readonly user: ObjectID;
-  readonly date: Date;
-}
-
-export interface ITokenMasterDB extends ITokenBaseDB<"master"> {}
-
-export interface ITokenGeneralDB extends ITokenBaseDB<"general"> {
-  readonly client: ObjectID;
-  readonly req: ITokenReq[];
-}
 
 export type ITokenAPI = ITokenGeneralAPI | ITokenMasterAPI;
 
@@ -72,16 +54,6 @@ export abstract class TokenBase<
 
   abstract copy(partial: Partial<TokenBase<T, C>>): C;
 
-  toBaseDB(): ITokenBaseDB<T> {
-    return {
-      _id: new ObjectID(this.id),
-      key: this.key,
-      user: new ObjectID(this.user),
-      date: this.date,
-      type: this.type,
-    };
-  }
-
   toBaseAPI(): ITokenBaseAPI<T> {
     return {
       id: this.id,
@@ -94,10 +66,6 @@ export abstract class TokenBase<
 
 export class TokenMaster extends Copyable<TokenMaster>
   implements TokenBase<"master", TokenMaster> {
-  static fromDB(t: ITokenMasterDB): TokenMaster {
-    return new TokenMaster(t._id.toString(), t.key, t.user.toString(), t.date);
-  }
-
   static create(
     objidGenerator: IGenerator<string>,
     authUser: IAuthUser,
@@ -115,7 +83,6 @@ export class TokenMaster extends Copyable<TokenMaster>
   readonly type: "master" = "master";
 
   toBaseAPI!: () => ITokenBaseAPI<"master">;
-  toBaseDB!: () => ITokenBaseDB<"master">;
 
   constructor(
     readonly id: string,
@@ -124,10 +91,6 @@ export class TokenMaster extends Copyable<TokenMaster>
     readonly date: Date,
   ) {
     super(TokenMaster);
-  }
-
-  toDB(): ITokenMasterDB {
-    return this.toBaseDB();
   }
 
   toAPI(): ITokenMasterAPI {
@@ -146,17 +109,6 @@ applyMixins(TokenMaster, [TokenBase]);
 
 export class TokenGeneral extends Copyable<TokenGeneral>
   implements TokenBase<"general", TokenGeneral> {
-  static fromDB(t: ITokenGeneralDB): TokenGeneral {
-    return new TokenGeneral(
-      t._id.toString(),
-      t.key,
-      t.client.toString(),
-      t.user.toString(),
-      Im.List(t.req),
-      t.date,
-    );
-  }
-
   static create(
     objidGenerator: IGenerator<string>,
     authToken: IAuthTokenMaster,
@@ -177,7 +129,6 @@ export class TokenGeneral extends Copyable<TokenGeneral>
   readonly type: "general" = "general";
 
   toBaseAPI!: () => ITokenBaseAPI<"general">;
-  toBaseDB!: () => ITokenBaseDB<"general">;
 
   constructor(
     readonly id: string,
@@ -188,14 +139,6 @@ export class TokenGeneral extends Copyable<TokenGeneral>
     readonly date: Date,
   ) {
     super(TokenGeneral);
-  }
-
-  toDB(): ITokenGeneralDB {
-    return {
-      ...this.toBaseDB(),
-      client: new ObjectID(this.client),
-      req: this.req.toArray(),
-    };
   }
 
   toAPI(): ITokenGeneralAPI {

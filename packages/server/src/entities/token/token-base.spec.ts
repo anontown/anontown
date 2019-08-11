@@ -1,10 +1,4 @@
-import { ObjectID } from "mongodb";
-import {
-  ITokenBaseAPI,
-  ITokenBaseDB,
-  ObjectIDGenerator,
-  TokenBase,
-} from "../../";
+import { ITokenBaseAPI, TokenBase } from "../../";
 import { Copyable } from "../../utils";
 import { applyMixins } from "../../utils";
 
@@ -14,7 +8,6 @@ describe("TokenBase", () => {
     readonly type: "general" = "general";
 
     toBaseAPI!: () => ITokenBaseAPI<"general">;
-    toBaseDB!: () => ITokenBaseDB<"general">;
 
     constructor(
       readonly id: string,
@@ -32,21 +25,6 @@ describe("TokenBase", () => {
       expect(TokenBase.createTokenKey(() => "a")).not.toBe(
         TokenBase.createTokenKey(() => "b"),
       );
-    });
-  });
-
-  describe("toBaseDB", () => {
-    it("正常に変換できるか", () => {
-      const tokenID = ObjectIDGenerator();
-      const userID = ObjectIDGenerator();
-      const token = new TokenBaseTest(tokenID, "key", userID, new Date(0));
-      expect(token.toBaseDB()).toEqual({
-        _id: new ObjectID(tokenID),
-        key: "key",
-        user: new ObjectID(userID),
-        date: new Date(0),
-        type: "general",
-      });
     });
   });
 

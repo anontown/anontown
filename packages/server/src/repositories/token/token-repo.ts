@@ -2,8 +2,9 @@ import { ObjectID } from "mongodb";
 import { AtNotFoundError } from "../../at-error";
 import { IAuthTokenMaster, IAuthUser } from "../../auth";
 import { Mongo } from "../../db";
-import { ITokenDB, Token, TokenGeneral, TokenMaster } from "../../entities";
+import { Token } from "../../entities";
 import { ITokenRepo } from "../../ports";
+import { ITokenDB, toToken, fromToken } from "./itoken-db";
 
 export class TokenRepo implements ITokenRepo {
   async findOne(id: string): Promise<Token> {
@@ -15,12 +16,7 @@ export class TokenRepo implements ITokenRepo {
       throw new AtNotFoundError("トークンが存在しません");
     }
 
-    switch (token.type) {
-      case "general":
-        return TokenGeneral.fromDB(token);
-      case "master":
-        return TokenMaster.fromDB(token);
-    }
+    return toToken(token);
   }
 
   async findAll(authToken: IAuthTokenMaster): Promise<Token[]> {
@@ -31,26 +27,19 @@ export class TokenRepo implements ITokenRepo {
       .sort({ date: -1 })
       .toArray();
 
-    return tokens.map(t => {
-      switch (t.type) {
-        case "general":
-          return TokenGeneral.fromDB(t);
-        case "master":
-          return TokenMaster.fromDB(t);
-      }
-    });
+    return tokens.map(t => toToken(t));
   }
 
   async insert(token: Token): Promise<void> {
     const db = await Mongo();
-    await db.collection("tokens").insertOne(token.toDB());
+    await db.collection("tokens").insertOne(fromToken(token));
   }
 
   async update(token: Token): Promise<void> {
     const db = await Mongo();
     await db
       .collection("tokens")
-      .replaceOne({ _id: new ObjectID(token.id) }, token.toDB());
+      .replaceOne({ _id: new ObjectID(token.id) }, fromToken(token));
   }
 
   async delClientToken(

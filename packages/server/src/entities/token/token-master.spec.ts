@@ -1,24 +1,9 @@
-import { ObjectID } from "mongodb";
 import { AtError, ObjectIDGenerator, TokenBase, TokenMaster } from "../../";
 
 describe("TokenMaster", () => {
   const tokenID = ObjectIDGenerator();
   const userID = ObjectIDGenerator();
   const tokenMaster = new TokenMaster(tokenID, "key", userID, new Date(0));
-
-  describe("fromDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(
-        TokenMaster.fromDB({
-          _id: new ObjectID(tokenID),
-          key: "key",
-          type: "master",
-          user: new ObjectID(userID),
-          date: new Date(0),
-        }),
-      ).toEqual(tokenMaster);
-    });
-  });
 
   describe("create", () => {
     it("正常に生成出来るか", () => {
@@ -40,13 +25,6 @@ describe("TokenMaster", () => {
           new Date(100),
         ),
       );
-    });
-  });
-
-  describe("toDB", () => {
-    it("正常に変換出来るか", () => {
-      const db = tokenMaster.toDB();
-      expect(db).toEqual(tokenMaster.toBaseDB());
     });
   });
 

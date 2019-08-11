@@ -1,5 +1,4 @@
 import * as Im from "immutable";
-import { ObjectID } from "mongodb";
 import {
   AtError,
   Client,
@@ -38,22 +37,6 @@ describe("TokenMaster", () => {
     new Date(300),
   );
 
-  describe("fromDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(
-        TokenGeneral.fromDB({
-          _id: new ObjectID(tokenID),
-          key: "key",
-          type: "general",
-          client: new ObjectID(clientID),
-          user: new ObjectID(userID),
-          date: new Date(300),
-          req: [],
-        }),
-      ).toEqual(token);
-    });
-  });
-
   describe("create", () => {
     it("正常に作成出来るか", () => {
       expect(
@@ -65,16 +48,6 @@ describe("TokenMaster", () => {
           () => "random",
         ),
       ).toEqual(token.copy({ key: TokenBase.createTokenKey(() => "random") }));
-    });
-  });
-
-  describe("toDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(token.toDB()).toEqual({
-        ...token.toBaseDB(),
-        client: new ObjectID(clientID),
-        req: [],
-      });
     });
   });
 

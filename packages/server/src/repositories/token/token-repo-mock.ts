@@ -1,7 +1,8 @@
 import { AtNotFoundError } from "../../at-error";
 import { IAuthTokenMaster, IAuthUser } from "../../auth";
-import { ITokenDB, Token, TokenGeneral, TokenMaster } from "../../entities";
+import { Token } from "../../entities";
 import { ITokenRepo } from "../../ports";
+import { ITokenDB, toToken, fromToken } from "./itoken-db";
 
 export class TokenRepoMock implements ITokenRepo {
   private tokens: ITokenDB[] = [];
@@ -12,12 +13,7 @@ export class TokenRepoMock implements ITokenRepo {
       throw new AtNotFoundError("トークンが存在しません");
     }
 
-    switch (token.type) {
-      case "general":
-        return TokenGeneral.fromDB(token);
-      case "master":
-        return TokenMaster.fromDB(token);
-    }
+    return toToken(token);
   }
 
   async findAll(authToken: IAuthTokenMaster): Promise<Token[]> {
@@ -25,24 +21,17 @@ export class TokenRepoMock implements ITokenRepo {
       .filter(x => x.user.toHexString() === authToken.user)
       .sort((a, b) => b.date.valueOf() - a.date.valueOf());
 
-    return tokens.map(t => {
-      switch (t.type) {
-        case "general":
-          return TokenGeneral.fromDB(t);
-        case "master":
-          return TokenMaster.fromDB(t);
-      }
-    });
+    return tokens.map(t => toToken(t));
   }
 
   async insert(token: Token): Promise<void> {
-    this.tokens.push(token.toDB());
+    this.tokens.push(fromToken(token));
   }
 
   async update(token: Token): Promise<void> {
     this.tokens[
       this.tokens.findIndex(x => x._id.toHexString() === token.id)
-    ] = token.toDB();
+    ] = fromToken(token);
   }
 
   async delClientToken(
