@@ -41,29 +41,6 @@ describe("TopicOne", () => {
     type: "master",
   };
 
-  describe("fromDB", () => {
-    it("正常に生成できるか", () => {
-      expect(
-        TopicOne.fromDB(
-          {
-            id: "topic",
-            body: {
-              type: "one",
-              title: "title",
-              update: new Date(100).toISOString(),
-              date: new Date(0).toISOString(),
-              ageUpdate: new Date(50).toISOString(),
-              active: true,
-              tags: [],
-              text: "text",
-            },
-          },
-          5,
-        ),
-      ).toEqual(topic);
-    });
-  });
-
   describe("create", () => {
     it("正常に生成できるか", () => {
       expect(

@@ -4,7 +4,6 @@ import {
   applyMixins,
   AtError,
   ITopicBaseAPI,
-  ITopicBaseDB,
   Res,
   ResNormal,
   ResTopic,
@@ -20,9 +19,6 @@ describe("TopicBase", () => {
     toBaseAPI!: () => ITopicBaseAPI<"normal">;
     hash!: (date: Date, user: User) => string;
     resUpdate!: (res: Res) => TopicBaseTest;
-    toBaseDB!: <Body extends object>(
-      body: Body,
-    ) => ITopicBaseDB<"normal", Body>;
 
     constructor(
       readonly id: string,
@@ -109,22 +105,6 @@ describe("TopicBase", () => {
       expect(() => {
         TopicBase.checkData({ text: "x".repeat(10001) });
       }).toThrow(AtError);
-    });
-  });
-
-  describe("toBaseDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(topicBase.toBaseDB({})).toEqual({
-        id: "topic",
-        body: {
-          type: "normal",
-          title: "title",
-          update: new Date(100).toISOString(),
-          date: new Date(0).toISOString(),
-          ageUpdate: new Date(50).toISOString(),
-          active: true,
-        },
-      });
     });
   });
 

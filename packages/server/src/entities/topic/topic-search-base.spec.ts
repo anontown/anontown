@@ -2,9 +2,7 @@ import * as Im from "immutable";
 import {
   applyMixins,
   ITopicBaseAPI,
-  ITopicBaseDB,
   ITopicSearchBaseAPI,
-  ITopicSearchBaseDB,
   Res,
   TopicSearchBase,
   User,
@@ -20,10 +18,6 @@ describe("TopicSearchBase", () => {
     hash!: (date: Date, user: User) => string;
     toAPI!: () => ITopicSearchBaseAPI<"normal">;
     resUpdate!: (res: Res) => TopicSearchBaseTest;
-    toDB!: () => ITopicSearchBaseDB<"normal">;
-    toBaseDB!: <Body extends object>(
-      body: Body,
-    ) => ITopicBaseDB<"normal", Body>;
 
     constructor(
       readonly id: string,
@@ -52,17 +46,6 @@ describe("TopicSearchBase", () => {
     new Date(50),
     true,
   );
-
-  describe("toDB", () => {
-    it("正常に変換出来るか", () => {
-      expect(topic.toDB()).toEqual(
-        topic.toBaseDB({
-          tags: [],
-          text: "text",
-        }),
-      );
-    });
-  });
 
   describe("toAPI", () => {
     it("正常に変換出来るか", () => {

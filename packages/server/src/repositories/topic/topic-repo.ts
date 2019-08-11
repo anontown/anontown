@@ -2,16 +2,10 @@ import { isNullish } from "@kgtkr/utils";
 import { CronJob } from "cron";
 import { AtNotFoundError } from "../../at-error";
 import { ESClient } from "../../db";
-import {
-  ITagsAPI,
-  ITopicDB,
-  Topic,
-  TopicFork,
-  TopicNormal,
-  TopicOne,
-} from "../../entities";
+import { ITagsAPI, Topic } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IResRepo, ITopicRepo } from "../../ports";
+import { fromTopic, ITopicDB, toTopic } from "./itopic-db";
 
 export class TopicRepo implements ITopicRepo {
   constructor(public resRepo: IResRepo, private refresh?: boolean) {}
@@ -173,7 +167,7 @@ export class TopicRepo implements ITopicRepo {
   }
 
   async insert(topic: Topic): Promise<void> {
-    const tDB = topic.toDB();
+    const tDB = fromTopic(topic);
     await ESClient().create({
       index: "topics",
       type: "doc",
@@ -184,7 +178,7 @@ export class TopicRepo implements ITopicRepo {
   }
 
   async update(topic: Topic): Promise<void> {
-    const tDB = topic.toDB();
+    const tDB = fromTopic(topic);
     await ESClient().index({
       index: "topics",
       type: "doc",
@@ -200,16 +194,6 @@ export class TopicRepo implements ITopicRepo {
   private async aggregate(topics: ITopicDB[]): Promise<Topic[]> {
     const count = await this.resRepo.resCount(topics.map(x => x.id));
 
-    return topics.map(x => {
-      const c = count.get(x.id) || 0;
-      switch (x.body.type) {
-        case "normal":
-          return TopicNormal.fromDB({ id: x.id, body: x.body }, c);
-        case "one":
-          return TopicOne.fromDB({ id: x.id, body: x.body }, c);
-        case "fork":
-          return TopicFork.fromDB({ id: x.id, body: x.body }, c);
-      }
-    });
+    return topics.map(x => toTopic(x, count.get(x.id) || 0));
   }
 }

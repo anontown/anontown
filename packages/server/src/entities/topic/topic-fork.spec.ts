@@ -59,28 +59,6 @@ describe("TopicFork", () => {
     true,
   );
 
-  describe("fromDB", () => {
-    it("正常に生成できるか", () => {
-      expect(
-        TopicFork.fromDB(
-          {
-            id: "topic",
-            body: {
-              type: "fork",
-              title: "title",
-              update: new Date(100).toISOString(),
-              date: new Date(0).toISOString(),
-              ageUpdate: new Date(50).toISOString(),
-              active: true,
-              parent: "parent",
-            },
-          },
-          5,
-        ),
-      ).toEqual(topicFork);
-    });
-  });
-
   describe("create", () => {
     it("正常に生成できるか", () => {
       expect(
@@ -132,16 +110,6 @@ describe("TopicFork", () => {
           update: new Date(24 * 60 * 60 * 1000),
         }),
       });
-    });
-  });
-
-  describe("toDB", () => {
-    it("正常に生成出来るか", () => {
-      expect(topicFork.toDB()).toEqual(
-        topicFork.toBaseDB({
-          parent: "parent",
-        }),
-      );
     });
   });
 

@@ -95,29 +95,6 @@ describe("TopicNormal", () => {
     });
   });
 
-  describe("fromDB", () => {
-    it("正常に生成出来るか", () => {
-      expect(
-        TopicNormal.fromDB(
-          {
-            id: "topic",
-            body: {
-              type: "normal",
-              title: "title",
-              update: new Date(100).toISOString(),
-              date: new Date(0).toISOString(),
-              ageUpdate: new Date(50).toISOString(),
-              active: true,
-              tags: [],
-              text: "text",
-            },
-          },
-          5,
-        ),
-      ).toEqual(topic);
-    });
-  });
-
   describe("changeData", () => {
     it("正常に変更出来るか", () => {
       expect(

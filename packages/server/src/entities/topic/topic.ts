@@ -16,42 +16,6 @@ export interface ITagsAPI {
   count: number;
 }
 
-export interface ITopicDB {
-  id: string;
-  body: ITopicNormalDB["body"] | ITopicOneDB["body"] | ITopicForkDB["body"];
-}
-
-export interface ITopicBaseDB<T extends TopicType, Body> {
-  readonly id: string;
-  readonly body: {
-    readonly type: T;
-    readonly title: string;
-    readonly update: string;
-    readonly date: string;
-    readonly ageUpdate: string;
-    readonly active: boolean;
-  } & Body;
-}
-
-export type ITopicSearchBaseDB<T extends TopicSearchType> = ITopicBaseDB<
-  T,
-  {
-    readonly tags: string[];
-    readonly text: string;
-  }
->;
-
-export type ITopicNormalDB = ITopicSearchBaseDB<"normal">;
-
-export type ITopicOneDB = ITopicSearchBaseDB<"one">;
-
-export type ITopicForkDB = ITopicBaseDB<
-  "fork",
-  {
-    readonly parent: string;
-  }
->;
-
 export type ITopicAPI = ITopicOneAPI | ITopicNormalAPI | ITopicForkAPI;
 export type ITopicSearchAPI = ITopicOneAPI | ITopicNormalAPI;
 
@@ -154,20 +118,6 @@ export abstract class TopicBase<
 
   abstract copy(partial: Partial<TopicBase<T, C>>): C;
 
-  toBaseDB<Body extends object>(body: Body): ITopicBaseDB<T, Body> {
-    return {
-      id: this.id,
-      body: Object.assign({}, body, {
-        type: this.type,
-        title: this.title,
-        update: this.update.toISOString(),
-        date: this.date.toISOString(),
-        ageUpdate: this.ageUpdate.toISOString(),
-        active: this.active,
-      }),
-    };
-  }
-
   toBaseAPI(): ITopicBaseAPI<T> {
     return {
       id: this.id,
@@ -219,13 +169,6 @@ export abstract class TopicSearchBase<
   abstract readonly tags: Im.List<string>;
   abstract readonly text: string;
 
-  toDB(): ITopicSearchBaseDB<T> {
-    return this.toBaseDB({
-      tags: this.tags.toArray(),
-      text: this.text,
-    });
-  }
-
   toAPI(): ITopicSearchBaseAPI<T> {
     return {
       ...this.toBaseAPI(),
@@ -273,28 +216,12 @@ export class TopicNormal extends Copyable<TopicNormal>
     return { topic: cd.topic, history: cd.history, res: cd.res, user: newUser };
   }
 
-  static fromDB(db: ITopicNormalDB, resCount: number): TopicNormal {
-    return new TopicNormal(
-      db.id,
-      db.body.title,
-      Im.List(db.body.tags),
-      db.body.text,
-      new Date(db.body.update),
-      new Date(db.body.date),
-      resCount,
-      new Date(db.body.ageUpdate),
-      db.body.active,
-    );
-  }
-
   readonly type: "normal" = "normal";
 
   toBaseAPI!: () => ITopicBaseAPI<"normal">;
   hash!: (date: Date, user: User) => string;
   toAPI!: () => ITopicSearchBaseAPI<"normal">;
   resUpdate!: (res: Res) => TopicNormal;
-  toDB!: () => ITopicSearchBaseDB<"normal">;
-  toBaseDB!: <Body extends object>(body: Body) => ITopicBaseDB<"normal", Body>;
 
   constructor(
     readonly id: string,
@@ -351,20 +278,6 @@ applyMixins(TopicNormal, [TopicSearchBase]);
 
 export class TopicOne extends Copyable<TopicOne>
   implements TopicSearchBase<"one", TopicOne> {
-  static fromDB(db: ITopicOneDB, resCount: number): TopicOne {
-    return new TopicOne(
-      db.id,
-      db.body.title,
-      Im.List(db.body.tags),
-      db.body.text,
-      new Date(db.body.update),
-      new Date(db.body.date),
-      resCount,
-      new Date(db.body.ageUpdate),
-      db.body.active,
-    );
-  }
-
   static create(
     objidGenerator: IGenerator<string>,
     title: string,
@@ -404,8 +317,6 @@ export class TopicOne extends Copyable<TopicOne>
   hash!: (date: Date, user: User) => string;
   toAPI!: () => ITopicSearchBaseAPI<"one">;
   resUpdate!: (res: Res) => TopicOne;
-  toDB!: () => ITopicSearchBaseDB<"one">;
-  toBaseDB!: <Body extends object>(body: Body) => ITopicBaseDB<"one", Body>;
 
   constructor(
     readonly id: string,
@@ -425,19 +336,6 @@ applyMixins(TopicOne, [TopicSearchBase]);
 
 export class TopicFork extends Copyable<TopicFork>
   implements TopicBase<"fork", TopicFork> {
-  static fromDB(db: ITopicForkDB, resCount: number): TopicFork {
-    return new TopicFork(
-      db.id,
-      db.body.title,
-      new Date(db.body.update),
-      new Date(db.body.date),
-      resCount,
-      new Date(db.body.ageUpdate),
-      db.body.active,
-      db.body.parent,
-    );
-  }
-
   static create(
     objidGenerator: IGenerator<string>,
     title: string,
@@ -489,7 +387,6 @@ export class TopicFork extends Copyable<TopicFork>
   toBaseAPI!: () => ITopicBaseAPI<"fork">;
   hash!: (date: Date, user: User) => string;
   resUpdate!: (res: Res) => TopicFork;
-  toBaseDB!: <Body extends object>(body: Body) => ITopicBaseDB<"fork", Body>;
 
   constructor(
     readonly id: string,
@@ -502,10 +399,6 @@ export class TopicFork extends Copyable<TopicFork>
     readonly parent: string,
   ) {
     super(TopicFork);
-  }
-
-  toDB(): ITopicForkDB {
-    return this.toBaseDB({ parent: this.parent });
   }
 
   toAPI(): ITopicForkAPI {
