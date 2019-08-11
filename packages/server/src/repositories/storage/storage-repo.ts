@@ -6,7 +6,7 @@ import { Mongo } from "../../db";
 import { Storage } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IStorageRepo } from "../../ports";
-import { IStorageDB, toStorage, fromStorage } from "./isotrage-db";
+import { fromStorage, IStorageDB, toStorage } from "./isotrage-db";
 
 export class StorageRepo implements IStorageRepo {
   async find(token: IAuthToken, query: G.StorageQuery): Promise<Storage[]> {

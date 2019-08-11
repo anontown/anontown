@@ -1,6 +1,6 @@
+import { fromNullable } from "fp-ts/lib/Option";
 import { ObjectID } from "mongodb";
 import { Storage } from "../../entities";
-import { fromNullable } from "fp-ts/lib/Option";
 
 export interface IStorageDB {
   client: ObjectID | null;

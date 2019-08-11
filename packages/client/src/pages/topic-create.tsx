@@ -1,3 +1,4 @@
+import { routes } from "@anontown/route";
 import * as Im from "immutable";
 import {
   MenuItem,
@@ -13,7 +14,6 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Errors, MdEditor, Modal, Page, TagsInput } from "../components";
 import * as G from "../generated/graphql";
 import { userSwitch, UserSwitchProps } from "../utils";
-import { routes } from "@anontown/route";
 
 type TopicCreatePageProps = RouteComponentProps<{}> & UserSwitchProps;
 

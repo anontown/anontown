@@ -1,20 +1,20 @@
+import * as Im from "immutable";
+import { ObjectID } from "mongodb";
 import {
-  TokenBase,
   ITokenBaseAPI,
+  TokenBase,
   TokenGeneral,
   TokenMaster,
 } from "../../entities";
-import { Copyable, applyMixins } from "../../utils";
 import { ObjectIDGenerator } from "../../generator";
+import { applyMixins, Copyable } from "../../utils";
 import {
   fromTokenBase,
-  toTokenGeneral,
   fromTokenGeneral,
-  toTokenMaster,
   fromTokenMaster,
+  toTokenGeneral,
+  toTokenMaster,
 } from "./itoken-db";
-import { ObjectID } from "mongodb";
-import * as Im from "immutable";
 
 describe("ITokenDB", () => {
   class TokenBaseTest extends Copyable<TokenBaseTest>

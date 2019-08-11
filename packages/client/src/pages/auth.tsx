@@ -1,3 +1,4 @@
+import { routes } from "@anontown/route";
 import { RaisedButton } from "material-ui";
 import * as React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
@@ -5,7 +6,6 @@ import { useTitle } from "react-use";
 import { Errors, Page, Snack } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
-import { routes } from "@anontown/route";
 
 type AuthPageProps = RouteComponentProps<{}> & UserSwitchProps;
 
@@ -14,7 +14,7 @@ export const AuthPage = userSwitch(
     const [snackMsg, setSnackMsg] = React.useState<string | null>(null);
     const query = routes.auth.parseQuery(props.location.search);
     const clients = G.useFindClientsQuery({
-      skip: typeof query.id === undefined,
+      skip: query.id === undefined,
       variables: { query: { id: query.id !== undefined ? [query.id] : [] } },
     });
     queryResultConvert(clients);

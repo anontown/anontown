@@ -1,8 +1,8 @@
-import { toStorage, fromStorage } from "./isotrage-db";
+import { none, some } from "fp-ts/lib/Option";
 import { ObjectID } from "mongodb";
 import { Storage } from "../../entities";
 import { ObjectIDGenerator } from "../../generator";
-import { some, none } from "fp-ts/lib/Option";
+import { fromStorage, toStorage } from "./isotrage-db";
 
 describe("IStorageDB", () => {
   const cleintID = ObjectIDGenerator();

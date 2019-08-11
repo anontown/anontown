@@ -1,3 +1,4 @@
+import { routes } from "@anontown/route";
 import { Paper } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
@@ -10,7 +11,6 @@ import {
   UserSwitchProps,
   withModal,
 } from "../utils";
-import { routes } from "@anontown/route";
 
 type TopicForkBaseProps = RouteComponentProps<{ id: string }> &
   UserSwitchProps & {

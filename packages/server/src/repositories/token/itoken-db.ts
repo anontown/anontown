@@ -1,13 +1,13 @@
+import * as Im from "immutable";
 import { ObjectID } from "mongodb";
 import {
   ITokenReq,
-  TokenType,
-  TokenBase,
-  TokenMaster,
-  TokenGeneral,
   Token,
+  TokenBase,
+  TokenGeneral,
+  TokenMaster,
+  TokenType,
 } from "../../entities";
-import * as Im from "immutable";
 
 export type ITokenDB = ITokenGeneralDB | ITokenMasterDB;
 

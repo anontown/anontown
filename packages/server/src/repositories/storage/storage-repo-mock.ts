@@ -4,7 +4,7 @@ import { IAuthToken } from "../../auth";
 import { Storage } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IStorageRepo } from "../../ports";
-import { toStorage, IStorageDB, fromStorage } from "./isotrage-db";
+import { fromStorage, IStorageDB, toStorage } from "./isotrage-db";
 
 export class StorageRepoMock implements IStorageRepo {
   private storages: IStorageDB[] = [];

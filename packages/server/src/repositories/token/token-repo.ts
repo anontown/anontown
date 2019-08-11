@@ -4,7 +4,7 @@ import { IAuthTokenMaster, IAuthUser } from "../../auth";
 import { Mongo } from "../../db";
 import { Token } from "../../entities";
 import { ITokenRepo } from "../../ports";
-import { ITokenDB, toToken, fromToken } from "./itoken-db";
+import { fromToken, ITokenDB, toToken } from "./itoken-db";
 
 export class TokenRepo implements ITokenRepo {
   async findOne(id: string): Promise<Token> {
