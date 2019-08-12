@@ -1,16 +1,17 @@
 import { none, some } from "fp-ts/lib/Option";
 import { AtAuthError } from "../at-error";
 import { Logger } from "../logger";
-import { createLoader, IRepo, Loader } from "../ports";
+import { IRepo, ILoader } from "../ports";
 import { AuthContainer } from "./auth-container";
 import * as authFromApiParam from "./auth-from-api-param";
+import { Loader } from "../adapters";
 
 export interface AppContext {
   auth: AuthContainer;
   ip: string;
   now: Date;
   log: (name: string, id: string) => void;
-  loader: Loader;
+  loader: ILoader;
   repo: IRepo;
 }
 
@@ -45,7 +46,15 @@ export async function createContext(
     ip,
     now: new Date(),
     log: (name, id) => Logger.app.info(ip, name, id),
-    loader: createLoader(repo, auth),
+    loader: new Loader({
+      auth,
+      clientRepo: repo.client,
+      hisotryRepo: repo.history,
+      msgRepo: repo.msg,
+      profileRepo: repo.profile,
+      resRepo: repo.res,
+      topicRepo: repo.topic,
+    }),
     repo,
   };
 }
