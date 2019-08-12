@@ -1,13 +1,13 @@
 import { IRepo } from "../ports";
-import { ClientRepo } from "./client";
-import { HistoryRepo } from "./history";
-import { MsgRepo } from "./msg";
-import { ProfileRepo } from "./profile";
-import { ResRepo } from "./res";
-import { StorageRepo } from "./storage";
-import { TokenRepo } from "./token";
-import { TopicRepo } from "./topic";
-import { UserRepo } from "./user";
+import { ClientRepo } from "./client-repo";
+import { HistoryRepo } from "./history-repo";
+import { MsgRepo } from "./msg-repo";
+import { ProfileRepo } from "./profile-repo";
+import { ResRepo } from "./res-repo";
+import { StorageRepo } from "./storage-repo";
+import { TokenRepo } from "./token-repo";
+import { TopicRepo } from "./topic-repo";
+import { UserRepo } from "./user-repo";
 
 export class Repo implements IRepo {
   readonly client: ClientRepo;

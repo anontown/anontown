@@ -1,13 +1,13 @@
 import { IRepo } from "../ports";
-import { ClientRepoMock } from "./client";
-import { HistoryRepoMock } from "./history";
-import { MsgRepoMock } from "./msg";
-import { ProfileRepoMock } from "./profile";
-import { ResRepoMock } from "./res";
-import { StorageRepoMock } from "./storage";
-import { TokenRepoMock } from "./token";
-import { TopicRepoMock } from "./topic";
-import { UserRepoMock } from "./user";
+import { ClientRepoMock } from "./client-repo";
+import { HistoryRepoMock } from "./history-repo";
+import { MsgRepoMock } from "./msg-repo";
+import { ProfileRepoMock } from "./profile-repo";
+import { ResRepoMock } from "./res-repo";
+import { StorageRepoMock } from "./storage-repo";
+import { TokenRepoMock } from "./token-repo";
+import { TopicRepoMock } from "./topic-repo";
+import { UserRepoMock } from "./user-repo";
 
 export class RepoMock implements IRepo {
   readonly client: ClientRepoMock;
