@@ -1,4 +1,4 @@
-export * from "./repositories";
+export * from "./adapters";
 export * from "./entities";
 export * from "./at-error";
 export * from "./auth";
