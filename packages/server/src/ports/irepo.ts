@@ -1,12 +1,12 @@
-import { IClientRepo } from "./client";
-import { IHistoryRepo } from "./history";
-import { IMsgRepo } from "./msg";
-import { IProfileRepo } from "./profile";
-import { IResRepo } from "./res";
-import { IStorageRepo } from "./storage";
-import { ITokenRepo } from "./token";
-import { ITopicRepo } from "./topic";
-import { IUserRepo } from "./user";
+import { IClientRepo } from "./client-repo";
+import { IHistoryRepo } from "./history-repo";
+import { IMsgRepo } from "./msg-repo";
+import { IProfileRepo } from "./profile-repo";
+import { IResRepo } from "./res-repo";
+import { IStorageRepo } from "./storage-repo";
+import { ITokenRepo } from "./token-repo";
+import { ITopicRepo } from "./topic-repo";
+import { IUserRepo } from "./user-repo";
 
 export interface IRepo {
   readonly client: IClientRepo;

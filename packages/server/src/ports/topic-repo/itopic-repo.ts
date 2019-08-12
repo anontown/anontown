@@ -1,6 +1,6 @@
 import { Topic } from "../../entities";
 import * as G from "../../generated/graphql";
-import { IResRepo } from "../res";
+import { IResRepo } from "../res-repo";
 
 export interface ITopicRepo {
   resRepo: IResRepo;
