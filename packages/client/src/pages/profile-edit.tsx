@@ -1,9 +1,8 @@
 import { arrayGet, pipe, undefinedMap } from "@kgtkr/utils";
-import { Tab, Tabs } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import { RouteComponentProps, withRouter } from "react-router";
-import { Page, ProfileAdd, ProfileEditor, Snack } from "../components";
+import { Page, ProfileEditor } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
 type ProfileEditPageProps = RouteComponentProps<{ id: string }> &

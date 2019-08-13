@@ -1,5 +1,5 @@
 import * as Im from "immutable";
-import { FontIcon, IconButton, RaisedButton } from "material-ui";
+import { FontIcon, IconButton } from "material-ui";
 import * as React from "react";
 
 import { useCounter } from "react-use";

@@ -3,7 +3,6 @@ import {
   convert,
   initStorage,
   Storage,
-  StorageJSON,
   toJSON,
   toStorage,
   verArray,

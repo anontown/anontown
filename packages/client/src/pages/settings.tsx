@@ -1,9 +1,9 @@
 import { routes } from "@anontown/route";
-import { List, ListItem, Paper } from "material-ui";
+import { Paper } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import { Link, Route, Switch } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Page } from "../components";
 
 interface SettingsPageProps extends RouteComponentProps<{}> {}

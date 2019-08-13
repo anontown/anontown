@@ -1,17 +1,17 @@
 import { routes } from "@anontown/route";
-import { Paper, Tab, Tabs } from "material-ui";
+import { Paper } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import { RouteComponentProps, withRouter } from "react-router";
 import { Link } from "react-router-dom";
-import { Page, ProfileAdd, ProfileEditor, Snack } from "../components";
+import { Page } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
 
 type ProfilesPageProps = RouteComponentProps & UserSwitchProps;
 
 export const ProfilesPage = userSwitch(
-  withRouter((props: ProfilesPageProps) => {
+  withRouter((_props: ProfilesPageProps) => {
     const profiles = G.useFindProfilesQuery({
       variables: {
         query: {
