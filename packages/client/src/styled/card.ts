@@ -30,4 +30,15 @@ export const Card = styled.div<{ padding?: "none" | "normal" }>`
   }
 `;
 
+export const CardTitle = styled.div`
+  font-size: ${constant.fontSize.title}px;
+  a {
+    color: ${constant.color.font};
+  }
+`;
+
+export const CardSub = styled.div`
+  font-size: ${constant.fontSize.sub}px;
+`;
+
 export const CardMain = styled.div``;

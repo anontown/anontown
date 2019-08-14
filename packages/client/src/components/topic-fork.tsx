@@ -56,9 +56,7 @@ export const TopicFork = (props: TopicForkProps) => {
           return (
             <div>
               {data.topics.map(t => (
-                <Paper key={t.id}>
-                  <TopicListItem topic={t} detail={false} />
-                </Paper>
+                <TopicListItem key={t.id} topic={t} detail={false} />
               ))}
             </div>
           );

@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import * as G from "../generated/graphql";
 import { dateFormat, useUserContext } from "../utils";
 import { TagsLink } from "./tags-link";
-import * as style from "./topic-list-item.scss";
+import { Card, CardTitle, CardMain } from "../styled/card";
 
 interface TopicListItemProps {
   topic: G.TopicFragment;
@@ -24,8 +24,8 @@ export const TopicListItem = (props: TopicListItemProps) => {
   }
 
   return (
-    <div className={style.container}>
-      <div>
+    <Card>
+      <CardTitle>
         {!props.topic.active ? (
           <FontIcon className="material-icons">not_interested</FontIcon>
         ) : null}
@@ -38,15 +38,12 @@ export const TopicListItem = (props: TopicListItemProps) => {
         {newRes !== null && newRes !== 0 ? (
           <FontIcon className="material-icons">fiber_new</FontIcon>
         ) : null}
-        <Link
-          className={style.title}
-          to={routes.topic.to({ id: props.topic.id })}
-        >
+        <Link to={routes.topic.to({ id: props.topic.id })}>
           {props.topic.title}
         </Link>
-      </div>
+      </CardTitle>
       {props.detail ? (
-        <div>
+        <CardMain>
           {props.topic.__typename === "TopicOne" ||
           props.topic.__typename === "TopicNormal" ? (
             <div>
@@ -73,8 +70,8 @@ export const TopicListItem = (props: TopicListItemProps) => {
               <span>新着 {newRes}</span>
             ) : null}
           </div>
-        </div>
+        </CardMain>
       ) : null}
-    </div>
+    </Card>
   );
 };

@@ -47,7 +47,7 @@ export class TopicFavo extends React.Component<TopicFavoProps, TopicFavoState> {
                   );
 
                   return (
-                    <Paper>
+                    <div>
                       {topics.length !== 0 ? (
                         topics.map(topic => (
                           <TopicListItem
@@ -57,15 +57,15 @@ export class TopicFavo extends React.Component<TopicFavoProps, TopicFavoState> {
                           />
                         ))
                       ) : (
-                        <div>
+                        <Paper>
                           お気に入りトピックがありません。
                           <br />
                           <Link to={routes.topicSearch.to({})}>
                             トピック一覧
                           </Link>
-                        </div>
+                        </Paper>
                       )}
-                    </Paper>
+                    </div>
                   );
                 })()}
               </>

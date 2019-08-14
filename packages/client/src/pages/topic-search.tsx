@@ -148,9 +148,7 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
       <div>
         {topics.data !== undefined
           ? topics.data.topics.map(t => (
-              <Card key={t.id} padding="none">
-                <TopicListItem topic={t} detail={true} />
-              </Card>
+              <TopicListItem key={t.id} topic={t} detail={true} />
             ))
           : null}
       </div>
