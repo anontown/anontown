@@ -18,9 +18,9 @@ export const Card = styled.div<{ padding?: "none" | "normal" }>`
         return "16px";
     }
   }};
-  font-size: ${constant.fontSize.main}px;
+  font-size: ${constant.fontSize.content}px;
   color: ${constant.color.font};
-  font-family: ${constant.fontFamily.main};
+  font-family: ${constant.fontFamily.content};
   a {
     text-decoration: none;
     color: ${constant.color.link};
@@ -32,6 +32,7 @@ export const Card = styled.div<{ padding?: "none" | "normal" }>`
 
 export const CardTitle = styled.div`
   font-size: ${constant.fontSize.title}px;
+  font-family: ${constant.fontFamily.title};
   a {
     color: ${constant.color.font};
   }
@@ -39,6 +40,7 @@ export const CardTitle = styled.div`
 
 export const CardSub = styled.div`
   font-size: ${constant.fontSize.sub}px;
+  font-family: ${constant.fontFamily.sub};
 `;
 
-export const CardMain = styled.div``;
+export const CardContent = styled.div``;

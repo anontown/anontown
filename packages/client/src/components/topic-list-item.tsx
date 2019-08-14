@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import * as G from "../generated/graphql";
 import { dateFormat, useUserContext } from "../utils";
 import { TagsLink } from "./tags-link";
-import { Card, CardTitle, CardMain } from "../styled/card";
+import { Card, CardTitle, CardContent } from "../styled/card";
 
 interface TopicListItemProps {
   topic: G.TopicFragment;
@@ -43,7 +43,7 @@ export const TopicListItem = (props: TopicListItemProps) => {
         </Link>
       </CardTitle>
       {props.detail ? (
-        <CardMain>
+        <CardContent>
           {props.topic.__typename === "TopicOne" ||
           props.topic.__typename === "TopicNormal" ? (
             <div>
@@ -70,7 +70,7 @@ export const TopicListItem = (props: TopicListItemProps) => {
               <span>新着 {newRes}</span>
             ) : null}
           </div>
-        </CardMain>
+        </CardContent>
       ) : null}
     </Card>
   );
