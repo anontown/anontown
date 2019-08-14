@@ -13,7 +13,7 @@ export const base = css`
 `;
 
 export const title = css`
-  font-size: ${fontSize.title};
+  font-size: ${fontSize.title}px;
   font-family: ${fontFamily.title};
   a {
     color: ${color.font};
@@ -21,11 +21,11 @@ export const title = css`
 `;
 
 export const content = css`
-  font-size: ${fontSize.content};
+  font-size: ${fontSize.content}px;
   font-family: ${fontFamily.content};
 `;
 
 export const sub = css`
-  font-size: ${fontSize.sub};
+  font-size: ${fontSize.sub}px;
   font-family: ${fontFamily.sub};
 `;
