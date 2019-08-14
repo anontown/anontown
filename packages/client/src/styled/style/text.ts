@@ -6,7 +6,8 @@ export const text = css`
   color: ${color.font};
   a {
     text-decoration: none;
-    color: ${color.link};
+    color: ${({ font }: { font: "title" | "content" | "sub" }) =>
+      font !== "title" ? color.link : color.font};
   }
   a:hover {
     text-decoration: underline;
