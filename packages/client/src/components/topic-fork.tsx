@@ -1,4 +1,4 @@
-import { Paper, RaisedButton, TextField } from "material-ui";
+import { RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import * as G from "../generated/graphql";
 import { useUserContext } from "../utils";
