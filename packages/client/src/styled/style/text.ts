@@ -1,25 +1,31 @@
-import { color } from "../constant";
-import { title, content, sub } from "./font";
+import { color, fontFamily, fontSize } from "../constant";
 import { css } from "styled-components";
 
-export const text = css`
+export const base = css`
   color: ${color.font};
   a {
     text-decoration: none;
-    color: ${({ font }: { font: "title" | "content" | "sub" }) =>
-      font !== "title" ? color.link : color.font};
+    color: ${color.link};
   }
   a:hover {
     text-decoration: underline;
   }
-  ${({ font }: { font: "title" | "content" | "sub" }) => {
-    switch (font) {
-      case "title":
-        return title;
-      case "content":
-        return content;
-      case "sub":
-        return sub;
-    }
-  }}
+`;
+
+export const title = css`
+  font-size: ${fontSize.title};
+  font-family: ${fontFamily.title};
+  a {
+    color: ${color.font};
+  }
+`;
+
+export const content = css`
+  font-size: ${fontSize.content};
+  font-family: ${fontFamily.content};
+`;
+
+export const sub = css`
+  font-size: ${fontSize.sub};
+  font-family: ${fontFamily.sub};
 `;

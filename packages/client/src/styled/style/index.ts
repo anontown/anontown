@@ -1,6 +1,6 @@
 export {
-  title as fontTitle,
-  content as fontContent,
-  sub as fontSub,
-} from "./font";
-export { text } from "./text";
+  base as textBase,
+  title as textTitle,
+  content as textContent,
+  sub as textSub,
+} from "./text";

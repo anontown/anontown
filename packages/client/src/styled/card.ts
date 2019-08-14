@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { undefinedUnwrapOr } from "@kgtkr/utils";
 import * as chroma from "chroma-js";
 import * as constant from "./constant";
+import { textBase, textContent } from "./style";
 
 export const Card = styled.div`
   background-color: white;
@@ -18,29 +19,18 @@ export const Card = styled.div`
         return "16px";
     }
   }};
-  font-size: ${constant.fontSize.content}px;
-  color: ${constant.color.font};
-  font-family: ${constant.fontFamily.content};
-  a {
-    text-decoration: none;
-    color: ${constant.color.link};
-  }
-  a:hover {
-    text-decoration: underline;
-  }
+  ${textBase}
+  ${textContent}
 `;
 
-export const CardTitle = styled.div`
-  font-size: ${constant.fontSize.title}px;
-  font-family: ${constant.fontFamily.title};
-  a {
-    color: ${constant.color.font};
-  }
-`;
-
-export const CardSub = styled.div`
-  font-size: ${constant.fontSize.sub}px;
-  font-family: ${constant.fontFamily.sub};
-`;
-
+export const CardHeader = styled.div``;
 export const CardContent = styled.div``;
+export const CardFlex = styled.div`
+  display: flex;
+`;
+export const CardFlexFixed = (width: number) => styled.div`
+  width: ${width}px;
+`;
+export const CardFlexStretch = styled.div`
+  flex: 1;
+`;
