@@ -1,6 +1,6 @@
 export const color = {
   font: "black",
-  primary: "#009900",
+  primary: "#5f5",
   secondary: "#ff5",
   error: "red",
   link: "#0275d8",

@@ -1,5 +1,4 @@
 import { routes } from "@anontown/route";
-import * as classNames from "classnames";
 import { FontIcon, IconButton, IconMenu, MenuItem, Paper } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
@@ -9,7 +8,6 @@ import { ng } from "../models";
 import { dateFormat, useUserContext } from "../utils";
 import { Md } from "./md";
 import { ResWrite } from "./res-write";
-import * as style from "./res.scss";
 import { Snack } from "./snack";
 import {
   Card,
@@ -19,6 +17,7 @@ import {
   CardHeader,
   CardContent,
 } from "../styled/card";
+import { color, fontSize } from "../styled/constant";
 
 interface ResProps {
   res: G.ResFragment;
@@ -52,7 +51,13 @@ export const Res = (props: ResProps) => {
     <Card padding="none">
       <Snack msg={snackMsg} onHide={() => setSnackMsg(null)} />
       <CardFlex>
-        <CardFlexFixed width={48} className={style.vote}>
+        <CardFlexFixed
+          width={48}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <G.VoteResComponent
             variables={{
               res: props.res.id,
@@ -116,13 +121,14 @@ export const Res = (props: ResProps) => {
         </CardFlexFixed>
         <CardFlexStretch>
           <CardHeader
-            className={classNames(style.header, {
-              [style.self]: props.res.self,
-              [style.reply]:
-                props.res.__typename === "ResNormal" &&
-                props.res.isReply &&
-                !props.res.self,
-            })}
+            style={{
+              backgroundColor: props.res.self
+                ? color.primary
+                : props.res.__typename === "ResNormal" && props.res.isReply
+                ? color.secondary
+                : undefined,
+              fontSize: fontSize.sub,
+            }}
           >
             <a onClick={() => setIsReply(!isReply)}>@</a>
             &nbsp;
