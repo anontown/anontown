@@ -1,5 +1,5 @@
 import { arrayLast } from "@kgtkr/utils";
-import { Paper, RaisedButton } from "material-ui";
+import { RaisedButton } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import { RouteComponentProps } from "react-router-dom";
