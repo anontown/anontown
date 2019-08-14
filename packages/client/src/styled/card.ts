@@ -3,15 +3,15 @@ import { undefinedUnwrapOr } from "@kgtkr/utils";
 import * as chroma from "chroma-js";
 import * as constant from "./constant";
 
-export const Card = styled.div<{ padding?: "none" | "normal" }>`
+export const Card = styled.div`
   background-color: white;
   border-style: solid;
   border-color: ${chroma
     .mix(constant.color.foreground, constant.color.background, 0.7)
     .css()};
   border-width: 1px;
-  padding: ${props => {
-    switch (undefinedUnwrapOr<"none" | "normal">("normal")(props.padding)) {
+  padding: ${({ padding }: { padding?: "none" | "normal" }) => {
+    switch (undefinedUnwrapOr<"none" | "normal">("normal")(padding)) {
       case "none":
         return "0px";
       case "normal":
