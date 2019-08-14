@@ -52,6 +52,10 @@ class App {
     prc.stderr.on("data", data => {
       this.addBgOuts(prefix, "stderr", data.toString());
     });
+
+    process.on("exit", () => {
+      prc.kill();
+    });
   }
 
   run() {
