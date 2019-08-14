@@ -30,11 +30,7 @@ const ResReplyBase = withRouter(
               if (error || !data) {
                 return <Snack msg="レス取得に失敗しました" />;
               }
-              return data.reses.map(res => (
-                <Paper key={res.id}>
-                  <Res res={res} />
-                </Paper>
-              ));
+              return data.reses.map(res => <Res res={res} key={res.id} />);
             }}
           </G.FindResesComponent>
         </div>

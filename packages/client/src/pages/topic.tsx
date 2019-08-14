@@ -308,11 +308,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                   })),
                 }));
               }}
-              dataToEl={res => (
-                <Paper>
-                  <Res res={res} />
-                </Paper>
-              )}
+              dataToEl={res => <Res res={res} />}
               changeItems={x => {
                 items.current = x;
               }}

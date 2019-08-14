@@ -28,8 +28,8 @@ export const CardContent = styled.div``;
 export const CardFlex = styled.div`
   display: flex;
 `;
-export const CardFlexFixed = (width: number) => styled.div`
-  width: ${width}px;
+export const CardFlexFixed = styled.div`
+  width: ${({ width }: { width: number }) => width}px;
 `;
 export const CardFlexStretch = styled.div`
   flex: 1;

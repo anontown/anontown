@@ -33,11 +33,7 @@ const ResBase = withRouter(
                 return <Snack msg="レス取得に失敗しました" />;
               }
 
-              return (
-                <Paper zDepth={this.props.zDepth}>
-                  <Res res={data.reses[0]} />
-                </Paper>
-              );
+              return <Res res={data.reses[0]} />;
             }}
           </G.FindResesComponent>
         </div>

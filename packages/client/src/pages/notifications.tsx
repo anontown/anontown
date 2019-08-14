@@ -66,11 +66,7 @@ export const NotificationsPage = userSwitch(
           </div>
           <div>
             {reses.data !== undefined
-              ? reses.data.reses.map(r => (
-                  <Paper key={r.id}>
-                    <Res res={r} />
-                  </Paper>
-                ))
+              ? reses.data.reses.map(r => <Res res={r} key={r.id} />)
               : null}
           </div>
           <div>
