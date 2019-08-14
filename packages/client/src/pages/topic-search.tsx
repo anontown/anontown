@@ -18,6 +18,7 @@ import { Page, TagsInput, TopicListItem } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, useEffectRef, useUserContext } from "../utils";
 import * as style from "./topic-search.scss";
+import { Card } from "../styled/card";
 
 type TopicSearchPageProps = RouteComponentProps<{}>;
 
@@ -147,9 +148,9 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
       <div>
         {topics.data !== undefined
           ? topics.data.topics.map(t => (
-              <Paper key={t.id}>
+              <Card key={t.id} padding="none">
                 <TopicListItem topic={t} detail={true} />
-              </Paper>
+              </Card>
             ))
           : null}
       </div>
