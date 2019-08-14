@@ -1,5 +1,5 @@
 import { css } from "styled-components";
-import { fontSize, fontFamily, color } from "../constant";
+import { fontSize, fontFamily } from "../constant";
 
 export const title = css`
   font-size: ${fontSize.title};

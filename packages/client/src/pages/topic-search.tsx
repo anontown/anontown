@@ -18,7 +18,6 @@ import { Page, TagsInput, TopicListItem } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, useEffectRef, useUserContext } from "../utils";
 import * as style from "./topic-search.scss";
-import { Card } from "../styled/card";
 
 type TopicSearchPageProps = RouteComponentProps<{}>;
 
