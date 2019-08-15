@@ -18,7 +18,7 @@ export interface MdProps {
 }
 
 export function Md(props: MdProps) {
-  const node = mdParser.parse(props.text);
+  const node = React.useMemo(() => mdParser.parse(props.text), [props.text]);
   return React.createElement(
     "div",
     {
