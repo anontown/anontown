@@ -1,10 +1,10 @@
 import { routes } from "@anontown/route";
-import { Paper } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { UserData } from "../models";
-import * as style from "./tag-favo.scss";
 import { TagsLink } from "./tags-link";
+import { Card } from "../styled/card";
+import { TextTitle } from "../styled/text";
 
 interface TagFavoProps {
   userData: UserData;
@@ -18,24 +18,22 @@ export class TagFavo extends React.Component<TagFavoProps, TagFavoState> {
   }
 
   render() {
-    return (
-      <Paper className={style.container}>
-        {this.props.userData.storage.tagsFavo.size !== 0 ? (
-          this.props.userData.storage.tagsFavo
-            .map(tags => (
-              <div key={tags.join(",")}>
-                <TagsLink tags={tags.toArray()} />
-              </div>
-            ))
-            .toArray()
-        ) : (
-          <div>
-            お気に入りタグがありません。
-            <br />
-            <Link to={routes.topicSearch.to({})}>検索</Link>
-          </div>
-        )}
-      </Paper>
+    return this.props.userData.storage.tagsFavo.size !== 0 ? (
+      this.props.userData.storage.tagsFavo
+        .map(tags => (
+          <Card key={tags.sort().join(",")}>
+            <TextTitle>
+              <TagsLink tags={tags.toArray()} />
+            </TextTitle>
+          </Card>
+        ))
+        .toArray()
+    ) : (
+      <Card>
+        お気に入りタグがありません。
+        <br />
+        <Link to={routes.topicSearch.to({})}>検索</Link>
+      </Card>
     );
   }
 }
