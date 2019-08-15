@@ -9,8 +9,7 @@ import {
 } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
-import { withRouter } from "react-router";
-import { Link, RouteComponentProps } from "react-router-dom";
+import { Link } from "react-router-dom";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { Page, TagsInput, TopicListItem } from "../components";
@@ -18,11 +17,11 @@ import * as G from "../generated/graphql";
 import { queryResultConvert } from "../utils";
 import { useEffectRef, useUserContext } from "../hooks";
 import { Card } from "../styled/card";
+import useRouter from "use-react-router";
 
-type TopicSearchPageProps = RouteComponentProps<{}>;
-
-export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
-  const query = routes.topicSearch.parseQuery(props.location.search);
+export const TopicSearchPage = (_props: {}) => {
+  const { location, history } = useRouter();
+  const query = routes.topicSearch.parseQuery(location.search);
   const formChange = React.useRef(new rx.Subject<void>());
   const [formTitle, setFormTitle] = React.useState(query.title);
   const [formDead, setFormDead] = React.useState(query.dead);
@@ -31,7 +30,7 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
     setFormTitle(query.title);
     setFormDead(query.dead);
     setFormTags(Im.Set(query.tags));
-  }, [props.location.search]);
+  }, [location.search]);
   const user = useUserContext();
   const limit = 100;
 
@@ -59,7 +58,7 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
       };
     },
     () => {
-      props.history.push(
+      history.push(
         routes.topicSearch.to(
           {},
           {
@@ -174,4 +173,4 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
       </div>
     </Page>
   );
-});
+};

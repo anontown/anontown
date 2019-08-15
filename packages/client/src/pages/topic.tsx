@@ -12,7 +12,7 @@ import {
 } from "material-ui";
 import * as moment from "moment";
 import * as React from "react";
-import { Link, RouteComponentProps, withRouter } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useTitle } from "react-use";
 import * as rx from "rxjs";
 import {
@@ -28,18 +28,18 @@ import * as G from "../generated/graphql";
 import { queryResultConvert } from "../utils";
 import { useUserContext } from "../hooks";
 import * as style from "./topic.scss";
+import useRouter from "use-react-router";
 // TODO:NGのtransparent
 
-interface TopicPageProps extends RouteComponentProps<{ id: string }> {}
-
-export const TopicPage = withRouter((props: TopicPageProps) => {
+export const TopicPage = (_props: {}) => {
+  const { match } = useRouter<{ id: string }>();
   const now = React.useMemo(() => new Date().toISOString(), []);
   const [isJumpDialog, setIsJumpDialog] = React.useState(false);
   const [isAutoScrollDialog, setIsAutoScrollDialog] = React.useState(false);
   const [isNGDialog, setIsNGDialog] = React.useState(false);
   const user = useUserContext();
   const topics = G.useFindTopicsQuery({
-    variables: { query: { id: [props.match.params.id] } },
+    variables: { query: { id: [match.params.id] } },
   });
   queryResultConvert(topics);
   const topic = topics.data !== undefined ? topics.data.topics[0] : null;
@@ -49,7 +49,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
   const items = React.useRef<G.ResFragment[]>([]);
   const initDate = React.useMemo(() => {
     if (user.value !== null) {
-      const topicRead = user.value.storage.topicRead.get(props.match.params.id);
+      const topicRead = user.value.storage.topicRead.get(match.params.id);
       if (topicRead !== undefined) {
         return topicRead.date;
       } else {
@@ -62,8 +62,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
   const [jumpValue, setJumpValue] = React.useState(new Date(now).valueOf());
 
   const isFavo =
-    user.value !== null &&
-    user.value.storage.topicFavo.has(props.match.params.id);
+    user.value !== null && user.value.storage.topicFavo.has(match.params.id);
 
   function storageSaveDate(date: string | null) {
     if (user.value === null || topic === null) {
@@ -71,7 +70,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
     }
     const storage = user.value.storage;
     if (date === null) {
-      const storageRes = storage.topicRead.get(props.match.params.id);
+      const storageRes = storage.topicRead.get(match.params.id);
       if (storageRes !== undefined) {
         date = storageRes.date;
       } else {
@@ -197,8 +196,8 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                         storage: {
                           ...storage,
                           topicFavo: isFavo
-                            ? tf.delete(props.match.params.id)
-                            : tf.add(props.match.params.id),
+                            ? tf.delete(match.params.id)
+                            : tf.add(match.params.id),
                         },
                       });
                     }}
@@ -225,7 +224,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                       <Link
                         to={routes.topicData.to(
                           {
-                            id: props.match.params.id,
+                            id: match.params.id,
                           },
                           { state: { modal: true } },
                         )}
@@ -239,7 +238,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                         <Link
                           to={routes.topicEdit.to(
                             {
-                              id: props.match.params.id,
+                              id: match.params.id,
                             },
                             { state: { modal: true } },
                           )}
@@ -254,7 +253,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                         <Link
                           to={routes.topicFork.to(
                             {
-                              id: props.match.params.id,
+                              id: match.params.id,
                             },
                             { state: { modal: true } },
                           )}
@@ -336,4 +335,4 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
       ) : null}
     </Page>
   );
-});
+};

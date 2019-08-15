@@ -2,13 +2,10 @@ import { routes } from "@anontown/route";
 import { Paper } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
-import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Page } from "../components";
 
-interface SettingsPageProps extends RouteComponentProps<{}> {}
-
-export const SettingsPage = withRouter((_props: SettingsPageProps) => {
+export const SettingsPage = (_props: {}) => {
   return (
     <Page>
       <Helmet title="アカウント設定" />
@@ -23,4 +20,4 @@ export const SettingsPage = withRouter((_props: SettingsPageProps) => {
       </Paper>
     </Page>
   );
-});
+};

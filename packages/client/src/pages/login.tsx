@@ -2,20 +2,15 @@ import { routes } from "@anontown/route";
 import { Paper, RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
-import {
-  Link,
-  Redirect,
-  RouteComponentProps,
-  withRouter,
-} from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { Errors, Page } from "../components";
 import * as G from "../generated/graphql";
 import { createUserData } from "../utils";
 import { useUserContext } from "../hooks";
 
-type LoginPageProps = RouteComponentProps<{}>;
+type LoginPageProps = {};
 
-export const LoginPage = withRouter((_props: LoginPageProps) => {
+export const LoginPage = (_props: LoginPageProps) => {
   const [sn, setSn] = React.useState("");
   const [pass, setPass] = React.useState("");
   const [errors, setErrors] = React.useState<string[] | undefined>(undefined);
@@ -77,4 +72,4 @@ export const LoginPage = withRouter((_props: LoginPageProps) => {
       )}
     </Page>
   );
-});
+};
