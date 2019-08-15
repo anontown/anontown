@@ -1,11 +1,12 @@
 import { routes } from "@anontown/route";
-import { Paper, Tab, Tabs } from "material-ui";
+import { Tab, Tabs } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import { Page } from "../components";
 import { TagFavo, TopicFavo } from "../components";
 import { useUserContext } from "../utils";
+import { Card } from "../styled/card";
 
 interface HomePageProps {}
 
@@ -24,7 +25,7 @@ export const HomePage = (_props: HomePageProps) => {
           </Tab>
         </Tabs>
       ) : (
-        <Paper>
+        <Card>
           <h1>匿名掲示板Anontownへようこそ</h1>
           <ul>
             <li>
@@ -36,7 +37,7 @@ export const HomePage = (_props: HomePageProps) => {
               </a>
             </li>
           </ul>
-        </Paper>
+        </Card>
       )}
     </Page>
   );
