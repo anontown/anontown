@@ -6,7 +6,6 @@ import { Env } from "../env";
 import { camo, mdParser, safeURL } from "../utils";
 import * as style from "./md.scss";
 import { Modal } from "./modal";
-import { useToggle } from "react-use";
 
 type URLType =
   | { type: "normal"; url: string }
