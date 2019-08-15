@@ -79,7 +79,7 @@ export const ResWrite = (props: ResWriteProps) => {
   });
   queryResultConvert(profiles);
 
-  const mutation = G.useCreateResMutation({
+  const [mutation] = G.useCreateResMutation({
     variables: {
       topic: props.topic,
       name: data.name.length !== 0 ? data.name : null,

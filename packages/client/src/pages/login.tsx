@@ -20,7 +20,7 @@ export const LoginPage = withRouter((_props: LoginPageProps) => {
   const [pass, setPass] = React.useState("");
   const [errors, setErrors] = React.useState<string[] | undefined>(undefined);
   const userContext = useUserContext();
-  const submit = G.useCreateTokenMasterMutation();
+  const [submit] = G.useCreateTokenMasterMutation();
 
   return (
     <Page>

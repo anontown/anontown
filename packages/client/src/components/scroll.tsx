@@ -1,11 +1,8 @@
 import { arrayFirst, arrayLast, pipe, undefinedMap } from "@kgtkr/utils";
 import { DocumentNode } from "graphql";
 import * as React from "react";
-import {
-  OnSubscriptionDataOptions,
-  useQuery,
-  useSubscription,
-} from "react-apollo-hooks";
+import { useQuery, useSubscription } from "@apollo/react-hooks";
+import { OnSubscriptionDataOptions } from "@apollo/react-common";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { setTimeout } from "timers";

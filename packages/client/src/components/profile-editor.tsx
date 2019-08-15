@@ -17,7 +17,7 @@ export const ProfileEditor = (props: ProfileEditorProps) => {
   const [sn, setSn] = React.useState(props.profile.sn);
   const [name, setName] = React.useState(props.profile.name);
   const [text, setText] = React.useState(props.profile.text);
-  const submit = G.useUpdateProfileMutation({
+  const [submit] = G.useUpdateProfileMutation({
     variables: {
       id: props.profile.id,
       name,

@@ -20,8 +20,8 @@ export const AccountSettingPage = userSwitch(
     const [sn, setSn] = React.useState(
       user.data !== undefined ? user.data.user.sn : "",
     );
-    const updateUserSubmit = G.useUpdateUserMutation();
-    const createTokenMasterSubmit = G.useCreateTokenMasterMutation();
+    const [updateUserSubmit] = G.useUpdateUserMutation();
+    const [createTokenMasterSubmit] = G.useCreateTokenMasterMutation();
 
     return (
       <Page>

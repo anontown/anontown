@@ -26,7 +26,7 @@ const ResBase = withRouter(
           >
             {({ loading, error, data }) => {
               if (loading) {
-                return "Loading...";
+                return <span>Loading...</span>;
               }
               if (error || !data || data.reses.length === 0) {
                 return <Snack msg="レス取得に失敗しました" />;

@@ -35,7 +35,7 @@ export const AppsSettingPage = userSwitch(
       variables,
     });
     queryResultConvert(clients);
-    const delToken = G.useDelTokenClientMutation();
+    const [delToken] = G.useDelTokenClientMutation();
 
     useTitle("連携アプリ管理");
 

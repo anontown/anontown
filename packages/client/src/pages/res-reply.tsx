@@ -24,12 +24,18 @@ const ResReplyBase = withRouter(
           >
             {({ loading, error, data }) => {
               if (loading) {
-                return "Loading...";
+                return <span>Loading...</span>;
               }
               if (error || !data) {
                 return <Snack msg="レス取得に失敗しました" />;
               }
-              return data.reses.map(res => <Res res={res} key={res.id} />);
+              return (
+                <>
+                  {data.reses.map(res => (
+                    <Res res={res} key={res.id} />
+                  ))}
+                </>
+              );
             }}
           </G.FindResesComponent>
         </div>

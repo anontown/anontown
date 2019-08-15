@@ -48,7 +48,7 @@ export const TopicFork = (props: TopicForkProps) => {
       <G.FindTopicsComponent variables={{ query: { parent: props.topic.id } }}>
         {({ loading, error, data }) => {
           if (loading) {
-            return "Loading...";
+            return <span>Loading...</span>;
           }
           if (error || !data) {
             return <Snack msg="派生トピック取得に失敗しました" />;

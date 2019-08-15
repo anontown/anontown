@@ -18,7 +18,7 @@ export const AuthPage = userSwitch(
       variables: { query: { id: query.id !== undefined ? [query.id] : [] } },
     });
     queryResultConvert(clients);
-    const submit = G.useCreateTokenGeneralMutation();
+    const [submit] = G.useCreateTokenGeneralMutation();
 
     useTitle("アプリ認証");
 

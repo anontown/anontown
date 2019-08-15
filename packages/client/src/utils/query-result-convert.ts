@@ -1,6 +1,6 @@
-import { QueryHookState } from "react-apollo-hooks";
+import { QueryResult } from "@apollo/react-common";
 
-export function queryResultConvert<TData>(res: QueryHookState<TData>) {
+export function queryResultConvert<TData, TVar>(res: QueryResult<TData, TVar>) {
   if (res.data !== undefined) {
     if (Object.keys(res.data).length === 0) {
       res.data = undefined;

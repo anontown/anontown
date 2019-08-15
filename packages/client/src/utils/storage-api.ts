@@ -30,7 +30,7 @@ export async function load(token: G.TokenMasterFragment) {
 }
 
 export function useSave() {
-  const submit = G.useSetStorageMutation();
+  const [submit] = G.useSetStorageMutation();
   return (storage: Storage) => {
     const json = toJSON(storage);
     return submit({
