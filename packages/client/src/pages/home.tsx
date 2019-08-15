@@ -5,7 +5,7 @@ import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import { Page } from "../components";
 import { TagFavo, TopicFavo } from "../components";
-import { useUserContext } from "../utils";
+import { useUserContext } from "../hooks";
 import { Card } from "../styled/card";
 
 interface HomePageProps {}
