@@ -3,6 +3,7 @@ import * as React from "react";
 import * as G from "../generated/graphql";
 import { UserData } from "../models";
 import { ClientEditor } from "./client-editor";
+import { useToggle } from "react-use";
 
 interface ClientProps {
   client: G.ClientFragment;
@@ -10,47 +11,28 @@ interface ClientProps {
   userData: UserData | null;
 }
 
-interface ClientState {
-  edit: boolean;
-}
+export function Client(props: ClientProps) {
+  const [edit, toggleEdit] = useToggle(false);
 
-export class Client extends React.Component<ClientProps, ClientState> {
-  constructor(props: ClientProps) {
-    super(props);
-    this.state = {
-      edit: false,
-    };
-  }
-
-  render() {
-    const clientEditor =
-      this.state.edit && this.props.userData !== null ? (
-        <ClientEditor
-          client={this.props.client}
-          onUpdate={this.props.onUpdate}
-          userData={this.props.userData}
-        />
-      ) : null;
-
-    const edit = this.props.client.self ? (
-      <div>
-        <IconButton
-          type="button"
-          onClick={() => this.setState({ edit: !this.state.edit })}
-        >
-          <FontIcon className="material-icons">edit</FontIcon>
-        </IconButton>
-        {clientEditor}
-      </div>
-    ) : null;
-
-    return (
-      <div>
-        <h2>{this.props.client.name}</h2>
-        <span>{this.props.client.id}</span>
-        <span>{this.props.client.url}</span>
-        {edit}
-      </div>
-    );
-  }
+  return (
+    <div>
+      <h2>{props.client.name}</h2>
+      <span>{props.client.id}</span>
+      <span>{props.client.url}</span>
+      {props.client.self ? (
+        <div>
+          <IconButton type="button" onClick={() => toggleEdit()}>
+            <FontIcon className="material-icons">edit</FontIcon>
+          </IconButton>
+          {edit && props.userData !== null ? (
+            <ClientEditor
+              client={props.client}
+              onUpdate={props.onUpdate}
+              userData={props.userData}
+            />
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
 }
