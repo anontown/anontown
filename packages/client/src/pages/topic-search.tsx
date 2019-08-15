@@ -4,7 +4,6 @@ import {
   Checkbox,
   FontIcon,
   IconButton,
-  Paper,
   RaisedButton,
   TextField,
 } from "material-ui";
@@ -17,7 +16,7 @@ import * as op from "rxjs/operators";
 import { Page, TagsInput, TopicListItem } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, useEffectRef, useUserContext } from "../utils";
-import * as style from "./topic-search.scss";
+import { Card } from "../styled/card";
 
 type TopicSearchPageProps = RouteComponentProps<{}>;
 
@@ -78,7 +77,7 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
   return (
     <Page>
       <Helmet title="検索" />
-      <Paper className={style.form}>
+      <Card>
         {user.value !== null ? (
           <IconButton
             onClick={() => {
@@ -131,7 +130,7 @@ export const TopicSearchPage = withRouter((props: TopicSearchPageProps) => {
             }}
           />
         </div>
-      </Paper>
+      </Card>
       <div>
         {user.value !== null ? (
           <IconButton
