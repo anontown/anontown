@@ -10,56 +10,39 @@ interface ClientEditorProps {
   userData: UserData;
 }
 
-interface ClientEditorState {
-  url: string;
-  name: string;
-}
+export function ClientEditor(props: ClientEditorProps) {
+  const [url, setUrl] = React.useState(props.client.url);
+  const [name, setName] = React.useState(props.client.name);
+  const [submit, data] = G.useUpdateClientMutation();
 
-export class ClientEditor extends React.Component<
-  ClientEditorProps,
-  ClientEditorState
-> {
-  constructor(props: ClientEditorProps) {
-    super(props);
-    this.state = {
-      url: props.client.url,
-      name: props.client.name,
-    };
-  }
-
-  render() {
-    return (
-      <G.UpdateClientComponent
-        variables={{
-          id: this.props.client.id,
-          name: this.state.name,
-          url: this.state.url,
-        }}
-        onCompleted={data => {
-          if (this.props.onUpdate) {
-            this.props.onUpdate(data.updateClient);
+  return (
+    <form>
+      {data.error && <Errors errors={["更新に失敗"]} />}
+      <TextField
+        floatingLabelText="名前"
+        value={name}
+        onChange={(_e, v) => setName(v)}
+      />
+      <TextField
+        floatingLabelText="url"
+        value={url}
+        onChange={(_e, v) => setUrl(v)}
+      />
+      <RaisedButton
+        onClick={async () => {
+          const data = await submit({
+            variables: {
+              id: props.client.id,
+              name,
+              url,
+            },
+          });
+          if (props.onUpdate !== undefined && data.data !== undefined) {
+            props.onUpdate(data.data.updateClient);
           }
         }}
-      >
-        {(submit, { error }) => {
-          return (
-            <form>
-              {error && <Errors errors={["更新に失敗"]} />}
-              <TextField
-                floatingLabelText="名前"
-                value={this.state.name}
-                onChange={(_e, v) => this.setState({ name: v })}
-              />
-              <TextField
-                floatingLabelText="url"
-                value={this.state.url}
-                onChange={(_e, v) => this.setState({ url: v })}
-              />
-              <RaisedButton onClick={() => submit()} label="OK" />
-            </form>
-          );
-        }}
-      </G.UpdateClientComponent>
-    );
-  }
+        label="OK"
+      />
+    </form>
+  );
 }
