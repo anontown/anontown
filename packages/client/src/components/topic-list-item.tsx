@@ -7,6 +7,7 @@ import { dateFormat, useUserContext } from "../utils";
 import { TagsLink } from "./tags-link";
 import { Card } from "../styled/card";
 import { TextTitle } from "../styled/text";
+import { Icon } from "./icon";
 
 interface TopicListItemProps {
   topic: G.TopicFragment;
@@ -27,18 +28,14 @@ export const TopicListItem = (props: TopicListItemProps) => {
   return (
     <Card>
       <TextTitle>
-        {!props.topic.active ? (
-          <FontIcon className="material-icons">not_interested</FontIcon>
-        ) : null}
+        {!props.topic.active ? <Icon icon="not_interested" /> : null}
         {props.topic.__typename === "TopicOne" ? (
-          <FontIcon className="material-icons">looks_one</FontIcon>
+          <Icon icon="looks_one" />
         ) : null}
         {props.topic.__typename === "TopicFork" ? (
-          <FontIcon className="material-icons">call_split</FontIcon>
+          <Icon icon="call_split" />
         ) : null}
-        {newRes !== null && newRes !== 0 ? (
-          <FontIcon className="material-icons">fiber_new</FontIcon>
-        ) : null}
+        {newRes !== null && newRes !== 0 ? <Icon icon="fiber_new" /> : null}
         <Link to={routes.topic.to({ id: props.topic.id })}>
           {props.topic.title}
         </Link>
