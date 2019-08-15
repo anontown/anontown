@@ -12,7 +12,8 @@ import {
 import { Errors, Page } from "../components";
 import { Env } from "../env";
 import * as G from "../generated/graphql";
-import { createUserData, UserContext } from "../utils";
+import { createUserData } from "../utils";
+import { UserContext } from "../hooks";
 
 interface SignupPageProps extends RouteComponentProps<{}> {}
 

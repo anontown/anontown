@@ -7,8 +7,6 @@ import * as storageAPI from "./storage-api";
 export * from "./props-type";
 export * from "./user-switch";
 export * from "./user";
-export * from "./use";
-export * from "./lock";
 
 export { dateFormat, mdParser, camo, imgur, storageAPI, list };
 

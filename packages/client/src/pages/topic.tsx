@@ -25,7 +25,8 @@ import {
   TopicFavo,
 } from "../components";
 import * as G from "../generated/graphql";
-import { queryResultConvert, useUserContext } from "../utils";
+import { queryResultConvert } from "../utils";
+import { useUserContext } from "../hooks";
 import * as style from "./topic.scss";
 // TODO:NGのtransparent
 

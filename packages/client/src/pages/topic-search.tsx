@@ -15,7 +15,8 @@ import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { Page, TagsInput, TopicListItem } from "../components";
 import * as G from "../generated/graphql";
-import { queryResultConvert, useEffectRef, useUserContext } from "../utils";
+import { queryResultConvert } from "../utils";
+import { useEffectRef, useUserContext } from "../hooks";
 import { Card } from "../styled/card";
 
 type TopicSearchPageProps = RouteComponentProps<{}>;

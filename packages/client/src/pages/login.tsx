@@ -10,7 +10,8 @@ import {
 } from "react-router-dom";
 import { Errors, Page } from "../components";
 import * as G from "../generated/graphql";
-import { createUserData, useUserContext } from "../utils";
+import { createUserData } from "../utils";
+import { useUserContext } from "../hooks";
 
 type LoginPageProps = RouteComponentProps<{}>;
 

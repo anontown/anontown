@@ -34,8 +34,8 @@ import {
   getServerStatus,
   gqlClient,
   User,
-  UserContextType,
 } from "../utils";
+import { UserContextType } from "../hooks";
 import * as style from "./app.scss";
 
 declare const gtag: any;

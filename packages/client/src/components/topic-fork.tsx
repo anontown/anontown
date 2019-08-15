@@ -1,7 +1,7 @@
 import { RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import * as G from "../generated/graphql";
-import { useUserContext } from "../utils";
+import { useUserContext } from "../hooks";
 import { Errors } from "./errors";
 import { Snack } from "./snack";
 import { TopicListItem } from "./topic-list-item";

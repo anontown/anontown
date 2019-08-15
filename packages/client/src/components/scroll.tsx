@@ -10,14 +10,14 @@ import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { setTimeout } from "timers";
 import * as G from "../generated/graphql";
+import { queryResultConvert } from "../utils";
 import {
-  queryResultConvert,
   useEffectCond,
   useEffectRef,
   useFunctionRef,
   useLock,
   useValueRef,
-} from "../utils";
+} from "../hooks";
 
 interface ListItemData {
   id: string;
