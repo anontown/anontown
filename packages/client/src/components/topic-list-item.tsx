@@ -1,5 +1,4 @@
 import { routes } from "@anontown/route";
-import { FontIcon } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as G from "../generated/graphql";
