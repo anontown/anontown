@@ -182,6 +182,28 @@ function useScrollLock<T extends ListItemData>(
     }
   }, []);
 }
+
+function useAutoScroll(
+  isAutoScroll: boolean,
+  autoScrollSpeed: number,
+  rootEl: HTMLDivElement | null,
+) {
+  const isAutoScrollRef = useValueRef(isAutoScroll);
+  const autoScrollSpeedRef = useValueRef(autoScrollSpeed);
+  const rootElRef = useValueRef(rootEl);
+
+  React.useEffect(() => {
+    const subs = rx.interval(100).subscribe(() => {
+      if (isAutoScrollRef.current && rootElRef.current !== null) {
+        rootElRef.current.scrollTop += autoScrollSpeedRef.current;
+      }
+    });
+    return () => {
+      subs.unsubscribe();
+    };
+  }, []);
+}
+
 interface ListItemData {
   id: string;
   date: string;
@@ -443,21 +465,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   );
 
   // 自動スクロール
-  useEffectRef(
-    f => {
-      const subs = rx.interval(100).subscribe(() => f.current());
-      return () => {
-        subs.unsubscribe();
-      };
-    },
-    () => {
-      const el = rootEl.current;
-      if (props.isAutoScroll && el !== null) {
-        el.scrollTop += props.autoScrollSpeed;
-      }
-    },
-    [],
-  );
+  useAutoScroll(props.isAutoScroll, props.autoScrollSpeed, rootEl.current);
 
   // スクロール位置変更入力
   useEffectRef(
