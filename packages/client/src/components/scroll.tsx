@@ -160,7 +160,7 @@ function useScrollLock<T extends ListItemData>(
   const dataRef = useValueRef(data);
   const idElMapRef = useValueRef(idElMap);
   const rootElRef = useValueRef(rootEl);
-  const result = React.useCallback(async (f: () => Promise<void>) => {
+  return React.useCallback(async (f: () => Promise<void>) => {
     await sleep(0);
     const elData = pipe(
       oset.toArray(dataRef.current),
@@ -181,7 +181,6 @@ function useScrollLock<T extends ListItemData>(
       }
     }
   }, []);
-  return result;
 }
 interface ListItemData {
   id: string;
