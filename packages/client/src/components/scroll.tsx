@@ -1,4 +1,4 @@
-import { arrayFirst, arrayLast, pipe, undefinedMap } from "@kgtkr/utils";
+import { arrayFirst, arrayLast, undefinedMap } from "@kgtkr/utils";
 import { DocumentNode } from "graphql";
 import * as React from "react";
 import { useQuery, useSubscription } from "@apollo/react-hooks";
@@ -15,6 +15,7 @@ import {
   useLock,
   useValueRef,
 } from "../hooks";
+import { pipe } from "fp-ts/lib/pipeable";
 
 interface ListItemData {
   id: string;
@@ -174,11 +175,13 @@ export const Scroll = <
 
   const scrollLock = useFunctionRef(async (f: () => Promise<void>) => {
     await sleep(0);
-    const elData = pipe(data.data)
-      .chain(undefinedMap(props.queryResultConverter))
-      .chain(undefinedMap(arrayFirst))
-      .chain(undefinedMap(x => idElMap.get(x.id)))
-      .chain(undefinedMap(x => ({ el: x, y: elY(x) }))).value;
+    const elData = pipe(
+      data.data,
+      undefinedMap(props.queryResultConverter),
+      undefinedMap(arrayFirst),
+      undefinedMap(x => idElMap.get(x.id)),
+      undefinedMap(x => ({ el: x, y: elY(x) })),
+    );
     try {
       await f();
     } catch (e) {
