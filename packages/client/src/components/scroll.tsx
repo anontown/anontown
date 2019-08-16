@@ -1,4 +1,4 @@
-import { arrayFirst, arrayLast, undefinedMap } from "@kgtkr/utils";
+import { arrayFirst, arrayLast } from "@kgtkr/utils";
 import * as React from "react";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
@@ -7,6 +7,7 @@ import * as G from "../generated/graphql";
 import { useEffectRef, useFunctionRef, useLock, useValueRef } from "../hooks";
 import { pipe } from "fp-ts/lib/pipeable";
 import * as oset from "../utils/ord-set";
+import { array, option } from "fp-ts";
 
 interface ListItemData {
   id: string;
@@ -127,19 +128,19 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     await sleep(0);
     const elData = pipe(
       oset.toArray(data),
-      undefinedMap(arrayFirst),
-      undefinedMap(x => idElMap.get(x.id)),
-      undefinedMap(x => ({ el: x, y: elY(x) })),
+      array.head,
+      option.chain(x => option.fromNullable(idElMap.get(x.id))),
+      option.map(x => ({ el: x, y: elY(x) })),
     );
     try {
       await f();
     } catch (e) {
       throw e;
     } finally {
-      if (elData !== undefined) {
+      if (option.isSome(elData)) {
         await sleep(0);
         if (rootEl.current !== null) {
-          rootEl.current.scrollTop += elY(elData.el) - elData.y;
+          rootEl.current.scrollTop += elY(elData.value.el) - elData.value.y;
         }
       }
     }
