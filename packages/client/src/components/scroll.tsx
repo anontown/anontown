@@ -29,19 +29,16 @@ function useToBottom(el: HTMLDivElement | null) {
   };
 }
 
-function useIdElMap<T>(
-  data: oset.OrdSet<T, string>,
-  toIds: (data: oset.OrdSet<T, string>) => Set<string>,
-) {
+function useIdElMap<T extends ListItemData>(data: oset.OrdSet<T, string>) {
   const idElMap = React.useMemo(() => new Map<string, HTMLDivElement>(), []);
   React.useEffect(() => {
-    const items = toIds(data);
+    const items = new Set(oset.toArray(data).map(x => x.id));
     for (const id of idElMap.keys()) {
       if (!items.has(id)) {
         idElMap.delete(id);
       }
     }
-  }, [idElMap, data, toIds]);
+  }, [idElMap, data]);
 
   const addFunction = React.useCallback(
     (key: string, el: HTMLDivElement | null) => {
@@ -146,11 +143,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     props.changeItems(oset.toArray(data));
   }, [oset.toArray(data)]);
 
-  const dataToIds = React.useCallback(
-    (x: oset.OrdSet<T, string>) => new Set(oset.toArray(x).map(x => x.id)),
-    [],
-  );
-  const { idElMap, addFunction } = useIdElMap<T>(data, dataToIds);
+  const { idElMap, addFunction } = useIdElMap<T>(data);
 
   const toTop = useToTop(rootEl.current);
   const toBottom = useToBottom(rootEl.current);
