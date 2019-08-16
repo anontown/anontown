@@ -339,6 +339,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     await findAfter();
   });
 
+  // 上までスクロール
   useEffectRef(
     f => {
       const el = rootEl.current;
@@ -372,6 +373,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     [rootEl.current, props.debounceTime],
   );
 
+  // 下までスクロール
   useEffectRef(
     f => {
       const el = rootEl.current;
@@ -412,6 +414,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     props.newItemOrder === "top" ? getTopElement() : getBottomElement(),
   );
 
+  // スクロールによってアイテムが変化した
   useEffectRef(
     f => {
       const el = rootEl.current;
@@ -439,6 +442,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     [rootEl.current, props.debounceTime],
   );
 
+  // 自動スクロール
   useEffectRef(
     f => {
       const subs = rx.interval(100).subscribe(() => f.current());
@@ -455,6 +459,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     [],
   );
 
+  // スクロール位置変更入力
   useEffectRef(
     f => {
       const subs = props.scrollNewItem.subscribe(x => f.current(x));
@@ -468,6 +473,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     [props.scrollNewItem],
   );
 
+  // 新しいアイテム追加イベント
   const onSubscriptionDataRef = useValueRef((newData: T) => {
     setData(
       pipe(
@@ -477,6 +483,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     );
   });
   props.useStream(x => onSubscriptionDataRef.current(x));
+
   return (
     <div className={props.className} style={props.style} ref={rootEl}>
       {(props.newItemOrder === "bottom"
