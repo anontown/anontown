@@ -26,10 +26,44 @@ import {
 } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert } from "../utils";
-import { useUserContext } from "../hooks";
+import { useUserContext, useFunctionRef } from "../hooks";
 import * as style from "./topic.scss";
 import useRouter from "use-react-router";
+import { useApolloClient } from "@apollo/react-hooks";
 // TODO:NGのtransparent
+
+function makeUseStream(
+  id: string,
+  onSubscription: (x: G.ResAddedSubscription) => void,
+) {
+  return (f: (item: G.ResFragment) => void) => {
+    G.useResAddedSubscription({
+      variables: { topic: id },
+      onSubscriptionData: x => {
+        if (x.subscriptionData.data !== undefined) {
+          onSubscription(x.subscriptionData.data);
+          f(x.subscriptionData.data.resAdded.res);
+        }
+      },
+    });
+  };
+}
+
+function makeUseFetch(id: string) {
+  return () => {
+    const apolloClient = useApolloClient();
+    return async (date: G.DateQuery): Promise<G.ResFragment[]> => {
+      const result = await apolloClient.query<
+        G.FindResesQuery,
+        G.FindResesQueryVariables
+      >({
+        query: G.FindResesDocument,
+        variables: { query: { topic: id, date } },
+      });
+      return result.data.reses;
+    };
+  };
+}
 
 export const TopicPage = (_props: {}) => {
   const { match } = useRouter<{ id: string }>();
@@ -63,6 +97,25 @@ export const TopicPage = (_props: {}) => {
 
   const isFavo =
     user.value !== null && user.value.storage.topicFavo.has(match.params.id);
+
+  const onSubs = useFunctionRef((x: G.ResAddedSubscription) => {
+    topics.updateQuery(ts => ({
+      ...ts,
+      topics: ts.topics.map(t => ({
+        ...t,
+        resCount: x.resAdded.count,
+      })),
+    }));
+  });
+
+  const useStream = React.useMemo(
+    () => makeUseStream(match.params.id, onSubs),
+    [match.params.id],
+  );
+
+  const useFetch = React.useMemo(() => makeUseFetch(match.params.id), [
+    match.params.id,
+  ]);
 
   function storageSaveDate(date: string | null) {
     if (user.value === null || topic === null) {
@@ -276,20 +329,10 @@ export const TopicPage = (_props: {}) => {
                 </IconMenu>
               </div>
             </Paper>
-            <Scroll<
-              G.ResFragment,
-              G.FindResesQuery,
-              G.FindResesQueryVariables,
-              G.ResAddedSubscription,
-              G.ResAddedSubscriptionVariables
-            >
-              query={G.FindResesDocument}
-              queryVariables={date => ({ query: { date, topic: topic.id } })}
-              queryResultConverter={x => x.reses}
-              queryResultMapper={(x, f) => ({ ...x, reses: f(x.reses) })}
-              subscription={G.ResAddedDocument}
-              subscriptionVariables={{ topic: topic.id }}
-              subscriptionResultConverter={x => x.resAdded.res}
+            <Scroll<G.ResFragment>
+              fetchKey={[topic.id]}
+              useStream={useStream}
+              useFetch={useFetch}
               className={style.reses}
               newItemOrder="bottom"
               width={10}
@@ -299,15 +342,6 @@ export const TopicPage = (_props: {}) => {
               scrollNewItemChange={res => storageSaveDate(res.date)}
               scrollNewItem={scrollNewItem.current}
               initDate={initDate}
-              onSubscription={x => {
-                topics.updateQuery(ts => ({
-                  ...ts,
-                  topics: ts.topics.map(t => ({
-                    ...t,
-                    resCount: x.resAdded.count,
-                  })),
-                }));
-              }}
               dataToEl={res => <Res res={res} />}
               changeItems={x => {
                 items.current = x;

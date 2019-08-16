@@ -1,21 +1,12 @@
 import { arrayFirst, arrayLast, undefinedMap } from "@kgtkr/utils";
-import { DocumentNode } from "graphql";
 import * as React from "react";
-import { useQuery, useSubscription } from "@apollo/react-hooks";
-import { OnSubscriptionDataOptions } from "@apollo/react-common";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { setTimeout } from "timers";
 import * as G from "../generated/graphql";
-import { queryResultConvert } from "../utils";
-import {
-  useEffectCond,
-  useEffectRef,
-  useFunctionRef,
-  useLock,
-  useValueRef,
-} from "../hooks";
+import { useEffectRef, useFunctionRef, useLock, useValueRef } from "../hooks";
 import { pipe } from "fp-ts/lib/pipeable";
+import * as oset from "../utils/ord-set";
 
 interface ListItemData {
   id: string;
@@ -27,25 +18,11 @@ interface ItemElPair<T extends ListItemData> {
   el: HTMLDivElement;
 }
 
-export interface ScrollProps<
-  T extends ListItemData,
-  QueryResult,
-  QueryVariables,
-  SubscriptionResult,
-  SubscriptionVariables
-> {
+export interface ScrollProps<T extends ListItemData> {
   newItemOrder: "top" | "bottom";
-  query: DocumentNode;
-  queryVariables: (dateQuery: G.DateQuery) => QueryVariables;
-  queryResultConverter: (result: QueryResult) => T[];
-  queryResultMapper: (
-    result: QueryResult,
-    f: (data: T[]) => T[],
-  ) => QueryResult;
-  subscription: DocumentNode;
-  subscriptionVariables: SubscriptionVariables;
-  subscriptionResultConverter: (result: SubscriptionResult) => T;
-  onSubscription: (item: SubscriptionResult) => void;
+  fetchKey: unknown[];
+  useFetch: () => (date: G.DateQuery) => Promise<T[]>;
+  useStream: (f: (item: T) => void) => void;
   width: number;
   debounceTime: number;
   autoScrollSpeed: number;
@@ -86,32 +63,20 @@ type Cmd =
   | { type: "after" }
   | { type: "before" };
 
-export const Scroll = <
-  T extends ListItemData,
-  QueryResult,
-  QueryVariables,
-  SubscriptionResult,
-  SubscriptionVariables
->(
-  props: ScrollProps<
-    T,
-    QueryResult,
-    QueryVariables,
-    SubscriptionResult,
-    SubscriptionVariables
-  >,
-) => {
+export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   const rootEl = React.useRef<HTMLDivElement | null>(null);
 
-  const initDate = React.useMemo(() => props.initDate, []);
-  const variables = props.queryVariables({
-    date: initDate,
-    type: "lte",
-  });
-  const data = useQuery<QueryResult, QueryVariables>(props.query, {
-    variables,
-  });
-  queryResultConvert(data);
+  const [data, setData] = React.useState(
+    oset.make<T, string>(
+      (a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf(),
+      x => x.id,
+    ),
+  );
+
+  const fetch = props.useFetch();
+  React.useEffect(() => {
+    runCmd({ type: "reset", date: props.initDate });
+  }, [props.initDate.valueOf(), ...props.fetchKey]);
 
   const lock = useLock();
   const runCmd = useFunctionRef(async (cmd: Cmd) => {
@@ -130,34 +95,19 @@ export const Scroll = <
     });
   });
 
-  useEffectCond(
-    () => {
-      runCmd({ type: "reset", date: initDate });
-    },
-    () => data.data !== undefined,
-  );
-
   React.useEffect(() => {
-    if (data.data !== undefined) {
-      props.changeItems(props.queryResultConverter(data.data));
-    }
-  }, [data.data]);
+    props.changeItems(oset.toArray(data));
+  }, [oset.toArray(data)]);
 
   const idElMap = React.useMemo(() => new Map<string, HTMLDivElement>(), []);
   React.useEffect(() => {
-    if (data.data !== undefined) {
-      const items = new Set(
-        props.queryResultConverter(data.data).map(x => x.id),
-      );
-      for (const id of idElMap.keys()) {
-        if (!items.has(id)) {
-          idElMap.delete(id);
-        }
+    const items = new Set(oset.toArray(data).map(x => x.id));
+    for (const id of idElMap.keys()) {
+      if (!items.has(id)) {
+        idElMap.delete(id);
       }
-    } else {
-      idElMap.clear();
     }
-  }, [data.data, idElMap]);
+  }, [oset.toArray(data), idElMap]);
 
   const toTop = useFunctionRef(async () => {
     await sleep(0);
@@ -176,8 +126,7 @@ export const Scroll = <
   const scrollLock = useFunctionRef(async (f: () => Promise<void>) => {
     await sleep(0);
     const elData = pipe(
-      data.data,
-      undefinedMap(props.queryResultConverter),
+      oset.toArray(data),
       undefinedMap(arrayFirst),
       undefinedMap(x => idElMap.get(x.id)),
       undefinedMap(x => ({ el: x, y: elY(x) })),
@@ -200,14 +149,9 @@ export const Scroll = <
   const getTopElement = useFunctionRef(async () => {
     await sleep(0);
 
-    if (data.data === undefined) {
-      return null;
-    }
-
-    const items = props.queryResultConverter(data.data);
-
     // 最短距離のアイテム
-    const minItem = items
+    const minItem = oset
+      .toArray(data)
       .map(item => {
         const el = idElMap.get(item.id);
         if (el !== undefined) {
@@ -247,14 +191,9 @@ export const Scroll = <
   const getBottomElement = useFunctionRef(async () => {
     await sleep(0);
 
-    if (data.data === undefined) {
-      return null;
-    }
-
-    const items = props.queryResultConverter(data.data);
-
     // 最短距離のアイテム
-    const minItem = items
+    const minItem = oset
+      .toArray(data)
       .map(item => {
         const el = idElMap.get(item.id);
         if (el !== undefined) {
@@ -293,76 +232,51 @@ export const Scroll = <
   });
 
   const findAfter = useFunctionRef(async () => {
-    if (data.data === undefined) {
-      return;
-    }
-
-    const items = props.queryResultConverter(data.data);
-
-    const first = arrayFirst(items);
+    const first = arrayFirst(oset.toArray(data));
     if (first === undefined) {
       await resetDate(new Date().toISOString());
     } else {
       await scrollLock(async () => {
-        await data.fetchMore({
-          variables: props.queryVariables({
-            date: first.date,
-            type: "gt",
-          }),
-          updateQuery: (prev, { fetchMoreResult }) => {
-            if (!fetchMoreResult) {
-              return prev;
-            }
-
-            return props.queryResultMapper(prev, x => [
-              ...props.queryResultConverter(fetchMoreResult),
-              ...x,
-            ]);
-          },
+        const result = await fetch({
+          date: first.date,
+          type: "gt",
         });
+
+        setData(oset.unsafePushFirstOrdAndUniqueArray(data, result));
       });
     }
   });
 
   const findBefore = useFunctionRef(async () => {
-    if (data.data === undefined) {
-      return;
-    }
-
-    const items = props.queryResultConverter(data.data);
-
-    const old = arrayLast(items);
+    const old = arrayLast(oset.toArray(data));
     if (old === undefined) {
       await resetDate(new Date().toISOString());
     } else {
       await scrollLock(async () => {
-        await data.fetchMore({
-          variables: props.queryVariables({
-            date: old.date,
-            type: "lt",
-          }),
-          updateQuery: (prev, { fetchMoreResult }) => {
-            if (!fetchMoreResult) {
-              return prev;
-            }
-
-            return props.queryResultMapper(prev, x => [
-              ...x,
-              ...props.queryResultConverter(fetchMoreResult),
-            ]);
-          },
+        const result = await fetch({
+          date: old.date,
+          type: "lt",
         });
+
+        setData(oset.unsafePushLastOrdAndUniqueArray(data, result));
       });
     }
   });
 
   const resetDate = useFunctionRef(async (date: string) => {
-    await data.refetch(
-      props.queryVariables({
-        date,
-        type: "lte",
-      }),
+    const result = await fetch({
+      date,
+      type: "lte",
+    });
+
+    setData(
+      pipe(
+        data,
+        oset.clear,
+        x => oset.unsafePushFirstOrdAndUniqueArray(x, result),
+      ),
     );
+
     switch (props.newItemOrder) {
       case "bottom":
         await toBottom();
@@ -503,59 +417,32 @@ export const Scroll = <
     [props.scrollNewItem],
   );
 
-  const onSubscriptionDataRef = useValueRef(
-    ({
-      client,
-      subscriptionData,
-    }: OnSubscriptionDataOptions<SubscriptionResult>) => {
-      if (subscriptionData.data !== undefined) {
-        const subsData = props.subscriptionResultConverter(
-          subscriptionData.data,
-        );
-        const prev = client.readQuery<QueryResult, QueryVariables>({
-          query: props.query,
-          variables,
-        });
-        if (prev !== null) {
-          client.writeQuery({
-            query: props.query,
-            variables,
-            data: props.queryResultMapper(prev, x => [subsData, ...x]),
-          });
-        }
-        props.onSubscription(subscriptionData.data);
-      }
-    },
-  );
-  useSubscription<SubscriptionResult, SubscriptionVariables>(
-    props.subscription,
-    {
-      variables: props.subscriptionVariables,
-      onSubscriptionData: x => onSubscriptionDataRef.current(x),
-    },
-  );
-
+  const onSubscriptionDataRef = useValueRef((newData: T) => {
+    setData(
+      pipe(
+        data,
+        x => oset.unsafePushFirstOrdAndUniqueArray(x, [newData]),
+      ),
+    );
+  });
+  props.useStream(x => onSubscriptionDataRef.current(x));
   return (
     <div className={props.className} style={props.style} ref={rootEl}>
-      {data.data !== undefined
-        ? (props.newItemOrder === "bottom"
-            ? [...props.queryResultConverter(data.data)].reverse()
-            : props.queryResultConverter(data.data)
-          ).map(item => (
-            <div
-              key={item.id}
-              ref={el => {
-                if (el !== null) {
-                  idElMap.set(item.id, el);
-                }
-              }}
-            >
-              {props.dataToEl(item)}
-            </div>
-          ))
-        : null}
-      {data.loading ? "Loading" : null}
-      {data.error !== undefined ? "エラーが発生しました" : null}
+      {(props.newItemOrder === "bottom"
+        ? [...oset.toArray(data)].reverse()
+        : oset.toArray(data)
+      ).map(item => (
+        <div
+          key={item.id}
+          ref={el => {
+            if (el !== null) {
+              idElMap.set(item.id, el);
+            }
+          }}
+        >
+          {props.dataToEl(item)}
+        </div>
+      ))}
     </div>
   );
 };
