@@ -52,6 +52,106 @@ function useIdElMap<T extends ListItemData>(data: oset.OrdSet<T, string>) {
   return { idElMap, addFunction };
 }
 
+// 上端に一番近いアイテム
+function useGetTopElement<T extends ListItemData>(
+  data: oset.OrdSet<T, string>,
+  idElMap: Map<string, HTMLDivElement>,
+) {
+  const dataRef = useValueRef(data);
+  const idElMapRef = useValueRef(idElMap);
+  return useFunctionRef(async () => {
+    await sleep(0);
+
+    // 最短距離のアイテム
+    const minItem = oset
+      .toArray(dataRef.current)
+      .map(item => {
+        const el = idElMapRef.current.get(item.id);
+        if (el !== undefined) {
+          return { item, el };
+        } else {
+          return null;
+        }
+      })
+      .filter((x): x is ItemElPair<T> => x !== null)
+      .reduce<ItemElPair<T> | null>((min, item) => {
+        if (min === null) {
+          return item;
+        } else if (
+          Math.abs(
+            min.el.getBoundingClientRect().top +
+              min.el.getBoundingClientRect().height / 2,
+          ) >
+          Math.abs(
+            item.el.getBoundingClientRect().top +
+              item.el.getBoundingClientRect().height / 2,
+          )
+        ) {
+          return item;
+        } else {
+          return min;
+        }
+      }, null);
+
+    if (minItem !== null) {
+      return minItem.item;
+    } else {
+      return null;
+    }
+  });
+}
+
+// 下端に一番近いアイテム
+function useGetBottomElement<T extends ListItemData>(
+  data: oset.OrdSet<T, string>,
+  idElMap: Map<string, HTMLDivElement>,
+) {
+  const dataRef = useValueRef(data);
+  const idElMapRef = useValueRef(idElMap);
+  return useFunctionRef(async () => {
+    await sleep(0);
+
+    // 最短距離のアイテム
+    const minItem = oset
+      .toArray(dataRef.current)
+      .map(item => {
+        const el = idElMapRef.current.get(item.id);
+        if (el !== undefined) {
+          return { item, el };
+        } else {
+          return null;
+        }
+      })
+      .filter((x): x is ItemElPair<T> => x !== null)
+      .reduce<ItemElPair<T> | null>((min, item) => {
+        if (min === null) {
+          return item;
+        } else if (
+          Math.abs(
+            window.innerHeight -
+              (min.el.getBoundingClientRect().top +
+                min.el.getBoundingClientRect().height / 2),
+          ) >
+          Math.abs(
+            window.innerHeight -
+              (item.el.getBoundingClientRect().top +
+                item.el.getBoundingClientRect().height / 2),
+          )
+        ) {
+          return item;
+        } else {
+          return min;
+        }
+      }, null);
+
+    if (minItem !== null) {
+      return minItem.item;
+    } else {
+      return null;
+    }
+  });
+}
+
 interface ListItemData {
   id: string;
   date: string;
@@ -122,6 +222,17 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     runCmd({ type: "reset", date: props.initDate });
   }, [props.initDate.valueOf(), ...props.fetchKey]);
 
+  React.useEffect(() => {
+    props.changeItems(oset.toArray(data));
+  }, [oset.toArray(data)]);
+
+  const { idElMap, addFunction } = useIdElMap<T>(data);
+
+  const toTop = useToTop(rootEl.current);
+  const toBottom = useToBottom(rootEl.current);
+  const getTopElement = useGetTopElement(data, idElMap);
+  const getBottomElement = useGetBottomElement(data, idElMap);
+
   const lock = useLock();
   const runCmd = useFunctionRef(async (cmd: Cmd) => {
     await lock(async () => {
@@ -138,15 +249,6 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
       }
     });
   });
-
-  React.useEffect(() => {
-    props.changeItems(oset.toArray(data));
-  }, [oset.toArray(data)]);
-
-  const { idElMap, addFunction } = useIdElMap<T>(data);
-
-  const toTop = useToTop(rootEl.current);
-  const toBottom = useToBottom(rootEl.current);
 
   const scrollLock = useFunctionRef(async (f: () => Promise<void>) => {
     await sleep(0);
@@ -167,92 +269,6 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
           rootEl.current.scrollTop += elY(elData.value.el) - elData.value.y;
         }
       }
-    }
-  });
-
-  // 上端に一番近いアイテム
-  const getTopElement = useFunctionRef(async () => {
-    await sleep(0);
-
-    // 最短距離のアイテム
-    const minItem = oset
-      .toArray(data)
-      .map(item => {
-        const el = idElMap.get(item.id);
-        if (el !== undefined) {
-          return { item, el };
-        } else {
-          return null;
-        }
-      })
-      .filter((x): x is ItemElPair<T> => x !== null)
-      .reduce<ItemElPair<T> | null>((min, item) => {
-        if (min === null) {
-          return item;
-        } else if (
-          Math.abs(
-            min.el.getBoundingClientRect().top +
-              min.el.getBoundingClientRect().height / 2,
-          ) >
-          Math.abs(
-            item.el.getBoundingClientRect().top +
-              item.el.getBoundingClientRect().height / 2,
-          )
-        ) {
-          return item;
-        } else {
-          return min;
-        }
-      }, null);
-
-    if (minItem !== null) {
-      return minItem.item;
-    } else {
-      return null;
-    }
-  });
-
-  // 下端に一番近いアイテム
-  const getBottomElement = useFunctionRef(async () => {
-    await sleep(0);
-
-    // 最短距離のアイテム
-    const minItem = oset
-      .toArray(data)
-      .map(item => {
-        const el = idElMap.get(item.id);
-        if (el !== undefined) {
-          return { item, el };
-        } else {
-          return null;
-        }
-      })
-      .filter((x): x is ItemElPair<T> => x !== null)
-      .reduce<ItemElPair<T> | null>((min, item) => {
-        if (min === null) {
-          return item;
-        } else if (
-          Math.abs(
-            window.innerHeight -
-              (min.el.getBoundingClientRect().top +
-                min.el.getBoundingClientRect().height / 2),
-          ) >
-          Math.abs(
-            window.innerHeight -
-              (item.el.getBoundingClientRect().top +
-                item.el.getBoundingClientRect().height / 2),
-          )
-        ) {
-          return item;
-        } else {
-          return min;
-        }
-      }, null);
-
-    if (minItem !== null) {
-      return minItem.item;
-    } else {
-      return null;
     }
   });
 
