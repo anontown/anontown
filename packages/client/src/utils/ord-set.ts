@@ -15,6 +15,10 @@ export function make<T, U>(
   return { array: [], compare, uniqueBy };
 }
 
+export function clear<T, U>(set: OrdSet<T, U>) {
+  return { ...set, array: [] };
+}
+
 export function unsafePushOrdAndUniqueArray<T, U>(
   set: OrdSet<T, U>,
   array: T[],
