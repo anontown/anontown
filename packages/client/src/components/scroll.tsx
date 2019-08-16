@@ -59,7 +59,7 @@ function useGetTopElement<T extends ListItemData>(
 ) {
   const dataRef = useValueRef(data);
   const idElMapRef = useValueRef(idElMap);
-  return async () => {
+  return React.useCallback(async () => {
     await sleep(0);
 
     // 最短距離のアイテム
@@ -98,7 +98,7 @@ function useGetTopElement<T extends ListItemData>(
     } else {
       return null;
     }
-  };
+  }, []);
 }
 
 // 下端に一番近いアイテム
@@ -108,7 +108,7 @@ function useGetBottomElement<T extends ListItemData>(
 ) {
   const dataRef = useValueRef(data);
   const idElMapRef = useValueRef(idElMap);
-  return async () => {
+  return React.useCallback(async () => {
     await sleep(0);
 
     // 最短距離のアイテム
@@ -149,7 +149,7 @@ function useGetBottomElement<T extends ListItemData>(
     } else {
       return null;
     }
-  };
+  }, []);
 }
 
 function useScrollLock<T extends ListItemData>(
