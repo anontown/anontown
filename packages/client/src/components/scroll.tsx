@@ -10,7 +10,7 @@ import * as oset from "../utils/ord-set";
 import { array, option } from "fp-ts";
 
 function useToTop(el: HTMLDivElement | null) {
-  const elRef = React.useRef(el);
+  const elRef = useValueRef(el);
   return async () => {
     await sleep(0);
     if (elRef.current !== null) {
@@ -20,7 +20,7 @@ function useToTop(el: HTMLDivElement | null) {
 }
 
 function useToBottom(el: HTMLDivElement | null) {
-  const elRef = React.useRef(el);
+  const elRef = useValueRef(el);
   return async () => {
     await sleep(0);
     if (elRef.current !== null) {
