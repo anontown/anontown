@@ -9,6 +9,52 @@ import { pipe } from "fp-ts/lib/pipeable";
 import * as oset from "../utils/ord-set";
 import { array, option } from "fp-ts";
 
+function useToTop(el: HTMLDivElement | null) {
+  const elRef = React.useRef(el);
+  return async () => {
+    await sleep(0);
+    if (elRef.current !== null) {
+      elRef.current.scrollTop = 0;
+    }
+  };
+}
+
+function useToBottom(el: HTMLDivElement | null) {
+  const elRef = React.useRef(el);
+  return async () => {
+    await sleep(0);
+    if (elRef.current !== null) {
+      elRef.current.scrollTop = elRef.current.scrollHeight;
+    }
+  };
+}
+
+function useIdElMap<T>(
+  data: oset.OrdSet<T, string>,
+  toIds: (data: oset.OrdSet<T, string>) => Set<string>,
+) {
+  const idElMap = React.useMemo(() => new Map<string, HTMLDivElement>(), []);
+  React.useEffect(() => {
+    const items = toIds(data);
+    for (const id of idElMap.keys()) {
+      if (!items.has(id)) {
+        idElMap.delete(id);
+      }
+    }
+  }, [idElMap, data, toIds]);
+
+  const addFunction = React.useCallback(
+    (key: string, el: HTMLDivElement | null) => {
+      if (el !== null) {
+        idElMap.set(key, el);
+      }
+    },
+    [idElMap],
+  );
+
+  return { idElMap, addFunction };
+}
+
 interface ListItemData {
   id: string;
   date: string;
@@ -100,29 +146,14 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     props.changeItems(oset.toArray(data));
   }, [oset.toArray(data)]);
 
-  const idElMap = React.useMemo(() => new Map<string, HTMLDivElement>(), []);
-  React.useEffect(() => {
-    const items = new Set(oset.toArray(data).map(x => x.id));
-    for (const id of idElMap.keys()) {
-      if (!items.has(id)) {
-        idElMap.delete(id);
-      }
-    }
-  }, [oset.toArray(data), idElMap]);
+  const dataToIds = React.useCallback(
+    (x: oset.OrdSet<T, string>) => new Set(oset.toArray(x).map(x => x.id)),
+    [],
+  );
+  const { idElMap, addFunction } = useIdElMap<T>(data, dataToIds);
 
-  const toTop = useFunctionRef(async () => {
-    await sleep(0);
-    if (rootEl.current !== null) {
-      rootEl.current.scrollTop = 0;
-    }
-  });
-
-  const toBottom = useFunctionRef(async () => {
-    await sleep(0);
-    if (rootEl.current !== null) {
-      rootEl.current.scrollTop = rootEl.current.scrollHeight;
-    }
-  });
+  const toTop = useToTop(rootEl.current);
+  const toBottom = useToBottom(rootEl.current);
 
   const scrollLock = useFunctionRef(async (f: () => Promise<void>) => {
     await sleep(0);
@@ -433,14 +464,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
         ? [...oset.toArray(data)].reverse()
         : oset.toArray(data)
       ).map(item => (
-        <div
-          key={item.id}
-          ref={el => {
-            if (el !== null) {
-              idElMap.set(item.id, el);
-            }
-          }}
-        >
+        <div key={item.id} ref={el => addFunction(item.id, el)}>
           {props.dataToEl(item)}
         </div>
       ))}
