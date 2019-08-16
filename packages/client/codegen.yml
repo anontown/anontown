@@ -4,7 +4,8 @@ documents: "./src/**/*.gql"
 generates:
   src/generated/graphql.tsx:
     plugins:
-      - "typescript"
+      - "typescript":
+          nonOptionalTypename: true
       - "typescript-react-apollo"
       - "typescript-operations"
   src/generated/graphql.d.ts:
