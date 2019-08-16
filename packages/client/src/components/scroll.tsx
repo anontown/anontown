@@ -152,6 +152,37 @@ function useGetBottomElement<T extends ListItemData>(
   };
 }
 
+function useScrollLock<T extends ListItemData>(
+  data: oset.OrdSet<T, string>,
+  idElMap: Map<string, HTMLDivElement>,
+  rootEl: HTMLDivElement | null,
+) {
+  const dataRef = useValueRef(data);
+  const idElMapRef = useValueRef(idElMap);
+  const rootElRef = useValueRef(rootEl);
+  const result = React.useCallback(async (f: () => Promise<void>) => {
+    await sleep(0);
+    const elData = pipe(
+      oset.toArray(dataRef.current),
+      array.head,
+      option.chain(x => option.fromNullable(idElMapRef.current.get(x.id))),
+      option.map(x => ({ el: x, y: elY(x) })),
+    );
+    try {
+      await f();
+    } catch (e) {
+      throw e;
+    } finally {
+      if (option.isSome(elData)) {
+        await sleep(0);
+        if (rootElRef.current !== null) {
+          rootElRef.current.scrollTop += elY(elData.value.el) - elData.value.y;
+        }
+      }
+    }
+  }, []);
+  return result;
+}
 interface ListItemData {
   id: string;
   date: string;
@@ -250,27 +281,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     });
   });
 
-  const scrollLock = useFunctionRef(async (f: () => Promise<void>) => {
-    await sleep(0);
-    const elData = pipe(
-      oset.toArray(data),
-      array.head,
-      option.chain(x => option.fromNullable(idElMap.get(x.id))),
-      option.map(x => ({ el: x, y: elY(x) })),
-    );
-    try {
-      await f();
-    } catch (e) {
-      throw e;
-    } finally {
-      if (option.isSome(elData)) {
-        await sleep(0);
-        if (rootEl.current !== null) {
-          rootEl.current.scrollTop += elY(elData.value.el) - elData.value.y;
-        }
-      }
-    }
-  });
+  const scrollLock = useScrollLock(data, idElMap, rootEl.current);
 
   const findAfter = useFunctionRef(async () => {
     const first = arrayFirst(oset.toArray(data));
