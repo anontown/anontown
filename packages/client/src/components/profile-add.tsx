@@ -12,67 +12,42 @@ interface ProfileAddProps {
   style?: React.CSSProperties;
 }
 
-interface ProfileAddState {
-  sn: string;
-  name: string;
-  text: string;
-}
+export function ProfileAdd(props: ProfileAddProps) {
+  const [sn, setSn] = React.useState("");
+  const [name, setName] = React.useState("");
+  const [text, setText] = React.useState("");
 
-export class ProfileAdd extends React.Component<
-  ProfileAddProps,
-  ProfileAddState
-> {
-  constructor(props: ProfileAddProps) {
-    super(props);
-    this.state = {
-      sn: "",
-      name: "",
-      text: "",
-    };
-  }
+  const [submit, { error }] = G.useCreateProfileMutation();
 
-  render() {
-    return (
-      <Paper className={style.container} style={this.props.style}>
-        <G.CreateProfileComponent
-          variables={{
-            name: this.state.name,
-            text: this.state.text,
-            sn: this.state.sn,
-          }}
-          onCompleted={x => {
-            if (this.props.onAdd) {
-              this.props.onAdd(x.createProfile);
+  return (
+    <Paper className={style.container} style={props.style}>
+      <form>
+        {error && <Errors errors={["エラーが発生しました"]} />}
+        <TextField
+          fullWidth={true}
+          floatingLabelText="ID"
+          value={sn}
+          onChange={(_e, v) => setSn(v)}
+        />
+        <TextField
+          fullWidth={true}
+          floatingLabelText="名前"
+          value={name}
+          onChange={(_e, v) => setName(v)}
+        />
+        <MdEditor fullWidth={true} value={text} onChange={v => setText(v)} />
+        <RaisedButton
+          onClick={async () => {
+            const result = await submit({
+              variables: { name, text, sn },
+            });
+            if (result.data !== undefined && props.onAdd !== undefined) {
+              props.onAdd(result.data.createProfile);
             }
           }}
-        >
-          {(submit, { error }) => {
-            return (
-              <form>
-                {error && <Errors errors={["エラーが発生しました"]} />}
-                <TextField
-                  fullWidth={true}
-                  floatingLabelText="ID"
-                  value={this.state.sn}
-                  onChange={(_e, v) => this.setState({ sn: v })}
-                />
-                <TextField
-                  fullWidth={true}
-                  floatingLabelText="名前"
-                  value={this.state.name}
-                  onChange={(_e, v) => this.setState({ name: v })}
-                />
-                <MdEditor
-                  fullWidth={true}
-                  value={this.state.text}
-                  onChange={v => this.setState({ text: v })}
-                />
-                <RaisedButton onClick={() => submit()} label="OK" />
-              </form>
-            );
-          }}
-        </G.CreateProfileComponent>
-      </Paper>
-    );
-  }
+          label="OK"
+        />
+      </form>
+    </Paper>
+  );
 }
