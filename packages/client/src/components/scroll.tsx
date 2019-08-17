@@ -267,6 +267,82 @@ function useOnBottomScroll(
   }, [rootEl, debounceTime]);
 }
 
+// TODO: Ref周り雑なので直す
+function useFetchUtils<T extends ListItemData>(
+  useFetch: () => (date: G.DateQuery) => Promise<T[]>,
+  rootEl: HTMLDivElement | null,
+  data: oset.OrdSet<T, string>,
+  idElMap: Map<string, HTMLDivElement>,
+  setData: (x: oset.OrdSet<T, string>) => void,
+  newItemOrder: "top" | "bottom",
+) {
+  const fetch = useFetch();
+
+  const toTop = useToTop(rootEl);
+  const toBottom = useToBottom(rootEl);
+
+  const scrollLock = useScrollLock(data, idElMap, rootEl);
+
+  const findAfter = useFunctionRef(async () => {
+    const first = arrayFirst(oset.toArray(data));
+    if (first === undefined) {
+      await resetDate(new Date().toISOString());
+    } else {
+      await scrollLock(async () => {
+        const result = await fetch({
+          date: first.date,
+          type: "gt",
+        });
+
+        setData(oset.unsafePushFirstOrdAndUniqueArray(data, result));
+      });
+    }
+  });
+
+  const findBefore = useFunctionRef(async () => {
+    const old = arrayLast(oset.toArray(data));
+    if (old === undefined) {
+      await resetDate(new Date().toISOString());
+    } else {
+      await scrollLock(async () => {
+        const result = await fetch({
+          date: old.date,
+          type: "lt",
+        });
+
+        setData(oset.unsafePushLastOrdAndUniqueArray(data, result));
+      });
+    }
+  });
+
+  const resetDate = useFunctionRef(async (date: string) => {
+    const result = await fetch({
+      date,
+      type: "lte",
+    });
+
+    setData(
+      pipe(
+        data,
+        oset.clear,
+        x => oset.unsafePushFirstOrdAndUniqueArray(x, result),
+      ),
+    );
+
+    switch (newItemOrder) {
+      case "bottom":
+        await toBottom();
+        break;
+      case "top":
+        await toTop();
+        break;
+    }
+    await findAfter();
+  });
+
+  return { findAfter, findBefore, resetDate };
+}
+
 function useOnChangeCurrentItem<T extends ListItemData>(
   f: (item: T) => void,
   data: oset.OrdSet<T, string>,
@@ -374,7 +450,6 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     ),
   );
 
-  const fetch = props.useFetch();
   React.useEffect(() => {
     runCmd({ type: "reset", date: props.initDate });
   }, [props.initDate.valueOf(), ...props.fetchKey]);
@@ -384,9 +459,14 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   }, [oset.toArray(data)]);
 
   const { idElMap, addFunction } = useIdElMap<T>(data);
-
-  const toTop = useToTop(rootEl.current);
-  const toBottom = useToBottom(rootEl.current);
+  const { resetDate, findBefore, findAfter } = useFetchUtils(
+    props.useFetch,
+    rootEl.current,
+    data,
+    idElMap,
+    x => setData(x),
+    props.newItemOrder,
+  );
 
   const lock = useLock();
   const runCmd = useFunctionRef(async (cmd: Cmd) => {
@@ -403,65 +483,6 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
           break;
       }
     });
-  });
-
-  const scrollLock = useScrollLock(data, idElMap, rootEl.current);
-
-  const findAfter = useFunctionRef(async () => {
-    const first = arrayFirst(oset.toArray(data));
-    if (first === undefined) {
-      await resetDate(new Date().toISOString());
-    } else {
-      await scrollLock(async () => {
-        const result = await fetch({
-          date: first.date,
-          type: "gt",
-        });
-
-        setData(oset.unsafePushFirstOrdAndUniqueArray(data, result));
-      });
-    }
-  });
-
-  const findBefore = useFunctionRef(async () => {
-    const old = arrayLast(oset.toArray(data));
-    if (old === undefined) {
-      await resetDate(new Date().toISOString());
-    } else {
-      await scrollLock(async () => {
-        const result = await fetch({
-          date: old.date,
-          type: "lt",
-        });
-
-        setData(oset.unsafePushLastOrdAndUniqueArray(data, result));
-      });
-    }
-  });
-
-  const resetDate = useFunctionRef(async (date: string) => {
-    const result = await fetch({
-      date,
-      type: "lte",
-    });
-
-    setData(
-      pipe(
-        data,
-        oset.clear,
-        x => oset.unsafePushFirstOrdAndUniqueArray(x, result),
-      ),
-    );
-
-    switch (props.newItemOrder) {
-      case "bottom":
-        await toBottom();
-        break;
-      case "top":
-        await toTop();
-        break;
-    }
-    await findAfter();
   });
 
   // 上までスクロール
