@@ -1,10 +1,10 @@
-import { Paper, RaisedButton, TextField } from "material-ui";
+import { RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import * as G from "../generated/graphql";
 import { UserData } from "../models";
 import { Errors } from "./errors";
 import { MdEditor } from "./md-editor";
-import * as style from "./profile-add.scss";
+import { Card } from "../styled/card";
 
 interface ProfileAddProps {
   onAdd?: (profile: G.ProfileFragment) => void;
@@ -20,7 +20,7 @@ export function ProfileAdd(props: ProfileAddProps) {
   const [submit, { error }] = G.useCreateProfileMutation();
 
   return (
-    <Paper className={style.container} style={props.style}>
+    <Card style={props.style}>
       <form>
         {error && <Errors errors={["エラーが発生しました"]} />}
         <TextField
@@ -48,6 +48,6 @@ export function ProfileAdd(props: ProfileAddProps) {
           label="OK"
         />
       </form>
-    </Paper>
+    </Card>
   );
 }
