@@ -204,6 +204,69 @@ function useAutoScroll(
   }, []);
 }
 
+function useOnTopScroll(
+  f: () => void,
+  rootEl: HTMLDivElement | null,
+  width: number,
+  debounceTime: number,
+) {
+  const fRef = useValueRef(f);
+  const widthRef = useValueRef(width);
+
+  React.useEffect(() => {
+    const subs =
+      rootEl !== null
+        ? rx
+            .fromEvent(rootEl, "scroll")
+            .pipe(
+              op.map(() => rootEl.scrollTop),
+              op.filter(top => Math.abs(top) <= widthRef.current),
+              op.debounceTime(debounceTime),
+            )
+            .subscribe(() => fRef.current())
+        : null;
+    return () => {
+      if (subs !== null) {
+        subs.unsubscribe();
+      }
+    };
+  }, [rootEl, debounceTime]);
+}
+
+function useOnBottomScroll(
+  f: () => void,
+  rootEl: HTMLDivElement | null,
+  width: number,
+  debounceTime: number,
+) {
+  const fRef = useValueRef(f);
+  const widthRef = useValueRef(width);
+
+  // 下までスクロール
+  React.useEffect(() => {
+    const subs =
+      rootEl !== null
+        ? rx
+            .fromEvent(rootEl, "scroll")
+            .pipe(
+              op.map(() => rootEl.scrollTop + rootEl.clientHeight),
+              op.distinctUntilChanged(),
+              op.filter(
+                bottom =>
+                  widthRef.current >= Math.abs(rootEl.scrollHeight - bottom),
+              ),
+              op.debounceTime(debounceTime),
+            )
+            .subscribe(() => fRef.current())
+        : null;
+    return () => {
+      if (subs !== null) {
+        subs.unsubscribe();
+      }
+    };
+  }, [rootEl, debounceTime]);
+}
+
 interface ListItemData {
   id: string;
   date: string;
@@ -362,26 +425,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   });
 
   // 上までスクロール
-  useEffectRef(
-    f => {
-      const el = rootEl.current;
-      const subs =
-        el !== null
-          ? rx
-              .fromEvent(el, "scroll")
-              .pipe(
-                op.map(() => el.scrollTop),
-                op.filter(top => Math.abs(top) <= props.width),
-                op.debounceTime(props.debounceTime),
-              )
-              .subscribe(() => f.current())
-          : null;
-      return () => {
-        if (subs !== null) {
-          subs.unsubscribe();
-        }
-      };
-    },
+  useOnTopScroll(
     () => {
       switch (props.newItemOrder) {
         case "top":
@@ -392,33 +436,13 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
           break;
       }
     },
-    [rootEl.current, props.debounceTime],
+    rootEl.current,
+    props.width,
+    props.debounceTime,
   );
 
   // 下までスクロール
-  useEffectRef(
-    f => {
-      const el = rootEl.current;
-      const subs =
-        el !== null
-          ? rx
-              .fromEvent(el, "scroll")
-              .pipe(
-                op.map(() => el.scrollTop + el.clientHeight),
-                op.distinctUntilChanged(),
-                op.filter(
-                  bottom => props.width >= Math.abs(el.scrollHeight - bottom),
-                ),
-                op.debounceTime(props.debounceTime),
-              )
-              .subscribe(() => f.current())
-          : null;
-      return () => {
-        if (subs !== null) {
-          subs.unsubscribe();
-        }
-      };
-    },
+  useOnBottomScroll(
     () => {
       switch (props.newItemOrder) {
         case "bottom":
@@ -429,7 +453,9 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
           break;
       }
     },
-    [rootEl.current, props.debounceTime],
+    rootEl.current,
+    props.width,
+    props.debounceTime,
   );
 
   const getTopBottomElementRef = useValueRef(() =>
