@@ -3,7 +3,6 @@ import * as t from "io-ts";
 import {
   FontIcon,
   IconButton,
-  IconMenu,
   MenuItem,
   Toolbar,
   ToolbarGroup,
@@ -37,6 +36,7 @@ import {
 } from "../utils";
 import { UserContextType } from "../hooks";
 import * as style from "./app.scss";
+import Popup from "reactjs-popup";
 
 declare const gtag: any;
 
@@ -47,6 +47,7 @@ interface AppProps extends RouteComponentProps<{}> {}
 interface AppState {
   initUserData?: UserData | null;
   serverStatus: boolean;
+  menuOpen: boolean;
 }
 
 export const App = withRouter(
@@ -57,6 +58,7 @@ export const App = withRouter(
       super(props);
       this.state = {
         serverStatus: true,
+        menuOpen: false,
       };
       this.changeLocation(this.props);
       getServerStatus().then(x => {
@@ -192,53 +194,74 @@ export const App = withRouter(
                               </FontIcon>
                             </IconButton>
                           ) : null}
-                          <IconMenu
-                            iconButtonElement={
+                          <Popup
+                            trigger={
                               <IconButton touch={true}>
                                 <FontIcon className="material-icons">
                                   people
                                 </FontIcon>
                               </IconButton>
                             }
+                            open={this.state.menuOpen}
+                            arrow={false}
+                            onClose={() => this.setState({ menuOpen: false })}
+                            onOpen={() => this.setState({ menuOpen: true })}
                           >
-                            {user.value !== null ? (
-                              [
+                            <>
+                              {user.value !== null ? (
+                                [
+                                  <MenuItem
+                                    key="1"
+                                    primaryText="プロフ管理"
+                                    onClick={() =>
+                                      this.setState({ menuOpen: false })
+                                    }
+                                    containerElement={
+                                      <Link to={routes.profiles.to({})} />
+                                    }
+                                  />,
+                                  <MenuItem
+                                    key="2"
+                                    primaryText="お知らせ"
+                                    onClick={() =>
+                                      this.setState({ menuOpen: false })
+                                    }
+                                    containerElement={
+                                      <Link to={routes.messages.to({})} />
+                                    }
+                                  />,
+                                  <MenuItem
+                                    key="3"
+                                    primaryText="設定"
+                                    onClick={() =>
+                                      this.setState({ menuOpen: false })
+                                    }
+                                    containerElement={
+                                      <Link to={routes.settings.to({})} />
+                                    }
+                                  />,
+                                  <MenuItem
+                                    key="4"
+                                    primaryText="ログアウト"
+                                    onClick={() => {
+                                      this.setState({ menuOpen: false });
+                                      this.logout(user);
+                                    }}
+                                  />,
+                                ]
+                              ) : (
                                 <MenuItem
-                                  key="1"
-                                  primaryText="プロフ管理"
-                                  containerElement={
-                                    <Link to={routes.profiles.to({})} />
+                                  primaryText="ログイン"
+                                  onClick={() =>
+                                    this.setState({ menuOpen: false })
                                   }
-                                />,
-                                <MenuItem
-                                  key="2"
-                                  primaryText="お知らせ"
                                   containerElement={
-                                    <Link to={routes.messages.to({})} />
+                                    <Link to={routes.login.to({})} />
                                   }
-                                />,
-                                <MenuItem
-                                  key="3"
-                                  primaryText="設定"
-                                  containerElement={
-                                    <Link to={routes.settings.to({})} />
-                                  }
-                                />,
-                                <MenuItem
-                                  key="4"
-                                  primaryText="ログアウト"
-                                  onClick={() => this.logout(user)}
-                                />,
-                              ]
-                            ) : (
-                              <MenuItem
-                                primaryText="ログイン"
-                                containerElement={
-                                  <Link to={routes.login.to({})} />
-                                }
-                              />
-                            )}
-                          </IconMenu>
+                                />
+                              )}
+                            </>
+                          </Popup>
                         </ToolbarGroup>
                       </Toolbar>
                       <div className={style.main}>

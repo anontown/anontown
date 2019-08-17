@@ -110,6 +110,7 @@
     "react-tabs": "^3.0.0",
     "react-twitter-embed": "^2.0.7",
     "react-use": "^5.10.0",
+    "reactjs-popup": "^1.4.2",
     "remark-breaks": "^1.0.2",
     "remark-parse": "^6.0.3",
     "rxjs": "^6.4.0",
