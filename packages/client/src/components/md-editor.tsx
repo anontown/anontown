@@ -155,7 +155,6 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
           </div>
           <div
             style={{
-              backgroundColor: "#fff",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -173,7 +172,12 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
               }}
               onKeyPress={this.props.onKeyPress}
               onKeyDown={this.props.onKeyDown}
-              style={{ outline: "none", resize: "none", border: "none" }}
+              style={{
+                backgroundColor: "#fff",
+                outline: "none",
+                resize: "none",
+                border: "solid 1px #ccc",
+              }}
               onFocus={() => {
                 if (this.props.onChangeFocus) {
                   this.props.onChangeFocus(true);
