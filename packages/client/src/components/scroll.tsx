@@ -267,6 +267,48 @@ function useOnBottomScroll(
   }, [rootEl, debounceTime]);
 }
 
+function useOnChangeCurrentItem<T extends ListItemData>(
+  f: (item: T) => void,
+  data: oset.OrdSet<T, string>,
+  idElMap: Map<string, HTMLDivElement>,
+  rootEl: HTMLDivElement | null,
+  debounceTime: number,
+  newItemOrder: "top" | "bottom",
+) {
+  const fRef = useValueRef(f);
+  const newItemOrderRef = useValueRef(newItemOrder);
+
+  const getTopElement = useGetTopElement(data, idElMap);
+  const getBottomElement = useGetBottomElement(data, idElMap);
+
+  // スクロールによってアイテムが変化した
+  React.useEffect(() => {
+    const subs =
+      rootEl !== null
+        ? rx
+            .fromEvent(rootEl, "scroll")
+            .pipe(
+              op.debounceTime(debounceTime),
+              op.mergeMap(() =>
+                newItemOrderRef.current === "top"
+                  ? getTopElement()
+                  : getBottomElement(),
+              ),
+            )
+            .subscribe(x => {
+              if (x !== null) {
+                fRef.current(x);
+              }
+            })
+        : null;
+    return () => {
+      if (subs !== null) {
+        subs.unsubscribe();
+      }
+    };
+  }, [rootEl, debounceTime, getTopElement, useGetBottomElement]);
+}
+
 interface ListItemData {
   id: string;
   date: string;
@@ -345,8 +387,6 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
 
   const toTop = useToTop(rootEl.current);
   const toBottom = useToBottom(rootEl.current);
-  const getTopElement = useGetTopElement(data, idElMap);
-  const getBottomElement = useGetBottomElement(data, idElMap);
 
   const lock = useLock();
   const runCmd = useFunctionRef(async (cmd: Cmd) => {
@@ -458,36 +498,15 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     props.debounceTime,
   );
 
-  const getTopBottomElementRef = useValueRef(() =>
-    props.newItemOrder === "top" ? getTopElement() : getBottomElement(),
-  );
-
-  // スクロールによってアイテムが変化した
-  useEffectRef(
-    f => {
-      const el = rootEl.current;
-      const subs =
-        el !== null
-          ? rx
-              .fromEvent(el, "scroll")
-              .pipe(
-                op.debounceTime(props.debounceTime),
-                op.mergeMap(() => getTopBottomElementRef.current()),
-              )
-              .subscribe(x => f.current(x))
-          : null;
-      return () => {
-        if (subs !== null) {
-          subs.unsubscribe();
-        }
-      };
+  useOnChangeCurrentItem(
+    newItem => {
+      props.scrollNewItemChange(newItem);
     },
-    (newItem: T | null) => {
-      if (newItem !== null) {
-        props.scrollNewItemChange(newItem);
-      }
-    },
-    [rootEl.current, props.debounceTime],
+    data,
+    idElMap,
+    rootEl.current,
+    props.debounceTime,
+    props.newItemOrder,
   );
 
   // 自動スクロール
