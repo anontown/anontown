@@ -207,60 +207,54 @@ export const App = withRouter(
                             onClose={() => this.setState({ menuOpen: false })}
                             onOpen={() => this.setState({ menuOpen: true })}
                           >
-                            <>
-                              {user.value !== null ? (
-                                [
-                                  <MenuItem
-                                    key="1"
-                                    primaryText="プロフ管理"
-                                    onClick={() =>
-                                      this.setState({ menuOpen: false })
-                                    }
-                                    containerElement={
-                                      <Link to={routes.profiles.to({})} />
-                                    }
-                                  />,
-                                  <MenuItem
-                                    key="2"
-                                    primaryText="お知らせ"
-                                    onClick={() =>
-                                      this.setState({ menuOpen: false })
-                                    }
-                                    containerElement={
-                                      <Link to={routes.messages.to({})} />
-                                    }
-                                  />,
-                                  <MenuItem
-                                    key="3"
-                                    primaryText="設定"
-                                    onClick={() =>
-                                      this.setState({ menuOpen: false })
-                                    }
-                                    containerElement={
-                                      <Link to={routes.settings.to({})} />
-                                    }
-                                  />,
-                                  <MenuItem
-                                    key="4"
-                                    primaryText="ログアウト"
-                                    onClick={() => {
-                                      this.setState({ menuOpen: false });
-                                      this.logout(user);
-                                    }}
-                                  />,
-                                ]
-                              ) : (
+                            {user.value !== null ? (
+                              <>
                                 <MenuItem
-                                  primaryText="ログイン"
+                                  primaryText="プロフ管理"
                                   onClick={() =>
                                     this.setState({ menuOpen: false })
                                   }
                                   containerElement={
-                                    <Link to={routes.login.to({})} />
+                                    <Link to={routes.profiles.to({})} />
                                   }
                                 />
-                              )}
-                            </>
+                                <MenuItem
+                                  primaryText="お知らせ"
+                                  onClick={() =>
+                                    this.setState({ menuOpen: false })
+                                  }
+                                  containerElement={
+                                    <Link to={routes.messages.to({})} />
+                                  }
+                                />
+                                <MenuItem
+                                  primaryText="設定"
+                                  onClick={() =>
+                                    this.setState({ menuOpen: false })
+                                  }
+                                  containerElement={
+                                    <Link to={routes.settings.to({})} />
+                                  }
+                                />
+                                <MenuItem
+                                  primaryText="ログアウト"
+                                  onClick={() => {
+                                    this.setState({ menuOpen: false });
+                                    this.logout(user);
+                                  }}
+                                />
+                              </>
+                            ) : (
+                              <MenuItem
+                                primaryText="ログイン"
+                                onClick={() =>
+                                  this.setState({ menuOpen: false })
+                                }
+                                containerElement={
+                                  <Link to={routes.login.to({})} />
+                                }
+                              />
+                            )}
                           </Popup>
                         </ToolbarGroup>
                       </Toolbar>
