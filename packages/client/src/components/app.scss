@@ -14,6 +14,10 @@
   height: calc(100% - 56px);
 }
 
+.big {
+  padding-left: 1em !important;
+}
+
 @media screen and (max-width: 767px) {
   .big {
       display: none !important;
