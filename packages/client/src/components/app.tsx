@@ -192,54 +192,45 @@ export const App = withRouter(
                             onClose={() => this.setState({ menuOpen: false })}
                             onOpen={() => this.setState({ menuOpen: true })}
                           >
-                            {user.value !== null ? (
-                              <>
+                            <div
+                              onClick={() => this.setState({ menuOpen: false })}
+                            >
+                              {user.value !== null ? (
+                                <>
+                                  <MenuItem
+                                    primaryText="プロフ管理"
+                                    containerElement={
+                                      <Link to={routes.profiles.to({})} />
+                                    }
+                                  />
+                                  <MenuItem
+                                    primaryText="お知らせ"
+                                    containerElement={
+                                      <Link to={routes.messages.to({})} />
+                                    }
+                                  />
+                                  <MenuItem
+                                    primaryText="設定"
+                                    containerElement={
+                                      <Link to={routes.settings.to({})} />
+                                    }
+                                  />
+                                  <MenuItem
+                                    primaryText="ログアウト"
+                                    onClick={() => {
+                                      this.logout(user);
+                                    }}
+                                  />
+                                </>
+                              ) : (
                                 <MenuItem
-                                  primaryText="プロフ管理"
-                                  onClick={() =>
-                                    this.setState({ menuOpen: false })
-                                  }
+                                  primaryText="ログイン"
                                   containerElement={
-                                    <Link to={routes.profiles.to({})} />
+                                    <Link to={routes.login.to({})} />
                                   }
                                 />
-                                <MenuItem
-                                  primaryText="お知らせ"
-                                  onClick={() =>
-                                    this.setState({ menuOpen: false })
-                                  }
-                                  containerElement={
-                                    <Link to={routes.messages.to({})} />
-                                  }
-                                />
-                                <MenuItem
-                                  primaryText="設定"
-                                  onClick={() =>
-                                    this.setState({ menuOpen: false })
-                                  }
-                                  containerElement={
-                                    <Link to={routes.settings.to({})} />
-                                  }
-                                />
-                                <MenuItem
-                                  primaryText="ログアウト"
-                                  onClick={() => {
-                                    this.setState({ menuOpen: false });
-                                    this.logout(user);
-                                  }}
-                                />
-                              </>
-                            ) : (
-                              <MenuItem
-                                primaryText="ログイン"
-                                onClick={() =>
-                                  this.setState({ menuOpen: false })
-                                }
-                                containerElement={
-                                  <Link to={routes.login.to({})} />
-                                }
-                              />
-                            )}
+                              )}
+                            </div>
                           </Popup>
                         </ToolbarGroup>
                       </Toolbar>
