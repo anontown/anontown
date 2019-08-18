@@ -147,22 +147,7 @@ export const App = withRouter(
                     <div className={style.container}>
                       <Toolbar className={style.header}>
                         <ToolbarGroup firstChild={true} className={style.big}>
-                          {(() => {
-                            const now = new Date();
-                            if (
-                              now.getMonth() + 1 === 4 &&
-                              now.getDate() === 1 &&
-                              now.getHours() < 12
-                            ) {
-                              return (
-                                <ToolbarGroup className={style.april}>
-                                  April Fool！
-                                </ToolbarGroup>
-                              );
-                            } else {
-                              return <ToolbarTitle text="Anontown" />;
-                            }
-                          })()}
+                          <ToolbarTitle text="Anontown" />
                           <ToolbarTitle
                             text={`build:${dateFormat.format(BUILD_DATE)}`}
                             style={{ fontSize: "0.5rem" }}
