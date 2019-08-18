@@ -8,6 +8,7 @@ import { Md } from "./md";
 import { Modal } from "./modal";
 import { Oekaki } from "./oekaki";
 import { TextArea } from "./text-area";
+import { PopupMenu } from "./popup-menu";
 
 export interface MdEditorProps {
   value: string;
@@ -126,12 +127,13 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
               alignItems: "center",
             }}
           >
-            <IconMenu
-              iconButtonElement={
+            <PopupMenu
+              trigger={
                 <IconButton touch={true}>
                   <FontIcon className="material-icons">menu</FontIcon>
                 </IconButton>
               }
+              position="top right"
             >
               <MenuItem
                 primaryText="プレビュー"
@@ -151,7 +153,7 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
                   this.setState({ slowOekaki: !this.state.slowOekaki })
                 }
               />
-            </IconMenu>
+            </PopupMenu>
           </div>
           <div
             style={{
