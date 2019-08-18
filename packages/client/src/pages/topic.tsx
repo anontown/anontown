@@ -3,7 +3,6 @@ import { arrayFirst } from "@kgtkr/utils";
 import {
   FontIcon,
   IconButton,
-  IconMenu,
   MenuItem,
   Paper,
   RaisedButton,
@@ -30,6 +29,7 @@ import { useUserContext, useFunctionRef } from "../hooks";
 import * as style from "./topic.scss";
 import useRouter from "use-react-router";
 import { useApolloClient } from "@apollo/react-hooks";
+import { PopupMenu } from "../components/popup-menu";
 // TODO:NGのtransparent
 
 function makeUseStream(
@@ -264,8 +264,8 @@ export const TopicPage = (_props: {}) => {
                     )}
                   </IconButton>
                 ) : null}
-                <IconMenu
-                  iconButtonElement={
+                <PopupMenu
+                  trigger={
                     <IconButton touch={true}>
                       <FontIcon className="material-icons">more_vert</FontIcon>
                     </IconButton>
@@ -326,7 +326,7 @@ export const TopicPage = (_props: {}) => {
                     primaryText="NG"
                     onClick={() => setIsNGDialog(true)}
                   />
-                </IconMenu>
+                </PopupMenu>
               </div>
             </Paper>
             <Scroll<G.ResFragment>
