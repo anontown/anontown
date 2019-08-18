@@ -37,6 +37,7 @@ import {
 import { UserContextType } from "../hooks";
 import * as style from "./app.scss";
 import Popup from "reactjs-popup";
+import { PopupMenu } from "./popup-menu";
 
 declare const gtag: any;
 
@@ -47,7 +48,6 @@ interface AppProps extends RouteComponentProps<{}> {}
 interface AppState {
   initUserData?: UserData | null;
   serverStatus: boolean;
-  menuOpen: boolean;
 }
 
 export const App = withRouter(
@@ -58,7 +58,6 @@ export const App = withRouter(
       super(props);
       this.state = {
         serverStatus: true,
-        menuOpen: false,
       };
       this.changeLocation(this.props);
       getServerStatus().then(x => {
@@ -179,7 +178,7 @@ export const App = withRouter(
                               </FontIcon>
                             </IconButton>
                           ) : null}
-                          <Popup
+                          <PopupMenu
                             trigger={
                               <IconButton touch={true}>
                                 <FontIcon className="material-icons">
@@ -187,51 +186,43 @@ export const App = withRouter(
                                 </FontIcon>
                               </IconButton>
                             }
-                            open={this.state.menuOpen}
-                            arrow={false}
-                            onClose={() => this.setState({ menuOpen: false })}
-                            onOpen={() => this.setState({ menuOpen: true })}
                           >
-                            <div
-                              onClick={() => this.setState({ menuOpen: false })}
-                            >
-                              {user.value !== null ? (
-                                <>
-                                  <MenuItem
-                                    primaryText="プロフ管理"
-                                    containerElement={
-                                      <Link to={routes.profiles.to({})} />
-                                    }
-                                  />
-                                  <MenuItem
-                                    primaryText="お知らせ"
-                                    containerElement={
-                                      <Link to={routes.messages.to({})} />
-                                    }
-                                  />
-                                  <MenuItem
-                                    primaryText="設定"
-                                    containerElement={
-                                      <Link to={routes.settings.to({})} />
-                                    }
-                                  />
-                                  <MenuItem
-                                    primaryText="ログアウト"
-                                    onClick={() => {
-                                      this.logout(user);
-                                    }}
-                                  />
-                                </>
-                              ) : (
+                            {user.value !== null ? (
+                              <>
                                 <MenuItem
-                                  primaryText="ログイン"
+                                  primaryText="プロフ管理"
                                   containerElement={
-                                    <Link to={routes.login.to({})} />
+                                    <Link to={routes.profiles.to({})} />
                                   }
                                 />
-                              )}
-                            </div>
-                          </Popup>
+                                <MenuItem
+                                  primaryText="お知らせ"
+                                  containerElement={
+                                    <Link to={routes.messages.to({})} />
+                                  }
+                                />
+                                <MenuItem
+                                  primaryText="設定"
+                                  containerElement={
+                                    <Link to={routes.settings.to({})} />
+                                  }
+                                />
+                                <MenuItem
+                                  primaryText="ログアウト"
+                                  onClick={() => {
+                                    this.logout(user);
+                                  }}
+                                />
+                              </>
+                            ) : (
+                              <MenuItem
+                                primaryText="ログイン"
+                                containerElement={
+                                  <Link to={routes.login.to({})} />
+                                }
+                              />
+                            )}
+                          </PopupMenu>
                         </ToolbarGroup>
                       </Toolbar>
                       <div className={style.main}>
