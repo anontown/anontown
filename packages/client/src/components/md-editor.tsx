@@ -1,4 +1,4 @@
-import { FontIcon, IconButton, IconMenu, MenuItem } from "material-ui";
+import { FontIcon, IconButton, MenuItem } from "material-ui";
 import * as React from "react";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
