@@ -133,7 +133,7 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
                   <FontIcon className="material-icons">menu</FontIcon>
                 </IconButton>
               }
-              position="top right"
+              position="top left"
             >
               <MenuItem
                 primaryText="プレビュー"
