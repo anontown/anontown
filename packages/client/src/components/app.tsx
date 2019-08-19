@@ -36,7 +36,6 @@ import {
 } from "../utils";
 import { UserContextType } from "../hooks";
 import * as style from "./app.scss";
-import Popup from "reactjs-popup";
 import { PopupMenu } from "./popup-menu";
 
 declare const gtag: any;
