@@ -24,9 +24,10 @@ class App {
     this.bgs = bgs;
     this.exits = exits;
     this.cmds = cmds;
+    this.inputing = false;
+    this.pses = [];
 
     this.bgOuts = [];
-    this.input = "";
   }
 
   flushBgOuts() {
@@ -38,7 +39,7 @@ class App {
 
   addBgOuts(prefix, type, data) {
     this.bgOuts.push({ prefix, type, data });
-    if (this.input !== null && this.input.length === 0) {
+    if (!this.inputing) {
       this.flushBgOuts();
     }
   }
@@ -53,47 +54,37 @@ class App {
       this.addBgOuts(prefix, "stderr", data.toString());
     });
 
-    process.on("exit", () => {
-      prc.kill();
-    });
+    this.pses.push(prc);
   }
 
   run() {
-    this.bgs.forEach(({ prefix, cmd }) => this.runBg(prefix, cmd));
-    process.stdin.setRawMode(true);
-    process.stdin.setEncoding("utf8");
-    process.stdin.on("data", async key => {
-      if (this.input === null) {
-        return;
+    process.on("SIGINT", async () => {
+      console.log("exiting...");
+      this.inputing = true;
+      for (let cmd of this.exits) {
+        await runExec(cmd);
       }
+      this.pses.forEach(ps => {
+        ps.kill();
+      });
+      process.exit();
+    });
 
-      if (key === "\u0003") {
-        console.log("exiting...");
-        this.input = null;
-        for (let cmd of this.exits) {
-          await runExec(cmd);
-        }
-        process.exit();
-      } else if (key === "\r") {
-        console.log();
-        const cmd = this.cmds[this.input];
+    this.bgs.forEach(({ prefix, cmd }) => this.runBg(prefix, cmd));
+    process.stdin.on("data", async data => {
+      if (this.inputing) {
+        const cmd = this.cmds[data.toString().trim()];
         if (cmd !== undefined) {
           this.flushBgOuts();
           console.log(cmd.msg);
-          this.input = null;
           await runExec(cmd.cmd);
-          this.input = "";
         } else {
-          console.log(`unknown command: '${this.input}'`);
-          this.input = "";
+          console.log(`unknown command: '${data.toString().trim()}'`);
         }
+        this.inputing = false;
       } else {
-        if (this.input !== null) {
-          if (/^[a-zA-Z0-9_\:\-]*$/.test(key)) {
-            this.input += key;
-            process.stdout.write(key);
-          }
-        }
+        this.inputing = true;
+        console.log("input command:");
       }
     });
   }
