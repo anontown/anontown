@@ -1,4 +1,4 @@
-import { FontIcon, IconButton, IconMenu, MenuItem } from "material-ui";
+import { FontIcon, IconButton, MenuItem } from "material-ui";
 import * as React from "react";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
@@ -8,6 +8,7 @@ import { Md } from "./md";
 import { Modal } from "./modal";
 import { Oekaki } from "./oekaki";
 import { TextArea } from "./text-area";
+import { PopupMenu } from "./popup-menu";
 
 export interface MdEditorProps {
   value: string;
@@ -126,12 +127,13 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
               alignItems: "center",
             }}
           >
-            <IconMenu
-              iconButtonElement={
+            <PopupMenu
+              trigger={
                 <IconButton touch={true}>
                   <FontIcon className="material-icons">menu</FontIcon>
                 </IconButton>
               }
+              position="top left"
             >
               <MenuItem
                 primaryText="プレビュー"
@@ -151,11 +153,10 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
                   this.setState({ slowOekaki: !this.state.slowOekaki })
                 }
               />
-            </IconMenu>
+            </PopupMenu>
           </div>
           <div
             style={{
-              backgroundColor: "#fff",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -173,7 +174,12 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
               }}
               onKeyPress={this.props.onKeyPress}
               onKeyDown={this.props.onKeyDown}
-              style={{ outline: "none", resize: "none", border: "none" }}
+              style={{
+                backgroundColor: "#fff",
+                outline: "none",
+                resize: "none",
+                border: "solid 1px #ccc",
+              }}
               onFocus={() => {
                 if (this.props.onChangeFocus) {
                   this.props.onChangeFocus(true);

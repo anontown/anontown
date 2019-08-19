@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
-import { useEffectRef } from "./use";
+import { useEffectRef } from "./ref";
 
 export function useInputCache<T>(
   init: T,

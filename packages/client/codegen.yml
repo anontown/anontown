@@ -4,7 +4,8 @@ documents: "./src/**/*.gql"
 generates:
   src/generated/graphql.tsx:
     plugins:
-      - "typescript"
+      - "typescript":
+          nonOptionalTypename: true
       - "typescript-react-apollo"
       - "typescript-operations"
   src/generated/graphql.d.ts:
@@ -17,6 +18,5 @@ config:
     scalars:
       DateTime: string
     withHooks: true
-    noHOC: true
-    noComponents: false
+    withHOC: false
     enumsAsTypes: true

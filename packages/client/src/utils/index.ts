@@ -7,8 +7,6 @@ import * as storageAPI from "./storage-api";
 export * from "./props-type";
 export * from "./user-switch";
 export * from "./user";
-export * from "./use";
-export * from "./lock";
 
 export { dateFormat, mdParser, camo, imgur, storageAPI, list };
 
@@ -18,6 +16,5 @@ export { safeURL } from "./safe-url";
 export { toColorString } from "./to-color-string";
 export { withModal } from "./with-modal";
 export { gqlClient, createHeaders } from "./gql-client";
-export * from "./input-cache";
 export * from "./query-result-convert";
 export * from "./server-status";

@@ -1,51 +1,55 @@
 import { Paper } from "material-ui";
 import * as React from "react";
-import { Helmet } from "react-helmet";
-import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Page, Profile, Snack } from "../components";
 import * as G from "../generated/graphql";
 import { withModal } from "../utils";
+import useRouter from "use-react-router";
+import { useTitle } from "react-use";
+import { array, option } from "fp-ts";
+import { pipe } from "fp-ts/lib/pipeable";
 
-interface ProfileBaseProps extends RouteComponentProps<{ id: string }> {
+interface ProfileBaseProps {
   zDepth?: number;
 }
 
-interface ProfileBaseState {}
+function ProfileBase(props: ProfileBaseProps) {
+  const { match } = useRouter<{ id: string }>();
+  useTitle("プロフィール");
+  const profilesResult = G.useFindProfilesQuery({
+    variables: { query: { id: [match.params.id] } },
+  });
+  useTitle(
+    pipe(
+      profilesResult.data,
+      option.fromNullable,
+      option.map(x => x.profiles),
+      option.chain(array.head),
+      option.map(x => `●${x.sn}`),
+      option.getOrElse(() => "プロフィール"),
+    ),
+  );
 
-const ProfileBase = withRouter(
-  class extends React.Component<ProfileBaseProps, ProfileBaseState> {
-    constructor(props: ProfileBaseProps) {
-      super(props);
-    }
-
-    render() {
-      return (
-        <div>
-          <Helmet title="プロフィール" />
-          <G.FindProfilesComponent
-            variables={{ query: { id: [this.props.match.params.id] } }}
-          >
-            {({ loading, error, data }) => {
-              if (loading) {
-                return "Loading...";
-              }
-              if (error || !data || data.profiles.length === 0) {
-                return <Snack msg="プロフィール取得に失敗しました" />;
-              }
-
-              return (
-                <Paper zDepth={this.props.zDepth}>
-                  <Helmet title={`●${data.profiles[0].sn}`} />
-                  <Profile profile={data.profiles[0]} />
-                </Paper>
-              );
-            }}
-          </G.FindProfilesComponent>
-        </div>
-      );
-    }
-  },
-);
+  return (
+    <div>
+      {profilesResult.loading ? <span>Loading...</span> : null}
+      {profilesResult.error ? (
+        <Snack msg="プロフィール取得に失敗しました" />
+      ) : null}
+      {profilesResult.data !== undefined
+        ? pipe(
+            profilesResult.data.profiles,
+            array.head,
+            option.map(p => (
+              <Paper zDepth={props.zDepth}>
+                <Profile profile={p} />
+              </Paper>
+            )),
+            option.getOrElse(() => <Snack msg="プロフィールが存在しません" />),
+          )
+        : undefined}
+    </div>
+  );
+}
 
 export function ProfilePage() {
   return (

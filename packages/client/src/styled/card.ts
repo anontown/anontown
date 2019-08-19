@@ -33,4 +33,5 @@ export const CardFlexFixed = styled.div`
 `;
 export const CardFlexStretch = styled.div`
   flex: 1;
+  min-width: 0;
 `;

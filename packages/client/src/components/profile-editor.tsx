@@ -1,10 +1,11 @@
-import { Paper, RaisedButton, TextField } from "material-ui";
+import { RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import * as G from "../generated/graphql";
 import { UserData } from "../models";
 import { Errors } from "./errors";
 import { MdEditor } from "./md-editor";
-import * as style from "./profile-editor.scss";
+import { Card } from "../styled/card";
+
 interface ProfileEditorProps {
   profile: G.ProfileFragment;
   onUpdate?: (profile: G.ProfileFragment) => void;
@@ -17,7 +18,7 @@ export const ProfileEditor = (props: ProfileEditorProps) => {
   const [sn, setSn] = React.useState(props.profile.sn);
   const [name, setName] = React.useState(props.profile.name);
   const [text, setText] = React.useState(props.profile.text);
-  const submit = G.useUpdateProfileMutation({
+  const [submit] = G.useUpdateProfileMutation({
     variables: {
       id: props.profile.id,
       name,
@@ -27,7 +28,7 @@ export const ProfileEditor = (props: ProfileEditorProps) => {
   });
 
   return (
-    <Paper className={style.container} style={props.style}>
+    <Card style={props.style}>
       <form>
         <Errors errors={errors} />
         <TextField
@@ -59,6 +60,6 @@ export const ProfileEditor = (props: ProfileEditorProps) => {
           label="OK"
         />
       </form>
-    </Paper>
+    </Card>
   );
 };

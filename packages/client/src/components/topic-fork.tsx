@@ -1,7 +1,7 @@
 import { RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import * as G from "../generated/graphql";
-import { useUserContext } from "../utils";
+import { useUserContext } from "../hooks";
 import { Errors } from "./errors";
 import { Snack } from "./snack";
 import { TopicListItem } from "./topic-list-item";
@@ -48,7 +48,7 @@ export const TopicFork = (props: TopicForkProps) => {
       <G.FindTopicsComponent variables={{ query: { parent: props.topic.id } }}>
         {({ loading, error, data }) => {
           if (loading) {
-            return "Loading...";
+            return <span>Loading...</span>;
           }
           if (error || !data) {
             return <Snack msg="派生トピック取得に失敗しました" />;

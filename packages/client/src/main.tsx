@@ -1,8 +1,7 @@
 import "core-js";
 import * as OfflinePluginRuntime from "offline-plugin/runtime";
 import * as React from "react";
-import { ApolloProvider } from "react-apollo";
-import { ApolloProvider as ApolloHooksProvider } from "react-apollo-hooks";
+import { ApolloProvider } from "@apollo/react-common";
 import * as ReactDOM from "react-dom";
 import * as Modal from "react-modal";
 import { BrowserRouter } from "react-router-dom";
@@ -16,11 +15,9 @@ OfflinePluginRuntime.install();
 
 ReactDOM.render(
   <ApolloProvider client={gqlClient}>
-    <ApolloHooksProvider client={gqlClient}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ApolloHooksProvider>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </ApolloProvider>,
   document.querySelector("#root"),
 );

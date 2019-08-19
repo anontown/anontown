@@ -6,69 +6,56 @@ import * as G from "../generated/graphql";
 import { dateFormat } from "../utils";
 import { Md } from "./md";
 import { TagsLink } from "./tags-link";
+import { useToggle } from "react-use";
 
 interface HistoryProps {
   history: G.HistoryFragment;
 }
 
-interface HistoryState {
-  detail: boolean;
-}
+export function History(props: HistoryProps) {
+  const [detail, toggleDetail] = useToggle(false);
 
-export class History extends React.Component<HistoryProps, HistoryState> {
-  constructor(props: HistoryProps) {
-    super(props);
-
-    this.state = {
-      detail: false,
-    };
-  }
-
-  render() {
-    return (
+  return (
+    <div>
       <div>
-        <div>
-          <IconButton
-            onClick={() => this.setState({ detail: !this.state.detail })}
-          >
-            {this.state.detail ? (
-              <FontIcon className="material-icons">arrow_drop_up</FontIcon>
-            ) : (
-              <FontIcon className="material-icons">arrow_drop_down</FontIcon>
-            )}
-          </IconButton>
-          {dateFormat.format(this.props.history.date)}
-          <Link
-            to={routes.hash.to(
-              {
-                hash: this.props.history.hash,
-                topic: this.props.history.topic.id,
+        <IconButton onClick={() => toggleDetail()}>
+          {detail ? (
+            <FontIcon className="material-icons">arrow_drop_up</FontIcon>
+          ) : (
+            <FontIcon className="material-icons">arrow_drop_down</FontIcon>
+          )}
+        </IconButton>
+        {dateFormat.format(props.history.date)}
+        <Link
+          to={routes.hash.to(
+            {
+              hash: props.history.hash,
+              topic: props.history.topic.id,
+            },
+            {
+              state: {
+                modal: true,
               },
-              {
-                state: {
-                  modal: true,
-                },
-              },
-            )}
-          >
-            HASH:{this.props.history.hash.substr(0, 6)}
-          </Link>
-        </div>
-        {this.state.detail ? (
-          <dl>
-            <dt>タイトル</dt>
-            <dd>{this.props.history.title}</dd>
-            <dt>カテゴリ</dt>
-            <dd>
-              <TagsLink tags={this.props.history.tags} />
-            </dd>
-            <dt>本文</dt>
-            <dd>
-              <Md text={this.props.history.text} />
-            </dd>
-          </dl>
-        ) : null}
+            },
+          )}
+        >
+          HASH:{props.history.hash.substr(0, 6)}
+        </Link>
       </div>
-    );
-  }
+      {detail ? (
+        <dl>
+          <dt>タイトル</dt>
+          <dd>{props.history.title}</dd>
+          <dt>カテゴリ</dt>
+          <dd>
+            <TagsLink tags={props.history.tags} />
+          </dd>
+          <dt>本文</dt>
+          <dd>
+            <Md text={props.history.text} />
+          </dd>
+        </dl>
+      ) : null}
+    </div>
+  );
 }

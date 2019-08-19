@@ -1,15 +1,14 @@
 import { Paper, RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
-import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Errors, Page, Snack } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
 
-type AccountSettingPageProps = RouteComponentProps<{}> & UserSwitchProps;
+type AccountSettingPageProps = UserSwitchProps;
 
 export const AccountSettingPage = userSwitch(
-  withRouter((props: AccountSettingPageProps) => {
+  (props: AccountSettingPageProps) => {
     const [snackMsg, setSnackMsg] = React.useState<string | null>(null);
     const [newPass, setNewPass] = React.useState("");
     const [oldPass, setOldPass] = React.useState("");
@@ -20,8 +19,8 @@ export const AccountSettingPage = userSwitch(
     const [sn, setSn] = React.useState(
       user.data !== undefined ? user.data.user.sn : "",
     );
-    const updateUserSubmit = G.useUpdateUserMutation();
-    const createTokenMasterSubmit = G.useCreateTokenMasterMutation();
+    const [updateUserSubmit] = G.useUpdateUserMutation();
+    const [createTokenMasterSubmit] = G.useCreateTokenMasterMutation();
 
     return (
       <Page>
@@ -84,5 +83,5 @@ export const AccountSettingPage = userSwitch(
         </Paper>
       </Page>
     );
-  }),
+  },
 );

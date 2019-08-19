@@ -1,6 +1,6 @@
 import { RaisedButton, TextField } from "material-ui";
 import * as React from "react";
-import { MutationUpdaterFn } from "react-apollo-hooks";
+import { MutationUpdaterFn } from "apollo-client";
 import * as G from "../generated/graphql";
 import { UserData } from "../models";
 import { Errors } from "./errors";
@@ -15,7 +15,7 @@ export const ClientAdd = (props: ClientAddProps) => {
   const [name, setName] = React.useState("");
   const [error, setError] = React.useState<any>(null);
 
-  const submit = G.useCreateClientMutation({
+  const [submit] = G.useCreateClientMutation({
     variables: {
       name,
       url,

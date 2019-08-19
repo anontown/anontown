@@ -1,17 +1,18 @@
 import * as React from "react";
-import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Modal } from "../components";
+import useRouter from "use-react-router";
 
 export const withModal = <P extends {}>(
   Page: React.ComponentType<P>,
   title: string,
 ) => {
-  return withRouter((props: P & RouteComponentProps<{}>) => {
+  return (props: P) => {
+    const { history } = useRouter();
     const goBack = React.useMemo(
       () => () => {
-        props.history.goBack();
+        history.goBack();
       },
-      [props.history],
+      [history],
     );
 
     return (
@@ -20,5 +21,5 @@ export const withModal = <P extends {}>(
         {React.createElement(Page, props)}
       </Modal>
     );
-  });
+  };
 };

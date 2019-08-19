@@ -1,42 +1,28 @@
 import * as React from "react";
-import { Helmet } from "react-helmet";
-import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Page, Res, Snack } from "../components";
 import * as G from "../generated/graphql";
 import { withModal } from "../utils";
+import useRouter from "use-react-router";
+import { useTitle } from "react-use";
 
-type ResHashBaseProps = RouteComponentProps<{ hash: string }>;
+function ResHashBase(_props: {}) {
+  const { match } = useRouter<{ hash: string }>();
+  const hash = decodeURIComponent(match.params.hash);
+  const resesResult = G.useFindResesQuery({ variables: { query: { hash } } });
+  useTitle(`HASH:${hash}`);
 
-interface ResHashBaseState {}
-
-const ResHashBase = withRouter(
-  class extends React.Component<ResHashBaseProps, ResHashBaseState> {
-    constructor(props: ResHashBaseProps) {
-      super(props);
-    }
-
-    render() {
-      const hash = decodeURIComponent(this.props.match.params.hash);
-
-      return (
-        <div>
-          <Helmet title={`HASH:${hash}`} />
-          <G.FindResesComponent variables={{ query: { hash } }}>
-            {({ loading, error, data }) => {
-              if (loading) {
-                return "Loading...";
-              }
-              if (error || !data) {
-                return <Snack msg="レス取得に失敗しました" />;
-              }
-              return data.reses.map(res => <Res res={res} key={res.id} />);
-            }}
-          </G.FindResesComponent>
-        </div>
-      );
-    }
-  },
-);
+  return (
+    <div>
+      {resesResult.loading ? <span>Loading...</span> : null}
+      {resesResult.error !== undefined ? (
+        <Snack msg="レス取得に失敗しました" />
+      ) : null}
+      {resesResult.data !== undefined
+        ? resesResult.data.reses.map(res => <Res res={res} key={res.id} />)
+        : undefined}
+    </div>
+  );
+}
 
 export function ResHashPage() {
   return (

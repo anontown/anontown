@@ -18,7 +18,7 @@ export interface MdProps {
 }
 
 export function Md(props: MdProps) {
-  const node = mdParser.parse(props.text);
+  const node = React.useMemo(() => mdParser.parse(props.text), [props.text]);
   return React.createElement(
     "div",
     {
@@ -37,52 +37,42 @@ interface MdYouTubeProps {
   videoID: string;
 }
 
-class MdYouTube extends React.Component<MdYouTubeProps, { slow: boolean }> {
-  constructor(props: MdYouTubeProps) {
-    super(props);
-    this.state = {
-      slow: false,
-    };
-  }
+function MdYouTube(props: MdYouTubeProps) {
+  const [slow, setSlow] = React.useState(false);
 
-  render() {
-    return (
-      <>
-        <img
-          className={style.preview}
-          src={`https://i.ytimg.com/vi/${this.props.videoID}/maxresdefault.jpg`}
-          title={this.props.title || undefined}
-          onClick={() => this.setState({ slow: true })}
-        />
-        {this.state.slow ? (
-          <Rnd
-            default={{
-              x: 0,
-              y: 0,
-              width: (window.innerWidth / 3) * 2,
-              height: window.innerWidth / 3,
-            }}
-            style={{
-              backgroundColor: "#555",
-            }}
-          >
-            <IconButton
-              type="button"
-              onClick={() => this.setState({ slow: false })}
-            >
-              <FontIcon className="material-icons">close</FontIcon>
-            </IconButton>
-            <div className={style.youtube}>
-              <iframe
-                src={`https://www.youtube.com/embed/${this.props.videoID}`}
-                frameBorder="0"
-              />
-            </div>
-          </Rnd>
-        ) : null}
-      </>
-    );
-  }
+  return (
+    <>
+      <img
+        className={style.preview}
+        src={`https://i.ytimg.com/vi/${props.videoID}/maxresdefault.jpg`}
+        title={props.title || undefined}
+        onClick={() => setSlow(true)}
+      />
+      {slow ? (
+        <Rnd
+          default={{
+            x: 0,
+            y: 0,
+            width: (window.innerWidth / 3) * 2,
+            height: window.innerWidth / 3,
+          }}
+          style={{
+            backgroundColor: "#555",
+          }}
+        >
+          <IconButton type="button" onClick={() => setSlow(false)}>
+            <FontIcon className="material-icons">close</FontIcon>
+          </IconButton>
+          <div className={style.youtube}>
+            <iframe
+              src={`https://www.youtube.com/embed/${props.videoID}`}
+              frameBorder="0"
+            />
+          </div>
+        </Rnd>
+      ) : null}
+    </>
+  );
 }
 
 function urlEnum(url: string): URLType {
@@ -220,98 +210,96 @@ function MdTable(props: { node: mdParser.Table }) {
   );
 }
 
-class MdNode extends React.Component<{ node: mdParser.MdNode }, {}> {
-  render(): React.ReactNode {
-    switch (this.props.node.type) {
-      case "paragraph":
+function MdNode(props: { node: mdParser.MdNode }): JSX.Element {
+  switch (props.node.type) {
+    case "paragraph":
+      return React.createElement(
+        "p",
+        {},
+        // tslint:disable-next-line:jsx-key
+        ...props.node.children.map(c => <MdNode node={c} />),
+      );
+    case "blockquote":
+      return React.createElement(
+        "blockquote",
+        {},
+        // tslint:disable-next-line:jsx-key
+        ...props.node.children.map(c => <MdNode node={c} />),
+      );
+    case "heading":
+      return <MdHeading node={props.node} />;
+    case "code":
+      return (
+        <pre>
+          <code>{props.node.value}</code>
+        </pre>
+      );
+    case "inlineCode":
+      return <code>{props.node.value}</code>;
+    case "list":
+      if (props.node.ordered) {
         return React.createElement(
-          "p",
+          "ol",
           {},
           // tslint:disable-next-line:jsx-key
-          ...this.props.node.children.map(c => <MdNode node={c} />),
+          ...props.node.children.map(c => <MdNode node={c} />),
         );
-      case "blockquote":
+      } else {
         return React.createElement(
-          "blockquote",
+          "ul",
           {},
           // tslint:disable-next-line:jsx-key
-          ...this.props.node.children.map(c => <MdNode node={c} />),
+          ...props.node.children.map(c => <MdNode node={c} />),
         );
-      case "heading":
-        return <MdHeading node={this.props.node} />;
-      case "code":
-        return (
-          <pre>
-            <code>{this.props.node.value}</code>
-          </pre>
-        );
-      case "inlineCode":
-        return <code>{this.props.node.value}</code>;
-      case "list":
-        if (this.props.node.ordered) {
-          return React.createElement(
-            "ol",
-            {},
-            // tslint:disable-next-line:jsx-key
-            ...this.props.node.children.map(c => <MdNode node={c} />),
-          );
-        } else {
-          return React.createElement(
-            "ul",
-            {},
-            // tslint:disable-next-line:jsx-key
-            ...this.props.node.children.map(c => <MdNode node={c} />),
-          );
-        }
-      case "listItem":
-        return React.createElement(
-          "li",
-          {},
-          // tslint:disable-next-line:jsx-key
-          ...this.props.node.children.map(c => <MdNode node={c} />),
-        );
-      case "table":
-        return <MdTable node={this.props.node} />;
-      case "thematicBreak":
-        return <hr />;
-      case "break":
-        return <br />;
-      case "emphasis":
-        return React.createElement(
-          "em",
-          {},
-          // tslint:disable-next-line:jsx-key
-          ...this.props.node.children.map(c => <MdNode node={c} />),
-        );
-      case "strong":
-        return React.createElement(
-          "strong",
-          {},
-          // tslint:disable-next-line:jsx-key
-          ...this.props.node.children.map(c => <MdNode node={c} />),
-        );
-      case "delete":
-        return React.createElement(
-          "del",
-          {},
-          // tslint:disable-next-line:jsx-key
-          ...this.props.node.children.map(c => <MdNode node={c} />),
-        );
-      case "link":
-        return <MdLink node={this.props.node} />;
-      case "image":
-        return (
-          <MdImg
-            url={camo.getCamoUrl(this.props.node.url)}
-            title={this.props.node.title || undefined}
-            alt={this.props.node.alt || undefined}
-          />
-        );
-      case "text":
-        return this.props.node.value;
-      default:
-        return null;
-    }
+      }
+    case "listItem":
+      return React.createElement(
+        "li",
+        {},
+        // tslint:disable-next-line:jsx-key
+        ...props.node.children.map(c => <MdNode node={c} />),
+      );
+    case "table":
+      return <MdTable node={props.node} />;
+    case "thematicBreak":
+      return <hr />;
+    case "break":
+      return <br />;
+    case "emphasis":
+      return React.createElement(
+        "em",
+        {},
+        // tslint:disable-next-line:jsx-key
+        ...props.node.children.map(c => <MdNode node={c} />),
+      );
+    case "strong":
+      return React.createElement(
+        "strong",
+        {},
+        // tslint:disable-next-line:jsx-key
+        ...props.node.children.map(c => <MdNode node={c} />),
+      );
+    case "delete":
+      return React.createElement(
+        "del",
+        {},
+        // tslint:disable-next-line:jsx-key
+        ...props.node.children.map(c => <MdNode node={c} />),
+      );
+    case "link":
+      return <MdLink node={props.node} />;
+    case "image":
+      return (
+        <MdImg
+          url={camo.getCamoUrl(props.node.url)}
+          title={props.node.title || undefined}
+          alt={props.node.alt || undefined}
+        />
+      );
+    case "text":
+      return <>{props.node.value}</>;
+    default:
+      return <></>;
   }
 }
 
@@ -321,44 +309,30 @@ interface MdImgProps {
   alt?: string;
 }
 
-interface MdImgState {
-  dialog: boolean;
-}
+function MdImg(props: MdImgProps) {
+  const [dialog, setDialog] = React.useState(false);
 
-class MdImg extends React.Component<MdImgProps, MdImgState> {
-  constructor(props: MdImgProps) {
-    super(props);
-    this.state = {
-      dialog: false,
-    };
-  }
-
-  render() {
-    return (
-      <>
+  return (
+    <>
+      <img
+        className={style.preview}
+        src={camo.getCamoUrl(props.url)}
+        title={props.title}
+        alt={props.alt}
+        onClick={() => setDialog(true)}
+      />
+      <Modal isOpen={dialog} onRequestClose={() => setDialog(false)}>
         <img
-          className={style.preview}
-          src={camo.getCamoUrl(this.props.url)}
-          title={this.props.title}
-          alt={this.props.alt}
-          onClick={() => this.setState({ dialog: true })}
+          style={{
+            width: "50vw",
+            height: "auto",
+          }}
+          src={camo.getCamoUrl(props.url)}
+          title={props.title}
+          alt={props.alt}
+          onClick={() => setDialog(true)}
         />
-        <Modal
-          isOpen={this.state.dialog}
-          onRequestClose={() => this.setState({ dialog: false })}
-        >
-          <img
-            style={{
-              width: "50vw",
-              height: "auto",
-            }}
-            src={camo.getCamoUrl(this.props.url)}
-            title={this.props.title}
-            alt={this.props.alt}
-            onClick={() => this.setState({ dialog: true })}
-          />
-        </Modal>
-      </>
-    );
-  }
+      </Modal>
+    </>
+  );
 }

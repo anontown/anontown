@@ -5,7 +5,8 @@ import * as React from "react";
 import { useCounter } from "react-use";
 import * as G from "../generated/graphql";
 import { Storage, UserData } from "../models";
-import { queryResultConvert, useInputCache } from "../utils";
+import { queryResultConvert } from "../utils";
+import { useInputCache } from "../hooks";
 import { CheckBox } from "./check-box";
 import { Errors } from "./errors";
 import { MdEditor } from "./md-editor";
@@ -78,7 +79,7 @@ export const ResWrite = (props: ResWriteProps) => {
   });
   queryResultConvert(profiles);
 
-  const mutation = G.useCreateResMutation({
+  const [mutation] = G.useCreateResMutation({
     variables: {
       topic: props.topic,
       name: data.name.length !== 0 ? data.name : null,

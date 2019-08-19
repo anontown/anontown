@@ -4,25 +4,15 @@ import * as op from "rxjs/operators";
 import { UserData } from "src/models";
 import * as G from "../generated/graphql";
 import { useSave } from "./storage-api";
-import { useEffectRef, useEffectSkipN } from "./use";
+import {
+  useEffectRef,
+  useEffectSkipN,
+  UserContextType,
+  UserContext,
+} from "../hooks";
 
 // TODO: 最悪な実装なのであとで何とかする
 export let auth: G.TokenMasterFragment | null = null;
-
-export interface UserContextType {
-  value: UserData | null;
-  update: (value: UserData | null) => void;
-}
-
-export const UserContext = React.createContext<UserContextType>({
-  value: null,
-  // tslint:disable-next-line:no-empty
-  update: () => {},
-});
-
-export function useUserContext() {
-  return React.useContext(UserContext);
-}
 
 export interface UserProps {
   children: (user: UserContextType) => React.ReactNode;

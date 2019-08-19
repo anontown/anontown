@@ -3,7 +3,6 @@ import * as t from "io-ts";
 import {
   FontIcon,
   IconButton,
-  IconMenu,
   MenuItem,
   Toolbar,
   ToolbarGroup,
@@ -34,9 +33,11 @@ import {
   getServerStatus,
   gqlClient,
   User,
-  UserContextType,
 } from "../utils";
+import { UserContextType } from "../hooks";
 import * as style from "./app.scss";
+import Popup from "reactjs-popup";
+import { PopupMenu } from "./popup-menu";
 
 declare const gtag: any;
 
@@ -145,22 +146,7 @@ export const App = withRouter(
                     <div className={style.container}>
                       <Toolbar className={style.header}>
                         <ToolbarGroup firstChild={true} className={style.big}>
-                          {(() => {
-                            const now = new Date();
-                            if (
-                              now.getMonth() + 1 === 4 &&
-                              now.getDate() === 1 &&
-                              now.getHours() < 12
-                            ) {
-                              return (
-                                <ToolbarGroup className={style.april}>
-                                  April Fool！
-                                </ToolbarGroup>
-                              );
-                            } else {
-                              return <ToolbarTitle text="Anontown" />;
-                            }
-                          })()}
+                          <ToolbarTitle text="Anontown" />
                           <ToolbarTitle
                             text={`build:${dateFormat.format(BUILD_DATE)}`}
                             style={{ fontSize: "0.5rem" }}
@@ -192,8 +178,8 @@ export const App = withRouter(
                               </FontIcon>
                             </IconButton>
                           ) : null}
-                          <IconMenu
-                            iconButtonElement={
+                          <PopupMenu
+                            trigger={
                               <IconButton touch={true}>
                                 <FontIcon className="material-icons">
                                   people
@@ -202,34 +188,32 @@ export const App = withRouter(
                             }
                           >
                             {user.value !== null ? (
-                              [
+                              <>
                                 <MenuItem
-                                  key="1"
                                   primaryText="プロフ管理"
                                   containerElement={
                                     <Link to={routes.profiles.to({})} />
                                   }
-                                />,
+                                />
                                 <MenuItem
-                                  key="2"
                                   primaryText="お知らせ"
                                   containerElement={
                                     <Link to={routes.messages.to({})} />
                                   }
-                                />,
+                                />
                                 <MenuItem
-                                  key="3"
                                   primaryText="設定"
                                   containerElement={
                                     <Link to={routes.settings.to({})} />
                                   }
-                                />,
+                                />
                                 <MenuItem
-                                  key="4"
                                   primaryText="ログアウト"
-                                  onClick={() => this.logout(user)}
-                                />,
-                              ]
+                                  onClick={() => {
+                                    this.logout(user);
+                                  }}
+                                />
+                              </>
                             ) : (
                               <MenuItem
                                 primaryText="ログイン"
@@ -238,7 +222,7 @@ export const App = withRouter(
                                 }
                               />
                             )}
-                          </IconMenu>
+                          </PopupMenu>
                         </ToolbarGroup>
                       </Toolbar>
                       <div className={style.main}>

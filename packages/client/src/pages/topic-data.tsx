@@ -25,7 +25,7 @@ const TopicDataBase = withRouter(
           >
             {({ loading, error, data }) => {
               if (loading) {
-                return "Loading...";
+                return <span>Loading...</span>;
               }
               if (error || !data || data.topics.length === 0) {
                 return <Snack msg="トピック取得に失敗しました" />;

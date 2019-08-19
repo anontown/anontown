@@ -2,7 +2,6 @@ import { routes } from "@anontown/route";
 import { Paper } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
-import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Page, TopicFork } from "../components";
 import * as G from "../generated/graphql";
 import {
@@ -11,39 +10,38 @@ import {
   UserSwitchProps,
   withModal,
 } from "../utils";
+import useRouter from "use-react-router";
 
-type TopicForkBaseProps = RouteComponentProps<{ id: string }> &
-  UserSwitchProps & {
-    zDepth?: number;
-  };
+type TopicForkBaseProps = UserSwitchProps & {
+  zDepth?: number;
+};
 
-const TopicForkBase = withRouter(
-  userSwitch((props: TopicForkBaseProps) => {
-    const topics = G.useFindTopicsQuery({
-      variables: {
-        query: {
-          id: [props.match.params.id],
-        },
+const TopicForkBase = userSwitch((props: TopicForkBaseProps) => {
+  const { match, history } = useRouter<{ id: string }>();
+  const topics = G.useFindTopicsQuery({
+    variables: {
+      query: {
+        id: [match.params.id],
       },
-    });
-    queryResultConvert(topics);
-    const topic = topics.data !== undefined ? topics.data.topics[0] : null;
+    },
+  });
+  queryResultConvert(topics);
+  const topic = topics.data !== undefined ? topics.data.topics[0] : null;
 
-    return (
-      <Paper zDepth={props.zDepth}>
-        <Helmet title="派生トピック" />
-        {topic !== null && topic.__typename === "TopicNormal" ? (
-          <TopicFork
-            topic={topic}
-            onCreate={x => {
-              props.history.push(routes.topic.to({ id: x.id }));
-            }}
-          />
-        ) : null}
-      </Paper>
-    );
-  }),
-);
+  return (
+    <Paper zDepth={props.zDepth}>
+      <Helmet title="派生トピック" />
+      {topic !== null && topic.__typename === "TopicNormal" ? (
+        <TopicFork
+          topic={topic}
+          onCreate={x => {
+            history.push(routes.topic.to({ id: x.id }));
+          }}
+        />
+      ) : null}
+    </Paper>
+  );
+});
 
 export function TopicForkPage() {
   return (

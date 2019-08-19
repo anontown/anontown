@@ -3,7 +3,6 @@ import { arrayFirst } from "@kgtkr/utils";
 import {
   FontIcon,
   IconButton,
-  IconMenu,
   MenuItem,
   Paper,
   RaisedButton,
@@ -12,7 +11,7 @@ import {
 } from "material-ui";
 import * as moment from "moment";
 import * as React from "react";
-import { Link, RouteComponentProps, withRouter } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useTitle } from "react-use";
 import * as rx from "rxjs";
 import {
@@ -25,20 +24,56 @@ import {
   TopicFavo,
 } from "../components";
 import * as G from "../generated/graphql";
-import { queryResultConvert, useUserContext } from "../utils";
+import { queryResultConvert } from "../utils";
+import { useUserContext, useFunctionRef } from "../hooks";
 import * as style from "./topic.scss";
+import useRouter from "use-react-router";
+import { useApolloClient } from "@apollo/react-hooks";
+import { PopupMenu } from "../components/popup-menu";
 // TODO:NGのtransparent
 
-interface TopicPageProps extends RouteComponentProps<{ id: string }> {}
+function makeUseStream(
+  id: string,
+  onSubscription: (x: G.ResAddedSubscription) => void,
+) {
+  return (f: (item: G.ResFragment) => void) => {
+    G.useResAddedSubscription({
+      variables: { topic: id },
+      onSubscriptionData: x => {
+        if (x.subscriptionData.data !== undefined) {
+          onSubscription(x.subscriptionData.data);
+          f(x.subscriptionData.data.resAdded.res);
+        }
+      },
+    });
+  };
+}
 
-export const TopicPage = withRouter((props: TopicPageProps) => {
+function makeUseFetch(id: string) {
+  return () => {
+    const apolloClient = useApolloClient();
+    return async (date: G.DateQuery): Promise<G.ResFragment[]> => {
+      const result = await apolloClient.query<
+        G.FindResesQuery,
+        G.FindResesQueryVariables
+      >({
+        query: G.FindResesDocument,
+        variables: { query: { topic: id, date } },
+      });
+      return result.data.reses;
+    };
+  };
+}
+
+export const TopicPage = (_props: {}) => {
+  const { match } = useRouter<{ id: string }>();
   const now = React.useMemo(() => new Date().toISOString(), []);
   const [isJumpDialog, setIsJumpDialog] = React.useState(false);
   const [isAutoScrollDialog, setIsAutoScrollDialog] = React.useState(false);
   const [isNGDialog, setIsNGDialog] = React.useState(false);
   const user = useUserContext();
   const topics = G.useFindTopicsQuery({
-    variables: { query: { id: [props.match.params.id] } },
+    variables: { query: { id: [match.params.id] } },
   });
   queryResultConvert(topics);
   const topic = topics.data !== undefined ? topics.data.topics[0] : null;
@@ -48,7 +83,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
   const items = React.useRef<G.ResFragment[]>([]);
   const initDate = React.useMemo(() => {
     if (user.value !== null) {
-      const topicRead = user.value.storage.topicRead.get(props.match.params.id);
+      const topicRead = user.value.storage.topicRead.get(match.params.id);
       if (topicRead !== undefined) {
         return topicRead.date;
       } else {
@@ -61,8 +96,26 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
   const [jumpValue, setJumpValue] = React.useState(new Date(now).valueOf());
 
   const isFavo =
-    user.value !== null &&
-    user.value.storage.topicFavo.has(props.match.params.id);
+    user.value !== null && user.value.storage.topicFavo.has(match.params.id);
+
+  const onSubs = useFunctionRef((x: G.ResAddedSubscription) => {
+    topics.updateQuery(ts => ({
+      ...ts,
+      topics: ts.topics.map(t => ({
+        ...t,
+        resCount: x.resAdded.count,
+      })),
+    }));
+  });
+
+  const useStream = React.useMemo(
+    () => makeUseStream(match.params.id, onSubs),
+    [match.params.id],
+  );
+
+  const useFetch = React.useMemo(() => makeUseFetch(match.params.id), [
+    match.params.id,
+  ]);
 
   function storageSaveDate(date: string | null) {
     if (user.value === null || topic === null) {
@@ -70,7 +123,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
     }
     const storage = user.value.storage;
     if (date === null) {
-      const storageRes = storage.topicRead.get(props.match.params.id);
+      const storageRes = storage.topicRead.get(match.params.id);
       if (storageRes !== undefined) {
         date = storageRes.date;
       } else {
@@ -196,8 +249,8 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                         storage: {
                           ...storage,
                           topicFavo: isFavo
-                            ? tf.delete(props.match.params.id)
-                            : tf.add(props.match.params.id),
+                            ? tf.delete(match.params.id)
+                            : tf.add(match.params.id),
                         },
                       });
                     }}
@@ -211,8 +264,8 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                     )}
                   </IconButton>
                 ) : null}
-                <IconMenu
-                  iconButtonElement={
+                <PopupMenu
+                  trigger={
                     <IconButton touch={true}>
                       <FontIcon className="material-icons">more_vert</FontIcon>
                     </IconButton>
@@ -224,7 +277,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                       <Link
                         to={routes.topicData.to(
                           {
-                            id: props.match.params.id,
+                            id: match.params.id,
                           },
                           { state: { modal: true } },
                         )}
@@ -238,7 +291,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                         <Link
                           to={routes.topicEdit.to(
                             {
-                              id: props.match.params.id,
+                              id: match.params.id,
                             },
                             { state: { modal: true } },
                           )}
@@ -253,7 +306,7 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                         <Link
                           to={routes.topicFork.to(
                             {
-                              id: props.match.params.id,
+                              id: match.params.id,
                             },
                             { state: { modal: true } },
                           )}
@@ -273,23 +326,13 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
                     primaryText="NG"
                     onClick={() => setIsNGDialog(true)}
                   />
-                </IconMenu>
+                </PopupMenu>
               </div>
             </Paper>
-            <Scroll<
-              G.ResFragment,
-              G.FindResesQuery,
-              G.FindResesQueryVariables,
-              G.ResAddedSubscription,
-              G.ResAddedSubscriptionVariables
-            >
-              query={G.FindResesDocument}
-              queryVariables={date => ({ query: { date, topic: topic.id } })}
-              queryResultConverter={x => x.reses}
-              queryResultMapper={(x, f) => ({ ...x, reses: f(x.reses) })}
-              subscription={G.ResAddedDocument}
-              subscriptionVariables={{ topic: topic.id }}
-              subscriptionResultConverter={x => x.resAdded.res}
+            <Scroll<G.ResFragment>
+              fetchKey={[topic.id]}
+              useStream={useStream}
+              useFetch={useFetch}
               className={style.reses}
               newItemOrder="bottom"
               width={10}
@@ -299,15 +342,6 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
               scrollNewItemChange={res => storageSaveDate(res.date)}
               scrollNewItem={scrollNewItem.current}
               initDate={initDate}
-              onSubscription={x => {
-                topics.updateQuery(ts => ({
-                  ...ts,
-                  topics: ts.topics.map(t => ({
-                    ...t,
-                    resCount: x.resAdded.count,
-                  })),
-                }));
-              }}
               dataToEl={res => <Res res={res} />}
               changeItems={x => {
                 items.current = x;
@@ -335,4 +369,4 @@ export const TopicPage = withRouter((props: TopicPageProps) => {
       ) : null}
     </Page>
   );
-});
+};

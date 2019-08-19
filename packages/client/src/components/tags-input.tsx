@@ -59,7 +59,7 @@ export class TagsInput extends React.Component<TagsInputProps, TagsInputState> {
         <G.FindTopicTagsComponent>
           {({ loading, error, data }) => {
             if (loading) {
-              return "Loading...";
+              return <span>Loading...</span>;
             }
             if (error || !data) {
               return <Snack msg="タグ候補取得に失敗しました" />;

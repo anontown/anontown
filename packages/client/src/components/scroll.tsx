@@ -1,23 +1,389 @@
-import { arrayFirst, arrayLast, pipe, undefinedMap } from "@kgtkr/utils";
-import { DocumentNode } from "graphql";
+import { arrayFirst, arrayLast } from "@kgtkr/utils";
 import * as React from "react";
-import {
-  OnSubscriptionDataOptions,
-  useQuery,
-  useSubscription,
-} from "react-apollo-hooks";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { setTimeout } from "timers";
 import * as G from "../generated/graphql";
-import {
-  queryResultConvert,
-  useEffectCond,
-  useEffectRef,
-  useFunctionRef,
-  useLock,
-  useValueRef,
-} from "../utils";
+import { useEffectRef, useFunctionRef, useLock, useValueRef } from "../hooks";
+import { pipe } from "fp-ts/lib/pipeable";
+import * as oset from "../utils/ord-set";
+import { array, option } from "fp-ts";
+
+function useToTop(el: HTMLDivElement | null) {
+  const elRef = useValueRef(el);
+  return async () => {
+    await sleep(0);
+    if (elRef.current !== null) {
+      elRef.current.scrollTop = 0;
+    }
+  };
+}
+
+function useToBottom(el: HTMLDivElement | null) {
+  const elRef = useValueRef(el);
+  return async () => {
+    await sleep(0);
+    if (elRef.current !== null) {
+      elRef.current.scrollTop = elRef.current.scrollHeight;
+    }
+  };
+}
+
+function useIdElMap<T extends ListItemData>(data: oset.OrdSet<T, string>) {
+  const idElMap = React.useMemo(() => new Map<string, HTMLDivElement>(), []);
+  React.useEffect(() => {
+    const items = new Set(oset.toArray(data).map(x => x.id));
+    for (const id of idElMap.keys()) {
+      if (!items.has(id)) {
+        idElMap.delete(id);
+      }
+    }
+  }, [idElMap, data]);
+
+  const addFunction = React.useCallback(
+    (key: string, el: HTMLDivElement | null) => {
+      if (el !== null) {
+        idElMap.set(key, el);
+      }
+    },
+    [idElMap],
+  );
+
+  return { idElMap, addFunction };
+}
+
+// 上端に一番近いアイテム
+function useGetTopElement<T extends ListItemData>(
+  data: oset.OrdSet<T, string>,
+  idElMap: Map<string, HTMLDivElement>,
+) {
+  const dataRef = useValueRef(data);
+  const idElMapRef = useValueRef(idElMap);
+  return React.useCallback(async () => {
+    await sleep(0);
+
+    // 最短距離のアイテム
+    const minItem = oset
+      .toArray(dataRef.current)
+      .map(item => {
+        const el = idElMapRef.current.get(item.id);
+        if (el !== undefined) {
+          return { item, el };
+        } else {
+          return null;
+        }
+      })
+      .filter((x): x is ItemElPair<T> => x !== null)
+      .reduce<ItemElPair<T> | null>((min, item) => {
+        if (min === null) {
+          return item;
+        } else if (
+          Math.abs(
+            min.el.getBoundingClientRect().top +
+              min.el.getBoundingClientRect().height / 2,
+          ) >
+          Math.abs(
+            item.el.getBoundingClientRect().top +
+              item.el.getBoundingClientRect().height / 2,
+          )
+        ) {
+          return item;
+        } else {
+          return min;
+        }
+      }, null);
+
+    if (minItem !== null) {
+      return minItem.item;
+    } else {
+      return null;
+    }
+  }, []);
+}
+
+// 下端に一番近いアイテム
+function useGetBottomElement<T extends ListItemData>(
+  data: oset.OrdSet<T, string>,
+  idElMap: Map<string, HTMLDivElement>,
+) {
+  const dataRef = useValueRef(data);
+  const idElMapRef = useValueRef(idElMap);
+  return React.useCallback(async () => {
+    await sleep(0);
+
+    // 最短距離のアイテム
+    const minItem = oset
+      .toArray(dataRef.current)
+      .map(item => {
+        const el = idElMapRef.current.get(item.id);
+        if (el !== undefined) {
+          return { item, el };
+        } else {
+          return null;
+        }
+      })
+      .filter((x): x is ItemElPair<T> => x !== null)
+      .reduce<ItemElPair<T> | null>((min, item) => {
+        if (min === null) {
+          return item;
+        } else if (
+          Math.abs(
+            window.innerHeight -
+              (min.el.getBoundingClientRect().top +
+                min.el.getBoundingClientRect().height / 2),
+          ) >
+          Math.abs(
+            window.innerHeight -
+              (item.el.getBoundingClientRect().top +
+                item.el.getBoundingClientRect().height / 2),
+          )
+        ) {
+          return item;
+        } else {
+          return min;
+        }
+      }, null);
+
+    if (minItem !== null) {
+      return minItem.item;
+    } else {
+      return null;
+    }
+  }, []);
+}
+
+function useScrollLock<T extends ListItemData>(
+  data: oset.OrdSet<T, string>,
+  idElMap: Map<string, HTMLDivElement>,
+  rootEl: HTMLDivElement | null,
+) {
+  const dataRef = useValueRef(data);
+  const idElMapRef = useValueRef(idElMap);
+  const rootElRef = useValueRef(rootEl);
+  return React.useCallback(async (f: () => Promise<void>) => {
+    await sleep(0);
+    const elData = pipe(
+      oset.toArray(dataRef.current),
+      array.head,
+      option.chain(x => option.fromNullable(idElMapRef.current.get(x.id))),
+      option.map(x => ({ el: x, y: elY(x) })),
+    );
+    try {
+      await f();
+    } catch (e) {
+      throw e;
+    } finally {
+      if (option.isSome(elData)) {
+        await sleep(0);
+        if (rootElRef.current !== null) {
+          rootElRef.current.scrollTop += elY(elData.value.el) - elData.value.y;
+        }
+      }
+    }
+  }, []);
+}
+
+function useAutoScroll(
+  isAutoScroll: boolean,
+  autoScrollSpeed: number,
+  rootEl: HTMLDivElement | null,
+) {
+  const isAutoScrollRef = useValueRef(isAutoScroll);
+  const autoScrollSpeedRef = useValueRef(autoScrollSpeed);
+  const rootElRef = useValueRef(rootEl);
+
+  React.useEffect(() => {
+    const subs = rx.interval(100).subscribe(() => {
+      if (isAutoScrollRef.current && rootElRef.current !== null) {
+        rootElRef.current.scrollTop += autoScrollSpeedRef.current;
+      }
+    });
+    return () => {
+      subs.unsubscribe();
+    };
+  }, []);
+}
+
+function useOnTopScroll(
+  f: () => void,
+  rootEl: HTMLDivElement | null,
+  width: number,
+  debounceTime: number,
+) {
+  const fRef = useValueRef(f);
+  const widthRef = useValueRef(width);
+
+  React.useEffect(() => {
+    const subs =
+      rootEl !== null
+        ? rx
+            .fromEvent(rootEl, "scroll")
+            .pipe(
+              op.map(() => rootEl.scrollTop),
+              op.filter(top => Math.abs(top) <= widthRef.current),
+              op.debounceTime(debounceTime),
+            )
+            .subscribe(() => fRef.current())
+        : null;
+    return () => {
+      if (subs !== null) {
+        subs.unsubscribe();
+      }
+    };
+  }, [rootEl, debounceTime]);
+}
+
+function useOnBottomScroll(
+  f: () => void,
+  rootEl: HTMLDivElement | null,
+  width: number,
+  debounceTime: number,
+) {
+  const fRef = useValueRef(f);
+  const widthRef = useValueRef(width);
+
+  // 下までスクロール
+  React.useEffect(() => {
+    const subs =
+      rootEl !== null
+        ? rx
+            .fromEvent(rootEl, "scroll")
+            .pipe(
+              op.map(() => rootEl.scrollTop + rootEl.clientHeight),
+              op.distinctUntilChanged(),
+              op.filter(
+                bottom =>
+                  widthRef.current >= Math.abs(rootEl.scrollHeight - bottom),
+              ),
+              op.debounceTime(debounceTime),
+            )
+            .subscribe(() => fRef.current())
+        : null;
+    return () => {
+      if (subs !== null) {
+        subs.unsubscribe();
+      }
+    };
+  }, [rootEl, debounceTime]);
+}
+
+// TODO: Ref周り雑なので直す
+function useFetchUtils<T extends ListItemData>(
+  useFetch: () => (date: G.DateQuery) => Promise<T[]>,
+  rootEl: HTMLDivElement | null,
+  data: oset.OrdSet<T, string>,
+  idElMap: Map<string, HTMLDivElement>,
+  setData: (x: oset.OrdSet<T, string>) => void,
+  newItemOrder: "top" | "bottom",
+) {
+  const fetch = useFetch();
+
+  const toTop = useToTop(rootEl);
+  const toBottom = useToBottom(rootEl);
+
+  const scrollLock = useScrollLock(data, idElMap, rootEl);
+
+  const findAfter = useFunctionRef(async () => {
+    const first = arrayFirst(oset.toArray(data));
+    if (first === undefined) {
+      await resetDate(new Date().toISOString());
+    } else {
+      await scrollLock(async () => {
+        const result = await fetch({
+          date: first.date,
+          type: "gt",
+        });
+
+        setData(oset.unsafePushFirstOrdAndUniqueArray(data, result));
+      });
+    }
+  });
+
+  const findBefore = useFunctionRef(async () => {
+    const old = arrayLast(oset.toArray(data));
+    if (old === undefined) {
+      await resetDate(new Date().toISOString());
+    } else {
+      await scrollLock(async () => {
+        const result = await fetch({
+          date: old.date,
+          type: "lt",
+        });
+
+        setData(oset.unsafePushLastOrdAndUniqueArray(data, result));
+      });
+    }
+  });
+
+  const resetDate = useFunctionRef(async (date: string) => {
+    const result = await fetch({
+      date,
+      type: "lte",
+    });
+
+    setData(
+      pipe(
+        data,
+        oset.clear,
+        x => oset.unsafePushFirstOrdAndUniqueArray(x, result),
+      ),
+    );
+
+    switch (newItemOrder) {
+      case "bottom":
+        await toBottom();
+        break;
+      case "top":
+        await toTop();
+        break;
+    }
+    await findAfter();
+  });
+
+  return { findAfter, findBefore, resetDate };
+}
+
+function useOnChangeCurrentItem<T extends ListItemData>(
+  f: (item: T) => void,
+  data: oset.OrdSet<T, string>,
+  idElMap: Map<string, HTMLDivElement>,
+  rootEl: HTMLDivElement | null,
+  debounceTime: number,
+  newItemOrder: "top" | "bottom",
+) {
+  const fRef = useValueRef(f);
+  const newItemOrderRef = useValueRef(newItemOrder);
+
+  const getTopElement = useGetTopElement(data, idElMap);
+  const getBottomElement = useGetBottomElement(data, idElMap);
+
+  // スクロールによってアイテムが変化した
+  React.useEffect(() => {
+    const subs =
+      rootEl !== null
+        ? rx
+            .fromEvent(rootEl, "scroll")
+            .pipe(
+              op.debounceTime(debounceTime),
+              op.mergeMap(() =>
+                newItemOrderRef.current === "top"
+                  ? getTopElement()
+                  : getBottomElement(),
+              ),
+            )
+            .subscribe(x => {
+              if (x !== null) {
+                fRef.current(x);
+              }
+            })
+        : null;
+    return () => {
+      if (subs !== null) {
+        subs.unsubscribe();
+      }
+    };
+  }, [rootEl, debounceTime, getTopElement, useGetBottomElement]);
+}
 
 interface ListItemData {
   id: string;
@@ -29,25 +395,11 @@ interface ItemElPair<T extends ListItemData> {
   el: HTMLDivElement;
 }
 
-export interface ScrollProps<
-  T extends ListItemData,
-  QueryResult,
-  QueryVariables,
-  SubscriptionResult,
-  SubscriptionVariables
-> {
+export interface ScrollProps<T extends ListItemData> {
   newItemOrder: "top" | "bottom";
-  query: DocumentNode;
-  queryVariables: (dateQuery: G.DateQuery) => QueryVariables;
-  queryResultConverter: (result: QueryResult) => T[];
-  queryResultMapper: (
-    result: QueryResult,
-    f: (data: T[]) => T[],
-  ) => QueryResult;
-  subscription: DocumentNode;
-  subscriptionVariables: SubscriptionVariables;
-  subscriptionResultConverter: (result: SubscriptionResult) => T;
-  onSubscription: (item: SubscriptionResult) => void;
+  fetchKey: unknown[];
+  useFetch: () => (date: G.DateQuery) => Promise<T[]>;
+  useStream: (f: (item: T) => void) => void;
   width: number;
   debounceTime: number;
   autoScrollSpeed: number;
@@ -88,32 +440,33 @@ type Cmd =
   | { type: "after" }
   | { type: "before" };
 
-export const Scroll = <
-  T extends ListItemData,
-  QueryResult,
-  QueryVariables,
-  SubscriptionResult,
-  SubscriptionVariables
->(
-  props: ScrollProps<
-    T,
-    QueryResult,
-    QueryVariables,
-    SubscriptionResult,
-    SubscriptionVariables
-  >,
-) => {
+export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   const rootEl = React.useRef<HTMLDivElement | null>(null);
 
-  const initDate = React.useMemo(() => props.initDate, []);
-  const variables = props.queryVariables({
-    date: initDate,
-    type: "lte",
-  });
-  const data = useQuery<QueryResult, QueryVariables>(props.query, {
-    variables,
-  });
-  queryResultConvert(data);
+  const [data, setData] = React.useState(
+    oset.make<T, string>(
+      (a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf(),
+      x => x.id,
+    ),
+  );
+
+  React.useEffect(() => {
+    runCmd({ type: "reset", date: props.initDate });
+  }, [props.initDate.valueOf(), ...props.fetchKey]);
+
+  React.useEffect(() => {
+    props.changeItems(oset.toArray(data));
+  }, [oset.toArray(data)]);
+
+  const { idElMap, addFunction } = useIdElMap<T>(data);
+  const { resetDate, findBefore, findAfter } = useFetchUtils(
+    props.useFetch,
+    rootEl.current,
+    data,
+    idElMap,
+    x => setData(x),
+    props.newItemOrder,
+  );
 
   const lock = useLock();
   const runCmd = useFunctionRef(async (cmd: Cmd) => {
@@ -132,268 +485,8 @@ export const Scroll = <
     });
   });
 
-  useEffectCond(
-    () => {
-      runCmd({ type: "reset", date: initDate });
-    },
-    () => data.data !== undefined,
-  );
-
-  React.useEffect(() => {
-    if (data.data !== undefined) {
-      props.changeItems(props.queryResultConverter(data.data));
-    }
-  }, [data.data]);
-
-  const idElMap = React.useMemo(() => new Map<string, HTMLDivElement>(), []);
-  React.useEffect(() => {
-    if (data.data !== undefined) {
-      const items = new Set(
-        props.queryResultConverter(data.data).map(x => x.id),
-      );
-      for (const id of idElMap.keys()) {
-        if (!items.has(id)) {
-          idElMap.delete(id);
-        }
-      }
-    } else {
-      idElMap.clear();
-    }
-  }, [data.data, idElMap]);
-
-  const toTop = useFunctionRef(async () => {
-    await sleep(0);
-    if (rootEl.current !== null) {
-      rootEl.current.scrollTop = 0;
-    }
-  });
-
-  const toBottom = useFunctionRef(async () => {
-    await sleep(0);
-    if (rootEl.current !== null) {
-      rootEl.current.scrollTop = rootEl.current.scrollHeight;
-    }
-  });
-
-  const scrollLock = useFunctionRef(async (f: () => Promise<void>) => {
-    await sleep(0);
-    const elData = pipe(data.data)
-      .chain(undefinedMap(props.queryResultConverter))
-      .chain(undefinedMap(arrayFirst))
-      .chain(undefinedMap(x => idElMap.get(x.id)))
-      .chain(undefinedMap(x => ({ el: x, y: elY(x) }))).value;
-    try {
-      await f();
-    } catch (e) {
-      throw e;
-    } finally {
-      if (elData !== undefined) {
-        await sleep(0);
-        if (rootEl.current !== null) {
-          rootEl.current.scrollTop += elY(elData.el) - elData.y;
-        }
-      }
-    }
-  });
-
-  // 上端に一番近いアイテム
-  const getTopElement = useFunctionRef(async () => {
-    await sleep(0);
-
-    if (data.data === undefined) {
-      return null;
-    }
-
-    const items = props.queryResultConverter(data.data);
-
-    // 最短距離のアイテム
-    const minItem = items
-      .map(item => {
-        const el = idElMap.get(item.id);
-        if (el !== undefined) {
-          return { item, el };
-        } else {
-          return null;
-        }
-      })
-      .filter((x): x is ItemElPair<T> => x !== null)
-      .reduce<ItemElPair<T> | null>((min, item) => {
-        if (min === null) {
-          return item;
-        } else if (
-          Math.abs(
-            min.el.getBoundingClientRect().top +
-              min.el.getBoundingClientRect().height / 2,
-          ) >
-          Math.abs(
-            item.el.getBoundingClientRect().top +
-              item.el.getBoundingClientRect().height / 2,
-          )
-        ) {
-          return item;
-        } else {
-          return min;
-        }
-      }, null);
-
-    if (minItem !== null) {
-      return minItem.item;
-    } else {
-      return null;
-    }
-  });
-
-  // 下端に一番近いアイテム
-  const getBottomElement = useFunctionRef(async () => {
-    await sleep(0);
-
-    if (data.data === undefined) {
-      return null;
-    }
-
-    const items = props.queryResultConverter(data.data);
-
-    // 最短距離のアイテム
-    const minItem = items
-      .map(item => {
-        const el = idElMap.get(item.id);
-        if (el !== undefined) {
-          return { item, el };
-        } else {
-          return null;
-        }
-      })
-      .filter((x): x is ItemElPair<T> => x !== null)
-      .reduce<ItemElPair<T> | null>((min, item) => {
-        if (min === null) {
-          return item;
-        } else if (
-          Math.abs(
-            window.innerHeight -
-              (min.el.getBoundingClientRect().top +
-                min.el.getBoundingClientRect().height / 2),
-          ) >
-          Math.abs(
-            window.innerHeight -
-              (item.el.getBoundingClientRect().top +
-                item.el.getBoundingClientRect().height / 2),
-          )
-        ) {
-          return item;
-        } else {
-          return min;
-        }
-      }, null);
-
-    if (minItem !== null) {
-      return minItem.item;
-    } else {
-      return null;
-    }
-  });
-
-  const findAfter = useFunctionRef(async () => {
-    if (data.data === undefined) {
-      return;
-    }
-
-    const items = props.queryResultConverter(data.data);
-
-    const first = arrayFirst(items);
-    if (first === undefined) {
-      await resetDate(new Date().toISOString());
-    } else {
-      await scrollLock(async () => {
-        await data.fetchMore({
-          variables: props.queryVariables({
-            date: first.date,
-            type: "gt",
-          }),
-          updateQuery: (prev, { fetchMoreResult }) => {
-            if (!fetchMoreResult) {
-              return prev;
-            }
-
-            return props.queryResultMapper(prev, x => [
-              ...props.queryResultConverter(fetchMoreResult),
-              ...x,
-            ]);
-          },
-        });
-      });
-    }
-  });
-
-  const findBefore = useFunctionRef(async () => {
-    if (data.data === undefined) {
-      return;
-    }
-
-    const items = props.queryResultConverter(data.data);
-
-    const old = arrayLast(items);
-    if (old === undefined) {
-      await resetDate(new Date().toISOString());
-    } else {
-      await scrollLock(async () => {
-        await data.fetchMore({
-          variables: props.queryVariables({
-            date: old.date,
-            type: "lt",
-          }),
-          updateQuery: (prev, { fetchMoreResult }) => {
-            if (!fetchMoreResult) {
-              return prev;
-            }
-
-            return props.queryResultMapper(prev, x => [
-              ...x,
-              ...props.queryResultConverter(fetchMoreResult),
-            ]);
-          },
-        });
-      });
-    }
-  });
-
-  const resetDate = useFunctionRef(async (date: string) => {
-    await data.refetch(
-      props.queryVariables({
-        date,
-        type: "lte",
-      }),
-    );
-    switch (props.newItemOrder) {
-      case "bottom":
-        await toBottom();
-        break;
-      case "top":
-        await toTop();
-        break;
-    }
-    await findAfter();
-  });
-
-  useEffectRef(
-    f => {
-      const el = rootEl.current;
-      const subs =
-        el !== null
-          ? rx
-              .fromEvent(el, "scroll")
-              .pipe(
-                op.map(() => el.scrollTop),
-                op.filter(top => Math.abs(top) <= props.width),
-                op.debounceTime(props.debounceTime),
-              )
-              .subscribe(() => f.current())
-          : null;
-      return () => {
-        if (subs !== null) {
-          subs.unsubscribe();
-        }
-      };
-    },
+  // 上までスクロール
+  useOnTopScroll(
     () => {
       switch (props.newItemOrder) {
         case "top":
@@ -404,32 +497,13 @@ export const Scroll = <
           break;
       }
     },
-    [rootEl.current, props.debounceTime],
+    rootEl.current,
+    props.width,
+    props.debounceTime,
   );
 
-  useEffectRef(
-    f => {
-      const el = rootEl.current;
-      const subs =
-        el !== null
-          ? rx
-              .fromEvent(el, "scroll")
-              .pipe(
-                op.map(() => el.scrollTop + el.clientHeight),
-                op.distinctUntilChanged(),
-                op.filter(
-                  bottom => props.width >= Math.abs(el.scrollHeight - bottom),
-                ),
-                op.debounceTime(props.debounceTime),
-              )
-              .subscribe(() => f.current())
-          : null;
-      return () => {
-        if (subs !== null) {
-          subs.unsubscribe();
-        }
-      };
-    },
+  // 下までスクロール
+  useOnBottomScroll(
     () => {
       switch (props.newItemOrder) {
         case "bottom":
@@ -440,56 +514,26 @@ export const Scroll = <
           break;
       }
     },
-    [rootEl.current, props.debounceTime],
+    rootEl.current,
+    props.width,
+    props.debounceTime,
   );
 
-  const getTopBottomElementRef = useValueRef(() =>
-    props.newItemOrder === "top" ? getTopElement() : getBottomElement(),
+  useOnChangeCurrentItem(
+    newItem => {
+      props.scrollNewItemChange(newItem);
+    },
+    data,
+    idElMap,
+    rootEl.current,
+    props.debounceTime,
+    props.newItemOrder,
   );
 
-  useEffectRef(
-    f => {
-      const el = rootEl.current;
-      const subs =
-        el !== null
-          ? rx
-              .fromEvent(el, "scroll")
-              .pipe(
-                op.debounceTime(props.debounceTime),
-                op.mergeMap(() => getTopBottomElementRef.current()),
-              )
-              .subscribe(x => f.current(x))
-          : null;
-      return () => {
-        if (subs !== null) {
-          subs.unsubscribe();
-        }
-      };
-    },
-    (newItem: T | null) => {
-      if (newItem !== null) {
-        props.scrollNewItemChange(newItem);
-      }
-    },
-    [rootEl.current, props.debounceTime],
-  );
+  // 自動スクロール
+  useAutoScroll(props.isAutoScroll, props.autoScrollSpeed, rootEl.current);
 
-  useEffectRef(
-    f => {
-      const subs = rx.interval(100).subscribe(() => f.current());
-      return () => {
-        subs.unsubscribe();
-      };
-    },
-    () => {
-      const el = rootEl.current;
-      if (props.isAutoScroll && el !== null) {
-        el.scrollTop += props.autoScrollSpeed;
-      }
-    },
-    [],
-  );
-
+  // スクロール位置変更入力
   useEffectRef(
     f => {
       const subs = props.scrollNewItem.subscribe(x => f.current(x));
@@ -503,59 +547,27 @@ export const Scroll = <
     [props.scrollNewItem],
   );
 
-  const onSubscriptionDataRef = useValueRef(
-    ({
-      client,
-      subscriptionData,
-    }: OnSubscriptionDataOptions<SubscriptionResult>) => {
-      if (subscriptionData.data !== undefined) {
-        const subsData = props.subscriptionResultConverter(
-          subscriptionData.data,
-        );
-        const prev = client.readQuery<QueryResult, QueryVariables>({
-          query: props.query,
-          variables,
-        });
-        if (prev !== null) {
-          client.writeQuery({
-            query: props.query,
-            variables,
-            data: props.queryResultMapper(prev, x => [subsData, ...x]),
-          });
-        }
-        props.onSubscription(subscriptionData.data);
-      }
-    },
-  );
-  useSubscription<SubscriptionResult, SubscriptionVariables>(
-    props.subscription,
-    {
-      variables: props.subscriptionVariables,
-      onSubscriptionData: x => onSubscriptionDataRef.current(x),
-    },
-  );
+  // 新しいアイテム追加イベント
+  const onSubscriptionDataRef = useValueRef((newData: T) => {
+    setData(
+      pipe(
+        data,
+        x => oset.unsafePushFirstOrdAndUniqueArray(x, [newData]),
+      ),
+    );
+  });
+  props.useStream(x => onSubscriptionDataRef.current(x));
 
   return (
     <div className={props.className} style={props.style} ref={rootEl}>
-      {data.data !== undefined
-        ? (props.newItemOrder === "bottom"
-            ? [...props.queryResultConverter(data.data)].reverse()
-            : props.queryResultConverter(data.data)
-          ).map(item => (
-            <div
-              key={item.id}
-              ref={el => {
-                if (el !== null) {
-                  idElMap.set(item.id, el);
-                }
-              }}
-            >
-              {props.dataToEl(item)}
-            </div>
-          ))
-        : null}
-      {data.loading ? "Loading" : null}
-      {data.error !== undefined ? "エラーが発生しました" : null}
+      {(props.newItemOrder === "bottom"
+        ? [...oset.toArray(data)].reverse()
+        : oset.toArray(data)
+      ).map(item => (
+        <div key={item.id} ref={el => addFunction(item.id, el)}>
+          {props.dataToEl(item)}
+        </div>
+      ))}
     </div>
   );
 };

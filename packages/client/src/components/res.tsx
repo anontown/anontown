@@ -1,11 +1,12 @@
 import { routes } from "@anontown/route";
-import { FontIcon, IconButton, IconMenu, MenuItem, Paper } from "material-ui";
+import { FontIcon, IconButton, MenuItem, Paper } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as uuid from "uuid";
 import * as G from "../generated/graphql";
 import { ng } from "../models";
-import { dateFormat, useUserContext } from "../utils";
+import { dateFormat } from "../utils";
+import { useUserContext } from "../hooks";
 import { Md } from "./md";
 import { ResWrite } from "./res-write";
 import { Snack } from "./snack";
@@ -18,6 +19,8 @@ import {
   CardContent,
 } from "../styled/card";
 import { color, fontSize } from "../styled/constant";
+import { PopupMenu } from "./popup-menu";
+import { Icon } from "./icon";
 
 interface ResProps {
   res: G.ResFragment;
@@ -190,19 +193,17 @@ export const Res = (props: ResProps) => {
             &nbsp;
             <span>{props.res.uv - props.res.dv}vote</span>
             {user.value !== null ? (
-              <IconMenu
-                iconStyle={{ fontSize: "10px" }}
-                iconButtonElement={
+              <PopupMenu
+                trigger={
                   <IconButton
-                    style={{ width: "16px", height: "16px", padding: "0px" }}
+                    style={{ width: "32px", height: "32px", padding: "0px" }}
                   >
-                    <FontIcon className="material-icons">
-                      keyboard_arrow_down
-                    </FontIcon>
+                    <Icon
+                      icon="keyboard_arrow_down"
+                      style={{ fontSize: "10px" }}
+                    />
                   </IconButton>
                 }
-                anchorOrigin={{ horizontal: "left", vertical: "top" }}
-                targetOrigin={{ horizontal: "left", vertical: "top" }}
               >
                 {props.res.self && props.res.__typename === "ResNormal" ? (
                   <G.DelResComponent
@@ -287,7 +288,7 @@ export const Res = (props: ResProps) => {
                     }}
                   />
                 ) : null}
-              </IconMenu>
+              </PopupMenu>
             ) : null}
           </CardHeader>
           <CardContent>
