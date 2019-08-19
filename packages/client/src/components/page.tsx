@@ -30,7 +30,8 @@ export class Page extends React.Component<PageProps, PageState> {
           <aside
             style={{
               height: "100%",
-              width: !this.state.isLeft ? 50 : undefined,
+              width: this.state.isLeft ? 256 : 50,
+              maxWidth: "26vw",
             }}
           >
             <IconButton
