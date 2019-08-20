@@ -5,6 +5,8 @@ import { Storage } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IStorageRepo } from "../../ports";
 import { fromStorage, IStorageDB, toStorage } from "./isotrage-db";
+import { pipe } from "fp-ts/lib/pipeable";
+import { option } from "fp-ts";
 
 export class StorageRepoMock implements IStorageRepo {
   private storages: IStorageDB[] = [];
@@ -41,7 +43,10 @@ export class StorageRepoMock implements IStorageRepo {
       x =>
         x.user.toHexString() === storage.user &&
         (x.client !== null ? x.client.toHexString() : null) ===
-          storage.client.toNullable() &&
+          pipe(
+            storage.client,
+            option.toNullable,
+          ) &&
         x.key === storage.key,
     );
     if (index === -1) {
@@ -55,7 +60,10 @@ export class StorageRepoMock implements IStorageRepo {
       x =>
         x.user.toHexString() === storage.user &&
         (x.client !== null ? x.client.toHexString() : null) ===
-          storage.client.toNullable() &&
+          pipe(
+            storage.client,
+            option.toNullable,
+          ) &&
         x.key === storage.key,
     );
     this.storages.splice(index, 1);

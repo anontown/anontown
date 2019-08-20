@@ -8,6 +8,8 @@ import {
   TopicNormal,
   User,
 } from "../../";
+import { pipe } from "fp-ts/lib/pipeable";
+import { option } from "fp-ts";
 
 describe("ResNormal", () => {
   const resNormal = new ResNormal(
@@ -329,10 +331,16 @@ describe("ResNormal", () => {
       const api = resNormal.toAPI(none);
       expect(api).toEqual({
         ...resNormal.toBaseAPI(none),
-        name: resNormal.name.toNullable(),
+        name: pipe(
+          resNormal.name,
+          option.toNullable,
+        ),
         text: resNormal.text,
         replyID: "replyres",
-        profileID: resNormal.profile.toNullable(),
+        profileID: pipe(
+          resNormal.profile,
+          option.toNullable,
+        ),
         isReply: null,
       });
     });

@@ -4,6 +4,8 @@ import { IAuthToken } from "../../auth";
 import { Config } from "../../config";
 import { IGenerator } from "../../generator";
 import { Copyable } from "../../utils";
+import { pipe } from "fp-ts/lib/pipeable";
+import { option } from "fp-ts";
 
 export interface IProfileAPI {
   readonly id: string;
@@ -71,9 +73,11 @@ export class Profile extends Copyable<Profile> {
   toAPI(authToken: Option<IAuthToken>): IProfileAPI {
     return {
       id: this.id,
-      self: authToken
-        .map(authToken => authToken.user === this.user)
-        .toNullable(),
+      self: pipe(
+        authToken,
+        option.map(authToken => authToken.user === this.user),
+        option.toNullable,
+      ),
       name: this.name,
       text: this.text,
       date: this.date.toISOString(),

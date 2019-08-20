@@ -12,6 +12,7 @@ import {
   toResNormal,
   toResTopic,
 } from "./ires-db";
+import { option } from "fp-ts";
 
 describe("IResDB", () => {
   describe("toResFork", () => {
@@ -152,11 +153,11 @@ describe("IResDB", () => {
           votes: resNormal.votes.toArray(),
           lv: resNormal.lv,
           hash: resNormal.hash,
-          name: resNormal.name.toNullable(),
+          name: option.toNullable(resNormal.name),
           text: resNormal.text,
-          reply: resNormal.reply.toNullable(),
+          reply: option.toNullable(resNormal.reply),
           deleteFlag: resNormal.deleteFlag,
-          profile: resNormal.profile.toNullable(),
+          profile: option.toNullable(resNormal.profile),
           age: resNormal.age,
         },
       });

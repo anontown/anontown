@@ -12,6 +12,8 @@ import {
   ResTopic,
   ResType,
 } from "../../entities";
+import { option } from "fp-ts";
+import { pipe } from "fp-ts/lib/pipeable";
 
 export interface IResDB {
   id: string;
@@ -158,11 +160,20 @@ export function fromResBase<T extends ResType>() {
 }
 export function fromResNormal(res: ResNormal): IResNormalDB {
   return fromResBase<"normal">()(res, {
-    name: res.name.toNullable(),
+    name: pipe(
+      res.name,
+      option.toNullable,
+    ),
     text: res.text,
-    reply: res.reply.toNullable(),
+    reply: pipe(
+      res.reply,
+      option.toNullable,
+    ),
     deleteFlag: res.deleteFlag,
-    profile: res.profile.toNullable(),
+    profile: pipe(
+      res.profile,
+      option.toNullable,
+    ),
     age: res.age,
   });
 }

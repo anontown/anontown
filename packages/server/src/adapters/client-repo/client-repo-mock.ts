@@ -1,5 +1,5 @@
 import { isNullish } from "@kgtkr/utils";
-import { Option } from "fp-ts/lib/Option";
+import { Option, isNone } from "fp-ts/lib/Option";
 import { AtAuthError, AtNotFoundError } from "../../at-error";
 import { IAuthTokenMaster } from "../../auth";
 import { Client } from "../../entities";
@@ -33,7 +33,7 @@ export class ClientRepoMock implements IClientRepo {
     authToken: Option<IAuthTokenMaster>,
     query: G.ClientQuery,
   ): Promise<Client[]> {
-    if (query.self && authToken.isNone()) {
+    if (query.self && isNone(authToken)) {
       throw new AtAuthError("認証が必要です");
     }
 
@@ -41,7 +41,7 @@ export class ClientRepoMock implements IClientRepo {
       .filter(
         c =>
           !query.self ||
-          authToken.isNone() ||
+          isNone(authToken) ||
           c.user.toHexString() === authToken.value.user,
       )
       .filter(

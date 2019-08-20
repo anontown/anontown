@@ -1,6 +1,8 @@
 import { fromNullable } from "fp-ts/lib/Option";
 import { ObjectID } from "mongodb";
 import { Storage } from "../../entities";
+import { pipe } from "fp-ts/lib/pipeable";
+import { option } from "fp-ts";
 
 export interface IStorageDB {
   client: ObjectID | null;
@@ -11,7 +13,10 @@ export interface IStorageDB {
 
 export function toStorage(db: IStorageDB): Storage {
   return new Storage(
-    fromNullable(db.client).map(client => client.toHexString()),
+    pipe(
+      fromNullable(db.client),
+      option.map(client => client.toHexString()),
+    ),
     db.user.toHexString(),
     db.key,
     db.value,
@@ -20,7 +25,11 @@ export function toStorage(db: IStorageDB): Storage {
 
 export function fromStorage(storage: Storage): IStorageDB {
   return {
-    client: storage.client.map(client => new ObjectID(client)).toNullable(),
+    client: pipe(
+      storage.client,
+      option.map(client => new ObjectID(client)),
+      option.toNullable,
+    ),
     user: new ObjectID(storage.user),
     key: storage.key,
     value: storage.value,

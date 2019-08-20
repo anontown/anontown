@@ -8,6 +8,7 @@ import { Client } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IClientRepo } from "../../ports";
 import { fromClient, IClientDB, toClient } from "./iclient-db";
+import { option } from "fp-ts";
 
 export class ClientRepo implements IClientRepo {
   async findOne(id: string): Promise<Client> {
@@ -26,12 +27,12 @@ export class ClientRepo implements IClientRepo {
     authToken: Option<IAuthTokenMaster>,
     query: G.ClientQuery,
   ): Promise<Client[]> {
-    if (query.self && authToken.isNone()) {
+    if (query.self && option.isNone(authToken)) {
       throw new AtAuthError("認証が必要です");
     }
     const db = await Mongo();
     const q: any = {};
-    if (query.self && authToken.isSome()) {
+    if (query.self && option.isSome(authToken)) {
       q.user = new ObjectID(authToken.value.user);
     }
     if (!isNullish(query.id)) {

@@ -14,6 +14,8 @@ import { History } from "../history";
 import { Profile } from "../profile";
 import { Topic, TopicFork, TopicNormal, TopicOne } from "../topic";
 import { User } from "../user";
+import { pipe } from "fp-ts/lib/pipeable";
+import { option } from "fp-ts";
 
 export interface IVote {
   readonly user: string;
@@ -143,24 +145,28 @@ export abstract class ResBase<T extends ResType, C extends ResBase<T, C>> {
   }
 
   toBaseAPI(authToken: Option<IAuthToken>): IResBaseAPI<T> {
-    const voteFlag = authToken
-      .map(authToken => {
+    const voteFlag = pipe(
+      authToken,
+      option.map(authToken => {
         const vote = this.votes.find(v => authToken.user === v.user);
         if (vote === undefined) {
           return "not";
         } else {
           return vote.value > 0 ? "uv" : "dv";
         }
-      })
-      .toNullable();
+      }),
+      option.toNullable,
+    );
 
     return {
       id: this.id,
       topicID: this.topic,
       date: this.date,
-      self: authToken
-        .map(authToken => authToken.user === this.user)
-        .toNullable(),
+      self: pipe(
+        authToken,
+        option.map(authToken => authToken.user === this.user),
+        option.toNullable,
+      ),
       uv: this.votes.filter(x => x.value > 0).size,
       dv: this.votes.filter(x => x.value < 0).size,
       hash: this.hash,
@@ -202,12 +208,24 @@ export class ResNormal extends Copyable<ResNormal>
       },
     ]);
 
-    if (profile.map(profile => profile.user !== user.id).getOrElse(false)) {
+    if (
+      pipe(
+        profile,
+        option.map(profile => profile.user !== user.id),
+        option.getOrElse(() => false),
+      )
+    ) {
       throw new AtRightError("自分のプロフィールを指定して下さい。");
     }
 
     // もしリプ先があるかつ、トピックがリプ先と違えばエラー
-    if (reply.map(reply => reply.topic !== topic.id).getOrElse(false)) {
+    if (
+      pipe(
+        reply,
+        option.map(reply => reply.topic !== topic.id),
+        option.getOrElse(() => false),
+      )
+    ) {
       throw new AtPrerequisiteError("他のトピックのレスへのリプは出来ません");
     }
 
@@ -216,9 +234,15 @@ export class ResNormal extends Copyable<ResNormal>
     const result = new ResNormal(
       name,
       text,
-      reply.map(reply => ({ res: reply.id, user: reply.user })),
+      pipe(
+        reply,
+        option.map(reply => ({ res: reply.id, user: reply.user })),
+      ),
       "active",
-      profile.map(profile => profile.id),
+      pipe(
+        profile,
+        option.map(profile => profile.id),
+      ),
       age,
       objidGenerator(),
       topic.id,
@@ -278,15 +302,30 @@ export class ResNormal extends Copyable<ResNormal>
     if (this.deleteFlag === "active") {
       return {
         ...this.toBaseAPI(authToken),
-        name: this.name.toNullable(),
+        name: pipe(
+          this.name,
+          option.toNullable,
+        ),
         text: this.text,
-        replyID: this.reply.map(x => x.res).toNullable(),
-        profileID: this.profile.toNullable(),
-        isReply: authToken
-          .chain(authToken =>
-            this.reply.map(reply => authToken.user === reply.user),
-          )
-          .toNullable(),
+        replyID: pipe(
+          this.reply,
+          option.map(x => x.res),
+          option.toNullable,
+        ),
+        profileID: pipe(
+          this.profile,
+          option.toNullable,
+        ),
+        isReply: pipe(
+          authToken,
+          option.chain(authToken =>
+            pipe(
+              this.reply,
+              option.map(reply => authToken.user === reply.user),
+            ),
+          ),
+          option.toNullable,
+        ),
       };
     } else {
       return {

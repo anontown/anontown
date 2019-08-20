@@ -1,4 +1,6 @@
 import { fromNullable, Option } from "fp-ts/lib/Option";
+import { pipe } from "fp-ts/lib/pipeable";
+import { option } from "fp-ts";
 
 export const AtErrorSymbol = Symbol("AtError");
 
@@ -74,12 +76,13 @@ export function paramsErrorMaker(fs: paramsErrorMakerData[]) {
       }
     } else {
       if (
-        (typeof f.val !== "object" || f.val === null
-          ? fromNullable(f.val)
-          : f.val
+        pipe(
+          typeof f.val !== "object" || f.val === null
+            ? fromNullable(f.val)
+            : f.val,
+          option.map(val => !f.regex.test(val)),
+          option.getOrElse(() => false),
         )
-          .map(val => !f.regex.test(val))
-          .getOrElse(false)
       ) {
         errors.push({
           field: f.field,

@@ -5,6 +5,8 @@ import { IGenerator } from "../../generator";
 import { Copyable } from "../../utils";
 import { TopicNormal } from "../topic";
 import { User } from "../user";
+import { option } from "fp-ts";
+import { pipe } from "fp-ts/lib/pipeable";
 
 export interface IHistoryAPI {
   readonly id: string;
@@ -59,9 +61,11 @@ export class History extends Copyable<History> {
       text: this.text,
       date: this.date.toISOString(),
       hash: this.hash,
-      self: authToken
-        .map(authToken => authToken.user === this.user)
-        .toNullable(),
+      self: pipe(
+        authToken,
+        option.map(authToken => authToken.user === this.user),
+        option.toNullable,
+      ),
     };
   }
 }

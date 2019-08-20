@@ -1,5 +1,6 @@
 import { fromNullable } from "fp-ts/lib/Option";
 import { Msg } from "../../entities";
+import { option } from "fp-ts";
 
 export interface IMsgDB {
   readonly id: string;
@@ -23,7 +24,7 @@ export function fromMsg(msg: Msg): IMsgDB {
   return {
     id: msg.id,
     body: {
-      receiver: msg.receiver.toNullable(),
+      receiver: option.toNullable(msg.receiver),
       text: msg.text,
       date: msg.date.toISOString(),
     },

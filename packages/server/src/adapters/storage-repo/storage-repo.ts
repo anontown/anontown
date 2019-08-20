@@ -7,6 +7,8 @@ import { Storage } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IStorageRepo } from "../../ports";
 import { fromStorage, IStorageDB, toStorage } from "./isotrage-db";
+import { pipe } from "fp-ts/lib/pipeable";
+import { option } from "fp-ts";
 
 export class StorageRepo implements IStorageRepo {
   async find(token: IAuthToken, query: G.StorageQuery): Promise<Storage[]> {
@@ -43,7 +45,11 @@ export class StorageRepo implements IStorageRepo {
     await db.collection("storages").replaceOne(
       {
         user: new ObjectID(storage.user),
-        client: storage.client.map(client => new ObjectID(client)).toNullable(),
+        client: pipe(
+          storage.client,
+          option.map(client => new ObjectID(client)),
+          option.toNullable,
+        ),
         key: storage.key,
       },
       fromStorage(storage),
@@ -55,7 +61,11 @@ export class StorageRepo implements IStorageRepo {
 
     await db.collection("storages").deleteOne({
       user: new ObjectID(storage.user),
-      client: storage.client.map(client => new ObjectID(client)).toNullable(),
+      client: pipe(
+        storage.client,
+        option.map(client => new ObjectID(client)),
+        option.toNullable,
+      ),
       key: storage.key,
     });
   }

@@ -4,6 +4,8 @@ import { IAuthTokenMaster } from "../../auth";
 import { Config } from "../../config";
 import { IGenerator } from "../../generator";
 import { Copyable } from "../../utils";
+import { option } from "fp-ts";
+import { pipe } from "fp-ts/lib/pipeable";
 
 export interface IClientAPI {
   readonly id: string;
@@ -56,9 +58,11 @@ export class Client extends Copyable<Client> {
       id: this.id,
       name: this.name,
       url: this.url,
-      self: authToken
-        .map(authToken => authToken.user === this.user)
-        .toNullable(),
+      self: pipe(
+        authToken,
+        option.map(authToken => authToken.user === this.user),
+        option.toNullable,
+      ),
       date: this.date.toISOString(),
       update: this.update.toISOString(),
     };

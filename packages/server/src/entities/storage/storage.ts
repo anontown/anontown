@@ -3,6 +3,8 @@ import { AtRightError, paramsErrorMaker } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { Config } from "../../config";
 import { Copyable } from "../../utils";
+import { pipe } from "fp-ts/lib/pipeable";
+import { option } from "fp-ts";
 
 export interface IStorageAPI {
   key: string;
@@ -47,7 +49,10 @@ export class Storage extends Copyable<Storage> {
     if (
       authToken.user !== this.user ||
       (authToken.type === "master" ? null : authToken.client) !==
-        this.client.toNullable()
+        pipe(
+          this.client,
+          option.toNullable,
+        )
     ) {
       throw new AtRightError("権限がありません");
     }
