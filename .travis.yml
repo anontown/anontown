@@ -21,6 +21,6 @@ matrix:
         - npm i
         - npx lerna bootstrap
       script:
-        - npx lerna exec  --scope @anontown/client -- npm run lint
-        - npx lerna exec  --scope @anontown/server -- npm run lint
-        - npx run build --scope @anontown/client --include-filtered-dependencies
+        - npx lerna run lint --scope @anontown/client
+        - npx lerna run lint --scope @anontown/server
+        - npx lerna run build --scope @anontown/client --include-filtered-dependencies
