@@ -9,3 +9,4 @@ export * from "./user-repo";
 export * from "./storage-repo";
 export * from "./irepo";
 export * from "./loader";
+export * from "./clock";

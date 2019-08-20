@@ -1,15 +1,15 @@
 import { none, some } from "fp-ts/lib/Option";
-import { Loader } from "../adapters";
+import { FixClock, Loader } from "../adapters";
 import { AtAuthError } from "../at-error";
 import { Logger } from "../logger";
-import { ILoader, IRepo } from "../ports";
+import { IClock, ILoader, IRepo } from "../ports";
 import { AuthContainer } from "./auth-container";
 import * as authFromApiParam from "./auth-from-api-param";
 
 export interface AppContext {
   auth: AuthContainer;
   ip: string;
-  now: Date;
+  clock: IClock;
   log: (name: string, id: string) => void;
   loader: ILoader;
   repo: IRepo;
@@ -44,7 +44,7 @@ export async function createContext(
   return {
     auth,
     ip,
-    now: new Date(),
+    clock: new FixClock(new Date()),
     log: (name, id) => Logger.app.info(ip, name, id),
     loader: new Loader({
       auth,

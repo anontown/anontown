@@ -25,14 +25,14 @@ export const mutation: G.MutationResolvers = {
       ObjectIDGenerator,
       args.sn,
       args.pass,
-      context.now,
+      context.clock.now(),
     );
     await context.repo.user.insert(user);
 
     const token = TokenMaster.create(
       ObjectIDGenerator,
       user.auth(args.pass),
-      context.now,
+      context.clock.now(),
       RandomGenerator,
     );
     await context.repo.token.insert(token);
@@ -53,7 +53,7 @@ export const mutation: G.MutationResolvers = {
     const token = TokenMaster.create(
       ObjectIDGenerator,
       authUser,
-      context.now,
+      context.clock.now(),
       RandomGenerator,
     );
     await context.repo.token.insert(token);
@@ -65,7 +65,7 @@ export const mutation: G.MutationResolvers = {
       context.auth.tokenMaster,
       args.name,
       args.url,
-      context.now,
+      context.clock.now(),
     );
     await context.repo.client.insert(client);
     context.log("clients", client.id);
@@ -77,7 +77,7 @@ export const mutation: G.MutationResolvers = {
       context.auth.tokenMaster,
       nullToUndefined(args.name),
       nullToUndefined(args.url),
-      context.now,
+      context.clock.now(),
     );
     await context.repo.client.update(newClient);
     context.log("clients", newClient.id);
@@ -90,7 +90,7 @@ export const mutation: G.MutationResolvers = {
       args.name,
       args.text,
       args.sn,
-      context.now,
+      context.clock.now(),
     );
     await context.repo.profile.insert(profile);
     context.log("profiles", profile.id);
@@ -103,7 +103,7 @@ export const mutation: G.MutationResolvers = {
       nullToUndefined(args.name),
       nullToUndefined(args.text),
       nullToUndefined(args.sn),
-      context.now,
+      context.clock.now(),
     );
     await context.repo.profile.update(newProfile);
     context.log("profiles", newProfile.id);
@@ -131,7 +131,7 @@ export const mutation: G.MutationResolvers = {
       fromNullable(reply),
       fromNullable(profile),
       args.age,
-      context.now,
+      context.clock.now(),
     );
 
     await Promise.all([
@@ -248,12 +248,12 @@ export const mutation: G.MutationResolvers = {
       ObjectIDGenerator,
       context.auth.tokenMaster,
       client,
-      context.now,
+      context.clock.now(),
       RandomGenerator,
     );
 
     const { req, token: newToken } = token.createReq(
-      context.now,
+      context.clock.now(),
       RandomGenerator,
     );
 
@@ -269,7 +269,7 @@ export const mutation: G.MutationResolvers = {
     const token = TokenMaster.create(
       ObjectIDGenerator,
       authUser,
-      context.now,
+      context.clock.now(),
       RandomGenerator,
     );
     await context.repo.token.insert(token);
@@ -281,7 +281,7 @@ export const mutation: G.MutationResolvers = {
     if (token.type !== "general") {
       throw new AtNotFoundError("トークンが見つかりません");
     }
-    token.authReq(args.key, context.now);
+    token.authReq(args.key, context.clock.now());
     return token.toAPI();
   },
   createTokenReq: async (_obj, _args, context, _info) => {
@@ -290,7 +290,7 @@ export const mutation: G.MutationResolvers = {
       throw new AtNotFoundError("トークンが見つかりません");
     }
     const { req, token: newToken } = token.createReq(
-      context.now,
+      context.clock.now(),
       RandomGenerator,
     );
 
@@ -307,7 +307,7 @@ export const mutation: G.MutationResolvers = {
       args.text,
       user,
       context.auth.token,
-      context.now,
+      context.clock.now(),
     );
 
     await context.repo.topic.insert(create.topic);
@@ -330,7 +330,7 @@ export const mutation: G.MutationResolvers = {
       args.text,
       user,
       context.auth.token,
-      context.now,
+      context.clock.now(),
     );
 
     await context.repo.topic.insert(create.topic);
@@ -358,7 +358,7 @@ export const mutation: G.MutationResolvers = {
       parent,
       user,
       context.auth.token,
-      context.now,
+      context.clock.now(),
     );
 
     await context.repo.topic.insert(create.topic);
@@ -392,7 +392,7 @@ export const mutation: G.MutationResolvers = {
       nullToUndefined(args.title),
       nullToUndefined(args.tags),
       nullToUndefined(args.text),
-      context.now,
+      context.clock.now(),
     );
 
     await Promise.all([
