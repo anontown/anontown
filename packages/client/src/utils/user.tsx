@@ -3,13 +3,13 @@ import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { UserData } from "src/models";
 import * as G from "../generated/graphql";
-import { useSave } from "./storage-api";
 import {
   useEffectRef,
   useEffectSkipN,
-  UserContextType,
   UserContext,
+  UserContextType,
 } from "../hooks";
+import { useSave } from "./storage-api";
 
 // TODO: 最悪な実装なのであとで何とかする
 export let auth: G.TokenMasterFragment | null = null;

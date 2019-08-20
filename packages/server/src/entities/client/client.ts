@@ -1,11 +1,11 @@
+import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
+import { pipe } from "fp-ts/lib/pipeable";
 import { AtRightError, paramsErrorMaker } from "../../at-error";
 import { IAuthTokenMaster } from "../../auth";
 import { Config } from "../../config";
 import { IGenerator } from "../../generator";
 import { Copyable } from "../../utils";
-import { option } from "fp-ts";
-import { pipe } from "fp-ts/lib/pipeable";
 
 export interface IClientAPI {
   readonly id: string;

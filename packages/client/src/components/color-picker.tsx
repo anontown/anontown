@@ -1,7 +1,7 @@
 import * as React from "react";
 import { RGBColor, SketchPicker } from "react-color";
-import { toColorString } from "../utils";
 import { useToggle } from "react-use";
+import { toColorString } from "../utils";
 
 export interface ColorPickerProps {
   color: RGBColor;

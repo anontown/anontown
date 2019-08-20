@@ -25,6 +25,7 @@ import { TwitterTimelineEmbed } from "react-twitter-embed";
 import { UserData } from "src/models";
 import { BUILD_DATE, Env } from "../env";
 import * as G from "../generated/graphql";
+import { UserContextType } from "../hooks";
 import * as pages from "../pages";
 import {
   createHeaders,
@@ -34,7 +35,6 @@ import {
   gqlClient,
   User,
 } from "../utils";
-import { UserContextType } from "../hooks";
 import * as style from "./app.scss";
 import { PopupMenu } from "./popup-menu";
 

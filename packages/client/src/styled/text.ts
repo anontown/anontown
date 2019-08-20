@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { textTitle, textSub, textContent } from "./style";
+import { textContent, textSub, textTitle } from "./style";
 
 export const TextTitle = styled.span`
   ${textTitle}

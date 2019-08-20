@@ -1,9 +1,9 @@
 import { FontIcon, IconButton } from "material-ui";
 import * as React from "react";
+import { useToggle } from "react-use";
 import * as G from "../generated/graphql";
 import { UserData } from "../models";
 import { ClientEditor } from "./client-editor";
-import { useToggle } from "react-use";
 
 interface ClientProps {
   client: G.ClientFragment;

@@ -1,3 +1,4 @@
+import { option } from "fp-ts";
 import { some } from "fp-ts/lib/Option";
 import * as Im from "immutable";
 import { ResFork, ResHistory, ResNormal, ResTopic } from "../../entities";
@@ -12,7 +13,6 @@ import {
   toResNormal,
   toResTopic,
 } from "./ires-db";
-import { option } from "fp-ts";
 
 describe("IResDB", () => {
   describe("toResFork", () => {

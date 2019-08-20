@@ -1,4 +1,6 @@
+import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
+import { pipe } from "fp-ts/lib/pipeable";
 import * as Im from "immutable";
 import {
   AtPrerequisiteError,
@@ -14,8 +16,6 @@ import { History } from "../history";
 import { Profile } from "../profile";
 import { Topic, TopicFork, TopicNormal, TopicOne } from "../topic";
 import { User } from "../user";
-import { pipe } from "fp-ts/lib/pipeable";
-import { option } from "fp-ts";
 
 export interface IVote {
   readonly user: string;

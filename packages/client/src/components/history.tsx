@@ -2,11 +2,11 @@ import { routes } from "@anontown/route";
 import { FontIcon, IconButton } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
+import { useToggle } from "react-use";
 import * as G from "../generated/graphql";
 import { dateFormat } from "../utils";
 import { Md } from "./md";
 import { TagsLink } from "./tags-link";
-import { useToggle } from "react-use";
 
 interface HistoryProps {
   history: G.HistoryFragment;

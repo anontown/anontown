@@ -1,4 +1,6 @@
+import { option } from "fp-ts";
 import { fromNullable } from "fp-ts/lib/Option";
+import { pipe } from "fp-ts/lib/pipeable";
 import * as Im from "immutable";
 import {
   IReply,
@@ -12,8 +14,6 @@ import {
   ResTopic,
   ResType,
 } from "../../entities";
-import { option } from "fp-ts";
-import { pipe } from "fp-ts/lib/pipeable";
 
 export interface IResDB {
   id: string;

@@ -1,4 +1,5 @@
 import { routes } from "@anontown/route";
+import { Mutation } from "@apollo/react-components";
 import * as Im from "immutable";
 import {
   MenuItem,
@@ -8,7 +9,6 @@ import {
   TextField,
 } from "material-ui";
 import * as React from "react";
-import { Mutation } from "@apollo/react-components";
 import { Helmet } from "react-helmet";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Errors, MdEditor, Modal, Page, TagsInput } from "../components";

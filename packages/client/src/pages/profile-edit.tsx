@@ -1,10 +1,10 @@
 import { arrayGet, pipe, undefinedMap } from "@kgtkr/utils";
 import * as React from "react";
 import { Helmet } from "react-helmet";
+import useRouter from "use-react-router";
 import { Page, ProfileEditor } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
-import useRouter from "use-react-router";
 type ProfileEditPageProps = UserSwitchProps;
 
 export const ProfileEditPage = userSwitch((props: ProfileEditPageProps) => {

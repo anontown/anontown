@@ -2,9 +2,9 @@ import { routes } from "@anontown/route";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { UserData } from "../models";
-import { TagsLink } from "./tags-link";
 import { Card } from "../styled/card";
 import { TextTitle } from "../styled/text";
+import { TagsLink } from "./tags-link";
 
 interface TagFavoProps {
   userData: UserData;

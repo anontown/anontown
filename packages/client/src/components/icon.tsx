@@ -1,5 +1,5 @@
-import * as React from "react";
 import { undefinedUnwrapOr } from "@kgtkr/utils";
+import * as React from "react";
 
 interface IconProps {
   icon: string;

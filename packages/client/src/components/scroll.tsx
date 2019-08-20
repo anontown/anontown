@@ -1,13 +1,13 @@
 import { arrayFirst, arrayLast } from "@kgtkr/utils";
+import { array, option } from "fp-ts";
+import { pipe } from "fp-ts/lib/pipeable";
 import * as React from "react";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { setTimeout } from "timers";
 import * as G from "../generated/graphql";
 import { useEffectRef, useFunctionRef, useLock, useValueRef } from "../hooks";
-import { pipe } from "fp-ts/lib/pipeable";
 import * as oset from "../utils/ord-set";
-import { array, option } from "fp-ts";
 
 function useToTop(el: HTMLDivElement | null) {
   const elRef = useValueRef(el);

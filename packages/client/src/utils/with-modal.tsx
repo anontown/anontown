@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Modal } from "../components";
 import useRouter from "use-react-router";
+import { Modal } from "../components";
 
 export const withModal = <P extends {}>(
   Page: React.ComponentType<P>,

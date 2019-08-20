@@ -1,10 +1,10 @@
 import { none, some } from "fp-ts/lib/Option";
+import { Loader } from "../adapters";
 import { AtAuthError } from "../at-error";
 import { Logger } from "../logger";
-import { IRepo, ILoader } from "../ports";
+import { ILoader, IRepo } from "../ports";
 import { AuthContainer } from "./auth-container";
 import * as authFromApiParam from "./auth-from-api-param";
-import { Loader } from "../adapters";
 
 export interface AppContext {
   auth: AuthContainer;

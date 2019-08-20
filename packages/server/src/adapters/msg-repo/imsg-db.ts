@@ -1,6 +1,6 @@
+import { option } from "fp-ts";
 import { fromNullable } from "fp-ts/lib/Option";
 import { Msg } from "../../entities";
-import { option } from "fp-ts";
 
 export interface IMsgDB {
   readonly id: string;

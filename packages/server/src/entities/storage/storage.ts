@@ -1,10 +1,10 @@
+import { option } from "fp-ts";
 import { none, Option, some } from "fp-ts/lib/Option";
+import { pipe } from "fp-ts/lib/pipeable";
 import { AtRightError, paramsErrorMaker } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { Config } from "../../config";
 import { Copyable } from "../../utils";
-import { pipe } from "fp-ts/lib/pipeable";
-import { option } from "fp-ts";
 
 export interface IStorageAPI {
   key: string;

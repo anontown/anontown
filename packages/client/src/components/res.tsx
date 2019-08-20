@@ -4,23 +4,23 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import * as uuid from "uuid";
 import * as G from "../generated/graphql";
-import { ng } from "../models";
-import { dateFormat } from "../utils";
 import { useUserContext } from "../hooks";
-import { Md } from "./md";
-import { ResWrite } from "./res-write";
-import { Snack } from "./snack";
+import { ng } from "../models";
 import {
   Card,
+  CardContent,
   CardFlex,
   CardFlexFixed,
   CardFlexStretch,
   CardHeader,
-  CardContent,
 } from "../styled/card";
 import { color, fontSize } from "../styled/constant";
-import { PopupMenu } from "./popup-menu";
+import { dateFormat } from "../utils";
 import { Icon } from "./icon";
+import { Md } from "./md";
+import { PopupMenu } from "./popup-menu";
+import { ResWrite } from "./res-write";
+import { Snack } from "./snack";
 
 interface ResProps {
   res: G.ResFragment;

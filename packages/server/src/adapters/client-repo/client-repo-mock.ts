@@ -1,5 +1,5 @@
 import { isNullish } from "@kgtkr/utils";
-import { Option, isNone } from "fp-ts/lib/Option";
+import { isNone, Option } from "fp-ts/lib/Option";
 import { AtAuthError, AtNotFoundError } from "../../at-error";
 import { IAuthTokenMaster } from "../../auth";
 import { Client } from "../../entities";

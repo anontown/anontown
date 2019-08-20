@@ -2,10 +2,10 @@ import { routes } from "@anontown/route";
 import { RaisedButton } from "material-ui";
 import * as React from "react";
 import { useTitle } from "react-use";
+import useRouter from "use-react-router";
 import { Errors, Page, Snack } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
-import useRouter from "use-react-router";
 
 type AuthPageProps = UserSwitchProps;
 

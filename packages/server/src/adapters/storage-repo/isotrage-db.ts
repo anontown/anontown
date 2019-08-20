@@ -1,8 +1,8 @@
+import { option } from "fp-ts";
 import { fromNullable } from "fp-ts/lib/Option";
+import { pipe } from "fp-ts/lib/pipeable";
 import { ObjectID } from "mongodb";
 import { Storage } from "../../entities";
-import { pipe } from "fp-ts/lib/pipeable";
-import { option } from "fp-ts";
 
 export interface IStorageDB {
   client: ObjectID | null;

@@ -2,6 +2,7 @@ import { routes } from "@anontown/route";
 import { Paper } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
+import useRouter from "use-react-router";
 import { Page, TopicFork } from "../components";
 import * as G from "../generated/graphql";
 import {
@@ -10,7 +11,6 @@ import {
   UserSwitchProps,
   withModal,
 } from "../utils";
-import useRouter from "use-react-router";
 
 type TopicForkBaseProps = UserSwitchProps & {
   zDepth?: number;

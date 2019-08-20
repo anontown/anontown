@@ -30,15 +30,15 @@ export function ClientEditor(props: ClientEditorProps) {
       />
       <RaisedButton
         onClick={async () => {
-          const data = await submit({
+          const result = await submit({
             variables: {
               id: props.client.id,
               name,
               url,
             },
           });
-          if (props.onUpdate !== undefined && data.data !== undefined) {
-            props.onUpdate(data.data.updateClient);
+          if (props.onUpdate !== undefined && result.data !== undefined) {
+            props.onUpdate(result.data.updateClient);
           }
         }}
         label="OK"

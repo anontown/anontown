@@ -1,9 +1,9 @@
 import * as React from "react";
+import { useTitle } from "react-use";
+import useRouter from "use-react-router";
 import { Page, Res, Snack } from "../components";
 import * as G from "../generated/graphql";
 import { withModal } from "../utils";
-import useRouter from "use-react-router";
-import { useTitle } from "react-use";
 
 function ResHashBase(_props: {}) {
   const { match } = useRouter<{ hash: string }>();

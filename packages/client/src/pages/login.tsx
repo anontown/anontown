@@ -5,10 +5,10 @@ import { Helmet } from "react-helmet";
 import { Link, Redirect } from "react-router-dom";
 import { Errors, Page } from "../components";
 import * as G from "../generated/graphql";
-import { createUserData } from "../utils";
 import { useUserContext } from "../hooks";
+import { createUserData } from "../utils";
 
-type LoginPageProps = {};
+interface LoginPageProps {}
 
 export const LoginPage = (_props: LoginPageProps) => {
   const [sn, setSn] = React.useState("");

@@ -1,7 +1,7 @@
 import * as React from "react";
-import { UserData } from "../models";
 import { Omit } from "type-zoo";
 import { UserContext } from "../hooks";
+import { UserData } from "../models";
 
 export interface UserSwitchProps {
   userData: UserData;

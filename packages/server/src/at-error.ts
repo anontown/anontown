@@ -1,6 +1,6 @@
+import { option } from "fp-ts";
 import { fromNullable, Option } from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
-import { option } from "fp-ts";
 
 export const AtErrorSymbol = Symbol("AtError");
 

@@ -12,12 +12,12 @@ import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
+import useRouter from "use-react-router";
 import { Page, TagsInput, TopicListItem } from "../components";
 import * as G from "../generated/graphql";
-import { queryResultConvert } from "../utils";
 import { useEffectRef, useUserContext } from "../hooks";
 import { Card } from "../styled/card";
-import useRouter from "use-react-router";
+import { queryResultConvert } from "../utils";
 
 export const TopicSearchPage = (_props: {}) => {
   const { location, history } = useRouter();

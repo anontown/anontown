@@ -2,12 +2,12 @@ import { routes } from "@anontown/route";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as G from "../generated/graphql";
-import { dateFormat } from "../utils";
 import { useUserContext } from "../hooks";
-import { TagsLink } from "./tags-link";
 import { Card } from "../styled/card";
 import { TextTitle } from "../styled/text";
+import { dateFormat } from "../utils";
 import { Icon } from "./icon";
+import { TagsLink } from "./tags-link";
 
 interface TopicListItemProps {
   topic: G.TopicFragment;

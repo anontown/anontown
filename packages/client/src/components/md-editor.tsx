@@ -7,8 +7,8 @@ import { Errors } from "./errors";
 import { Md } from "./md";
 import { Modal } from "./modal";
 import { Oekaki } from "./oekaki";
-import { TextArea } from "./text-area";
 import { PopupMenu } from "./popup-menu";
+import { TextArea } from "./text-area";
 
 export interface MdEditorProps {
   value: string;

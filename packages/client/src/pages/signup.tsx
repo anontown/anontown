@@ -7,8 +7,8 @@ import { Link, Redirect } from "react-router-dom";
 import { Errors, Page } from "../components";
 import { Env } from "../env";
 import * as G from "../generated/graphql";
-import { createUserData } from "../utils";
 import { UserContext } from "../hooks";
+import { createUserData } from "../utils";
 
 interface SignupPageState {
   sn: string;

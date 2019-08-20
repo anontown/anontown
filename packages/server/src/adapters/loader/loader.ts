@@ -1,9 +1,9 @@
 import * as DataLoader from "dataloader";
 import { Client, History, Msg, Profile, Res, Topic } from "../../entities";
 import {
-  ILoader,
   IClientRepo,
   IHistoryRepo,
+  ILoader,
   IMsgRepo,
   IProfileRepo,
   IResRepo,

@@ -1,4 +1,5 @@
 import { routes } from "@anontown/route";
+import { useApolloClient } from "@apollo/react-hooks";
 import { arrayFirst } from "@kgtkr/utils";
 import {
   FontIcon,
@@ -14,6 +15,7 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import { useTitle } from "react-use";
 import * as rx from "rxjs";
+import useRouter from "use-react-router";
 import {
   Modal,
   NG,
@@ -23,13 +25,11 @@ import {
   Scroll,
   TopicFavo,
 } from "../components";
-import * as G from "../generated/graphql";
-import { queryResultConvert } from "../utils";
-import { useUserContext, useFunctionRef } from "../hooks";
-import * as style from "./topic.scss";
-import useRouter from "use-react-router";
-import { useApolloClient } from "@apollo/react-hooks";
 import { PopupMenu } from "../components/popup-menu";
+import * as G from "../generated/graphql";
+import { useFunctionRef, useUserContext } from "../hooks";
+import { queryResultConvert } from "../utils";
+import * as style from "./topic.scss";
 // TODO:NGのtransparent
 
 function makeUseStream(

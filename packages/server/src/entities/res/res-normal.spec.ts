@@ -1,4 +1,6 @@
+import { option } from "fp-ts";
 import { fromNullable, none, some } from "fp-ts/lib/Option";
+import { pipe } from "fp-ts/lib/pipeable";
 import * as Im from "immutable";
 import {
   AtError,
@@ -8,8 +10,6 @@ import {
   TopicNormal,
   User,
 } from "../../";
-import { pipe } from "fp-ts/lib/pipeable";
-import { option } from "fp-ts";
 
 describe("ResNormal", () => {
   const resNormal = new ResNormal(

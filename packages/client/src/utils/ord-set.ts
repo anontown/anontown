@@ -1,8 +1,8 @@
-export type OrdSet<T, U> = {
+export interface OrdSet<T, U> {
   array: T[];
   compare: (x: T, y: T) => number;
   uniqueBy: (x: T) => U;
-};
+}
 
 export function toArray<T, U>(set: OrdSet<T, U>): T[] {
   return set.array;

@@ -4,9 +4,9 @@ import * as React from "react";
 
 import { useCounter } from "react-use";
 import * as G from "../generated/graphql";
+import { useInputCache } from "../hooks";
 import { Storage, UserData } from "../models";
 import { queryResultConvert } from "../utils";
-import { useInputCache } from "../hooks";
 import { CheckBox } from "./check-box";
 import { Errors } from "./errors";
 import { MdEditor } from "./md-editor";

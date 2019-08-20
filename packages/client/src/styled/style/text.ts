@@ -1,5 +1,5 @@
-import { color, fontFamily, fontSize } from "../constant";
 import { css } from "styled-components";
+import { color, fontFamily, fontSize } from "../constant";
 
 export const base = css`
   color: ${color.font};

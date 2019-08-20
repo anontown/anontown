@@ -1,12 +1,12 @@
+import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
+import { pipe } from "fp-ts/lib/pipeable";
 import * as Im from "immutable";
 import { IAuthToken } from "../../auth";
 import { IGenerator } from "../../generator";
 import { Copyable } from "../../utils";
 import { TopicNormal } from "../topic";
 import { User } from "../user";
-import { option } from "fp-ts";
-import { pipe } from "fp-ts/lib/pipeable";
 
 export interface IHistoryAPI {
   readonly id: string;

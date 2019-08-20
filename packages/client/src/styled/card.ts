@@ -1,6 +1,6 @@
-import styled from "styled-components";
 import { undefinedUnwrapOr } from "@kgtkr/utils";
 import * as chroma from "chroma-js";
+import styled from "styled-components";
 import * as constant from "./constant";
 import { textBase, textContent } from "./style";
 
