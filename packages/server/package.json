@@ -15,7 +15,7 @@
     "dataloader": "^1.4.0",
     "elasticsearch": "^13.3.1",
     "express": "^4.16.4",
-    "fp-ts": "^1.15.0",
+    "fp-ts": "^2.0.5",
     "fs-extra": "^7.0.1",
     "fs-promise": "^2.0.3",
     "graphql": "^14.1.1",
