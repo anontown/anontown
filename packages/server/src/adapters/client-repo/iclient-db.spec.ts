@@ -1,12 +1,12 @@
 import { ObjectID } from "mongodb";
-import { Client, ObjectIDGenerator } from "../../";
+import { Client } from "../../";
 import { fromClient, toClient } from "./iclient-db";
 
 describe("IClientDB", () => {
   describe("toClient", () => {
     it("正常にインスタンス化出来るか", () => {
-      const clientID = ObjectIDGenerator();
-      const userID = ObjectIDGenerator();
+      const clientID = new ObjectID().toHexString();
+      const userID = new ObjectID().toHexString();
       expect(
         toClient({
           _id: new ObjectID(clientID),
@@ -31,8 +31,8 @@ describe("IClientDB", () => {
 
   describe("fromClient", () => {
     it("正常に出力できるか", () => {
-      const clientID = ObjectIDGenerator();
-      const userID = ObjectIDGenerator();
+      const clientID = new ObjectID().toHexString();
+      const userID = new ObjectID().toHexString();
       const client = new Client(
         clientID,
         "name",

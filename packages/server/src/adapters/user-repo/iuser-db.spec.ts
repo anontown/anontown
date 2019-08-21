@@ -1,12 +1,11 @@
 import { ObjectID } from "mongodb";
 import { Config } from "../../config";
 import { User } from "../../entities";
-import { ObjectIDGenerator } from "../../generator";
 import { hash } from "../../utils/hash";
 import { fromUser, toUser } from "./iuser-db";
 
 describe("IUserDB", () => {
-  const userID = ObjectIDGenerator();
+  const userID = new ObjectID().toHexString();
   const user = new User(
     userID,
     "scn",

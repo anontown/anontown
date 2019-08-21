@@ -6,7 +6,6 @@ import {
   TokenGeneral,
   TokenMaster,
 } from "../../entities";
-import { ObjectIDGenerator } from "../../generator";
 import { applyMixins, Copyable } from "../../utils";
 import {
   fromTokenBase,
@@ -34,9 +33,9 @@ describe("ITokenDB", () => {
   }
   applyMixins(TokenBaseTest, [TokenBase]);
 
-  const clientID = ObjectIDGenerator();
-  const userID = ObjectIDGenerator();
-  const tokenID = ObjectIDGenerator();
+  const clientID = new ObjectID().toHexString();
+  const userID = new ObjectID().toHexString();
+  const tokenID = new ObjectID().toHexString();
   const tokenGeneral = new TokenGeneral(
     tokenID,
     "key",
@@ -48,8 +47,8 @@ describe("ITokenDB", () => {
 
   describe("fromTokenBase", () => {
     it("正常に変換できるか", () => {
-      const tokenID = ObjectIDGenerator();
-      const userID = ObjectIDGenerator();
+      const tokenID = new ObjectID().toHexString();
+      const userID = new ObjectID().toHexString();
       const token = new TokenBaseTest(tokenID, "key", userID, new Date(0));
       expect(fromTokenBase<"general">()(token)).toEqual({
         _id: new ObjectID(tokenID),

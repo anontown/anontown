@@ -1,11 +1,10 @@
 import { ObjectID } from "mongodb";
 import { Profile } from "../../entities";
-import { ObjectIDGenerator } from "../../generator";
 import { fromProfile, toProfile } from "./jprofile-db";
 
 describe("IProfileDB", () => {
-  const profileID = ObjectIDGenerator();
-  const userID = ObjectIDGenerator();
+  const profileID = new ObjectID().toHexString();
+  const userID = new ObjectID().toHexString();
   const profile = new Profile(
     profileID,
     userID,

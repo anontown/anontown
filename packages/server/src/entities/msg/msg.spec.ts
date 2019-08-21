@@ -1,5 +1,11 @@
 import { none, some } from "fp-ts/lib/Option";
-import { AtError, IAuthTokenMaster, Msg, User } from "../../";
+import {
+  AtError,
+  DummyObjectIdGenerator,
+  IAuthTokenMaster,
+  Msg,
+  User,
+} from "../../";
 
 describe("Msg", () => {
   const msg = new Msg("msg", some("user"), "text", new Date(0));
@@ -39,9 +45,14 @@ describe("Msg", () => {
 
   describe("create", () => {
     it("receiverがnullの時正常に生成できるか", () => {
-      expect(Msg.create(() => "msg", none, "text", new Date(0))).toEqual(
-        receiverNullMsg,
-      );
+      expect(
+        Msg.create(
+          new DummyObjectIdGenerator("msg"),
+          none,
+          "text",
+          new Date(0),
+        ),
+      ).toEqual(receiverNullMsg);
     });
 
     it("receiverがnullでない時正常に生成出来るか", () => {
@@ -64,9 +75,14 @@ describe("Msg", () => {
         0,
         new Date(250),
       );
-      expect(Msg.create(() => "msg", some(user), "text", new Date(0))).toEqual(
-        msg,
-      );
+      expect(
+        Msg.create(
+          new DummyObjectIdGenerator("msg"),
+          some(user),
+          "text",
+          new Date(0),
+        ),
+      ).toEqual(msg);
     });
   });
 });

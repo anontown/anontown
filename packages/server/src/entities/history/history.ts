@@ -3,7 +3,7 @@ import { Option } from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
 import * as Im from "immutable";
 import { IAuthToken } from "../../auth";
-import { IGenerator } from "../../generator";
+import { IObjectIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
 import { TopicNormal } from "../topic";
 import { User } from "../user";
@@ -21,14 +21,14 @@ export interface IHistoryAPI {
 
 export class History extends Copyable<History> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     topic: TopicNormal,
     date: Date,
     hash: string,
     user: User,
   ): History {
     return new History(
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       topic.id,
       topic.title,
       Im.List(topic.tags),

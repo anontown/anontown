@@ -3,10 +3,10 @@ import moment = require("moment-timezone");
 import { AtPrerequisiteError, paramsErrorMaker } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { Config } from "../../config";
-import { IGenerator } from "../../generator";
+import { IObjectIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
-import { applyMixins } from "../../utils";
 import { hash } from "../../utils";
+import { applyMixins } from "../../utils";
 import { History } from "../history";
 import { Res, ResFork, ResHistory, ResTopic } from "../res";
 import { User } from "../user";
@@ -182,7 +182,7 @@ applyMixins(TopicSearchBase, [TopicBase]);
 export class TopicNormal extends Copyable<TopicNormal>
   implements TopicSearchBase<"normal", TopicNormal> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     title: string,
     tags: string[],
     text: string,
@@ -192,7 +192,7 @@ export class TopicNormal extends Copyable<TopicNormal>
   ) {
     TopicBase.checkData({ title, tags, text });
     const topic = new TopicNormal(
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       title,
       Im.List(tags),
       text,
@@ -238,7 +238,7 @@ export class TopicNormal extends Copyable<TopicNormal>
   }
 
   changeData(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     user: User,
     authToken: IAuthToken,
     title: string | undefined,
@@ -279,7 +279,7 @@ applyMixins(TopicNormal, [TopicSearchBase]);
 export class TopicOne extends Copyable<TopicOne>
   implements TopicSearchBase<"one", TopicOne> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     title: string,
     tags: string[],
     text: string,
@@ -289,7 +289,7 @@ export class TopicOne extends Copyable<TopicOne>
   ) {
     TopicBase.checkData({ title, tags, text });
     const topic = new TopicOne(
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       title,
       Im.List(tags),
       text,
@@ -337,7 +337,7 @@ applyMixins(TopicOne, [TopicSearchBase]);
 export class TopicFork extends Copyable<TopicFork>
   implements TopicBase<"fork", TopicFork> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     title: string,
     parent: TopicNormal,
     user: User,
@@ -346,7 +346,7 @@ export class TopicFork extends Copyable<TopicFork>
   ) {
     TopicBase.checkData({ title });
     const topic = new TopicFork(
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       title,
       now,
       now,

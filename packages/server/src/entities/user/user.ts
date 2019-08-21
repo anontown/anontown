@@ -5,7 +5,7 @@ import {
 } from "../../at-error";
 import { IAuthUser } from "../../auth";
 import { Config } from "../../config";
-import { IGenerator } from "../../generator";
+import { IObjectIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
 import { hash } from "../../utils";
 
@@ -28,7 +28,7 @@ export interface IResWait {
 
 export class User extends Copyable<User> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     sn: string,
     pass: string,
     now: Date,
@@ -49,7 +49,7 @@ export class User extends Copyable<User> {
     ]);
 
     return new User(
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       sn,
       hash(pass + Config.salt.pass),
       1,

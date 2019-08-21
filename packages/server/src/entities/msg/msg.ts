@@ -3,7 +3,7 @@ import { Option } from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
 import { AtRightError } from "../../at-error";
 import { IAuthToken } from "../../auth";
-import { IGenerator } from "../../generator";
+import { IObjectIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
 import { User } from "../user";
 
@@ -16,13 +16,13 @@ export interface IMsgAPI {
 
 export class Msg extends Copyable<Msg> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     receiver: Option<User>,
     text: string,
     now: Date,
   ): Msg {
     return new Msg(
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       pipe(
         receiver,
         option.map(x => x.id),

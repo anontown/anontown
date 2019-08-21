@@ -1,19 +1,14 @@
 import { none, some } from "fp-ts/lib/Option";
-import {
-  AtError,
-  Client,
-  dbReset,
-  IClientRepo,
-  ObjectIDGenerator,
-} from "../../";
+import { ObjectID } from "mongodb";
+import { AtError, Client, dbReset, IClientRepo } from "../../";
 import { IAuthTokenMaster } from "../../auth";
 
 export function run(repoGene: () => IClientRepo, isReset: boolean) {
   const client = new Client(
-    ObjectIDGenerator(),
+    new ObjectID().toHexString(),
     "name",
     "https://hoge.com",
-    ObjectIDGenerator(),
+    new ObjectID().toHexString(),
     new Date(0),
     new Date(100),
   );
@@ -28,7 +23,7 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
       const repo = repoGene();
 
       await repo.insert(client);
-      await repo.insert(client.copy({ id: ObjectIDGenerator() }));
+      await repo.insert(client.copy({ id: new ObjectID().toHexString() }));
 
       expect(await repo.findOne(client.id)).toEqual(client);
     });
@@ -38,16 +33,18 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
 
       await repo.insert(
         new Client(
-          ObjectIDGenerator(),
+          new ObjectID().toHexString(),
           "name",
           "https://hoge.com",
-          ObjectIDGenerator(),
+          new ObjectID().toHexString(),
           new Date(0),
           new Date(10),
         ),
       );
 
-      await expect(repo.findOne(ObjectIDGenerator())).rejects.toThrow(AtError);
+      await expect(repo.findOne(new ObjectID().toHexString())).rejects.toThrow(
+        AtError,
+      );
     });
   });
 
@@ -55,26 +52,26 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
     it("正常に検索出来るか", async () => {
       const repo = repoGene();
 
-      const user1 = ObjectIDGenerator();
-      const user2 = ObjectIDGenerator();
+      const user1 = new ObjectID().toHexString();
+      const user2 = new ObjectID().toHexString();
 
       const client1 = client.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         user: user1,
         date: new Date(50),
       });
       const client2 = client.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         user: user1,
         date: new Date(80),
       });
       const client3 = client.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         user: user1,
         date: new Date(30),
       });
       const client4 = client.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         user: user2,
         date: new Date(90),
       });
@@ -109,7 +106,7 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
 
       expect(
         await repo.find(none, {
-          id: [client1.id, ObjectIDGenerator()],
+          id: [client1.id, new ObjectID().toHexString()],
         }),
       ).toEqual([client1]);
 
@@ -125,7 +122,7 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
       expect(
         await repo.find(
           some<IAuthTokenMaster>({
-            id: ObjectIDGenerator(),
+            id: new ObjectID().toHexString(),
             key: "key",
             user: user1,
             type: "master",
@@ -138,7 +135,7 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
       expect(
         await repo.find(
           some<IAuthTokenMaster>({
-            id: ObjectIDGenerator(),
+            id: new ObjectID().toHexString(),
             key: "key",
             user: user1,
             type: "master",
@@ -170,8 +167,14 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
     it("正常に更新出来るか", async () => {
       const repo = repoGene();
 
-      const client1 = client.copy({ id: ObjectIDGenerator(), name: "client1" });
-      const client2 = client.copy({ id: ObjectIDGenerator(), name: "client2" });
+      const client1 = client.copy({
+        id: new ObjectID().toHexString(),
+        name: "client1",
+      });
+      const client2 = client.copy({
+        id: new ObjectID().toHexString(),
+        name: "client2",
+      });
       const client1update = client1.copy({ name: "update" });
 
       await repo.insert(client1);

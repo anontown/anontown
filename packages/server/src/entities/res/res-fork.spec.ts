@@ -1,6 +1,13 @@
 import { some } from "fp-ts/lib/Option";
 import * as Im from "immutable";
-import { IAuthToken, ResFork, TopicFork, TopicNormal, User } from "../../";
+import {
+  DummyObjectIdGenerator,
+  IAuthToken,
+  ResFork,
+  TopicFork,
+  TopicNormal,
+  User,
+} from "../../";
 
 describe("ResFork", () => {
   const topicNormal = new TopicNormal(
@@ -68,7 +75,7 @@ describe("ResFork", () => {
   describe("create", () => {
     it("正常に作れるか", () => {
       const { res, topic } = ResFork.create(
-        () => "res",
+        new DummyObjectIdGenerator("res"),
         topicNormal,
         user,
         token,

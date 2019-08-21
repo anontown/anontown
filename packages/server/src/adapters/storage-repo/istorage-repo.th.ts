@@ -1,11 +1,11 @@
 import { none, some } from "fp-ts/lib/Option";
+import { ObjectID } from "mongodb";
 import {
   AtError,
   dbReset,
   IAuthTokenGeneral,
   IAuthTokenMaster,
   IStorageRepo,
-  ObjectIDGenerator,
   Storage,
 } from "../../";
 
@@ -16,8 +16,8 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
     }
   });
 
-  const client = ObjectIDGenerator();
-  const user = ObjectIDGenerator();
+  const client = new ObjectID().toHexString();
+  const user = new ObjectID().toHexString();
   const key = "key";
   const storage = new Storage(some(client), user, key, "value");
 
@@ -25,17 +25,17 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
     it("正常に検索出来るか", async () => {
       const repo = repoGene();
 
-      const client1 = ObjectIDGenerator();
-      const client2 = ObjectIDGenerator();
+      const client1 = new ObjectID().toHexString();
+      const client2 = new ObjectID().toHexString();
 
-      const user1 = ObjectIDGenerator();
-      const user2 = ObjectIDGenerator();
+      const user1 = new ObjectID().toHexString();
+      const user2 = new ObjectID().toHexString();
 
       const key1 = "key1";
       const key2 = "key2";
 
       const authGeneral: IAuthTokenGeneral = {
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         key: "tk",
         user: user1,
         type: "general",
@@ -43,7 +43,7 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
       };
 
       const authMaster: IAuthTokenMaster = {
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         key: "tk",
         user: user1,
         type: "master",
@@ -107,7 +107,7 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
       const repo = repoGene();
 
       const authGeneral: IAuthTokenGeneral = {
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         key: "tk",
         user,
         type: "general",
@@ -115,7 +115,7 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
       };
 
       const authMaster: IAuthTokenMaster = {
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         key: "tk",
         user,
         type: "master",
@@ -124,10 +124,16 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
       await repo.save(storage);
 
       await expect(
-        repo.findOneKey({ ...authGeneral, user: ObjectIDGenerator() }, key),
+        repo.findOneKey(
+          { ...authGeneral, user: new ObjectID().toHexString() },
+          key,
+        ),
       ).rejects.toThrow(AtError);
       await expect(
-        repo.findOneKey({ ...authGeneral, client: ObjectIDGenerator() }, key),
+        repo.findOneKey(
+          { ...authGeneral, client: new ObjectID().toHexString() },
+          key,
+        ),
       ).rejects.toThrow(AtError);
       await expect(repo.findOneKey(authGeneral, "key2")).rejects.toThrow(
         AtError,
@@ -140,19 +146,24 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
     it("正常に検索出来るか", async () => {
       const repo = repoGene();
 
-      const storage = new Storage(none, ObjectIDGenerator(), "key", "value");
+      const storage = new Storage(
+        none,
+        new ObjectID().toHexString(),
+        "key",
+        "value",
+      );
 
-      const client1 = ObjectIDGenerator();
-      const client2 = ObjectIDGenerator();
+      const client1 = new ObjectID().toHexString();
+      const client2 = new ObjectID().toHexString();
 
-      const user1 = ObjectIDGenerator();
-      const user2 = ObjectIDGenerator();
+      const user1 = new ObjectID().toHexString();
+      const user2 = new ObjectID().toHexString();
 
       const key1 = "key1";
       const key2 = "key2";
 
       const authGeneral: IAuthTokenGeneral = {
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         key: "tk",
         user: user1,
         type: "general",
@@ -160,7 +171,7 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
       };
 
       const authMaster: IAuthTokenMaster = {
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         key: "tk",
         user: user1,
         type: "master",
@@ -233,7 +244,7 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
       await repo.save(storage);
 
       const authGeneral: IAuthTokenGeneral = {
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         key: "tk",
         user,
         type: "general",
@@ -252,7 +263,7 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
       await repo.save(storageUpdate);
 
       const authGeneral: IAuthTokenGeneral = {
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         key: "tk",
         user,
         type: "general",
@@ -271,7 +282,7 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
       await repo.del(storage);
 
       const authGeneral: IAuthTokenGeneral = {
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         key: "tk",
         user,
         type: "general",

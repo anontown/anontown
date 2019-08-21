@@ -1,6 +1,7 @@
 import { none } from "fp-ts/lib/Option";
 import * as Im from "immutable";
 import { History, IAuthToken, ResHistory, TopicNormal, User } from "../../";
+import { DummyObjectIdGenerator } from "../../adapters/index";
 
 describe("ResHistory", () => {
   const topicNormal = new TopicNormal(
@@ -68,7 +69,7 @@ describe("ResHistory", () => {
   describe("create", () => {
     it("正常に作れるか", () => {
       const { res, topic: newTopic } = ResHistory.create(
-        () => "res",
+        new DummyObjectIdGenerator("res"),
         topicNormal,
         user,
         token,

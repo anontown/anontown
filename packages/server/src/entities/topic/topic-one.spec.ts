@@ -1,5 +1,6 @@
 import * as Im from "immutable";
 import { IAuthTokenMaster, ResTopic, TopicOne, User } from "../../";
+import { DummyObjectIdGenerator } from "../../adapters";
 
 describe("TopicOne", () => {
   const topic = new TopicOne(
@@ -45,7 +46,7 @@ describe("TopicOne", () => {
     it("正常に生成できるか", () => {
       expect(
         TopicOne.create(
-          () => "id",
+          new DummyObjectIdGenerator("id"),
           "title",
           [],
           "text",

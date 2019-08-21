@@ -14,7 +14,6 @@ import {
   User,
 } from "../entities";
 import * as G from "../generated/graphql";
-import { ObjectIDGenerator, RandomGenerator } from "../generator";
 import * as authFromApiParam from "../server/auth-from-api-param";
 
 export const mutation: G.MutationResolvers = {
@@ -22,7 +21,7 @@ export const mutation: G.MutationResolvers = {
     await context.recaptcha.verify(args.recaptcha);
 
     const user = User.create(
-      ObjectIDGenerator,
+      context.objectIdGenerator,
       args.sn,
       args.pass,
       context.clock.now(),
@@ -30,10 +29,10 @@ export const mutation: G.MutationResolvers = {
     await context.repo.user.insert(user);
 
     const token = TokenMaster.create(
-      ObjectIDGenerator,
+      context.objectIdGenerator,
       user.auth(args.pass),
       context.clock.now(),
-      RandomGenerator,
+      context.safeIdGenerator,
     );
     await context.repo.token.insert(token);
 
@@ -51,17 +50,17 @@ export const mutation: G.MutationResolvers = {
     await context.repo.token.delMasterToken(authUser);
 
     const token = TokenMaster.create(
-      ObjectIDGenerator,
+      context.objectIdGenerator,
       authUser,
       context.clock.now(),
-      RandomGenerator,
+      context.safeIdGenerator,
     );
     await context.repo.token.insert(token);
     return { user: newUser.toAPI(), token: token.toAPI() };
   },
   createClient: async (_obj, args, context, _info) => {
     const client = Client.create(
-      ObjectIDGenerator,
+      context.objectIdGenerator,
       context.auth.tokenMaster,
       args.name,
       args.url,
@@ -85,7 +84,7 @@ export const mutation: G.MutationResolvers = {
   },
   createProfile: async (_obj, args, context, _info) => {
     const profile = Profile.create(
-      ObjectIDGenerator,
+      context.objectIdGenerator,
       context.auth.token,
       args.name,
       args.text,
@@ -122,7 +121,7 @@ export const mutation: G.MutationResolvers = {
     ]);
 
     const { res, user: newUser, topic: newTopic } = ResNormal.create(
-      ObjectIDGenerator,
+      context.objectIdGenerator,
       topic,
       user,
       context.auth.token,
@@ -245,16 +244,16 @@ export const mutation: G.MutationResolvers = {
   createTokenGeneral: async (_obj, args, context, _info) => {
     const client = await context.repo.client.findOne(args.client);
     const token = TokenGeneral.create(
-      ObjectIDGenerator,
+      context.objectIdGenerator,
       context.auth.tokenMaster,
       client,
       context.clock.now(),
-      RandomGenerator,
+      context.safeIdGenerator,
     );
 
     const { req, token: newToken } = token.createReq(
       context.clock.now(),
-      RandomGenerator,
+      context.safeIdGenerator,
     );
 
     await context.repo.token.insert(newToken);
@@ -267,10 +266,10 @@ export const mutation: G.MutationResolvers = {
   createTokenMaster: async (_obj, args, context, _info) => {
     const authUser = await authFromApiParam.user(context.repo.user, args.auth);
     const token = TokenMaster.create(
-      ObjectIDGenerator,
+      context.objectIdGenerator,
       authUser,
       context.clock.now(),
-      RandomGenerator,
+      context.safeIdGenerator,
     );
     await context.repo.token.insert(token);
 
@@ -291,7 +290,7 @@ export const mutation: G.MutationResolvers = {
     }
     const { req, token: newToken } = token.createReq(
       context.clock.now(),
-      RandomGenerator,
+      context.safeIdGenerator,
     );
 
     await context.repo.token.update(newToken);
@@ -301,7 +300,7 @@ export const mutation: G.MutationResolvers = {
   createTopicNormal: async (_obj, args, context, _info) => {
     const user = await context.repo.user.findOne(context.auth.token.user);
     const create = TopicNormal.create(
-      ObjectIDGenerator,
+      context.objectIdGenerator,
       args.title,
       args.tags,
       args.text,
@@ -324,7 +323,7 @@ export const mutation: G.MutationResolvers = {
   createTopicOne: async (_obj, args, context, _info) => {
     const user = await context.repo.user.findOne(context.auth.token.user);
     const create = TopicOne.create(
-      ObjectIDGenerator,
+      context.objectIdGenerator,
       args.title,
       args.tags,
       args.text,
@@ -353,7 +352,7 @@ export const mutation: G.MutationResolvers = {
     }
 
     const create = TopicFork.create(
-      ObjectIDGenerator,
+      context.objectIdGenerator,
       args.title,
       parent,
       user,
@@ -386,7 +385,7 @@ export const mutation: G.MutationResolvers = {
     }
 
     const val = topic.changeData(
-      ObjectIDGenerator,
+      context.objectIdGenerator,
       user,
       context.auth.token,
       nullToUndefined(args.title),

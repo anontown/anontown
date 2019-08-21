@@ -10,6 +10,7 @@ import {
   TopicNormal,
   User,
 } from "../../";
+import { DummyObjectIdGenerator } from "../../adapters/index";
 
 describe("ResNormal", () => {
   const resNormal = new ResNormal(
@@ -84,7 +85,7 @@ describe("ResNormal", () => {
   describe("create", () => {
     it("正常に作れるか", () => {
       const { res, user: newUser, topic: newTopic } = ResNormal.create(
-        () => "res",
+        new DummyObjectIdGenerator("res"),
         topicNormal,
         user,
         token,
@@ -140,7 +141,7 @@ describe("ResNormal", () => {
 
     it("replyがnullでない時正常に作れるか", () => {
       const { res, user: newUser, topic: newTopic } = ResNormal.create(
-        () => "res",
+        new DummyObjectIdGenerator("res"),
         topicNormal,
         user,
         token,
@@ -197,7 +198,7 @@ describe("ResNormal", () => {
     it("profileがnullでない時正常に作れるか", () => {
       const date = new Date(60000);
       const { res, user: newUser, topic: newTopic } = ResNormal.create(
-        () => "res",
+        new DummyObjectIdGenerator("res"),
         topicNormal,
         user,
         token,
@@ -254,7 +255,7 @@ describe("ResNormal", () => {
     it("他のトピックへのリプライでエラーになるか", () => {
       expect(() => {
         ResNormal.create(
-          () => "res",
+          new DummyObjectIdGenerator("res"),
           topicNormal,
           user,
           token,
@@ -271,7 +272,7 @@ describe("ResNormal", () => {
     it("他の人のプロフでエラーになるか", () => {
       expect(() => {
         ResNormal.create(
-          () => "res",
+          new DummyObjectIdGenerator("res"),
           topicNormal,
           user,
           token,
@@ -289,7 +290,7 @@ describe("ResNormal", () => {
       for (const name of ["", "x".repeat(51)]) {
         expect(() => {
           ResNormal.create(
-            () => "res",
+            new DummyObjectIdGenerator("res"),
             topicNormal,
             user,
             token,
@@ -309,7 +310,7 @@ describe("ResNormal", () => {
         for (const text of ["", "x".repeat(5001)]) {
           expect(() => {
             ResNormal.create(
-              () => "res",
+              new DummyObjectIdGenerator("res"),
               topicNormal,
               user,
               token,

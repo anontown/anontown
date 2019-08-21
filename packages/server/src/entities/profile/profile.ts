@@ -4,7 +4,7 @@ import { pipe } from "fp-ts/lib/pipeable";
 import { AtRightError, paramsErrorMaker } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { Config } from "../../config";
-import { IGenerator } from "../../generator";
+import { IObjectIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
 
 export interface IProfileAPI {
@@ -19,7 +19,7 @@ export interface IProfileAPI {
 
 export class Profile extends Copyable<Profile> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     authToken: IAuthToken,
     name: string,
     text: string,
@@ -48,7 +48,7 @@ export class Profile extends Copyable<Profile> {
     ]);
 
     return new Profile(
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       authToken.user,
       name,
       text,

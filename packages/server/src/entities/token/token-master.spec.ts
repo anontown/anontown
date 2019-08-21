@@ -1,26 +1,31 @@
-import { AtError, ObjectIDGenerator, TokenBase, TokenMaster } from "../../";
+import { ObjectID } from "mongodb";
+import { AtError, TokenBase, TokenMaster } from "../../";
+import {
+  DummyObjectIdGenerator,
+  DummySafeIdGenerator,
+} from "../../adapters/index";
 
 describe("TokenMaster", () => {
-  const tokenID = ObjectIDGenerator();
-  const userID = ObjectIDGenerator();
+  const tokenID = new ObjectID().toHexString();
+  const userID = new ObjectID().toHexString();
   const tokenMaster = new TokenMaster(tokenID, "key", userID, new Date(0));
 
   describe("create", () => {
     it("正常に生成出来るか", () => {
       expect(
         TokenMaster.create(
-          () => "token",
+          new DummyObjectIdGenerator("token"),
           {
             id: "user",
             pass: "pass",
           },
           new Date(100),
-          () => "key",
+          new DummySafeIdGenerator("key"),
         ),
       ).toEqual(
         new TokenMaster(
           "token",
-          TokenBase.createTokenKey(() => "key"),
+          TokenBase.createTokenKey(new DummySafeIdGenerator("key")),
           "user",
           new Date(100),
         ),

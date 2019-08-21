@@ -9,9 +9,9 @@ import {
 } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { Config } from "../../config";
-import { IGenerator } from "../../generator";
-import { Copyable } from "../../utils";
+import { IObjectIdGenerator } from "../../ports/index";
 import { applyMixins } from "../../utils";
+import { Copyable } from "../../utils";
 import { History } from "../history";
 import { Profile } from "../profile";
 import { Topic, TopicFork, TopicNormal, TopicOne } from "../topic";
@@ -182,7 +182,7 @@ export type Res = ResNormal | ResHistory | ResTopic | ResFork;
 export class ResNormal extends Copyable<ResNormal>
   implements ResBase<"normal", ResNormal> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     topic: Topic,
     user: User,
     _authToken: IAuthToken,
@@ -244,7 +244,7 @@ export class ResNormal extends Copyable<ResNormal>
         option.map(profile => profile.id),
       ),
       age,
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       topic.id,
       now,
       newUser.id,
@@ -359,7 +359,7 @@ applyMixins(ResNormal, [ResBase]);
 export class ResHistory extends Copyable<ResHistory>
   implements ResBase<"history", ResHistory> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     topic: TopicNormal,
     user: User,
     _authToken: IAuthToken,
@@ -368,7 +368,7 @@ export class ResHistory extends Copyable<ResHistory>
   ) {
     const result = new ResHistory(
       history.id,
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       topic.id,
       now,
       user.id,
@@ -429,14 +429,14 @@ applyMixins(ResHistory, [ResBase]);
 export class ResTopic extends Copyable<ResTopic>
   implements ResBase<"topic", ResTopic> {
   static create<TC extends TopicOne | TopicFork>(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     topic: TC,
     user: User,
     _authToken: IAuthToken,
     now: Date,
   ) {
     const result = new ResTopic(
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       topic.id,
       now,
       user.id,
@@ -494,7 +494,7 @@ applyMixins(ResTopic, [ResBase]);
 export class ResFork extends Copyable<ResFork>
   implements ResBase<"fork", ResFork> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     topic: TopicNormal,
     user: User,
     _authToken: IAuthToken,
@@ -503,7 +503,7 @@ export class ResFork extends Copyable<ResFork>
   ) {
     const result = new ResFork(
       fork.id,
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       topic.id,
       now,
       user.id,

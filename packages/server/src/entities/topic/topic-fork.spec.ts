@@ -7,6 +7,7 @@ import {
   TopicNormal,
   User,
 } from "../../";
+import { DummyObjectIdGenerator } from "../../adapters/index";
 
 describe("TopicFork", () => {
   const topicFork = new TopicFork(
@@ -63,7 +64,7 @@ describe("TopicFork", () => {
     it("正常に生成できるか", () => {
       expect(
         TopicFork.create(
-          () => "id",
+          new DummyObjectIdGenerator("id"),
           "title",
           parent,
           user,

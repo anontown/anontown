@@ -1,11 +1,5 @@
-import {
-  AtError,
-  dbReset,
-  IUserRepo,
-  ObjectIDGenerator,
-  ResWaitCountKey,
-  User,
-} from "../../";
+import { ObjectID } from "mongodb";
+import { AtError, dbReset, IUserRepo, ResWaitCountKey, User } from "../../";
 
 export function run(repoGene: () => IUserRepo, isReset: boolean) {
   beforeEach(async () => {
@@ -15,7 +9,7 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
   });
 
   const user = new User(
-    ObjectIDGenerator(),
+    new ObjectID().toHexString(),
     "sn",
     "pass",
     1,
@@ -39,7 +33,9 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
       const repo = repoGene();
 
       await repo.insert(user);
-      await repo.insert(user.copy({ id: ObjectIDGenerator(), sn: "sn2" }));
+      await repo.insert(
+        user.copy({ id: new ObjectID().toHexString(), sn: "sn2" }),
+      );
 
       expect(await repo.findOne(user.id)).toEqual(user);
     });
@@ -49,7 +45,9 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
 
       await repo.insert(user);
 
-      await expect(repo.findOne(ObjectIDGenerator())).rejects.toThrow(AtError);
+      await expect(repo.findOne(new ObjectID().toHexString())).rejects.toThrow(
+        AtError,
+      );
     });
   });
 
@@ -58,7 +56,9 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
       const repo = repoGene();
 
       await repo.insert(user);
-      await repo.insert(user.copy({ id: ObjectIDGenerator(), sn: "sn2" }));
+      await repo.insert(
+        user.copy({ id: new ObjectID().toHexString(), sn: "sn2" }),
+      );
 
       expect(await repo.findID(user.sn)).toEqual(user.id);
     });
@@ -87,7 +87,7 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
       await repo.insert(user);
 
       await expect(
-        repo.insert(user.copy({ id: ObjectIDGenerator() })),
+        repo.insert(user.copy({ id: new ObjectID().toHexString() })),
       ).rejects.toThrow(AtError);
     });
   });
@@ -96,8 +96,8 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
     it("正常に更新出来るか", async () => {
       const repo = repoGene();
 
-      const user1 = user.copy({ id: ObjectIDGenerator(), sn: "sn1" });
-      const user2 = user.copy({ id: ObjectIDGenerator(), sn: "sn2" });
+      const user1 = user.copy({ id: new ObjectID().toHexString(), sn: "sn1" });
+      const user2 = user.copy({ id: new ObjectID().toHexString(), sn: "sn2" });
       const user1update = user1.copy({ sn: "update" });
 
       await repo.insert(user1);
@@ -112,8 +112,8 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
     it("sn被りでエラーになるか", async () => {
       const repo = repoGene();
 
-      const user1 = user.copy({ id: ObjectIDGenerator(), sn: "sn1" });
-      const user2 = user.copy({ id: ObjectIDGenerator(), sn: "sn2" });
+      const user1 = user.copy({ id: new ObjectID().toHexString(), sn: "sn1" });
+      const user2 = user.copy({ id: new ObjectID().toHexString(), sn: "sn2" });
       const user1update = user1.copy({ sn: "sn2" });
 
       await repo.insert(user1);
@@ -130,9 +130,9 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
       const repo = repoGene();
 
       const users = [
-        user.copy({ id: ObjectIDGenerator(), sn: "sn1", point: 10 }),
-        user.copy({ id: ObjectIDGenerator(), sn: "sn2", point: 0 }),
-        user.copy({ id: ObjectIDGenerator(), sn: "sn3", point: 1 }),
+        user.copy({ id: new ObjectID().toHexString(), sn: "sn1", point: 10 }),
+        user.copy({ id: new ObjectID().toHexString(), sn: "sn2", point: 0 }),
+        user.copy({ id: new ObjectID().toHexString(), sn: "sn3", point: 1 }),
       ];
 
       for (const u of users) {
@@ -161,7 +161,7 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
 
         const users = [
           user.copy({
-            id: ObjectIDGenerator(),
+            id: new ObjectID().toHexString(),
             sn: "sn1",
             resWait: {
               last: new Date(310),
@@ -174,7 +174,7 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
             },
           }),
           user.copy({
-            id: ObjectIDGenerator(),
+            id: new ObjectID().toHexString(),
             sn: "sn2",
             resWait: {
               last: new Date(330),
@@ -187,7 +187,7 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
             },
           }),
           user.copy({
-            id: ObjectIDGenerator(),
+            id: new ObjectID().toHexString(),
             sn: "sn3",
             resWait: {
               last: new Date(320),

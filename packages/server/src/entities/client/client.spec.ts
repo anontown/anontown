@@ -1,12 +1,17 @@
 import { none, some } from "fp-ts/lib/Option";
-import { AtError, Client, IAuthTokenMaster, ObjectIDGenerator } from "../../";
+import { ObjectID } from "mongodb";
+import { AtError, Client, IAuthTokenMaster } from "../../";
+import {
+  DummyObjectIdGenerator,
+  ObjectIdGenerator,
+} from "../../adapters/index";
 
 describe("Client", () => {
   describe("create", () => {
     it("http:// から始まるURLで正常に呼び出せるか", () => {
       expect(
         Client.create(
-          () => "client",
+          new DummyObjectIdGenerator("client"),
           {
             id: "token",
             key: "",
@@ -32,7 +37,7 @@ describe("Client", () => {
     it("https:// から始まるURLで正常に呼び出せるか", () => {
       expect(
         Client.create(
-          () => "client",
+          new DummyObjectIdGenerator("client"),
           {
             id: "token",
             key: "",
@@ -58,11 +63,11 @@ describe("Client", () => {
     it("長い名前でエラーになるか", () => {
       expect(() => {
         Client.create(
-          ObjectIDGenerator,
+          new ObjectIdGenerator(),
           {
-            id: ObjectIDGenerator(),
+            id: new ObjectID().toHexString(),
             key: "",
-            user: ObjectIDGenerator(),
+            user: new ObjectID().toHexString(),
             type: "master",
           },
           "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -75,11 +80,11 @@ describe("Client", () => {
     it("名前が空文字でエラーになるか", () => {
       expect(() => {
         Client.create(
-          ObjectIDGenerator,
+          new ObjectIdGenerator(),
           {
-            id: ObjectIDGenerator(),
+            id: new ObjectID().toHexString(),
             key: "",
-            user: ObjectIDGenerator(),
+            user: new ObjectID().toHexString(),
             type: "master",
           },
           "",
@@ -92,11 +97,11 @@ describe("Client", () => {
     it("URLスキーマを不正にしたらエラーになるか", () => {
       expect(() => {
         Client.create(
-          ObjectIDGenerator,
+          new ObjectIdGenerator(),
           {
-            id: ObjectIDGenerator(),
+            id: new ObjectID().toHexString(),
             key: "",
-            user: ObjectIDGenerator(),
+            user: new ObjectID().toHexString(),
             type: "master",
           },
           "hoge",
@@ -109,11 +114,11 @@ describe("Client", () => {
     it("URLのホストなしでエラーになるか", () => {
       expect(() => {
         Client.create(
-          ObjectIDGenerator,
+          new ObjectIdGenerator(),
           {
-            id: ObjectIDGenerator(),
+            id: new ObjectID().toHexString(),
             key: "",
-            user: ObjectIDGenerator(),
+            user: new ObjectID().toHexString(),
             type: "master",
           },
           "http://",
@@ -126,11 +131,11 @@ describe("Client", () => {
     it("URLが空でエラーになるか", () => {
       expect(() => {
         Client.create(
-          ObjectIDGenerator,
+          new ObjectIdGenerator(),
           {
-            id: ObjectIDGenerator(),
+            id: new ObjectID().toHexString(),
             key: "",
-            user: ObjectIDGenerator(),
+            user: new ObjectID().toHexString(),
             type: "master",
           },
           "hoge",
@@ -141,8 +146,8 @@ describe("Client", () => {
     });
   });
 
-  const clientID = ObjectIDGenerator();
-  const userID = ObjectIDGenerator();
+  const clientID = new ObjectID().toHexString();
+  const userID = new ObjectID().toHexString();
   const client = new Client(
     clientID,
     "name",
@@ -206,12 +211,12 @@ describe("Client", () => {
         const auth: IAuthTokenMaster = {
           id: "token",
           key: "key",
-          user: ObjectIDGenerator(),
+          user: new ObjectID().toHexString(),
           type: "master",
         };
 
         const client = Client.create(
-          ObjectIDGenerator,
+          new ObjectIdGenerator(),
           auth,
           "hoge",
           "http://hoge",
@@ -220,9 +225,9 @@ describe("Client", () => {
 
         client.changeData(
           {
-            id: ObjectIDGenerator(),
+            id: new ObjectID().toHexString(),
             key: "",
-            user: ObjectIDGenerator(),
+            user: new ObjectID().toHexString(),
             type: "master",
           },
           "foo",
@@ -235,14 +240,14 @@ describe("Client", () => {
     it("長い名前でエラーになるか", () => {
       expect(() => {
         const auth: IAuthTokenMaster = {
-          id: ObjectIDGenerator(),
+          id: new ObjectID().toHexString(),
           key: "",
-          user: ObjectIDGenerator(),
+          user: new ObjectID().toHexString(),
           type: "master",
         };
 
         const client = Client.create(
-          ObjectIDGenerator,
+          new ObjectIdGenerator(),
           auth,
           "hoge",
           "http://hoge",
@@ -261,14 +266,14 @@ describe("Client", () => {
     it("不正なURLでエラーになるか", () => {
       expect(() => {
         const auth: IAuthTokenMaster = {
-          id: ObjectIDGenerator(),
+          id: new ObjectID().toHexString(),
           key: "",
-          user: ObjectIDGenerator(),
+          user: new ObjectID().toHexString(),
           type: "master",
         };
 
         const client = Client.create(
-          ObjectIDGenerator,
+          new ObjectIdGenerator(),
           auth,
           "hoge",
           "http://hoge",
@@ -297,7 +302,7 @@ describe("Client", () => {
         client.toAPI(
           some({
             ...auth,
-            user: ObjectIDGenerator(),
+            user: new ObjectID().toHexString(),
           }),
         ),
       ).toEqual({

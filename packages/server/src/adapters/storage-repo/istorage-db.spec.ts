@@ -1,12 +1,11 @@
 import { none, some } from "fp-ts/lib/Option";
 import { ObjectID } from "mongodb";
 import { Storage } from "../../entities";
-import { ObjectIDGenerator } from "../../generator";
 import { fromStorage, toStorage } from "./isotrage-db";
 
 describe("IStorageDB", () => {
-  const cleintID = ObjectIDGenerator();
-  const userID = ObjectIDGenerator();
+  const cleintID = new ObjectID().toHexString();
+  const userID = new ObjectID().toHexString();
 
   const storage = new Storage(some(cleintID), userID, "key", "value");
 

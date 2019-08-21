@@ -2,7 +2,7 @@ import * as Im from "immutable";
 import { AtNotFoundError, AtTokenAuthError } from "../../at-error";
 import { IAuthTokenGeneral, IAuthTokenMaster, IAuthUser } from "../../auth";
 import { Config } from "../../config";
-import { IGenerator } from "../../generator";
+import { IObjectIdGenerator, ISafeIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
 import { hash } from "../../utils";
 import { applyMixins } from "../../utils";
@@ -42,8 +42,8 @@ export abstract class TokenBase<
   T extends TokenType,
   C extends TokenBase<T, C>
 > {
-  static createTokenKey(randomGenerator: IGenerator<string>): string {
-    return hash(randomGenerator() + Config.salt.token);
+  static createTokenKey(randomGenerator: ISafeIdGenerator): string {
+    return hash(randomGenerator.generateSafeId() + Config.salt.token);
   }
 
   abstract readonly id: string;
@@ -67,13 +67,13 @@ export abstract class TokenBase<
 export class TokenMaster extends Copyable<TokenMaster>
   implements TokenBase<"master", TokenMaster> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     authUser: IAuthUser,
     now: Date,
-    randomGenerator: IGenerator<string>,
+    randomGenerator: ISafeIdGenerator,
   ): TokenMaster {
     return new TokenMaster(
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       TokenBase.createTokenKey(randomGenerator),
       authUser.id,
       now,
@@ -110,14 +110,14 @@ applyMixins(TokenMaster, [TokenBase]);
 export class TokenGeneral extends Copyable<TokenGeneral>
   implements TokenBase<"general", TokenGeneral> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     authToken: IAuthTokenMaster,
     client: Client,
     now: Date,
-    randomGenerator: IGenerator<string>,
+    randomGenerator: ISafeIdGenerator,
   ): TokenGeneral {
     return new TokenGeneral(
-      objidGenerator(),
+      objidGenerator.generateObjectId(),
       TokenBase.createTokenKey(randomGenerator),
       client.id,
       authToken.user,
@@ -150,7 +150,7 @@ export class TokenGeneral extends Copyable<TokenGeneral>
 
   createReq(
     now: Date,
-    randomGenerator: IGenerator<string>,
+    randomGenerator: ISafeIdGenerator,
   ): { token: TokenGeneral; req: ITokenReqAPI } {
     const nowNum = now.getTime();
 

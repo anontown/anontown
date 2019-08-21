@@ -1,17 +1,12 @@
 import { none, some } from "fp-ts/lib/Option";
-import {
-  AtError,
-  IAuthTokenGeneral,
-  IAuthTokenMaster,
-  ObjectIDGenerator,
-  Storage,
-} from "../../";
+import { ObjectID } from "mongodb";
+import { AtError, IAuthTokenGeneral, IAuthTokenMaster, Storage } from "../../";
 
 describe("Storage", () => {
-  const cleintID = ObjectIDGenerator();
-  const userID = ObjectIDGenerator();
-  const authMasterID = ObjectIDGenerator();
-  const authGeneralID = ObjectIDGenerator();
+  const cleintID = new ObjectID().toHexString();
+  const userID = new ObjectID().toHexString();
+  const authMasterID = new ObjectID().toHexString();
+  const authGeneralID = new ObjectID().toHexString();
 
   const storage = new Storage(some(cleintID), userID, "key", "value");
 
@@ -47,7 +42,7 @@ describe("Storage", () => {
 
     it("ユーザーが違う時エラーになるか", () => {
       expect(() => {
-        storage.toAPI({ ...authMaster, user: ObjectIDGenerator() });
+        storage.toAPI({ ...authMaster, user: new ObjectID().toHexString() });
       }).toThrow(AtError);
     });
 

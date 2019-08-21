@@ -1,7 +1,9 @@
-import { AtError, Config, hash, ObjectIDGenerator, User } from "../../";
+import { ObjectID } from "mongodb";
+import { AtError, Config, hash, User } from "../../";
+import { DummyObjectIdGenerator } from "../../adapters";
 
 describe("User", () => {
-  const userID = ObjectIDGenerator();
+  const userID = new ObjectID().toHexString();
   const user = new User(
     userID,
     "scn",
@@ -24,7 +26,14 @@ describe("User", () => {
 
   describe("create", () => {
     it("正常に作れるか", () => {
-      expect(User.create(() => userID, "scn", "pass", new Date(0))).toEqual(
+      expect(
+        User.create(
+          new DummyObjectIdGenerator(userID),
+          "scn",
+          "pass",
+          new Date(0),
+        ),
+      ).toEqual(
         user.copy({
           resWait: {
             last: new Date(0),
@@ -43,29 +52,59 @@ describe("User", () => {
 
     it("パスワードが不正な時エラーになるか", () => {
       expect(() => {
-        User.create(() => userID, "scn", "x", new Date(0));
+        User.create(
+          new DummyObjectIdGenerator(userID),
+          "scn",
+          "x",
+          new Date(0),
+        );
       }).toThrow(AtError);
 
       expect(() => {
-        User.create(() => userID, "scn", "x".repeat(51), new Date(0));
+        User.create(
+          new DummyObjectIdGenerator(userID),
+          "scn",
+          "x".repeat(51),
+          new Date(0),
+        );
       }).toThrow(AtError);
 
       expect(() => {
-        User.create(() => userID, "scn", "あ", new Date(0));
+        User.create(
+          new DummyObjectIdGenerator(userID),
+          "scn",
+          "あ",
+          new Date(0),
+        );
       }).toThrow(AtError);
     });
 
     it("スクリーンネームが不正な時エラーになるか", () => {
       expect(() => {
-        User.create(() => userID, "x", "pass", new Date(0));
+        User.create(
+          new DummyObjectIdGenerator(userID),
+          "x",
+          "pass",
+          new Date(0),
+        );
       }).toThrow(AtError);
 
       expect(() => {
-        User.create(() => userID, "x".repeat(21), "pass", new Date(0));
+        User.create(
+          new DummyObjectIdGenerator(userID),
+          "x".repeat(21),
+          "pass",
+          new Date(0),
+        );
       }).toThrow(AtError);
 
       expect(() => {
-        User.create(() => userID, "あ", "pass", new Date(0));
+        User.create(
+          new DummyObjectIdGenerator(userID),
+          "あ",
+          "pass",
+          new Date(0),
+        );
       }).toThrow(AtError);
     });
   });

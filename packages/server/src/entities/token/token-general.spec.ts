@@ -1,16 +1,20 @@
 import * as Im from "immutable";
+import { ObjectID } from "mongodb";
 import {
   AtError,
   Client,
   IAuthTokenMaster,
-  ObjectIDGenerator,
   TokenBase,
   TokenGeneral,
 } from "../../";
+import {
+  DummyObjectIdGenerator,
+  DummySafeIdGenerator,
+} from "../../adapters/index";
 
 describe("TokenMaster", () => {
-  const clientID = ObjectIDGenerator();
-  const userID = ObjectIDGenerator();
+  const clientID = new ObjectID().toHexString();
+  const userID = new ObjectID().toHexString();
   const client = new Client(
     clientID,
     "name",
@@ -21,13 +25,13 @@ describe("TokenMaster", () => {
   );
 
   const auth: IAuthTokenMaster = {
-    id: ObjectIDGenerator(),
+    id: new ObjectID().toHexString(),
     key: "key",
     user: userID,
     type: "master",
   };
 
-  const tokenID = ObjectIDGenerator();
+  const tokenID = new ObjectID().toHexString();
   const token = new TokenGeneral(
     tokenID,
     "key",
@@ -41,13 +45,17 @@ describe("TokenMaster", () => {
     it("正常に作成出来るか", () => {
       expect(
         TokenGeneral.create(
-          () => tokenID,
+          new DummyObjectIdGenerator(tokenID),
           auth,
           client,
           new Date(300),
-          () => "random",
+          new DummySafeIdGenerator("random"),
         ),
-      ).toEqual(token.copy({ key: TokenBase.createTokenKey(() => "random") }));
+      ).toEqual(
+        token.copy({
+          key: TokenBase.createTokenKey(new DummySafeIdGenerator("random")),
+        }),
+      );
     });
   });
 
@@ -63,9 +71,12 @@ describe("TokenMaster", () => {
   describe("createReq", () => {
     it("正常に追加出来るか", () => {
       const date = new Date(0);
-      const { token: newToken, req } = token.createReq(date, () => "random");
+      const { token: newToken, req } = token.createReq(
+        date,
+        new DummySafeIdGenerator("random"),
+      );
       const r = {
-        key: TokenBase.createTokenKey(() => "random"),
+        key: TokenBase.createTokenKey(new DummySafeIdGenerator("random")),
         expireDate: new Date(300000),
         active: true,
       };
@@ -95,9 +106,9 @@ describe("TokenMaster", () => {
             },
           ]),
         })
-        .createReq(date, () => "random");
+        .createReq(date, new DummySafeIdGenerator("random"));
       const r = {
-        key: TokenBase.createTokenKey(() => "random"),
+        key: TokenBase.createTokenKey(new DummySafeIdGenerator("random")),
         expireDate: new Date(300100),
         active: true,
       };

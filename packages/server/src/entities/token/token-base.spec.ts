@@ -1,4 +1,5 @@
 import { ITokenBaseAPI, TokenBase } from "../../";
+import { DummySafeIdGenerator } from "../../adapters/index";
 import { Copyable } from "../../utils";
 import { applyMixins } from "../../utils";
 
@@ -22,8 +23,8 @@ describe("TokenBase", () => {
 
   describe("createTokenKey", () => {
     it("正常に生成出来るか", () => {
-      expect(TokenBase.createTokenKey(() => "a")).not.toBe(
-        TokenBase.createTokenKey(() => "b"),
+      expect(TokenBase.createTokenKey(new DummySafeIdGenerator("a"))).not.toBe(
+        TokenBase.createTokenKey(new DummySafeIdGenerator("a")),
       );
     });
   });

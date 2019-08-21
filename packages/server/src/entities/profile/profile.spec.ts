@@ -1,9 +1,10 @@
 import { none, some } from "fp-ts/lib/Option";
-import { IAuthTokenMaster, ObjectIDGenerator, Profile } from "../../";
+import { ObjectID } from "mongodb";
+import { DummyObjectIdGenerator, IAuthTokenMaster, Profile } from "../../";
 
 describe("Profile", () => {
-  const profileID = ObjectIDGenerator();
-  const userID = ObjectIDGenerator();
+  const profileID = new ObjectID().toHexString();
+  const userID = new ObjectID().toHexString();
   const profile = new Profile(
     profileID,
     userID,
@@ -18,7 +19,7 @@ describe("Profile", () => {
     type: "master",
     user: userID,
     key: "key",
-    id: ObjectIDGenerator(),
+    id: new ObjectID().toHexString(),
   };
 
   describe("#toAPI", () => {
@@ -39,7 +40,7 @@ describe("Profile", () => {
         profile.toAPI(
           some({
             ...auth,
-            user: ObjectIDGenerator(),
+            user: new ObjectID().toHexString(),
           }),
         ),
       ).toEqual({
@@ -70,7 +71,7 @@ describe("Profile", () => {
     it("正常に作れるか", () => {
       expect(
         Profile.create(
-          () => profileID,
+          new DummyObjectIdGenerator(profileID),
           auth,
           "name",
           "text",

@@ -6,6 +6,7 @@ import {
   TopicNormal,
   User,
 } from "../../";
+import { DummyObjectIdGenerator } from "../../adapters/index";
 
 describe("TopicNormal", () => {
   const topic = new TopicNormal(
@@ -51,7 +52,7 @@ describe("TopicNormal", () => {
     it("正常に生成出来るか", () => {
       expect(
         TopicNormal.create(
-          () => "topic",
+          new DummyObjectIdGenerator("topic"),
           "title",
           [],
           "text",
@@ -99,7 +100,7 @@ describe("TopicNormal", () => {
     it("正常に変更出来るか", () => {
       expect(
         topic.changeData(
-          () => "id",
+          new DummyObjectIdGenerator("id"),
           user,
           auth,
           "title2",
@@ -142,7 +143,7 @@ describe("TopicNormal", () => {
 
       expect(
         topic.changeData(
-          () => "id",
+          new DummyObjectIdGenerator("id"),
           user,
           auth,
           undefined,
@@ -185,7 +186,7 @@ describe("TopicNormal", () => {
 
       expect(
         topic.changeData(
-          () => "id",
+          new DummyObjectIdGenerator("id"),
           user,
           auth,
           "title2",

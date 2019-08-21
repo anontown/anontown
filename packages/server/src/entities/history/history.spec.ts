@@ -1,6 +1,6 @@
 import { none, some } from "fp-ts/lib/Option";
 import * as Im from "immutable";
-import { History, TopicNormal, User } from "../../";
+import { DummyObjectIdGenerator, History, TopicNormal, User } from "../../";
 import { IAuthToken } from "../../auth";
 
 describe("History", () => {
@@ -39,7 +39,13 @@ describe("History", () => {
       );
 
       expect(
-        History.create(() => "history", topic, new Date(300), "hash", user),
+        History.create(
+          new DummyObjectIdGenerator("history"),
+          topic,
+          new Date(300),
+          "hash",
+          user,
+        ),
       ).toEqual(
         new History(
           "history",

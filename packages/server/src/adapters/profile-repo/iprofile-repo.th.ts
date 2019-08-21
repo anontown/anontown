@@ -1,11 +1,6 @@
 import { none, some } from "fp-ts/lib/Option";
-import {
-  AtError,
-  dbReset,
-  IProfileRepo,
-  ObjectIDGenerator,
-  Profile,
-} from "../../";
+import { ObjectID } from "mongodb";
+import { AtError, dbReset, IProfileRepo, Profile } from "../../";
 import { IAuthToken } from "../../auth";
 import { AuthContainer } from "../../server/auth-container";
 
@@ -17,8 +12,8 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
   });
 
   const profile = new Profile(
-    ObjectIDGenerator(),
-    ObjectIDGenerator(),
+    new ObjectID().toHexString(),
+    new ObjectID().toHexString(),
     "name",
     "text",
     new Date(0),
@@ -31,7 +26,9 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
       const repo = repoGene();
 
       await repo.insert(profile);
-      await repo.insert(profile.copy({ id: ObjectIDGenerator(), sn: "sn2" }));
+      await repo.insert(
+        profile.copy({ id: new ObjectID().toHexString(), sn: "sn2" }),
+      );
 
       expect(await repo.findOne(profile.id)).toEqual(profile);
     });
@@ -41,8 +38,8 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
 
       await repo.insert(
         new Profile(
-          ObjectIDGenerator(),
-          ObjectIDGenerator(),
+          new ObjectID().toHexString(),
+          new ObjectID().toHexString(),
           "name",
           "text",
           new Date(0),
@@ -51,7 +48,9 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
         ),
       );
 
-      await expect(repo.findOne(ObjectIDGenerator())).rejects.toThrow(AtError);
+      await expect(repo.findOne(new ObjectID().toHexString())).rejects.toThrow(
+        AtError,
+      );
     });
   });
 
@@ -59,29 +58,29 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
     it("正常に探せるか", async () => {
       const repo = repoGene();
 
-      const user1 = ObjectIDGenerator();
-      const user2 = ObjectIDGenerator();
+      const user1 = new ObjectID().toHexString();
+      const user2 = new ObjectID().toHexString();
 
       const profile1 = profile.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         user: user1,
         date: new Date(50),
         sn: "sn1",
       });
       const profile2 = profile.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         user: user1,
         date: new Date(80),
         sn: "sn2",
       });
       const profile3 = profile.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         user: user1,
         date: new Date(30),
         sn: "sn3",
       });
       const profile4 = profile.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         user: user2,
         date: new Date(90),
         sn: "sn4",
@@ -105,7 +104,7 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
         await repo.find(
           new AuthContainer(
             some<IAuthToken>({
-              id: ObjectIDGenerator(),
+              id: new ObjectID().toHexString(),
               key: "key",
               user: user1,
               type: "master",
@@ -125,7 +124,7 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
       expect(await repo.find(new AuthContainer(none), { id: [] })).toEqual([]);
       expect(
         await repo.find(new AuthContainer(none), {
-          id: [profile1.id, profile2.id, ObjectIDGenerator()],
+          id: [profile1.id, profile2.id, new ObjectID().toHexString()],
         }),
       ).toEqual([profile2, profile1]);
 
@@ -134,7 +133,7 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
         await repo.find(
           new AuthContainer(
             some<IAuthToken>({
-              id: ObjectIDGenerator(),
+              id: new ObjectID().toHexString(),
               key: "key",
               user: user1,
               type: "master",
@@ -166,7 +165,7 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
     it("sn被りでエラーになるか", async () => {
       const repo = repoGene();
 
-      const profile2 = profile.copy({ id: ObjectIDGenerator() });
+      const profile2 = profile.copy({ id: new ObjectID().toHexString() });
 
       await repo.insert(profile);
       await expect(repo.insert(profile2)).rejects.toThrow(AtError);
@@ -179,8 +178,14 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
     it("正常に更新出来るか", async () => {
       const repo = repoGene();
 
-      const profile1 = profile.copy({ id: ObjectIDGenerator(), sn: "sn1" });
-      const profile2 = profile.copy({ id: ObjectIDGenerator(), sn: "sn2" });
+      const profile1 = profile.copy({
+        id: new ObjectID().toHexString(),
+        sn: "sn1",
+      });
+      const profile2 = profile.copy({
+        id: new ObjectID().toHexString(),
+        sn: "sn2",
+      });
       const profile1update = profile1.copy({ sn: "update" });
       const profile1update2 = profile1.copy({ name: "newname" });
 
@@ -199,8 +204,14 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
     it("sn被りでエラーになるか", async () => {
       const repo = repoGene();
 
-      const profile1 = profile.copy({ id: ObjectIDGenerator(), sn: "sn1" });
-      const profile2 = profile.copy({ id: ObjectIDGenerator(), sn: "sn2" });
+      const profile1 = profile.copy({
+        id: new ObjectID().toHexString(),
+        sn: "sn1",
+      });
+      const profile2 = profile.copy({
+        id: new ObjectID().toHexString(),
+        sn: "sn2",
+      });
       const profile1update = profile1.copy({ sn: "sn2" });
 
       await repo.insert(profile1);

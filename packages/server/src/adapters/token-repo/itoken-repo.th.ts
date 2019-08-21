@@ -1,9 +1,9 @@
 import * as Im from "immutable";
+import { ObjectID } from "mongodb";
 import {
   AtError,
   dbReset,
   ITokenRepo,
-  ObjectIDGenerator,
   TokenGeneral,
   TokenMaster,
 } from "../../";
@@ -15,19 +15,19 @@ export function run(repoGene: () => ITokenRepo, isReset: boolean) {
     }
   });
 
-  const userID = ObjectIDGenerator();
+  const userID = new ObjectID().toHexString();
 
   const tokenMaster = new TokenMaster(
-    ObjectIDGenerator(),
+    new ObjectID().toHexString(),
     "key",
     userID,
     new Date(0),
   );
 
   const tokenGeneral = new TokenGeneral(
-    ObjectIDGenerator(),
+    new ObjectID().toHexString(),
     "key",
-    ObjectIDGenerator(),
+    new ObjectID().toHexString(),
     userID,
     Im.List(),
     new Date(0),
@@ -49,7 +49,9 @@ export function run(repoGene: () => ITokenRepo, isReset: boolean) {
 
       await repo.insert(tokenMaster);
 
-      await expect(repo.findOne(ObjectIDGenerator())).rejects.toThrow(AtError);
+      await expect(repo.findOne(new ObjectID().toHexString())).rejects.toThrow(
+        AtError,
+      );
     });
   });
 
@@ -57,27 +59,27 @@ export function run(repoGene: () => ITokenRepo, isReset: boolean) {
     it("正常に探せるか", async () => {
       const repo = repoGene();
 
-      const user1 = ObjectIDGenerator();
-      const user2 = ObjectIDGenerator();
-      const user3 = ObjectIDGenerator();
+      const user1 = new ObjectID().toHexString();
+      const user2 = new ObjectID().toHexString();
+      const user3 = new ObjectID().toHexString();
 
       const token1 = tokenMaster.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         user: user1,
         date: new Date(50),
       });
       const token2 = tokenGeneral.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         user: user1,
         date: new Date(80),
       });
       const token3 = tokenMaster.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         user: user1,
         date: new Date(30),
       });
       const token4 = tokenGeneral.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         user: user2,
         date: new Date(90),
       });
@@ -89,7 +91,7 @@ export function run(repoGene: () => ITokenRepo, isReset: boolean) {
 
       expect(
         await repo.findAll({
-          id: ObjectIDGenerator(),
+          id: new ObjectID().toHexString(),
           key: "key",
           user: user1,
           type: "master",
@@ -98,7 +100,7 @@ export function run(repoGene: () => ITokenRepo, isReset: boolean) {
 
       expect(
         await repo.findAll({
-          id: ObjectIDGenerator(),
+          id: new ObjectID().toHexString(),
           key: "key",
           user: user2,
           type: "master",
@@ -107,7 +109,7 @@ export function run(repoGene: () => ITokenRepo, isReset: boolean) {
 
       expect(
         await repo.findAll({
-          id: ObjectIDGenerator(),
+          id: new ObjectID().toHexString(),
           key: "key",
           user: user3,
           type: "master",
@@ -132,9 +134,12 @@ export function run(repoGene: () => ITokenRepo, isReset: boolean) {
     it("正常に更新出来るか", async () => {
       const repo = repoGene();
 
-      const token1 = tokenMaster.copy({ id: ObjectIDGenerator(), key: "key1" });
+      const token1 = tokenMaster.copy({
+        id: new ObjectID().toHexString(),
+        key: "key1",
+      });
       const token2 = tokenGeneral.copy({
-        id: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
         key: "key2",
       });
       const token1update = token1.copy({ key: "update" });
@@ -160,17 +165,17 @@ export function run(repoGene: () => ITokenRepo, isReset: boolean) {
     it("正常に削除出来るか", async () => {
       const repo = repoGene();
 
-      const token1 = tokenGeneral.copy({ id: ObjectIDGenerator() });
-      const token2 = tokenGeneral.copy({ id: ObjectIDGenerator() });
+      const token1 = tokenGeneral.copy({ id: new ObjectID().toHexString() });
+      const token2 = tokenGeneral.copy({ id: new ObjectID().toHexString() });
       const token3 = tokenGeneral.copy({
-        id: ObjectIDGenerator(),
-        client: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
+        client: new ObjectID().toHexString(),
       });
       const token4 = tokenGeneral.copy({
-        id: ObjectIDGenerator(),
-        user: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
+        user: new ObjectID().toHexString(),
       });
-      const token5 = tokenMaster.copy({ id: ObjectIDGenerator() });
+      const token5 = tokenMaster.copy({ id: new ObjectID().toHexString() });
 
       await repo.insert(token1);
       await repo.insert(token2);
@@ -180,7 +185,7 @@ export function run(repoGene: () => ITokenRepo, isReset: boolean) {
 
       await repo.delClientToken(
         {
-          id: ObjectIDGenerator(),
+          id: new ObjectID().toHexString(),
           key: "key",
           user: tokenGeneral.user,
           type: "master",
@@ -200,13 +205,13 @@ export function run(repoGene: () => ITokenRepo, isReset: boolean) {
     it("正常に削除出来るか", async () => {
       const repo = repoGene();
 
-      const token1 = tokenMaster.copy({ id: ObjectIDGenerator() });
-      const token2 = tokenMaster.copy({ id: ObjectIDGenerator() });
+      const token1 = tokenMaster.copy({ id: new ObjectID().toHexString() });
+      const token2 = tokenMaster.copy({ id: new ObjectID().toHexString() });
       const token3 = tokenMaster.copy({
-        id: ObjectIDGenerator(),
-        user: ObjectIDGenerator(),
+        id: new ObjectID().toHexString(),
+        user: new ObjectID().toHexString(),
       });
-      const token4 = tokenGeneral.copy({ id: ObjectIDGenerator() });
+      const token4 = tokenGeneral.copy({ id: new ObjectID().toHexString() });
 
       await repo.insert(token1);
       await repo.insert(token2);

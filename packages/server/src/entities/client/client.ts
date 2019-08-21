@@ -4,7 +4,7 @@ import { pipe } from "fp-ts/lib/pipeable";
 import { AtRightError, paramsErrorMaker } from "../../at-error";
 import { IAuthTokenMaster } from "../../auth";
 import { Config } from "../../config";
-import { IGenerator } from "../../generator";
+import { IObjectIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
 
 export interface IClientAPI {
@@ -18,7 +18,7 @@ export interface IClientAPI {
 
 export class Client extends Copyable<Client> {
   static create(
-    objidGenerator: IGenerator<string>,
+    objidGenerator: IObjectIdGenerator,
     authToken: IAuthTokenMaster,
     name: string,
     url: string,
@@ -39,7 +39,14 @@ export class Client extends Copyable<Client> {
       },
     ]);
 
-    return new Client(objidGenerator(), name, url, authToken.user, now, now);
+    return new Client(
+      objidGenerator.generateObjectId(),
+      name,
+      url,
+      authToken.user,
+      now,
+      now,
+    );
   }
 
   constructor(
