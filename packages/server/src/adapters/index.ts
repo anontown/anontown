@@ -10,3 +10,4 @@ export * from "./storage-repo";
 export * from "./repo";
 export * from "./loader";
 export * from "./fix-clock";
+export * from "./recaptcha-client";

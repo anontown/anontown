@@ -11,3 +11,4 @@ export * from "./irepo";
 export * from "./loader";
 export * from "./clock";
 export * from "./ip-container";
+export * from "./recaptcha-client";

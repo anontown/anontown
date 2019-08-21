@@ -1,9 +1,15 @@
 import { none, some } from "fp-ts/lib/Option";
-import { FixClock, Loader } from "../adapters";
+import { FixClock, Loader, RecaptchaClient } from "../adapters";
 import { FixIpContainer } from "../adapters/fix-ip-container/index";
 import { AtAuthError } from "../at-error";
 import { Logger } from "../logger";
-import { IClock, IIpContainer, ILoader, IRepo } from "../ports";
+import {
+  IClock,
+  IIpContainer,
+  ILoader,
+  IRecaptchaClient,
+  IRepo,
+} from "../ports";
 import { AuthContainer } from "./auth-container";
 import * as authFromApiParam from "./auth-from-api-param";
 
@@ -14,6 +20,7 @@ export interface AppContext {
   log: (name: string, id: string) => void;
   loader: ILoader;
   repo: IRepo;
+  recaptcha: IRecaptchaClient;
 }
 
 async function createToken(raw: any, repo: IRepo) {
@@ -57,5 +64,6 @@ export async function createContext(
       topicRepo: repo.topic,
     }),
     repo,
+    recaptcha: new RecaptchaClient(),
   };
 }

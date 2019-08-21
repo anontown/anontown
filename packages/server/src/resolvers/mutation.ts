@@ -19,7 +19,7 @@ import * as authFromApiParam from "../server/auth-from-api-param";
 
 export const mutation: G.MutationResolvers = {
   createUser: async (_obj, args, context, _info) => {
-    await authFromApiParam.recaptcha(args.recaptcha);
+    await context.recaptcha.verify(args.recaptcha);
 
     const user = User.create(
       ObjectIDGenerator,

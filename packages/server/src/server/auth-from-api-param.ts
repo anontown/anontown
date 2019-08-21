@@ -1,13 +1,9 @@
 import { IAuthToken, IAuthUser } from "../auth";
-
-import * as request from "request";
-
 import { ITokenRepo, IUserRepo } from "../ports";
 
-import { AtAuthError, AtCaptchaError } from "../at-error";
+import { AtAuthError } from "../at-error";
 
 import { isNullish } from "@kgtkr/utils";
-import { Config } from "../config";
 import * as G from "../generated/graphql";
 
 export async function token(
@@ -36,29 +32,4 @@ export async function user(
   const authUser = user.auth(apiParamUser.pass);
 
   return authUser;
-}
-
-export async function recaptcha(apiParamRecaptcha: string) {
-  const result = await new Promise<string>((resolve, reject) => {
-    request.post(
-      "https://www.google.com/recaptcha/api/siteverify",
-      {
-        form: {
-          secret: Config.recaptcha.secretKey,
-          response: apiParamRecaptcha,
-        },
-      },
-      (err, _res, body: string) => {
-        if (err) {
-          reject("キャプチャAPIでエラー");
-        } else {
-          resolve(body);
-        }
-      },
-    );
-  });
-
-  if (!JSON.parse(result).success) {
-    throw new AtCaptchaError();
-  }
 }
