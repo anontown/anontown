@@ -3,11 +3,12 @@ import { ObjectID, WriteError } from "mongodb";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
 import { Mongo } from "../../db";
 import { ResWaitCountKey, User } from "../../entities";
-import { Logger } from "../../logger";
-import { IUserRepo } from "../../ports";
+import { ILogger, IUserRepo } from "../../ports";
 import { fromUser, IUserDB, toUser } from "./iuser-db";
 
 export class UserRepo implements IUserRepo {
+  constructor(private logger: ILogger) {}
+
   async findOne(id: string): Promise<User> {
     const db = await Mongo();
     const user: IUserDB | null = await db
@@ -79,7 +80,7 @@ export class UserRepo implements IUserRepo {
       new CronJob({
         cronTime,
         onTick: async () => {
-          Logger.system.info("UserCron", key);
+          this.logger.info(`UserCron ${key}`);
           await this.cronCountReset(key);
         },
         start: false,

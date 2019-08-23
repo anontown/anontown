@@ -1,3 +1,5 @@
+import { Option } from "fp-ts/lib/Option";
+
 export interface IIpContainer {
-  getIp(): string;
+  getIp(): Option<string>;
 }

@@ -67,7 +67,7 @@ export const mutation: G.MutationResolvers = {
       context.clock.now(),
     );
     await context.repo.client.insert(client);
-    context.log("clients", client.id);
+    context.logger.mutationLog("clients", client.id);
     return client.toAPI(some(context.auth.tokenMaster));
   },
   updateClient: async (_obj, args, context, _info) => {
@@ -79,7 +79,7 @@ export const mutation: G.MutationResolvers = {
       context.clock.now(),
     );
     await context.repo.client.update(newClient);
-    context.log("clients", newClient.id);
+    context.logger.mutationLog("clients", newClient.id);
     return newClient.toAPI(some(context.auth.tokenMaster));
   },
   createProfile: async (_obj, args, context, _info) => {
@@ -92,7 +92,7 @@ export const mutation: G.MutationResolvers = {
       context.clock.now(),
     );
     await context.repo.profile.insert(profile);
-    context.log("profiles", profile.id);
+    context.logger.mutationLog("profiles", profile.id);
     return profile.toAPI(some(context.auth.token));
   },
   updateProfile: async (_obj, args, context, _info: any) => {
@@ -105,7 +105,7 @@ export const mutation: G.MutationResolvers = {
       context.clock.now(),
     );
     await context.repo.profile.update(newProfile);
-    context.log("profiles", newProfile.id);
+    context.logger.mutationLog("profiles", newProfile.id);
     return newProfile.toAPI(some(context.auth.token));
   },
   createRes: async (_obj, args, context, _info) => {
@@ -139,7 +139,7 @@ export const mutation: G.MutationResolvers = {
       context.repo.user.update(newUser),
     ]);
 
-    context.log("reses", res.id);
+    context.logger.mutationLog("reses", res.id);
     const api = res.toAPI(some(context.auth.token));
     if (api.type !== "normal") {
       throw new Error();
@@ -315,9 +315,9 @@ export const mutation: G.MutationResolvers = {
       context.repo.res.insert(create.res),
       context.repo.history.insert(create.history),
     ]);
-    context.log("topics", create.topic.id);
-    context.log("reses", create.res.id);
-    context.log("histories", create.history.id);
+    context.logger.mutationLog("topics", create.topic.id);
+    context.logger.mutationLog("reses", create.res.id);
+    context.logger.mutationLog("histories", create.history.id);
     return create.topic.toAPI();
   },
   createTopicOne: async (_obj, args, context, _info) => {
@@ -338,8 +338,8 @@ export const mutation: G.MutationResolvers = {
       context.repo.res.insert(create.res),
     ]);
 
-    context.log("topics", create.topic.id);
-    context.log("reses", create.res.id);
+    context.logger.mutationLog("topics", create.topic.id);
+    context.logger.mutationLog("reses", create.res.id);
 
     return create.topic.toAPI();
   },
@@ -368,9 +368,9 @@ export const mutation: G.MutationResolvers = {
       context.repo.res.insert(create.resParent),
     ]);
 
-    context.log("topics", create.topic.id);
-    context.log("reses", create.res.id);
-    context.log("reses", create.resParent.id);
+    context.logger.mutationLog("topics", create.topic.id);
+    context.logger.mutationLog("reses", create.res.id);
+    context.logger.mutationLog("reses", create.resParent.id);
 
     return create.topic.toAPI();
   },
@@ -401,8 +401,8 @@ export const mutation: G.MutationResolvers = {
       context.repo.user.update(val.user),
     ]);
 
-    context.log("reses", val.res.id);
-    context.log("histories", val.history.id);
+    context.logger.mutationLog("reses", val.res.id);
+    context.logger.mutationLog("histories", val.history.id);
     return topic.toAPI();
   },
 };

@@ -3,7 +3,7 @@ import * as Redis from "ioredis";
 import lazy = require("lazy-value");
 import { MongoClient } from "mongodb";
 import { Config } from "./config";
-import { Logger } from "./logger";
+import { logger } from "./logger";
 
 export const Mongo = lazy(async () => {
   const db = await MongoClient.connect(
@@ -12,7 +12,7 @@ export const Mongo = lazy(async () => {
       useNewUrlParser: true,
     },
   );
-  Logger.system.info("db:connect");
+  logger.info("db:connect");
   return db.db();
 });
 

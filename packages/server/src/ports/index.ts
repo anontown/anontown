@@ -14,3 +14,4 @@ export * from "./ip-container";
 export * from "./recaptcha-client";
 export * from "./objectid-generator";
 export * from "./safeid-generator";
+export * from "./logger";

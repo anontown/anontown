@@ -1,7 +1,6 @@
 import { CronJob } from "cron";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
 import { ResWaitCountKey, User } from "../../entities";
-import { Logger } from "../../logger";
 import { IUserRepo } from "../../ports";
 import { fromUser, IUserDB, toUser } from "./iuser-db";
 
@@ -66,7 +65,6 @@ export class UserRepoMock implements IUserRepo {
       new CronJob({
         cronTime,
         onTick: async () => {
-          Logger.system.info("UserCron", key);
           await this.cronCountReset(key);
         },
         start: false,

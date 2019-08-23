@@ -13,3 +13,4 @@ export * from "./fix-clock";
 export * from "./recaptcha-client";
 export * from "./objectid-generator";
 export * from "./safeid-generator";
+export * from "./logger";

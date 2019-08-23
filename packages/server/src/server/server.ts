@@ -2,16 +2,19 @@ import { combineResolvers } from "apollo-resolvers";
 import { ApolloServer, gql, IResolvers } from "apollo-server-express";
 import * as cors from "cors";
 import * as express from "express";
+import { none } from "fp-ts/lib/Option";
 import * as fs from "fs-promise";
 import { GraphQLDateTime } from "graphql-iso-date";
 import { createServer } from "http";
+import { FixIpContainer } from "../adapters/fix-ip-container/index";
+import { Logger } from "../adapters/index";
+import { Repo } from "../adapters/repo";
 import { AtErrorSymbol, AtServerError } from "../at-error";
 import { Config } from "../config";
-import { IRepo } from "../ports";
 import { resolvers as appResolvers } from "../resolvers";
 import { AppContext, createContext } from "./context";
 
-export async function serverRun(repo: IRepo) {
+export async function serverRun() {
   const typeDefs = gql(
     await fs.readFile(require.resolve("@anontown/schema/app.gql"), "utf8"),
   );
@@ -29,14 +32,14 @@ export async function serverRun(repo: IRepo) {
     resolvers,
     context: ({ req, connection }: any): Promise<AppContext> => {
       if (req) {
-        return createContext(req.headers, repo);
+        return createContext(req.headers);
       }
 
       if (connection) {
-        return createContext(connection.context, repo);
+        return createContext(connection.context);
       }
 
-      return createContext({}, repo);
+      return createContext({});
     },
     introspection: true,
     playground: {
@@ -64,7 +67,8 @@ export async function serverRun(repo: IRepo) {
     },
   });
 
-  repo.cron();
+  // TODO: 綺麗にする
+  new Repo(new Logger(new FixIpContainer(none))).cron();
 
   app.get("/ping", cors(), (_req, res) => res.send("OK"));
   server.applyMiddleware({ app, path: "/" });

@@ -1,18 +1,21 @@
+import { option } from "fp-ts";
 import { none, some } from "fp-ts/lib/Option";
 import {
   FixClock,
   Loader,
+  Logger,
   ObjectIdGenerator,
   RecaptchaClient,
+  Repo,
   SafeIdGenerator,
 } from "../adapters";
 import { FixIpContainer } from "../adapters/fix-ip-container/index";
 import { AtAuthError } from "../at-error";
-import { Logger } from "../logger";
 import {
   IClock,
   IIpContainer,
   ILoader,
+  ILogger,
   IObjectIdGenerator,
   IRecaptchaClient,
   IRepo,
@@ -25,7 +28,7 @@ export interface AppContext {
   auth: AuthContainer;
   ipContainer: IIpContainer;
   clock: IClock;
-  log: (name: string, id: string) => void;
+  logger: ILogger;
   loader: ILoader;
   repo: IRepo;
   recaptcha: IRecaptchaClient;
@@ -46,11 +49,13 @@ async function createToken(raw: any, repo: IRepo) {
   return some(await authFromApiParam.token(repo.token, { id, key }));
 }
 
-export async function createContext(
-  headers: any,
-  repo: IRepo,
-): Promise<AppContext> {
-  const ip = headers["x-real-ip"] || "<unknown_ip>";
+export async function createContext(headers: any): Promise<AppContext> {
+  const ipContainer = new FixIpContainer(
+    option.fromNullable<string>(headers["x-real-ip"]),
+  );
+
+  const logger = new Logger(ipContainer);
+  const repo = new Repo(logger);
 
   const token = await createToken(
     headers["x-token"] || headers["X-Token"],
@@ -61,9 +66,9 @@ export async function createContext(
 
   return {
     auth,
-    ipContainer: new FixIpContainer(ip),
+    ipContainer,
     clock: new FixClock(new Date()),
-    log: (name, id) => Logger.app.info(ip, name, id),
+    logger,
     loader: new Loader({
       auth,
       clientRepo: repo.client,
