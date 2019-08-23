@@ -1,6 +1,26 @@
 import * as log4js from "log4js";
 import * as path from "path";
 import { Config } from "./config";
+import * as winston from "winston";
+
+function createFormatter(label: string) {
+  return winston.format.combine(
+    winston.format.label({ label }),
+    winston.format.timestamp(),
+    winston.format.printf(({ level, message, label, timestamp }) => {
+      return `${timestamp} [${label}] ${level}: ${message}`;
+    }),
+  );
+}
+
+const logger = winston.createLogger({
+  level: "debug",
+  format: createFormatter("app"),
+  transports: [
+    new winston.transports.File({ filename: "logs/app.log", level: "info" }),
+    new winston.transports.Console({ level: "debug" }),
+  ],
+});
 
 // log
 log4js.configure({

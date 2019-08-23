@@ -31,7 +31,8 @@
     "request": "^2.88.0",
     "rxjs": "^6.4.0",
     "source-map-support": "^0.5.11",
-    "type-zoo": "^3.3.0"
+    "type-zoo": "^3.3.0",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.0.3",
