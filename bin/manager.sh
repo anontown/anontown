@@ -15,7 +15,7 @@ upload() {
 update() {
   git pull
   python3 docker-compose.py prod | docker-compose -f - build
-  python3 docker-compose.py prod | docker-compose -f - run --rm app npx lerna exec --scope @anontown/server -- npm run migrate
+  python3 docker-compose.py prod | docker-compose -f - run --rm app npx lerna run migrate --scope @anontown/server
 }
 
 stop() {
