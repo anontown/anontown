@@ -1,4 +1,3 @@
-import { arrayFirst, arrayLast } from "@kgtkr/utils";
 import { array, option } from "fp-ts";
 import { pipe } from "fp-ts/lib/pipeable";
 import * as React from "react";
@@ -6,27 +5,25 @@ import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { setTimeout } from "timers";
 import * as G from "../generated/graphql";
-import { useEffectRef, useFunctionRef, useLock, useValueRef } from "../hooks";
+import { useEffectRef, useLock, useValueRef } from "../hooks";
 import * as oset from "../utils/ord-set";
 
 function useToTop(el: HTMLDivElement | null) {
   const elRef = useValueRef(el);
-  return async () => {
-    await sleep(0);
+  return React.useCallback(async () => {
     if (elRef.current !== null) {
       elRef.current.scrollTop = 0;
     }
-  };
+  }, []);
 }
 
 function useToBottom(el: HTMLDivElement | null) {
   const elRef = useValueRef(el);
-  return async () => {
-    await sleep(0);
+  return React.useCallback(async () => {
     if (elRef.current !== null) {
       elRef.current.scrollTop = elRef.current.scrollHeight;
     }
-  };
+  }, []);
 }
 
 function useIdElMap<T extends ListItemData>(data: oset.OrdSet<T, string>) {
@@ -57,16 +54,14 @@ function useGetTopElement<T extends ListItemData>(
   data: oset.OrdSet<T, string>,
   idElMap: Map<string, HTMLDivElement>,
 ) {
-  const dataRef = useValueRef(data);
-  const idElMapRef = useValueRef(idElMap);
   return React.useCallback(async () => {
     await sleep(0);
 
     // 最短距離のアイテム
     const minItem = oset
-      .toArray(dataRef.current)
+      .toArray(data)
       .map(item => {
-        const el = idElMapRef.current.get(item.id);
+        const el = idElMap.get(item.id);
         if (el !== undefined) {
           return { item, el };
         } else {
@@ -98,7 +93,7 @@ function useGetTopElement<T extends ListItemData>(
     } else {
       return null;
     }
-  }, []);
+  }, [data, idElMap]);
 }
 
 // 下端に一番近いアイテム
@@ -106,16 +101,14 @@ function useGetBottomElement<T extends ListItemData>(
   data: oset.OrdSet<T, string>,
   idElMap: Map<string, HTMLDivElement>,
 ) {
-  const dataRef = useValueRef(data);
-  const idElMapRef = useValueRef(idElMap);
   return React.useCallback(async () => {
     await sleep(0);
 
     // 最短距離のアイテム
     const minItem = oset
-      .toArray(dataRef.current)
+      .toArray(data)
       .map(item => {
-        const el = idElMapRef.current.get(item.id);
+        const el = idElMap.get(item.id);
         if (el !== undefined) {
           return { item, el };
         } else {
@@ -149,7 +142,7 @@ function useGetBottomElement<T extends ListItemData>(
     } else {
       return null;
     }
-  }, []);
+  }, [data, idElMap]);
 }
 
 function useScrollLock<T extends ListItemData>(
@@ -157,30 +150,30 @@ function useScrollLock<T extends ListItemData>(
   idElMap: Map<string, HTMLDivElement>,
   rootEl: HTMLDivElement | null,
 ) {
-  const dataRef = useValueRef(data);
-  const idElMapRef = useValueRef(idElMap);
-  const rootElRef = useValueRef(rootEl);
-  return React.useCallback(async (f: () => Promise<void>) => {
-    await sleep(0);
-    const elData = pipe(
-      oset.toArray(dataRef.current),
-      array.head,
-      option.chain(x => option.fromNullable(idElMapRef.current.get(x.id))),
-      option.map(x => ({ el: x, y: elY(x) })),
-    );
-    try {
-      await f();
-    } catch (e) {
-      throw e;
-    } finally {
-      if (option.isSome(elData)) {
-        await sleep(0);
-        if (rootElRef.current !== null) {
-          rootElRef.current.scrollTop += elY(elData.value.el) - elData.value.y;
+  return React.useCallback(
+    async (f: () => Promise<void>) => {
+      await sleep(0);
+      const elData = pipe(
+        oset.toArray(data),
+        array.head,
+        option.chain(x => option.fromNullable(idElMap.get(x.id))),
+        option.map(x => ({ el: x, y: elY(x) })),
+      );
+      try {
+        await f();
+      } catch (e) {
+        throw e;
+      } finally {
+        if (option.isSome(elData)) {
+          await sleep(0);
+          if (rootEl !== null) {
+            rootEl.scrollTop += elY(elData.value.el) - elData.value.y;
+          }
         }
       }
-    }
-  }, []);
+    },
+    [data, idElMap, rootEl],
+  );
 }
 
 function useAutoScroll(
@@ -275,79 +268,88 @@ function useFetchUtils<T extends ListItemData>(
   setData: (x: oset.OrdSet<T, string>) => void,
   newItemOrder: "top" | "bottom",
 ) {
-  const dataRef = useValueRef(data);
-  const setDataRef = useValueRef(setData);
-  const newItemOrderRef = useValueRef(newItemOrder);
-
   const fetch = useFetch();
-  const fetchRef = useValueRef(fetch);
 
   const toTop = useToTop(rootEl);
-  const toTopRef = useValueRef(toTop);
   const toBottom = useToBottom(rootEl);
-  const toBottomRef = useValueRef(toBottom);
 
   const scrollLock = useScrollLock(data, idElMap, rootEl);
-  const scrollLockRef = useValueRef(scrollLock);
 
-  const findAfter = React.useCallback(async () => {
-    const first = arrayFirst(oset.toArray(dataRef.current));
-    if (first === undefined) {
-      await resetDate(new Date().toISOString());
-    } else {
-      await scrollLockRef.current(async () => {
-        const result = await fetchRef.current({
-          date: first.date,
-          type: "gt",
+  const findAfterWithData = React.useCallback(
+    async (data: oset.OrdSet<T, string>) => {
+      const first = array.head(oset.toArray(data));
+      if (option.isSome(first)) {
+        await scrollLock(async () => {
+          const result = await fetch({
+            date: first.value.date,
+            type: "gt",
+          });
+
+          setData(oset.unsafePushFirstOrdAndUniqueArray(data, result));
         });
+      }
+    },
+    [scrollLock, fetch, setData],
+  );
 
-        setDataRef.current(
-          oset.unsafePushFirstOrdAndUniqueArray(dataRef.current, result),
-        );
+  const findBeforeWithData = React.useCallback(
+    async (data: oset.OrdSet<T, string>) => {
+      const old = array.last(oset.toArray(data));
+      if (option.isSome(old)) {
+        await scrollLock(async () => {
+          const result = await fetch({
+            date: old.value.date,
+            type: "lt",
+          });
+
+          setData(oset.unsafePushLastOrdAndUniqueArray(data, result));
+        });
+      }
+    },
+    [scrollLock, fetch, setData],
+  );
+
+  const resetDate = React.useCallback(
+    async (date: string) => {
+      const result = await fetch({
+        date,
+        type: "lte",
       });
-    }
-  }, []);
+
+      const resetedData = oset.unsafePushFirstOrdAndUniqueArray(
+        oset.clear(data),
+        result,
+      );
+      setData(resetedData);
+
+      switch (newItemOrder) {
+        case "bottom":
+          await toBottom();
+          break;
+        case "top":
+          await toTop();
+          break;
+      }
+      await findAfterWithData(resetedData);
+    },
+    [data, setData, fetch, newItemOrder, toBottom, toTop, findAfterWithData],
+  );
 
   const findBefore = React.useCallback(async () => {
-    const old = arrayLast(oset.toArray(dataRef.current));
-    if (old === undefined) {
+    if (oset.toArray(data).length === 0) {
       await resetDate(new Date().toISOString());
     } else {
-      await scrollLockRef.current(async () => {
-        const result = await fetchRef.current({
-          date: old.date,
-          type: "lt",
-        });
-
-        setDataRef.current(
-          oset.unsafePushLastOrdAndUniqueArray(dataRef.current, result),
-        );
-      });
+      await findBeforeWithData(data);
     }
-  }, []);
+  }, [data, resetDate, findBeforeWithData]);
 
-  const resetDate = React.useCallback(async (date: string) => {
-    setDataRef.current(oset.clear(dataRef.current));
-
-    const result = await fetchRef.current({
-      date,
-      type: "lte",
-    });
-
-    setDataRef.current(
-      oset.unsafePushFirstOrdAndUniqueArray(dataRef.current, result),
-    );
-
-    switch (newItemOrderRef.current) {
-      case "bottom":
-        await toBottomRef.current();
-        break;
-      case "top":
-        await toTopRef.current();
-        break;
+  const findAfter = React.useCallback(async () => {
+    if (oset.toArray(data).length === 0) {
+      await resetDate(new Date().toISOString());
+    } else {
+      await findAfterWithData(data);
     }
-    await findAfter();
-  }, []);
+  }, [data, resetDate, findAfterWithData]);
 
   return { findAfter, findBefore, resetDate };
 }
@@ -473,26 +475,29 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     rootEl.current,
     data,
     idElMap,
-    x => setData(x),
+    setData,
     props.newItemOrder,
   );
 
   const lock = useLock();
-  const runCmd = useFunctionRef(async (cmd: Cmd) => {
-    await lock(async () => {
-      switch (cmd.type) {
-        case "reset":
-          await resetDate(cmd.date);
-          break;
-        case "before":
-          await findBefore();
-          break;
-        case "after":
-          await findAfter();
-          break;
-      }
-    });
-  });
+  const runCmd = React.useCallback(
+    async (cmd: Cmd) => {
+      await lock(async () => {
+        switch (cmd.type) {
+          case "reset":
+            await resetDate(cmd.date);
+            break;
+          case "before":
+            await findBefore();
+            break;
+          case "after":
+            await findAfter();
+            break;
+        }
+      });
+    },
+    [props.fetchKey, lock, resetDate, findBefore, findAfter],
+  );
 
   // 上までスクロール
   useOnTopScroll(
