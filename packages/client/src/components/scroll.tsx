@@ -267,7 +267,6 @@ function useOnBottomScroll(
   }, [rootEl, debounceTime]);
 }
 
-// TODO: Ref周り雑なので直す
 function useFetchUtils<T extends ListItemData>(
   useFetch: () => (date: G.DateQuery) => Promise<T[]>,
   rootEl: HTMLDivElement | null,
@@ -276,69 +275,79 @@ function useFetchUtils<T extends ListItemData>(
   setData: (x: oset.OrdSet<T, string>) => void,
   newItemOrder: "top" | "bottom",
 ) {
+  const dataRef = useValueRef(data);
+  const setDataRef = useValueRef(setData);
+  const newItemOrderRef = useValueRef(newItemOrder);
+
   const fetch = useFetch();
+  const fetchRef = useValueRef(fetch);
 
   const toTop = useToTop(rootEl);
+  const toTopRef = useValueRef(toTop);
   const toBottom = useToBottom(rootEl);
+  const toBottomRef = useValueRef(toBottom);
 
   const scrollLock = useScrollLock(data, idElMap, rootEl);
+  const scrollLockRef = useValueRef(scrollLock);
 
-  const findAfter = useFunctionRef(async () => {
-    const first = arrayFirst(oset.toArray(data));
+  const findAfter = React.useCallback(async () => {
+    const first = arrayFirst(oset.toArray(dataRef.current));
     if (first === undefined) {
       await resetDate(new Date().toISOString());
     } else {
-      await scrollLock(async () => {
-        const result = await fetch({
+      await scrollLockRef.current(async () => {
+        const result = await fetchRef.current({
           date: first.date,
           type: "gt",
         });
 
-        setData(oset.unsafePushFirstOrdAndUniqueArray(data, result));
+        setDataRef.current(
+          oset.unsafePushFirstOrdAndUniqueArray(dataRef.current, result),
+        );
       });
     }
-  });
+  }, []);
 
-  const findBefore = useFunctionRef(async () => {
-    const old = arrayLast(oset.toArray(data));
+  const findBefore = React.useCallback(async () => {
+    const old = arrayLast(oset.toArray(dataRef.current));
     if (old === undefined) {
       await resetDate(new Date().toISOString());
     } else {
-      await scrollLock(async () => {
-        const result = await fetch({
+      await scrollLockRef.current(async () => {
+        const result = await fetchRef.current({
           date: old.date,
           type: "lt",
         });
 
-        setData(oset.unsafePushLastOrdAndUniqueArray(data, result));
+        setDataRef.current(
+          oset.unsafePushLastOrdAndUniqueArray(dataRef.current, result),
+        );
       });
     }
-  });
+  }, []);
 
-  const resetDate = useFunctionRef(async (date: string) => {
-    const result = await fetch({
+  const resetDate = React.useCallback(async (date: string) => {
+    setDataRef.current(oset.clear(dataRef.current));
+
+    const result = await fetchRef.current({
       date,
       type: "lte",
     });
 
-    setData(
-      pipe(
-        data,
-        oset.clear,
-        x => oset.unsafePushFirstOrdAndUniqueArray(x, result),
-      ),
+    setDataRef.current(
+      oset.unsafePushFirstOrdAndUniqueArray(dataRef.current, result),
     );
 
-    switch (newItemOrder) {
+    switch (newItemOrderRef.current) {
       case "bottom":
-        await toBottom();
+        await toBottomRef.current();
         break;
       case "top":
-        await toTop();
+        await toTopRef.current();
         break;
     }
     await findAfter();
-  });
+  }, []);
 
   return { findAfter, findBefore, resetDate };
 }
