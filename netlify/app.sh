@@ -1,6 +1,6 @@
 #!/bin/sh
 npm i
 npx lerna bootstrap
-lerna exec --scope @anontown/route -- npm run build
-ENV_NAME=prod lerna exec --scope @anontown/client -- npm run build
+lerna run build --scope @anontown/route
+ENV_NAME=prod lerna run build --scope @anontown/client
 mv packages/client/dist deploy

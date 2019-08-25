@@ -17,8 +17,8 @@ COPY package.json package-lock.json $APP_HOME/
 RUN npm i --no-progress
 COPY lerna.json $APP_HOME/
 COPY packages $APP_HOME/packages
-RUN $(npm bin)/lerna bootstrap \
-  &&  $(npm bin)/lerna exec --scope @anontown/server -- npm run build
+RUN npx lerna bootstrap \
+  &&  npx lerna run build --scope @anontown/server
 
 CMD dockerize -wait tcp://$ES_HOST -wait tcp://$REDIS_HOST -wait tcp://$MONGO_HOST \
-  && npx lerna exec --scope @anontown/server -- npm start
+  && npx lerna run start --scope @anontown/server

@@ -26,7 +26,7 @@ $ ./bin/dev/watch-client.sh dev
 ## Test
 
 ```sh
-python3 docker-compose.py test | docker-compose -f - run --rm app npx lerna exec --scope @anontown/server -- npm run test:io
+python3 docker-compose.py test | docker-compose -f - run --rm app npx lerna run test:io --scope @anontown/server
 ```
 
 ## Lint
