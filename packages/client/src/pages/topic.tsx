@@ -330,7 +330,7 @@ export const TopicPage = (_props: {}) => {
               </div>
             </Paper>
             <Scroll<G.ResFragment>
-              fetchKey={[topic.id]}
+              fetchKey={[match.params.id]}
               useStream={useStream}
               useFetch={useFetch}
               className={style.reses}
