@@ -133,7 +133,7 @@ export const Res = (props: ResProps) => {
               fontSize: fontSize.sub,
             }}
           >
-            <a onClick={() => setIsReply(!isReply)}>@</a>
+            <a onClick={() => setIsReply(!isReply)}>{">>"}</a>
             &nbsp;
             {props.res.__typename === "ResNormal" && props.res.name !== null ? (
               <span>{props.res.name}</span>
