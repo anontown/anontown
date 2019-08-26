@@ -165,7 +165,7 @@ export const Res = (props: ResProps) => {
                   },
                 )}
               >
-                ●{props.res.profile.sn}
+                @{props.res.profile.sn}
               </Link>
             ) : null}
             &nbsp;

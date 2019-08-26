@@ -9,7 +9,7 @@ export interface ProfileProps {
 export function Profile(props: ProfileProps) {
   return (
     <div>
-      {props.profile.name}●{props.profile.sn}
+      {props.profile.name}@{props.profile.sn}
       <hr />
       <Md text={props.profile.text} />
     </div>

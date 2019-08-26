@@ -24,7 +24,7 @@ function ProfileBase(props: ProfileBaseProps) {
       option.fromNullable,
       option.map(x => x.profiles),
       option.chain(array.head),
-      option.map(x => `●${x.sn}`),
+      option.map(x => `@${x.sn}`),
       option.getOrElse(() => "プロフィール"),
     ),
   );
