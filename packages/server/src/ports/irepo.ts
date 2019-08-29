@@ -18,5 +18,4 @@ export interface IRepo {
   readonly topic: ITopicRepo;
   readonly user: IUserRepo;
   readonly storage: IStorageRepo;
-  cron(): void;
 }

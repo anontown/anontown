@@ -1,4 +1,4 @@
-import { ILogger, IRepo } from "../ports";
+import { IRepo } from "../ports";
 import { ClientRepo } from "./client-repo";
 import { HistoryRepo } from "./history-repo";
 import { MsgRepo } from "./msg-repo";
@@ -20,7 +20,7 @@ export class Repo implements IRepo {
   readonly user: UserRepo;
   readonly storage: StorageRepo;
 
-  constructor(logger: ILogger) {
+  constructor() {
     this.client = new ClientRepo();
     this.history = new HistoryRepo();
     this.msg = new MsgRepo();
@@ -28,12 +28,7 @@ export class Repo implements IRepo {
     this.res = new ResRepo();
     this.topic = new TopicRepo(this.res);
     this.token = new TokenRepo();
-    this.user = new UserRepo(logger);
+    this.user = new UserRepo();
     this.storage = new StorageRepo();
-  }
-
-  cron() {
-    this.topic.cron();
-    this.user.cron();
   }
 }

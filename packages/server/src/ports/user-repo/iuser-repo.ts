@@ -8,8 +8,6 @@ export interface IUserRepo {
 
   update(user: User): Promise<void>;
 
-  cron(): void;
-
   cronPointReset(): Promise<void>;
 
   cronCountReset(key: ResWaitCountKey): Promise<void>;

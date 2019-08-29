@@ -1,5 +1,4 @@
 import { isNullish } from "@kgtkr/utils";
-import { CronJob } from "cron";
 import { AtNotFoundError } from "../../at-error";
 import { Topic } from "../../entities";
 import * as G from "../../generated/graphql";
@@ -93,18 +92,6 @@ export class TopicRepoMock implements ITopicRepo {
       .forEach(x => {
         this.topics[this.topics.findIndex(y => y.id === x.id)] = x;
       });
-  }
-
-  cron() {
-    // 毎時間トピ落ちチェック
-    new CronJob({
-      cronTime: "00 00 * * * *",
-      onTick: async () => {
-        await this.cronTopicCheck(new Date());
-      },
-      start: false,
-      timeZone: "Asia/Tokyo",
-    }).start();
   }
 
   async insert(topic: Topic): Promise<void> {

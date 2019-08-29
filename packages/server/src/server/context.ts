@@ -55,7 +55,7 @@ export async function createContext(headers: any): Promise<AppContext> {
   );
 
   const logger = new Logger();
-  const repo = new Repo(logger);
+  const repo = new Repo();
 
   const token = await createToken(
     headers["x-token"] || headers["X-Token"],

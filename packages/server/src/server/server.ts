@@ -5,11 +5,10 @@ import * as express from "express";
 import * as fs from "fs-promise";
 import { GraphQLDateTime } from "graphql-iso-date";
 import { createServer } from "http";
-import { Logger } from "../adapters/index";
-import { Repo } from "../adapters/repo";
 import { AtErrorSymbol, AtServerError } from "../at-error";
 import { Config } from "../config";
 import { resolvers as appResolvers } from "../resolvers";
+import { runWorker } from "../worker";
 import { AppContext, createContext } from "./context";
 
 export async function serverRun() {
@@ -65,8 +64,7 @@ export async function serverRun() {
     },
   });
 
-  // TODO: 綺麗にする
-  new Repo(new Logger()).cron();
+  runWorker();
 
   app.get("/ping", cors(), (_req, res) => res.send("OK"));
   server.applyMiddleware({ app, path: "/" });
