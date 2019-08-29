@@ -54,7 +54,7 @@ export async function createContext(headers: any): Promise<AppContext> {
     option.fromNullable<string>(headers["x-real-ip"]),
   );
 
-  const logger = new Logger(ipContainer);
+  const logger = new Logger();
   const repo = new Repo(logger);
 
   const token = await createToken(

@@ -2,11 +2,9 @@ import { combineResolvers } from "apollo-resolvers";
 import { ApolloServer, gql, IResolvers } from "apollo-server-express";
 import * as cors from "cors";
 import * as express from "express";
-import { none } from "fp-ts/lib/Option";
 import * as fs from "fs-promise";
 import { GraphQLDateTime } from "graphql-iso-date";
 import { createServer } from "http";
-import { FixIpContainer } from "../adapters/fix-ip-container/index";
 import { Logger } from "../adapters/index";
 import { Repo } from "../adapters/repo";
 import { AtErrorSymbol, AtServerError } from "../at-error";
@@ -68,7 +66,7 @@ export async function serverRun() {
   });
 
   // TODO: 綺麗にする
-  new Repo(new Logger(new FixIpContainer(none))).cron();
+  new Repo(new Logger()).cron();
 
   app.get("/ping", cors(), (_req, res) => res.send("OK"));
   server.applyMiddleware({ app, path: "/" });

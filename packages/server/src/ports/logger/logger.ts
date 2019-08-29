@@ -5,5 +5,4 @@ export interface ILogger {
   verbose(msg: string): void;
   debug(msg: string): void;
   silly(msg: string): void;
-  mutationLog(name: string, id: string): void;
 }

@@ -19,7 +19,4 @@ export class DummyLogger implements ILogger {
   silly(msg: string) {
     console.log("[DummyLogger#silly]", msg);
   }
-  mutationLog(name: string, id: string) {
-    console.log("[DummyLogger#mutationLog]", name, id);
-  }
 }
