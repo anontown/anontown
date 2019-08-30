@@ -1,26 +1,52 @@
 import { option } from "fp-ts";
 import { none, some } from "fp-ts/lib/Option";
 import {
+  ClientLoader,
+  ClientRepo,
   FixClock,
-  Loader,
+  HistoryLoader,
+  HistoryRepo,
   Logger,
+  MsgLoader,
+  MsgRepo,
   ObjectIdGenerator,
+  ProfileLoader,
+  ProfileRepo,
   RecaptchaClient,
-  Repo,
+  ResLoader,
+  ResRepo,
   SafeIdGenerator,
+  StorageRepo,
+  TokenRepo,
+  TopicLoader,
+  TopicRepo,
+  UserRepo,
 } from "../adapters";
 import { FixIpContainer } from "../adapters/fix-ip-container/index";
 import { AtAuthError } from "../at-error";
 import {
+  IClientLoader,
+  IClientRepo,
   IClock,
+  IHistoryLoader,
+  IHistoryRepo,
   IIpContainer,
-  ILoader,
   ILogger,
+  IMsgRepo,
   IObjectIdGenerator,
+  IProfileLoader,
+  IProfileRepo,
   IRecaptchaClient,
-  IRepo,
+  IResLoader,
+  IResRepo,
   ISafeIdGenerator,
+  IStorageRepo,
+  ITokenRepo,
+  ITopicLoader,
+  ITopicRepo,
+  IUserRepo,
 } from "../ports";
+import { IMsgLoader } from "../ports/msg-loader/msg-loader";
 import { AuthContainer } from "./auth-container";
 import * as authFromApiParam from "./auth-from-api-param";
 
@@ -29,14 +55,27 @@ export interface AppContext {
   ipContainer: IIpContainer;
   clock: IClock;
   logger: ILogger;
-  loader: ILoader;
-  repo: IRepo;
+  clientRepo: IClientRepo;
+  historyRepo: IHistoryRepo;
+  msgRepo: IMsgRepo;
+  profileRepo: IProfileRepo;
+  resRepo: IResRepo;
+  tokenRepo: ITokenRepo;
+  topicRepo: ITopicRepo;
+  userRepo: IUserRepo;
+  storageRepo: IStorageRepo;
+  clientLoader: IClientLoader;
+  historyLoader: IHistoryLoader;
+  msgLoader: IMsgLoader;
+  profileLoader: IProfileLoader;
+  resLoader: IResLoader;
+  topicLoader: ITopicLoader;
   recaptcha: IRecaptchaClient;
   safeIdGenerator: ISafeIdGenerator;
   objectIdGenerator: IObjectIdGenerator;
 }
 
-async function createToken(raw: any, repo: IRepo) {
+async function createToken(raw: any, tokenRepo: ITokenRepo) {
   if (typeof raw !== "string") {
     return none;
   }
@@ -46,7 +85,7 @@ async function createToken(raw: any, repo: IRepo) {
   }
 
   const [id, key] = arr;
-  return some(await authFromApiParam.token(repo.token, { id, key }));
+  return some(await authFromApiParam.token(tokenRepo, { id, key }));
 }
 
 export async function createContext(headers: any): Promise<AppContext> {
@@ -55,32 +94,53 @@ export async function createContext(headers: any): Promise<AppContext> {
   );
 
   const logger = new Logger();
-  const repo = new Repo();
+
+  const tokenRepo = new TokenRepo();
 
   const token = await createToken(
     headers["x-token"] || headers["X-Token"],
-    repo,
+    tokenRepo,
   );
 
   const auth = new AuthContainer(token);
+
+  const clientRepo = new ClientRepo();
+  const historyRepo = new HistoryRepo();
+  const msgRepo = new MsgRepo();
+  const profileRepo = new ProfileRepo();
+  const resRepo = new ResRepo();
+  const topicRepo = new TopicRepo(resRepo);
+  const userRepo = new UserRepo();
+  const storageRepo = new StorageRepo();
+  const clientLoader = new ClientLoader(clientRepo, auth);
+  const historyLoader = new HistoryLoader(historyRepo);
+  const msgLoader = new MsgLoader(msgRepo, auth);
+  const profileLoader = new ProfileLoader(profileRepo, auth);
+  const resLoader = new ResLoader(resRepo, auth);
+  const topicLoader = new TopicLoader(topicRepo);
 
   return {
     auth,
     ipContainer,
     clock: new FixClock(new Date()),
     logger,
-    loader: new Loader({
-      auth,
-      clientRepo: repo.client,
-      hisotryRepo: repo.history,
-      msgRepo: repo.msg,
-      profileRepo: repo.profile,
-      resRepo: repo.res,
-      topicRepo: repo.topic,
-    }),
-    repo,
     recaptcha: new RecaptchaClient(),
     safeIdGenerator: new SafeIdGenerator(),
     objectIdGenerator: new ObjectIdGenerator(),
+    clientRepo,
+    historyRepo,
+    msgRepo,
+    profileRepo,
+    resRepo,
+    tokenRepo,
+    topicRepo,
+    userRepo,
+    storageRepo,
+    clientLoader,
+    historyLoader,
+    msgLoader,
+    profileLoader,
+    resLoader,
+    topicLoader,
   };
 }

@@ -1,35 +1,37 @@
 import { CronJob } from "cron";
-import { Logger, Repo } from "./adapters";
+import { Logger, ResRepo, TopicRepo, UserRepo } from "./adapters";
 import { ResWaitCountKey } from "./entities";
+import { ITopicRepo } from "./ports/index";
 
 export function runWorker() {
   const logger = new Logger();
-  const repo = new Repo();
+  const topicRepo = new TopicRepo(new ResRepo());
+  const userRepo = new UserRepo();
 
-  runTopicWorker(repo, logger);
-  runUserWorker(repo, logger);
+  runTopicWorker(topicRepo, logger);
+  runUserWorker(userRepo, logger);
 }
 
-function runTopicWorker(repo: Repo, logger: Logger) {
+function runTopicWorker(topicRepo: ITopicRepo, logger: Logger) {
   // 毎時間トピ落ちチェック
   new CronJob({
     cronTime: "00 00 * * * *",
     onTick: async () => {
       logger.info("TopicCron");
-      await repo.topic.cronTopicCheck(new Date());
+      await topicRepo.cronTopicCheck(new Date());
     },
     start: false,
     timeZone: "Asia/Tokyo",
   }).start();
 }
 
-function runUserWorker(repo: Repo, logger: Logger) {
+function runUserWorker(userRepo: UserRepo, logger: Logger) {
   const start = (cronTime: string, key: ResWaitCountKey) => {
     new CronJob({
       cronTime,
       onTick: async () => {
         logger.info(`UserCron ${key}`);
-        await repo.user.cronCountReset(key);
+        await userRepo.cronCountReset(key);
       },
       start: false,
       timeZone: "Asia/Tokyo",
@@ -45,7 +47,7 @@ function runUserWorker(repo: Repo, logger: Logger) {
   new CronJob({
     cronTime: "00 00 00 * * *",
     onTick: async () => {
-      await repo.user.cronPointReset();
+      await userRepo.cronPointReset();
     },
     start: false,
     timeZone: "Asia/Tokyo",

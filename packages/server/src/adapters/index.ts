@@ -7,8 +7,6 @@ export * from "./token-repo";
 export * from "./topic-repo";
 export * from "./user-repo";
 export * from "./storage-repo";
-export * from "./repo";
-export * from "./loader";
 export * from "./fix-clock";
 export * from "./recaptcha-client";
 export * from "./objectid-generator";
