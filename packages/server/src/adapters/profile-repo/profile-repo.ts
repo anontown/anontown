@@ -4,8 +4,7 @@ import { AtConflictError, AtNotFoundError } from "../../at-error";
 import { Mongo } from "../../db";
 import { Profile } from "../../entities";
 import * as G from "../../generated/graphql";
-import { IProfileRepo } from "../../ports";
-import { AuthContainer } from "../../server/auth-container";
+import { IAuthContainer, IProfileRepo } from "../../ports";
 import { fromProfile, IProfileDB, toProfile } from "./jprofile-db";
 
 export class ProfileRepo implements IProfileRepo {
@@ -22,7 +21,7 @@ export class ProfileRepo implements IProfileRepo {
     return toProfile(profile);
   }
 
-  async find(auth: AuthContainer, query: G.ProfileQuery): Promise<Profile[]> {
+  async find(auth: IAuthContainer, query: G.ProfileQuery): Promise<Profile[]> {
     const q: any = {};
     if (query.self) {
       q.user = new ObjectID(auth.getToken().user);

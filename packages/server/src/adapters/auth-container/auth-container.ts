@@ -1,10 +1,11 @@
 import { option } from "fp-ts";
 import { Option } from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
-import { AtAuthError } from "../at-error";
-import { IAuthToken, IAuthTokenMaster } from "../auth";
+import { AtAuthError } from "../../at-error";
+import { IAuthToken, IAuthTokenMaster } from "../../auth";
+import { IAuthContainer } from "../../ports/index";
 
-export class AuthContainer {
+export class AuthContainer implements IAuthContainer {
   constructor(private _token: Option<IAuthToken>) {}
 
   getToken(): IAuthToken {

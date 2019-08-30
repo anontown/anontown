@@ -18,3 +18,4 @@ export * from "./msg-loader";
 export * from "./profile-loader";
 export * from "./res-loader";
 export * from "./topic-loader";
+export * from "./auth-container";

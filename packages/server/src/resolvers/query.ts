@@ -9,54 +9,61 @@ export const query: G.QueryResolvers = {
   },
   user: async (_obj, _args, context, _info) => {
     return (await context.userRepo.findOne(
-      context.auth.getToken().user,
+      context.authContainer.getToken().user,
     )).toAPI();
   },
   clients: async (_obj, args, context, _info) => {
     const clients = await context.clientRepo.find(
-      context.auth.getTokenMasterOrNull(),
+      context.authContainer.getTokenMasterOrNull(),
       args.query,
     );
-    return clients.map(c => c.toAPI(context.auth.getTokenMasterOrNull()));
+    return clients.map(c =>
+      c.toAPI(context.authContainer.getTokenMasterOrNull()),
+    );
   },
   histories: async (_obj, args, context, _info) => {
     const histories = await context.historyRepo.find(args.query, args.limit);
-    return histories.map(x => x.toAPI(context.auth.getTokenOrNull()));
+    return histories.map(x => x.toAPI(context.authContainer.getTokenOrNull()));
   },
   msgs: async (_obj, args, context, _info) => {
     const msgs = await context.msgRepo.find(
-      context.auth.getToken(),
+      context.authContainer.getToken(),
       args.query,
       args.limit,
     );
-    return msgs.map(x => x.toAPI(context.auth.getToken()));
+    return msgs.map(x => x.toAPI(context.authContainer.getToken()));
   },
   profiles: async (_obj, args, context, _info) => {
-    const profiles = await context.profileRepo.find(context.auth, args.query);
-    return profiles.map(p => p.toAPI(context.auth.getTokenOrNull()));
+    const profiles = await context.profileRepo.find(
+      context.authContainer,
+      args.query,
+    );
+    return profiles.map(p => p.toAPI(context.authContainer.getTokenOrNull()));
   },
   reses: async (_obj, args, context, _info: any) => {
     const reses = await context.resRepo.find(
-      context.auth,
+      context.authContainer,
       args.query,
       args.limit,
     );
-    return reses.map(x => x.toAPI(context.auth.getTokenOrNull()));
+    return reses.map(x => x.toAPI(context.authContainer.getTokenOrNull()));
   },
   storages: async (_obj, args, context, _info) => {
     const storages = await context.storageRepo.find(
-      context.auth.getToken(),
+      context.authContainer.getToken(),
       args.query,
     );
-    return storages.map(x => x.toAPI(context.auth.getToken()));
+    return storages.map(x => x.toAPI(context.authContainer.getToken()));
   },
   token: async (_obj, _args, context, _info) => {
-    const token = await context.tokenRepo.findOne(context.auth.getToken().id);
+    const token = await context.tokenRepo.findOne(
+      context.authContainer.getToken().id,
+    );
     return token.toAPI();
   },
   tokens: async (_obj, _args, context, _info: any) => {
     const tokens = await context.tokenRepo.findAll(
-      context.auth.getTokenMaster(),
+      context.authContainer.getTokenMaster(),
     );
     return tokens.map(t => t.toAPI());
   },

@@ -1,8 +1,7 @@
 import { none, some } from "fp-ts/lib/Option";
 import { ObjectID } from "mongodb";
-import { AtError, dbReset, IProfileRepo, Profile } from "../../";
+import { AtError, AuthContainer, dbReset, IProfileRepo, Profile } from "../../";
 import { IAuthToken } from "../../auth";
-import { AuthContainer } from "../../server/auth-container";
 
 export function run(repoGene: () => IProfileRepo, isReset: boolean) {
   beforeEach(async () => {

@@ -1,6 +1,7 @@
 import { option } from "fp-ts";
 import { none, some } from "fp-ts/lib/Option";
 import {
+  AuthContainer,
   ClientLoader,
   ClientRepo,
   FixClock,
@@ -25,6 +26,7 @@ import {
 import { FixIpContainer } from "../adapters/fix-ip-container/index";
 import { AtAuthError } from "../at-error";
 import {
+  IAuthContainer,
   IClientLoader,
   IClientRepo,
   IClock,
@@ -47,11 +49,10 @@ import {
   IUserRepo,
 } from "../ports";
 import { IMsgLoader } from "../ports/msg-loader/msg-loader";
-import { AuthContainer } from "./auth-container";
 import * as authFromApiParam from "./auth-from-api-param";
 
 export interface AppContext {
-  auth: AuthContainer;
+  authContainer: IAuthContainer;
   ipContainer: IIpContainer;
   clock: IClock;
   logger: ILogger;
@@ -102,7 +103,7 @@ export async function createContext(headers: any): Promise<AppContext> {
     tokenRepo,
   );
 
-  const auth = new AuthContainer(token);
+  const authContainer = new AuthContainer(token);
 
   const clientRepo = new ClientRepo();
   const historyRepo = new HistoryRepo();
@@ -112,15 +113,15 @@ export async function createContext(headers: any): Promise<AppContext> {
   const topicRepo = new TopicRepo(resRepo);
   const userRepo = new UserRepo();
   const storageRepo = new StorageRepo();
-  const clientLoader = new ClientLoader(clientRepo, auth);
+  const clientLoader = new ClientLoader(clientRepo, authContainer);
   const historyLoader = new HistoryLoader(historyRepo);
-  const msgLoader = new MsgLoader(msgRepo, auth);
-  const profileLoader = new ProfileLoader(profileRepo, auth);
-  const resLoader = new ResLoader(resRepo, auth);
+  const msgLoader = new MsgLoader(msgRepo, authContainer);
+  const profileLoader = new ProfileLoader(profileRepo, authContainer);
+  const resLoader = new ResLoader(resRepo, authContainer);
   const topicLoader = new TopicLoader(topicRepo);
 
   return {
-    auth,
+    authContainer,
     ipContainer,
     clock: new FixClock(new Date()),
     logger,

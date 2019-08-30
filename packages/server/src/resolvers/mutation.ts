@@ -62,7 +62,7 @@ export const mutation: G.MutationResolvers = {
   createClient: async (_obj, args, context, _info) => {
     const client = Client.create(
       context.objectIdGenerator,
-      context.auth.getTokenMaster(),
+      context.authContainer.getTokenMaster(),
       args.name,
       args.url,
       context.clock.now(),
@@ -71,12 +71,12 @@ export const mutation: G.MutationResolvers = {
     context.logger.info(
       formatter.mutation(context.ipContainer, "clients", client.id),
     );
-    return client.toAPI(some(context.auth.getTokenMaster()));
+    return client.toAPI(some(context.authContainer.getTokenMaster()));
   },
   updateClient: async (_obj, args, context, _info) => {
     const client = await context.clientRepo.findOne(args.id);
     const newClient = client.changeData(
-      context.auth.getTokenMaster(),
+      context.authContainer.getTokenMaster(),
       nullToUndefined(args.name),
       nullToUndefined(args.url),
       context.clock.now(),
@@ -85,12 +85,12 @@ export const mutation: G.MutationResolvers = {
     context.logger.info(
       formatter.mutation(context.ipContainer, "clients", client.id),
     );
-    return newClient.toAPI(some(context.auth.getTokenMaster()));
+    return newClient.toAPI(some(context.authContainer.getTokenMaster()));
   },
   createProfile: async (_obj, args, context, _info) => {
     const profile = Profile.create(
       context.objectIdGenerator,
-      context.auth.getToken(),
+      context.authContainer.getToken(),
       args.name,
       args.text,
       args.sn,
@@ -100,12 +100,12 @@ export const mutation: G.MutationResolvers = {
     context.logger.info(
       formatter.mutation(context.ipContainer, "profiles", profile.id),
     );
-    return profile.toAPI(some(context.auth.getToken()));
+    return profile.toAPI(some(context.authContainer.getToken()));
   },
   updateProfile: async (_obj, args, context, _info: any) => {
     const profile = await context.profileRepo.findOne(args.id);
     const newProfile = profile.changeData(
-      context.auth.getToken(),
+      context.authContainer.getToken(),
       nullToUndefined(args.name),
       nullToUndefined(args.text),
       nullToUndefined(args.sn),
@@ -115,12 +115,12 @@ export const mutation: G.MutationResolvers = {
     context.logger.info(
       formatter.mutation(context.ipContainer, "profiles", newProfile.id),
     );
-    return newProfile.toAPI(some(context.auth.getToken()));
+    return newProfile.toAPI(some(context.authContainer.getToken()));
   },
   createRes: async (_obj, args, context, _info) => {
     const [topic, user, reply, profile] = await Promise.all([
       context.topicRepo.findOne(args.topic),
-      context.userRepo.findOne(context.auth.getToken().user),
+      context.userRepo.findOne(context.authContainer.getToken().user),
       !isNullish(args.reply)
         ? context.resRepo.findOne(args.reply)
         : Promise.resolve(null),
@@ -133,7 +133,7 @@ export const mutation: G.MutationResolvers = {
       context.objectIdGenerator,
       topic,
       user,
-      context.auth.getToken(),
+      context.authContainer.getToken(),
       fromNullable(args.name),
       args.text,
       fromNullable(reply),
@@ -151,7 +151,7 @@ export const mutation: G.MutationResolvers = {
     context.logger.info(
       formatter.mutation(context.ipContainer, "reses", res.id),
     );
-    const api = res.toAPI(some(context.auth.getToken()));
+    const api = res.toAPI(some(context.authContainer.getToken()));
     if (api.type !== "normal") {
       throw new Error();
     }
@@ -161,7 +161,7 @@ export const mutation: G.MutationResolvers = {
     if (args.type === "cv") {
       const [res, user] = await Promise.all([
         context.resRepo.findOne(args.res),
-        context.userRepo.findOne(context.auth.getToken().user),
+        context.userRepo.findOne(context.authContainer.getToken().user),
       ]);
 
       // レスを書き込んだユーザー
@@ -170,7 +170,7 @@ export const mutation: G.MutationResolvers = {
       const { res: newRes, resUser: newResUser } = res.cv(
         resUser,
         user,
-        context.auth.getToken(),
+        context.authContainer.getToken(),
       );
 
       await Promise.all([
@@ -179,11 +179,11 @@ export const mutation: G.MutationResolvers = {
         context.userRepo.update(user),
       ]);
 
-      return newRes.toAPI(some(context.auth.getToken()));
+      return newRes.toAPI(some(context.authContainer.getToken()));
     } else {
       const [res, user] = await Promise.all([
         context.resRepo.findOne(args.res),
-        context.userRepo.findOne(context.auth.getToken().user),
+        context.userRepo.findOne(context.authContainer.getToken().user),
       ]);
 
       // レスを書き込んだユーザー
@@ -193,7 +193,7 @@ export const mutation: G.MutationResolvers = {
         resUser,
         user,
         args.type,
-        context.auth.getToken(),
+        context.authContainer.getToken(),
       );
 
       await Promise.all([
@@ -202,7 +202,7 @@ export const mutation: G.MutationResolvers = {
         context.userRepo.update(user),
       ]);
 
-      return newRes.toAPI(some(context.auth.getToken()));
+      return newRes.toAPI(some(context.authContainer.getToken()));
     }
   },
   delRes: async (_obj, args, context, _info) => {
@@ -217,7 +217,7 @@ export const mutation: G.MutationResolvers = {
 
     const { res: newRes, resUser: newResUser } = res.del(
       resUser,
-      context.auth.getToken(),
+      context.authContainer.getToken(),
     );
 
     await Promise.all([
@@ -225,7 +225,7 @@ export const mutation: G.MutationResolvers = {
       context.userRepo.update(newResUser),
     ]);
 
-    const api = newRes.toAPI(some(context.auth.getToken()));
+    const api = newRes.toAPI(some(context.authContainer.getToken()));
     if (api.type !== "delete") {
       throw new Error();
     }
@@ -233,16 +233,16 @@ export const mutation: G.MutationResolvers = {
   },
   setStorage: async (_obj, args, context, _info) => {
     const storage = Storage.create(
-      context.auth.getToken(),
+      context.authContainer.getToken(),
       args.key,
       args.value,
     );
     await context.storageRepo.save(storage);
-    return storage.toAPI(context.auth.getToken());
+    return storage.toAPI(context.authContainer.getToken());
   },
   delStorage: async (_obj, args, context, _info) => {
     const storage = await context.storageRepo.findOneKey(
-      context.auth.getToken(),
+      context.authContainer.getToken(),
       args.key,
     );
     await context.storageRepo.del(storage);
@@ -251,7 +251,7 @@ export const mutation: G.MutationResolvers = {
   delTokenClient: async (_obj, args, context, _info) => {
     const client = await context.clientRepo.findOne(args.client);
     await context.tokenRepo.delClientToken(
-      context.auth.getTokenMaster(),
+      context.authContainer.getTokenMaster(),
       client.id,
     );
     return null;
@@ -260,7 +260,7 @@ export const mutation: G.MutationResolvers = {
     const client = await context.clientRepo.findOne(args.client);
     const token = TokenGeneral.create(
       context.objectIdGenerator,
-      context.auth.getTokenMaster(),
+      context.authContainer.getTokenMaster(),
       client,
       context.clock.now(),
       context.safeIdGenerator,
@@ -299,7 +299,9 @@ export const mutation: G.MutationResolvers = {
     return token.toAPI();
   },
   createTokenReq: async (_obj, _args, context, _info) => {
-    const token = await context.tokenRepo.findOne(context.auth.getToken().id);
+    const token = await context.tokenRepo.findOne(
+      context.authContainer.getToken().id,
+    );
     if (token.type !== "general") {
       throw new AtNotFoundError("トークンが見つかりません");
     }
@@ -313,14 +315,16 @@ export const mutation: G.MutationResolvers = {
     return req;
   },
   createTopicNormal: async (_obj, args, context, _info) => {
-    const user = await context.userRepo.findOne(context.auth.getToken().user);
+    const user = await context.userRepo.findOne(
+      context.authContainer.getToken().user,
+    );
     const create = TopicNormal.create(
       context.objectIdGenerator,
       args.title,
       args.tags,
       args.text,
       user,
-      context.auth.getToken(),
+      context.authContainer.getToken(),
       context.clock.now(),
     );
 
@@ -342,14 +346,16 @@ export const mutation: G.MutationResolvers = {
     return create.topic.toAPI();
   },
   createTopicOne: async (_obj, args, context, _info) => {
-    const user = await context.userRepo.findOne(context.auth.getToken().user);
+    const user = await context.userRepo.findOne(
+      context.authContainer.getToken().user,
+    );
     const create = TopicOne.create(
       context.objectIdGenerator,
       args.title,
       args.tags,
       args.text,
       user,
-      context.auth.getToken(),
+      context.authContainer.getToken(),
       context.clock.now(),
     );
 
@@ -369,7 +375,9 @@ export const mutation: G.MutationResolvers = {
     return create.topic.toAPI();
   },
   createTopicFork: async (_obj, args, context, _info) => {
-    const user = await context.userRepo.findOne(context.auth.getToken().user);
+    const user = await context.userRepo.findOne(
+      context.authContainer.getToken().user,
+    );
     const parent = await context.topicRepo.findOne(args.parent);
 
     if (parent.type !== "normal") {
@@ -381,7 +389,7 @@ export const mutation: G.MutationResolvers = {
       args.title,
       parent,
       user,
-      context.auth.getToken(),
+      context.authContainer.getToken(),
       context.clock.now(),
     );
 
@@ -408,7 +416,7 @@ export const mutation: G.MutationResolvers = {
   updateTopic: async (_obj, args, context, _info) => {
     const [topic, user] = await Promise.all([
       context.topicRepo.findOne(args.id),
-      context.userRepo.findOne(context.auth.getToken().user),
+      context.userRepo.findOne(context.authContainer.getToken().user),
     ]);
 
     if (topic.type !== "normal") {
@@ -418,7 +426,7 @@ export const mutation: G.MutationResolvers = {
     const val = topic.changeData(
       context.objectIdGenerator,
       user,
-      context.auth.getToken(),
+      context.authContainer.getToken(),
       nullToUndefined(args.title),
       nullToUndefined(args.tags),
       nullToUndefined(args.text),

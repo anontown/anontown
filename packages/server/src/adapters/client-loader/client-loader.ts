@@ -1,13 +1,12 @@
 import * as DataLoader from "dataloader";
 import { Client } from "../../entities/index";
-import { IClientLoader, IClientRepo } from "../../ports/index";
-import { AuthContainer } from "../../server/auth-container";
+import { IAuthContainer, IClientLoader, IClientRepo } from "../../ports/index";
 import { loader } from "../loader-helper";
 
 export class ClientLoader implements IClientLoader {
   loader: DataLoader<string, Client>;
 
-  constructor(clientRepo: IClientRepo, auth: AuthContainer) {
+  constructor(clientRepo: IClientRepo, auth: IAuthContainer) {
     this.loader = loader(ids =>
       clientRepo.find(auth.getTokenMasterOrNull(), { id: ids }),
     );

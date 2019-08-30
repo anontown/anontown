@@ -1,7 +1,7 @@
 import { Subject } from "rxjs";
 import { Res } from "../../entities";
 import * as G from "../../generated/graphql";
-import { AuthContainer } from "../../server/auth-container";
+import { IAuthContainer } from "../auth-container/index";
 
 export interface IResRepo {
   readonly insertEvent: Subject<{ res: Res; count: number }>;
@@ -16,5 +16,5 @@ export interface IResRepo {
 
   replyCount(resIDs: string[]): Promise<Map<string, number>>;
 
-  find(auth: AuthContainer, query: G.ResQuery, limit: number): Promise<Res[]>;
+  find(auth: IAuthContainer, query: G.ResQuery, limit: number): Promise<Res[]>;
 }

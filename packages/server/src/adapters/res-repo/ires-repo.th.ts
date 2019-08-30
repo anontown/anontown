@@ -3,6 +3,7 @@ import { none, some } from "fp-ts/lib/Option";
 import * as Im from "immutable";
 import {
   AtError,
+  AuthContainer,
   dbReset,
   IAuthTokenMaster,
   IResRepo,
@@ -11,7 +12,6 @@ import {
   ResNormal,
   ResTopic,
 } from "../../";
-import { AuthContainer } from "../../server/auth-container";
 
 export function run(repoGene: () => IResRepo, isReset: boolean) {
   beforeEach(async () => {

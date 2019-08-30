@@ -10,7 +10,7 @@ export const subscription: G.SubscriptionResolvers = {
           op.filter(x => x.res.topic === args.topic),
           op.map(x => ({
             count: x.count,
-            res: x.res.toAPI(context.auth.getTokenOrNull()),
+            res: x.res.toAPI(context.authContainer.getTokenOrNull()),
           })),
         ),
       ),

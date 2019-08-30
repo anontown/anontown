@@ -1,13 +1,12 @@
 import * as DataLoader from "dataloader";
 import { Res } from "../../entities/index";
-import { IResLoader, IResRepo } from "../../ports/index";
-import { AuthContainer } from "../../server/auth-container";
+import { IAuthContainer, IResLoader, IResRepo } from "../../ports/index";
 import { loader } from "../loader-helper";
 
 export class ResLoader implements IResLoader {
   loader: DataLoader<string, Res>;
 
-  constructor(resRepo: IResRepo, auth: AuthContainer) {
+  constructor(resRepo: IResRepo, auth: IAuthContainer) {
     this.loader = loader(ids => resRepo.find(auth, { id: ids }, ids.length));
   }
 
