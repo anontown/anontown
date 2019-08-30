@@ -10,6 +10,8 @@ import { Config } from "../config";
 import { resolvers as appResolvers } from "../resolvers";
 import { runWorker } from "../worker";
 import { AppContext, createContext } from "./context";
+import * as t from "io-ts";
+import { either } from "fp-ts";
 
 export async function serverRun() {
   const typeDefs = gql(
@@ -27,13 +29,21 @@ export async function serverRun() {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({ req, connection }: any): Promise<AppContext> => {
-      if (req) {
-        return createContext(req.headers);
-      }
+    context: (params: unknown): Promise<AppContext> => {
+      const decodedParams = t.UnknownRecord.decode(params);
+      if (either.isRight(decodedParams)) {
+        const { req, connection } = decodedParams.right;
+        const decodedReq = t.type({ headers: t.UnknownRecord }).decode(req);
+        const decodeConnection = t
+          .type({ context: t.UnknownRecord })
+          .decode(connection);
+        if (either.isRight(decodedReq)) {
+          return createContext(decodedReq.right.headers);
+        }
 
-      if (connection) {
-        return createContext(connection.context);
+        if (either.isRight(decodeConnection)) {
+          return createContext(decodeConnection.right.context);
+        }
       }
 
       return createContext({});

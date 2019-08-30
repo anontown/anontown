@@ -21,6 +21,7 @@
     "graphql": "^14.1.1",
     "graphql-iso-date": "^3.6.1",
     "immutable": "^4.0.0-rc.9",
+    "io-ts": "^2.0.1",
     "ioredis": "^4.9.0",
     "jsonwebtoken": "^8.5.1",
     "lazy-value": "^1.0.0",
