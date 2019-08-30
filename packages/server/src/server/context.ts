@@ -1,4 +1,3 @@
-import { option } from "fp-ts";
 import { none, some } from "fp-ts/lib/Option";
 import {
   AuthContainer,
@@ -50,6 +49,7 @@ import {
 } from "../ports";
 import { IMsgLoader } from "../ports/msg-loader/msg-loader";
 import * as authFromApiParam from "./auth-from-api-param";
+import { array, option } from "fp-ts";
 
 export interface AppContext {
   authContainer: IAuthContainer;
@@ -76,22 +76,28 @@ export interface AppContext {
   objectIdGenerator: IObjectIdGenerator;
 }
 
-async function createToken(raw: any, tokenRepo: ITokenRepo) {
+async function createToken(raw: unknown, tokenRepo: ITokenRepo) {
   if (typeof raw !== "string") {
     return none;
   }
   const arr = raw.split(",");
-  if (arr.length !== 2) {
+  const id = array.lookup(0, arr);
+  const key = array.lookup(1, arr);
+  if (option.isNone(id) || option.isNone(key)) {
     throw new AtAuthError("パラメーターが不正です");
   }
 
-  const [id, key] = arr;
-  return some(await authFromApiParam.token(tokenRepo, { id, key }));
+  return some(
+    await authFromApiParam.token(tokenRepo, { id: id.value, key: key.value }),
+  );
 }
 
-export async function createContext(headers: any): Promise<AppContext> {
+export async function createContext(
+  headers: Record<string, unknown>,
+): Promise<AppContext> {
+  const xRealIp = headers["x-real-ip"];
   const ipContainer = new FixIpContainer(
-    option.fromNullable<string>(headers["x-real-ip"]),
+    typeof xRealIp === "string" ? some(xRealIp) : none,
   );
 
   const logger = new Logger();
