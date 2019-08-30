@@ -1,3 +1,4 @@
+import { array, option } from "fp-ts";
 import { none, some } from "fp-ts/lib/Option";
 import {
   AuthContainer,
@@ -24,56 +25,12 @@ import {
 } from "../adapters";
 import { FixIpContainer } from "../adapters/fix-ip-container/index";
 import { AtAuthError } from "../at-error";
-import {
-  IAuthContainer,
-  IClientLoader,
-  IClientRepo,
-  IClock,
-  IHistoryLoader,
-  IHistoryRepo,
-  IIpContainer,
-  ILogger,
-  IMsgRepo,
-  IObjectIdGenerator,
-  IProfileLoader,
-  IProfileRepo,
-  IRecaptchaClient,
-  IResLoader,
-  IResRepo,
-  ISafeIdGenerator,
-  IStorageRepo,
-  ITokenRepo,
-  ITopicLoader,
-  ITopicRepo,
-  IUserRepo,
-} from "../ports";
-import { IMsgLoader } from "../ports/msg-loader/msg-loader";
+import { ITokenRepo } from "../ports";
+import { Ports } from "../ports";
 import * as authFromApiParam from "./auth-from-api-param";
-import { array, option } from "fp-ts";
 
 export interface AppContext {
-  authContainer: IAuthContainer;
-  ipContainer: IIpContainer;
-  clock: IClock;
-  logger: ILogger;
-  clientRepo: IClientRepo;
-  historyRepo: IHistoryRepo;
-  msgRepo: IMsgRepo;
-  profileRepo: IProfileRepo;
-  resRepo: IResRepo;
-  tokenRepo: ITokenRepo;
-  topicRepo: ITopicRepo;
-  userRepo: IUserRepo;
-  storageRepo: IStorageRepo;
-  clientLoader: IClientLoader;
-  historyLoader: IHistoryLoader;
-  msgLoader: IMsgLoader;
-  profileLoader: IProfileLoader;
-  resLoader: IResLoader;
-  topicLoader: ITopicLoader;
-  recaptcha: IRecaptchaClient;
-  safeIdGenerator: ISafeIdGenerator;
-  objectIdGenerator: IObjectIdGenerator;
+  ports: Ports;
 }
 
 async function createToken(raw: unknown, tokenRepo: ITokenRepo) {
@@ -127,27 +84,29 @@ export async function createContext(
   const topicLoader = new TopicLoader(topicRepo);
 
   return {
-    authContainer,
-    ipContainer,
-    clock: new FixClock(new Date()),
-    logger,
-    recaptcha: new RecaptchaClient(),
-    safeIdGenerator: new SafeIdGenerator(),
-    objectIdGenerator: new ObjectIdGenerator(),
-    clientRepo,
-    historyRepo,
-    msgRepo,
-    profileRepo,
-    resRepo,
-    tokenRepo,
-    topicRepo,
-    userRepo,
-    storageRepo,
-    clientLoader,
-    historyLoader,
-    msgLoader,
-    profileLoader,
-    resLoader,
-    topicLoader,
+    ports: {
+      authContainer,
+      ipContainer,
+      clock: new FixClock(new Date()),
+      logger,
+      recaptcha: new RecaptchaClient(),
+      safeIdGenerator: new SafeIdGenerator(),
+      objectIdGenerator: new ObjectIdGenerator(),
+      clientRepo,
+      historyRepo,
+      msgRepo,
+      profileRepo,
+      resRepo,
+      tokenRepo,
+      topicRepo,
+      userRepo,
+      storageRepo,
+      clientLoader,
+      historyLoader,
+      msgLoader,
+      profileLoader,
+      resLoader,
+      topicLoader,
+    },
   };
 }

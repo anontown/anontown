@@ -2,7 +2,7 @@ import * as G from "../generated/graphql";
 
 export const history: G.HistoryResolvers = {
   topic: async (history, _args, context, _info) => {
-    const topic = await context.topicLoader.load(history.topicID);
+    const topic = await context.ports.topicLoader.load(history.topicID);
     if (topic.type !== "normal") {
       throw new Error();
     }

@@ -6,11 +6,11 @@ export const subscription: G.SubscriptionResolvers = {
   resAdded: {
     subscribe: (_parent, args, context, _info) =>
       observableAsyncIterator(
-        context.resRepo.insertEvent.pipe(
+        context.ports.resRepo.insertEvent.pipe(
           op.filter(x => x.res.topic === args.topic),
           op.map(x => ({
             count: x.count,
-            res: x.res.toAPI(context.authContainer.getTokenOrNull()),
+            res: x.res.toAPI(context.ports.authContainer.getTokenOrNull()),
           })),
         ),
       ),
