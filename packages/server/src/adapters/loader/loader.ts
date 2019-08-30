@@ -10,23 +10,7 @@ import {
   ITopicRepo,
 } from "../../ports";
 import { AuthContainer } from "../../server/auth-container";
-
-function sort<T extends { id: string }>(
-  ids: string[],
-  data: T[],
-): (T | Error)[] {
-  const map = new Map(data.map<[string, T]>(x => [x.id, x]));
-  return ids.map(x => map.get(x) || new Error());
-}
-
-function loader<T extends { id: string }>(
-  f: (ids: string[]) => Promise<T[]>,
-): DataLoader<string, T> {
-  return new DataLoader<string, T>(async ids => {
-    const data = await f(ids);
-    return sort(ids, data);
-  });
-}
+import { loader } from "../loader-helper";
 
 export class Loader implements ILoader {
   client: DataLoader<string, Client>;
