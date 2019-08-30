@@ -20,7 +20,7 @@ export class ProfileRepoMock implements IProfileRepo {
   }
 
   async find(auth: AuthContainer, query: G.ProfileQuery): Promise<Profile[]> {
-    const self = query.self ? auth.token.user : null;
+    const self = query.self ? auth.getToken().user : null;
     const profiles = this.profiles
       .filter(x => self === null || x.user.toHexString() === self)
       .filter(

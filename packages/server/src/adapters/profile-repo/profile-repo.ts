@@ -25,7 +25,7 @@ export class ProfileRepo implements IProfileRepo {
   async find(auth: AuthContainer, query: G.ProfileQuery): Promise<Profile[]> {
     const q: any = {};
     if (query.self) {
-      q.user = new ObjectID(auth.token.user);
+      q.user = new ObjectID(auth.getToken().user);
     }
     if (!isNullish(query.id)) {
       q._id = { $in: query.id.map(x => new ObjectID(x)) };

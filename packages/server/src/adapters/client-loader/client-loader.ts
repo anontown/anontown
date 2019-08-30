@@ -9,7 +9,7 @@ export class ClientLoader implements IClientLoader {
 
   constructor(clientRepo: IClientRepo, auth: AuthContainer) {
     this.loader = loader(ids =>
-      clientRepo.find(auth.tokenMasterOrNull, { id: ids }),
+      clientRepo.find(auth.getTokenMasterOrNull(), { id: ids }),
     );
   }
 

@@ -190,7 +190,7 @@ export class ResRepo implements IResRepo {
           path: "reply",
           query: {
             term: {
-              "reply.user": auth.token.user,
+              "reply.user": auth.getToken().user,
             },
           },
         },
@@ -229,7 +229,7 @@ export class ResRepo implements IResRepo {
     if (query.self) {
       filter.push({
         term: {
-          user: auth.token.user,
+          user: auth.getToken().user,
         },
       });
     }

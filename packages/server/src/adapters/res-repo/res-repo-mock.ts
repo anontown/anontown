@@ -64,8 +64,8 @@ export class ResRepoMock implements IResRepo {
     query: G.ResQuery,
     limit: number,
   ): Promise<Res[]> {
-    const notice = query.notice ? auth.token.user : null;
-    const self = query.self ? auth.token.user : null;
+    const notice = query.notice ? auth.getToken().user : null;
+    const self = query.self ? auth.getToken().user : null;
     const texts = !isNullish(query.text)
       ? query.text.split(/\s/).filter(x => x.length !== 0)
       : null;

@@ -10,7 +10,7 @@ export class MsgLoader implements IMsgLoader {
 
   constructor(msgRepo: IMsgRepo, auth: AuthContainer) {
     this.loader = loader(ids =>
-      msgRepo.find(auth.token, { id: ids }, ids.length),
+      msgRepo.find(auth.getToken(), { id: ids }, ids.length),
     );
   }
 

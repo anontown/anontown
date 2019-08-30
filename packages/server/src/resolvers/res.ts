@@ -29,7 +29,7 @@ export const resNormal: G.ResNormalResolvers = {
   reply: async (res, _args, context, _info) => {
     if (res.replyID !== null) {
       const reply = await context.resLoader.load(res.replyID);
-      return reply.toAPI(context.auth.tokenOrNull);
+      return reply.toAPI(context.auth.getTokenOrNull());
     } else {
       return null;
     }
@@ -37,7 +37,7 @@ export const resNormal: G.ResNormalResolvers = {
   profile: async (res, _args, context, _info) => {
     if (res.profileID !== null) {
       const profile = await context.profileLoader.load(res.profileID);
-      return profile.toAPI(context.auth.tokenOrNull);
+      return profile.toAPI(context.auth.getTokenOrNull());
     } else {
       return null;
     }
@@ -48,7 +48,7 @@ export const resHistory: G.ResHistoryResolvers = {
   ...resBase,
   history: async (res, _args, context, _info) => {
     const history = await context.historyLoader.load(res.historyID);
-    return history.toAPI(context.auth.tokenOrNull);
+    return history.toAPI(context.auth.getTokenOrNull());
   },
 };
 
