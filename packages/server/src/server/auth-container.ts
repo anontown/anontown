@@ -27,7 +27,7 @@ export class AuthContainer {
     return this._token;
   }
 
-  get TokenMasterOrNull(): Option<IAuthTokenMaster> {
+  get tokenMasterOrNull(): Option<IAuthTokenMaster> {
     return pipe(
       this._token,
       option.chain(token =>

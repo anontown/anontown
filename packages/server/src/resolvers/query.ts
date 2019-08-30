@@ -12,10 +12,10 @@ export const query: G.QueryResolvers = {
   },
   clients: async (_obj, args, context, _info) => {
     const clients = await context.clientRepo.find(
-      context.auth.TokenMasterOrNull,
+      context.auth.tokenMasterOrNull,
       args.query,
     );
-    return clients.map(c => c.toAPI(context.auth.TokenMasterOrNull));
+    return clients.map(c => c.toAPI(context.auth.tokenMasterOrNull));
   },
   histories: async (_obj, args, context, _info) => {
     const histories = await context.historyRepo.find(args.query, args.limit);
