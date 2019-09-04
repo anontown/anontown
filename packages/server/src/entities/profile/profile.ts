@@ -3,7 +3,7 @@ import { Option } from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
 import { AtRightError, paramsErrorMaker } from "../../at-error";
 import { IAuthToken } from "../../auth";
-import { Config } from "../../config";
+import { Constant } from "../../constant";
 import { IObjectIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
 
@@ -30,20 +30,20 @@ export class Profile extends Copyable<Profile> {
       {
         field: "name",
         val: name,
-        regex: Config.user.profile.name.regex,
-        message: Config.user.profile.name.msg,
+        regex: Constant.user.profile.name.regex,
+        message: Constant.user.profile.name.msg,
       },
       {
         field: "text",
         val: text,
-        regex: Config.user.profile.text.regex,
-        message: Config.user.profile.text.msg,
+        regex: Constant.user.profile.text.regex,
+        message: Constant.user.profile.text.msg,
       },
       {
         field: "sn",
         val: sn,
-        regex: Config.user.profile.sn.regex,
-        message: Config.user.profile.sn.msg,
+        regex: Constant.user.profile.sn.regex,
+        message: Constant.user.profile.sn.msg,
       },
     ]);
 
@@ -100,20 +100,20 @@ export class Profile extends Copyable<Profile> {
       {
         field: "name",
         val: name,
-        regex: Config.user.profile.name.regex,
-        message: Config.user.profile.name.msg,
+        regex: Constant.user.profile.name.regex,
+        message: Constant.user.profile.name.msg,
       },
       {
         field: "text",
         val: text,
-        regex: Config.user.profile.text.regex,
-        message: Config.user.profile.text.msg,
+        regex: Constant.user.profile.text.regex,
+        message: Constant.user.profile.text.msg,
       },
       {
         field: "sn",
         val: sn,
-        regex: Config.user.profile.sn.regex,
-        message: Config.user.profile.sn.msg,
+        regex: Constant.user.profile.sn.regex,
+        message: Constant.user.profile.sn.msg,
       },
     ]);
 

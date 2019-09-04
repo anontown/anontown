@@ -3,7 +3,7 @@ import { Option } from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
 import { AtRightError, paramsErrorMaker } from "../../at-error";
 import { IAuthTokenMaster } from "../../auth";
-import { Config } from "../../config";
+import { Constant } from "../../constant";
 import { IObjectIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
 
@@ -28,14 +28,14 @@ export class Client extends Copyable<Client> {
       {
         field: "name",
         val: name,
-        regex: Config.user.client.name.regex,
-        message: Config.user.client.name.msg,
+        regex: Constant.user.client.name.regex,
+        message: Constant.user.client.name.msg,
       },
       {
         field: "url",
         val: url,
-        regex: Config.user.client.url.regex,
-        message: Config.user.client.url.msg,
+        regex: Constant.user.client.url.regex,
+        message: Constant.user.client.url.msg,
       },
     ]);
 
@@ -88,14 +88,14 @@ export class Client extends Copyable<Client> {
       {
         field: "name",
         val: name,
-        regex: Config.user.client.name.regex,
-        message: Config.user.client.name.msg,
+        regex: Constant.user.client.name.regex,
+        message: Constant.user.client.name.msg,
       },
       {
         field: "url",
         val: url,
-        regex: Config.user.client.url.regex,
-        message: Config.user.client.url.msg,
+        regex: Constant.user.client.url.regex,
+        message: Constant.user.client.url.msg,
       },
     ]);
 

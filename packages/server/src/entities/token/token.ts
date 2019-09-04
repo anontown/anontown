@@ -7,6 +7,7 @@ import { Copyable } from "../../utils";
 import { hash } from "../../utils";
 import { applyMixins } from "../../utils";
 import { Client } from "../client";
+import { Constant } from "../../constant";
 
 export interface ITokenReq {
   readonly key: string;
@@ -166,7 +167,7 @@ export class TokenGeneral extends Copyable<TokenGeneral>
       req = {
         key: TokenBase.createTokenKey(randomGenerator),
         expireDate: new Date(
-          nowNum + 1000 * 60 * Config.user.token.req.expireMinute,
+          nowNum + 1000 * 60 * Constant.user.token.req.expireMinute,
         ),
         active: true,
       };

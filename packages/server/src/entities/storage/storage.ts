@@ -3,8 +3,8 @@ import { none, Option, some } from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
 import { AtRightError, paramsErrorMaker } from "../../at-error";
 import { IAuthToken } from "../../auth";
-import { Config } from "../../config";
 import { Copyable } from "../../utils";
+import { Constant } from "../../constant";
 
 export interface IStorageAPI {
   key: string;
@@ -17,14 +17,14 @@ export class Storage extends Copyable<Storage> {
       {
         field: "key",
         val: key,
-        regex: Config.user.storage.key.regex,
-        message: Config.user.storage.key.msg,
+        regex: Constant.user.storage.key.regex,
+        message: Constant.user.storage.key.msg,
       },
       {
         field: "value",
         val: value,
-        regex: Config.user.storage.value.regex,
-        message: Config.user.storage.value.msg,
+        regex: Constant.user.storage.value.regex,
+        message: Constant.user.storage.value.msg,
       },
     ]);
 

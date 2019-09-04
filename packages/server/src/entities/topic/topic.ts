@@ -10,6 +10,7 @@ import { applyMixins } from "../../utils";
 import { History } from "../history";
 import { Res, ResFork, ResHistory, ResTopic } from "../res";
 import { User } from "../user";
+import { Constant } from "../../constant";
 
 export interface ITagsAPI {
   name: string;
@@ -65,14 +66,14 @@ export abstract class TopicBase<
       {
         field: "text",
         val: text,
-        regex: Config.topic.text.regex,
-        message: Config.topic.text.msg,
+        regex: Constant.topic.text.regex,
+        message: Constant.topic.text.msg,
       },
       {
         field: "title",
         val: title,
-        regex: Config.topic.title.regex,
-        message: Config.topic.title.msg,
+        regex: Constant.topic.title.regex,
+        message: Constant.topic.title.msg,
       },
       ...(tags !== undefined
         ? [
@@ -87,10 +88,10 @@ export abstract class TopicBase<
               }
             },
             () => {
-              if (tags.length > Config.topic.tags.max) {
+              if (tags.length > Constant.topic.tags.max) {
                 return {
                   field: "tags",
-                  message: Config.topic.tags.msg,
+                  message: Constant.topic.tags.msg,
                 };
               } else {
                 return null;
@@ -99,8 +100,8 @@ export abstract class TopicBase<
             ...tags.map((x, i) => ({
               field: `tags[${i}]`,
               val: x,
-              regex: Config.topic.tags.regex,
-              message: Config.topic.tags.msg,
+              regex: Constant.topic.tags.regex,
+              message: Constant.topic.tags.msg,
             })),
           ]
         : []),
@@ -158,7 +159,7 @@ export abstract class TopicBase<
         this.id +
         // ソルト依存
         Config.salt.hash,
-    ).substr(0, Config.topic.hashLen);
+    ).substr(0, Constant.topic.hashLen);
   }
 }
 
