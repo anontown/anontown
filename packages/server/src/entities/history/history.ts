@@ -8,6 +8,9 @@ import { Copyable } from "../../utils";
 import { TopicNormal } from "../topic";
 import { User } from "../user";
 
+/*
+self: 認証していなければnull。自分で編集したかどうか
+*/
 export interface IHistoryAPI {
   readonly id: string;
   readonly topicID: string;
