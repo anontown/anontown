@@ -11,7 +11,7 @@ import { ITopicAPI } from "../entities";
 * `id`: 取得するtopicのid
 
 ## 返り値
-* topic
+* ITopicAPI
 
 ## エラー
 なし
