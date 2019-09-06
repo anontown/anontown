@@ -1,4 +1,5 @@
 import * as G from "../generated/graphql";
+import { getTopic } from "../usecases";
 
 export const topic: G.TopicResolvers = {
   __resolveType(obj) {
@@ -26,10 +27,10 @@ export const topicSearch: G.TopicSearchResolvers = {
 
 export const topicFork: G.TopicForkResolvers = {
   parent: async (token, _args, context, _info) => {
-    const parent = await context.ports.topicLoader.load(token.parentID);
+    const parent = await getTopic({ id: token.parentID }, context.ports);
     if (parent.type !== "normal") {
       throw new Error();
     }
-    return parent.toAPI();
+    return parent;
   },
 };

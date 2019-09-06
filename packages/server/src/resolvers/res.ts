@@ -1,9 +1,10 @@
 import * as G from "../generated/graphql";
+import { getTopic } from "../usecases";
 
 const resBase: Pick<G.ResResolvers, "topic"> = {
   topic: async (res, _args, context, _info) => {
-    const topic = await context.ports.topicLoader.load(res.topicID);
-    return topic.toAPI();
+    const topic = await getTopic({ id: res.topicID }, context.ports);
+    return topic;
   },
 };
 
@@ -59,11 +60,11 @@ export const resTopic: G.ResTopicResolvers = {
 export const resFork: G.ResForkResolvers = {
   ...resBase,
   fork: async (res, _args, context, _info) => {
-    const fork = await context.ports.topicLoader.load(res.forkID);
+    const fork = await getTopic({ id: res.forkID }, context.ports);
     if (fork.type !== "fork") {
       throw new Error();
     }
-    return fork.toAPI();
+    return fork;
   },
 };
 
