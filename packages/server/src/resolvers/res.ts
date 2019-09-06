@@ -1,5 +1,5 @@
 import * as G from "../generated/graphql";
-import { getTopic } from "../usecases";
+import { getTopic, getRes } from "../usecases";
 
 const resBase: Pick<G.ResResolvers, "topic"> = {
   topic: async (res, _args, context, _info) => {
@@ -29,8 +29,8 @@ export const resNormal: G.ResNormalResolvers = {
   ...resBase,
   reply: async (res, _args, context, _info) => {
     if (res.replyID !== null) {
-      const reply = await context.ports.resLoader.load(res.replyID);
-      return reply.toAPI(context.ports.authContainer.getTokenOrNull());
+      const reply = await getRes({ id: res.replyID }, context.ports);
+      return reply;
     } else {
       return null;
     }
