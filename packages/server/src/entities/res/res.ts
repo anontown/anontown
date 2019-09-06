@@ -26,6 +26,15 @@ export type ResType = "normal" | "history" | "topic" | "fork";
 
 export type ResAPIType = ResType | "delete";
 
+/*
+## 共通
+  * self: 認証していなければnull。自分の書き込みかどうか
+  * voteFlag: 認証していなければnull。投票状況
+## normal
+  * isReply: 認証していないもしくはリプ先がない時null。自分に対するリプライかどうか
+## delete
+  * normalかつdeleteFlagがactiveでない時
+*/
 export type IResAPI =
   | IResNormalAPI
   | IResHistoryAPI
