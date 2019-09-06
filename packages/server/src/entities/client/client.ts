@@ -11,6 +11,9 @@ export interface IClientAPI {
   readonly id: string;
   readonly name: string;
   readonly url: string;
+  /*
+    マスター権限で認証していなければnull。自分のクライアントかどうか
+  */
   readonly self: boolean | null;
   readonly date: string;
   readonly update: string;
