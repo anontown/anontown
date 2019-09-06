@@ -7,6 +7,9 @@ import { Constant } from "../../constant";
 import { IObjectIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
 
+/*
+self: 認証していなければnull。自分のprofileか
+*/
 export interface IProfileAPI {
   readonly id: string;
   readonly self: boolean | null;
