@@ -2,17 +2,16 @@ import { combineResolvers } from "apollo-resolvers";
 import { ApolloServer, gql, IResolvers } from "apollo-server-express";
 import * as cors from "cors";
 import * as express from "express";
-import { none } from "fp-ts/lib/Option";
 import * as fs from "fs-promise";
 import { GraphQLDateTime } from "graphql-iso-date";
 import { createServer } from "http";
-import { FixIpContainer } from "../adapters/fix-ip-container/index";
-import { Logger } from "../adapters/index";
-import { Repo } from "../adapters/repo";
 import { AtErrorSymbol, AtServerError } from "../at-error";
 import { Config } from "../config";
 import { resolvers as appResolvers } from "../resolvers";
+import { runWorker } from "../worker";
 import { AppContext, createContext } from "./context";
+import * as t from "io-ts";
+import { either } from "fp-ts";
 
 export async function serverRun() {
   const typeDefs = gql(
@@ -30,13 +29,21 @@ export async function serverRun() {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({ req, connection }: any): Promise<AppContext> => {
-      if (req) {
-        return createContext(req.headers);
-      }
+    context: (params: unknown): Promise<AppContext> => {
+      const decodedParams = t.UnknownRecord.decode(params);
+      if (either.isRight(decodedParams)) {
+        const { req, connection } = decodedParams.right;
+        const decodedReq = t.type({ headers: t.UnknownRecord }).decode(req);
+        const decodeConnection = t
+          .type({ context: t.UnknownRecord })
+          .decode(connection);
+        if (either.isRight(decodedReq)) {
+          return createContext(decodedReq.right.headers);
+        }
 
-      if (connection) {
-        return createContext(connection.context);
+        if (either.isRight(decodeConnection)) {
+          return createContext(decodeConnection.right.context);
+        }
       }
 
       return createContext({});
@@ -67,8 +74,7 @@ export async function serverRun() {
     },
   });
 
-  // TODO: 綺麗にする
-  new Repo(new Logger(new FixIpContainer(none))).cron();
+  runWorker();
 
   app.get("/ping", cors(), (_req, res) => res.send("OK"));
   server.applyMiddleware({ app, path: "/" });

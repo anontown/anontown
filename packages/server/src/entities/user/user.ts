@@ -5,6 +5,7 @@ import {
 } from "../../at-error";
 import { IAuthUser } from "../../auth";
 import { Config } from "../../config";
+import { Constant } from "../../constant";
 import { IObjectIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
 import { hash } from "../../utils";
@@ -37,14 +38,14 @@ export class User extends Copyable<User> {
       {
         field: "pass",
         val: pass,
-        regex: Config.user.pass.regex,
-        message: Config.user.pass.msg,
+        regex: Constant.user.pass.regex,
+        message: Constant.user.pass.msg,
       },
       {
         field: "sn",
         val: sn,
-        regex: Config.user.sn.regex,
-        message: Config.user.sn.msg,
+        regex: Constant.user.sn.regex,
+        message: Constant.user.sn.msg,
       },
     ]);
 
@@ -92,14 +93,14 @@ export class User extends Copyable<User> {
       {
         field: "pass",
         val: pass,
-        regex: Config.user.pass.regex,
-        message: Config.user.pass.msg,
+        regex: Constant.user.pass.regex,
+        message: Constant.user.pass.msg,
       },
       {
         field: "sn",
         val: sn,
-        regex: Config.user.sn.regex,
-        message: Config.user.sn.msg,
+        regex: Constant.user.sn.regex,
+        message: Constant.user.sn.msg,
       },
     ]);
 
@@ -126,23 +127,24 @@ export class User extends Copyable<User> {
 
   changeLv(lv: number): User {
     return this.copy({
-      lv: lv < 1 ? 1 : lv > Config.user.lvMax ? Config.user.lvMax : lv,
+      lv: lv < 1 ? 1 : lv > Constant.user.lvMax ? Constant.user.lvMax : lv,
     });
   }
 
   changeLastRes(lastRes: Date): User {
     // 条件
     // 係数
-    // Config.user.lvMaxの時、Config.res.wait.maxLv倍緩和
-    const coe = (this.lv / Config.user.lvMax) * (Config.res.wait.maxLv - 1) + 1;
+    // Constant.user.lvMaxの時、Constant.res.wait.maxLv倍緩和
+    const coe =
+      (this.lv / Constant.user.lvMax) * (Constant.res.wait.maxLv - 1) + 1;
     if (
-      this.resWait.d1 < Config.res.wait.d1 * coe &&
-      this.resWait.h12 < Config.res.wait.h12 * coe &&
-      this.resWait.h6 < Config.res.wait.h6 * coe &&
-      this.resWait.h1 < Config.res.wait.h1 * coe &&
-      this.resWait.m30 < Config.res.wait.m30 * coe &&
-      this.resWait.m10 < Config.res.wait.m10 * coe &&
-      this.resWait.last.getTime() + 1000 * Config.res.wait.minSecond <
+      this.resWait.d1 < Constant.res.wait.d1 * coe &&
+      this.resWait.h12 < Constant.res.wait.h12 * coe &&
+      this.resWait.h6 < Constant.res.wait.h6 * coe &&
+      this.resWait.h1 < Constant.res.wait.h1 * coe &&
+      this.resWait.m30 < Constant.res.wait.m30 * coe &&
+      this.resWait.m10 < Constant.res.wait.m10 * coe &&
+      this.resWait.last.getTime() + 1000 * Constant.res.wait.minSecond <
         lastRes.getTime()
     ) {
       return this.copy({

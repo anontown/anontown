@@ -1,9 +1,10 @@
 import * as G from "../generated/graphql";
+import { getTopic, getRes, getHistory, getProfile } from "../usecases";
 
 const resBase: Pick<G.ResResolvers, "topic"> = {
   topic: async (res, _args, context, _info) => {
-    const topic = await context.loader.topic.load(res.topicID);
-    return topic.toAPI();
+    const topic = await getTopic({ id: res.topicID }, context.ports);
+    return topic;
   },
 };
 
@@ -28,16 +29,16 @@ export const resNormal: G.ResNormalResolvers = {
   ...resBase,
   reply: async (res, _args, context, _info) => {
     if (res.replyID !== null) {
-      const reply = await context.loader.res.load(res.replyID);
-      return reply.toAPI(context.auth.tokenOrNull);
+      const reply = await getRes({ id: res.replyID }, context.ports);
+      return reply;
     } else {
       return null;
     }
   },
   profile: async (res, _args, context, _info) => {
     if (res.profileID !== null) {
-      const profile = await context.loader.profile.load(res.profileID);
-      return profile.toAPI(context.auth.tokenOrNull);
+      const profile = await getProfile({ id: res.profileID }, context.ports);
+      return profile;
     } else {
       return null;
     }
@@ -47,8 +48,8 @@ export const resNormal: G.ResNormalResolvers = {
 export const resHistory: G.ResHistoryResolvers = {
   ...resBase,
   history: async (res, _args, context, _info) => {
-    const history = await context.loader.history.load(res.historyID);
-    return history.toAPI(context.auth.tokenOrNull);
+    const history = await getHistory({ id: res.historyID }, context.ports);
+    return history;
   },
 };
 
@@ -59,11 +60,11 @@ export const resTopic: G.ResTopicResolvers = {
 export const resFork: G.ResForkResolvers = {
   ...resBase,
   fork: async (res, _args, context, _info) => {
-    const fork = await context.loader.topic.load(res.forkID);
+    const fork = await getTopic({ id: res.forkID }, context.ports);
     if (fork.type !== "fork") {
       throw new Error();
     }
-    return fork.toAPI();
+    return fork;
   },
 };
 

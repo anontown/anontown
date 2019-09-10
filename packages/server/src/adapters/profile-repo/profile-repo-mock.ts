@@ -2,8 +2,7 @@ import { isNullish } from "@kgtkr/utils";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
 import { Profile } from "../../entities";
 import * as G from "../../generated/graphql";
-import { IProfileRepo } from "../../ports";
-import { AuthContainer } from "../../server/auth-container";
+import { IAuthContainer, IProfileRepo } from "../../ports";
 import { fromProfile, IProfileDB, toProfile } from "./jprofile-db";
 
 export class ProfileRepoMock implements IProfileRepo {
@@ -19,8 +18,8 @@ export class ProfileRepoMock implements IProfileRepo {
     return toProfile(profile);
   }
 
-  async find(auth: AuthContainer, query: G.ProfileQuery): Promise<Profile[]> {
-    const self = query.self ? auth.token.user : null;
+  async find(auth: IAuthContainer, query: G.ProfileQuery): Promise<Profile[]> {
+    const self = query.self ? auth.getToken().user : null;
     const profiles = this.profiles
       .filter(x => self === null || x.user.toHexString() === self)
       .filter(

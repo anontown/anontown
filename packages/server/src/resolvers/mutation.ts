@@ -13,134 +13,150 @@ import {
   TopicOne,
   User,
 } from "../entities";
+import * as formatter from "../formatter";
 import * as G from "../generated/graphql";
 import * as authFromApiParam from "../server/auth-from-api-param";
 
 export const mutation: G.MutationResolvers = {
   createUser: async (_obj, args, context, _info) => {
-    await context.recaptcha.verify(args.recaptcha);
+    await context.ports.recaptcha.verify(args.recaptcha);
 
     const user = User.create(
-      context.objectIdGenerator,
+      context.ports.objectIdGenerator,
       args.sn,
       args.pass,
-      context.clock.now(),
+      context.ports.clock.now(),
     );
-    await context.repo.user.insert(user);
+    await context.ports.userRepo.insert(user);
 
     const token = TokenMaster.create(
-      context.objectIdGenerator,
+      context.ports.objectIdGenerator,
       user.auth(args.pass),
-      context.clock.now(),
-      context.safeIdGenerator,
+      context.ports.clock.now(),
+      context.ports.safeIdGenerator,
     );
-    await context.repo.token.insert(token);
+    await context.ports.tokenRepo.insert(token);
 
     return { user: user.toAPI(), token: token.toAPI() };
   },
   updateUser: async (_obj, args, context, _info) => {
-    const authUser = await authFromApiParam.user(context.repo.user, args.auth);
-    const user = await context.repo.user.findOne(authUser.id);
+    const authUser = await authFromApiParam.user(
+      context.ports.userRepo,
+      args.auth,
+    );
+    const user = await context.ports.userRepo.findOne(authUser.id);
     const newUser = user.change(
       authUser,
       nullToUndefined(args.pass),
       nullToUndefined(args.sn),
     );
-    await context.repo.user.update(newUser);
-    await context.repo.token.delMasterToken(authUser);
+    await context.ports.userRepo.update(newUser);
+    await context.ports.tokenRepo.delMasterToken(authUser);
 
     const token = TokenMaster.create(
-      context.objectIdGenerator,
+      context.ports.objectIdGenerator,
       authUser,
-      context.clock.now(),
-      context.safeIdGenerator,
+      context.ports.clock.now(),
+      context.ports.safeIdGenerator,
     );
-    await context.repo.token.insert(token);
+    await context.ports.tokenRepo.insert(token);
     return { user: newUser.toAPI(), token: token.toAPI() };
   },
   createClient: async (_obj, args, context, _info) => {
     const client = Client.create(
-      context.objectIdGenerator,
-      context.auth.tokenMaster,
+      context.ports.objectIdGenerator,
+      context.ports.authContainer.getTokenMaster(),
       args.name,
       args.url,
-      context.clock.now(),
+      context.ports.clock.now(),
     );
-    await context.repo.client.insert(client);
-    context.logger.mutationLog("clients", client.id);
-    return client.toAPI(some(context.auth.tokenMaster));
+    await context.ports.clientRepo.insert(client);
+    context.ports.logger.info(
+      formatter.mutation(context.ports.ipContainer, "clients", client.id),
+    );
+    return client.toAPI(some(context.ports.authContainer.getTokenMaster()));
   },
   updateClient: async (_obj, args, context, _info) => {
-    const client = await context.repo.client.findOne(args.id);
+    const client = await context.ports.clientRepo.findOne(args.id);
     const newClient = client.changeData(
-      context.auth.tokenMaster,
+      context.ports.authContainer.getTokenMaster(),
       nullToUndefined(args.name),
       nullToUndefined(args.url),
-      context.clock.now(),
+      context.ports.clock.now(),
     );
-    await context.repo.client.update(newClient);
-    context.logger.mutationLog("clients", newClient.id);
-    return newClient.toAPI(some(context.auth.tokenMaster));
+    await context.ports.clientRepo.update(newClient);
+    context.ports.logger.info(
+      formatter.mutation(context.ports.ipContainer, "clients", client.id),
+    );
+    return newClient.toAPI(some(context.ports.authContainer.getTokenMaster()));
   },
   createProfile: async (_obj, args, context, _info) => {
     const profile = Profile.create(
-      context.objectIdGenerator,
-      context.auth.token,
+      context.ports.objectIdGenerator,
+      context.ports.authContainer.getToken(),
       args.name,
       args.text,
       args.sn,
-      context.clock.now(),
+      context.ports.clock.now(),
     );
-    await context.repo.profile.insert(profile);
-    context.logger.mutationLog("profiles", profile.id);
-    return profile.toAPI(some(context.auth.token));
+    await context.ports.profileRepo.insert(profile);
+    context.ports.logger.info(
+      formatter.mutation(context.ports.ipContainer, "profiles", profile.id),
+    );
+    return profile.toAPI(some(context.ports.authContainer.getToken()));
   },
   updateProfile: async (_obj, args, context, _info: any) => {
-    const profile = await context.repo.profile.findOne(args.id);
+    const profile = await context.ports.profileRepo.findOne(args.id);
     const newProfile = profile.changeData(
-      context.auth.token,
+      context.ports.authContainer.getToken(),
       nullToUndefined(args.name),
       nullToUndefined(args.text),
       nullToUndefined(args.sn),
-      context.clock.now(),
+      context.ports.clock.now(),
     );
-    await context.repo.profile.update(newProfile);
-    context.logger.mutationLog("profiles", newProfile.id);
-    return newProfile.toAPI(some(context.auth.token));
+    await context.ports.profileRepo.update(newProfile);
+    context.ports.logger.info(
+      formatter.mutation(context.ports.ipContainer, "profiles", newProfile.id),
+    );
+    return newProfile.toAPI(some(context.ports.authContainer.getToken()));
   },
   createRes: async (_obj, args, context, _info) => {
     const [topic, user, reply, profile] = await Promise.all([
-      context.repo.topic.findOne(args.topic),
-      context.repo.user.findOne(context.auth.token.user),
+      context.ports.topicRepo.findOne(args.topic),
+      context.ports.userRepo.findOne(
+        context.ports.authContainer.getToken().user,
+      ),
       !isNullish(args.reply)
-        ? context.repo.res.findOne(args.reply)
+        ? context.ports.resRepo.findOne(args.reply)
         : Promise.resolve(null),
       !isNullish(args.profile)
-        ? context.repo.profile.findOne(args.profile)
+        ? context.ports.profileRepo.findOne(args.profile)
         : Promise.resolve(null),
     ]);
 
     const { res, user: newUser, topic: newTopic } = ResNormal.create(
-      context.objectIdGenerator,
+      context.ports.objectIdGenerator,
       topic,
       user,
-      context.auth.token,
+      context.ports.authContainer.getToken(),
       fromNullable(args.name),
       args.text,
       fromNullable(reply),
       fromNullable(profile),
       args.age,
-      context.clock.now(),
+      context.ports.clock.now(),
     );
 
     await Promise.all([
-      context.repo.res.insert(res),
-      context.repo.topic.update(newTopic),
-      context.repo.user.update(newUser),
+      context.ports.resRepo.insert(res),
+      context.ports.topicRepo.update(newTopic),
+      context.ports.userRepo.update(newUser),
     ]);
 
-    context.logger.mutationLog("reses", res.id);
-    const api = res.toAPI(some(context.auth.token));
+    context.ports.logger.info(
+      formatter.mutation(context.ports.ipContainer, "reses", res.id),
+    );
+    const api = res.toAPI(some(context.ports.authContainer.getToken()));
     if (api.type !== "normal") {
       throw new Error();
     }
@@ -149,114 +165,122 @@ export const mutation: G.MutationResolvers = {
   voteRes: async (_obj, args, context, _info) => {
     if (args.type === "cv") {
       const [res, user] = await Promise.all([
-        context.repo.res.findOne(args.res),
-        context.repo.user.findOne(context.auth.token.user),
+        context.ports.resRepo.findOne(args.res),
+        context.ports.userRepo.findOne(
+          context.ports.authContainer.getToken().user,
+        ),
       ]);
 
       // レスを書き込んだユーザー
-      const resUser = await context.repo.user.findOne(res.user);
+      const resUser = await context.ports.userRepo.findOne(res.user);
 
       const { res: newRes, resUser: newResUser } = res.cv(
         resUser,
         user,
-        context.auth.token,
+        context.ports.authContainer.getToken(),
       );
 
       await Promise.all([
-        context.repo.res.update(newRes),
-        context.repo.user.update(newResUser),
-        context.repo.user.update(user),
+        context.ports.resRepo.update(newRes),
+        context.ports.userRepo.update(newResUser),
+        context.ports.userRepo.update(user),
       ]);
 
-      return newRes.toAPI(some(context.auth.token));
+      return newRes.toAPI(some(context.ports.authContainer.getToken()));
     } else {
       const [res, user] = await Promise.all([
-        context.repo.res.findOne(args.res),
-        context.repo.user.findOne(context.auth.token.user),
+        context.ports.resRepo.findOne(args.res),
+        context.ports.userRepo.findOne(
+          context.ports.authContainer.getToken().user,
+        ),
       ]);
 
       // レスを書き込んだユーザー
-      const resUser = await context.repo.user.findOne(res.user);
+      const resUser = await context.ports.userRepo.findOne(res.user);
 
       const { res: newRes, resUser: newResUser } = res.v(
         resUser,
         user,
         args.type,
-        context.auth.token,
+        context.ports.authContainer.getToken(),
       );
 
       await Promise.all([
-        context.repo.res.update(newRes),
-        context.repo.user.update(newResUser),
-        context.repo.user.update(user),
+        context.ports.resRepo.update(newRes),
+        context.ports.userRepo.update(newResUser),
+        context.ports.userRepo.update(user),
       ]);
 
-      return newRes.toAPI(some(context.auth.token));
+      return newRes.toAPI(some(context.ports.authContainer.getToken()));
     }
   },
   delRes: async (_obj, args, context, _info) => {
-    const res = await context.repo.res.findOne(args.res);
+    const res = await context.ports.resRepo.findOne(args.res);
 
     if (res.type !== "normal") {
       throw new AtNotFoundError("レスが見つかりません");
     }
 
     // レスを書き込んだユーザー
-    const resUser = await context.repo.user.findOne(res.user);
+    const resUser = await context.ports.userRepo.findOne(res.user);
 
     const { res: newRes, resUser: newResUser } = res.del(
       resUser,
-      context.auth.token,
+      context.ports.authContainer.getToken(),
     );
 
     await Promise.all([
-      context.repo.res.update(newRes),
-      context.repo.user.update(newResUser),
+      context.ports.resRepo.update(newRes),
+      context.ports.userRepo.update(newResUser),
     ]);
 
-    const api = newRes.toAPI(some(context.auth.token));
+    const api = newRes.toAPI(some(context.ports.authContainer.getToken()));
     if (api.type !== "delete") {
       throw new Error();
     }
     return api;
   },
   setStorage: async (_obj, args, context, _info) => {
-    const storage = Storage.create(context.auth.token, args.key, args.value);
-    await context.repo.storage.save(storage);
-    return storage.toAPI(context.auth.token);
+    const storage = Storage.create(
+      context.ports.authContainer.getToken(),
+      args.key,
+      args.value,
+    );
+    await context.ports.storageRepo.save(storage);
+    return storage.toAPI(context.ports.authContainer.getToken());
   },
   delStorage: async (_obj, args, context, _info) => {
-    const storage = await context.repo.storage.findOneKey(
-      context.auth.token,
+    const storage = await context.ports.storageRepo.findOneKey(
+      context.ports.authContainer.getToken(),
       args.key,
     );
-    await context.repo.storage.del(storage);
+    await context.ports.storageRepo.del(storage);
     return null;
   },
   delTokenClient: async (_obj, args, context, _info) => {
-    const client = await context.repo.client.findOne(args.client);
-    await context.repo.token.delClientToken(
-      context.auth.tokenMaster,
+    const client = await context.ports.clientRepo.findOne(args.client);
+    await context.ports.tokenRepo.delClientToken(
+      context.ports.authContainer.getTokenMaster(),
       client.id,
     );
     return null;
   },
   createTokenGeneral: async (_obj, args, context, _info) => {
-    const client = await context.repo.client.findOne(args.client);
+    const client = await context.ports.clientRepo.findOne(args.client);
     const token = TokenGeneral.create(
-      context.objectIdGenerator,
-      context.auth.tokenMaster,
+      context.ports.objectIdGenerator,
+      context.ports.authContainer.getTokenMaster(),
       client,
-      context.clock.now(),
-      context.safeIdGenerator,
+      context.ports.clock.now(),
+      context.ports.safeIdGenerator,
     );
 
     const { req, token: newToken } = token.createReq(
-      context.clock.now(),
-      context.safeIdGenerator,
+      context.ports.clock.now(),
+      context.ports.safeIdGenerator,
     );
 
-    await context.repo.token.insert(newToken);
+    await context.ports.tokenRepo.insert(newToken);
 
     return {
       token: token.toAPI(),
@@ -264,120 +288,157 @@ export const mutation: G.MutationResolvers = {
     };
   },
   createTokenMaster: async (_obj, args, context, _info) => {
-    const authUser = await authFromApiParam.user(context.repo.user, args.auth);
-    const token = TokenMaster.create(
-      context.objectIdGenerator,
-      authUser,
-      context.clock.now(),
-      context.safeIdGenerator,
+    const authUser = await authFromApiParam.user(
+      context.ports.userRepo,
+      args.auth,
     );
-    await context.repo.token.insert(token);
+    const token = TokenMaster.create(
+      context.ports.objectIdGenerator,
+      authUser,
+      context.ports.clock.now(),
+      context.ports.safeIdGenerator,
+    );
+    await context.ports.tokenRepo.insert(token);
 
     return token.toAPI();
   },
   authTokenReq: async (_obj, args, context, _info) => {
-    const token = await context.repo.token.findOne(args.id);
+    const token = await context.ports.tokenRepo.findOne(args.id);
     if (token.type !== "general") {
       throw new AtNotFoundError("トークンが見つかりません");
     }
-    token.authReq(args.key, context.clock.now());
+    token.authReq(args.key, context.ports.clock.now());
     return token.toAPI();
   },
   createTokenReq: async (_obj, _args, context, _info) => {
-    const token = await context.repo.token.findOne(context.auth.token.id);
+    const token = await context.ports.tokenRepo.findOne(
+      context.ports.authContainer.getToken().id,
+    );
     if (token.type !== "general") {
       throw new AtNotFoundError("トークンが見つかりません");
     }
     const { req, token: newToken } = token.createReq(
-      context.clock.now(),
-      context.safeIdGenerator,
+      context.ports.clock.now(),
+      context.ports.safeIdGenerator,
     );
 
-    await context.repo.token.update(newToken);
+    await context.ports.tokenRepo.update(newToken);
 
     return req;
   },
   createTopicNormal: async (_obj, args, context, _info) => {
-    const user = await context.repo.user.findOne(context.auth.token.user);
+    const user = await context.ports.userRepo.findOne(
+      context.ports.authContainer.getToken().user,
+    );
     const create = TopicNormal.create(
-      context.objectIdGenerator,
+      context.ports.objectIdGenerator,
       args.title,
       args.tags,
       args.text,
       user,
-      context.auth.token,
-      context.clock.now(),
+      context.ports.authContainer.getToken(),
+      context.ports.clock.now(),
     );
 
-    await context.repo.topic.insert(create.topic);
+    await context.ports.topicRepo.insert(create.topic);
     await Promise.all([
-      context.repo.user.update(create.user),
-      context.repo.res.insert(create.res),
-      context.repo.history.insert(create.history),
+      context.ports.userRepo.update(create.user),
+      context.ports.resRepo.insert(create.res),
+      context.ports.historyRepo.insert(create.history),
     ]);
-    context.logger.mutationLog("topics", create.topic.id);
-    context.logger.mutationLog("reses", create.res.id);
-    context.logger.mutationLog("histories", create.history.id);
+    context.ports.logger.info(
+      formatter.mutation(context.ports.ipContainer, "topics", create.topic.id),
+    );
+    context.ports.logger.info(
+      formatter.mutation(context.ports.ipContainer, "reses", create.res.id),
+    );
+    context.ports.logger.info(
+      formatter.mutation(
+        context.ports.ipContainer,
+        "histories",
+        create.history.id,
+      ),
+    );
     return create.topic.toAPI();
   },
   createTopicOne: async (_obj, args, context, _info) => {
-    const user = await context.repo.user.findOne(context.auth.token.user);
+    const user = await context.ports.userRepo.findOne(
+      context.ports.authContainer.getToken().user,
+    );
     const create = TopicOne.create(
-      context.objectIdGenerator,
+      context.ports.objectIdGenerator,
       args.title,
       args.tags,
       args.text,
       user,
-      context.auth.token,
-      context.clock.now(),
+      context.ports.authContainer.getToken(),
+      context.ports.clock.now(),
     );
 
-    await context.repo.topic.insert(create.topic);
+    await context.ports.topicRepo.insert(create.topic);
     await Promise.all([
-      context.repo.user.update(create.user),
-      context.repo.res.insert(create.res),
+      context.ports.userRepo.update(create.user),
+      context.ports.resRepo.insert(create.res),
     ]);
 
-    context.logger.mutationLog("topics", create.topic.id);
-    context.logger.mutationLog("reses", create.res.id);
+    context.ports.logger.info(
+      formatter.mutation(context.ports.ipContainer, "topics", create.topic.id),
+    );
+    context.ports.logger.info(
+      formatter.mutation(context.ports.ipContainer, "reses", create.res.id),
+    );
 
     return create.topic.toAPI();
   },
   createTopicFork: async (_obj, args, context, _info) => {
-    const user = await context.repo.user.findOne(context.auth.token.user);
-    const parent = await context.repo.topic.findOne(args.parent);
+    const user = await context.ports.userRepo.findOne(
+      context.ports.authContainer.getToken().user,
+    );
+    const parent = await context.ports.topicRepo.findOne(args.parent);
 
     if (parent.type !== "normal") {
       throw new AtNotFoundError("トピックが見つかりません");
     }
 
     const create = TopicFork.create(
-      context.objectIdGenerator,
+      context.ports.objectIdGenerator,
       args.title,
       parent,
       user,
-      context.auth.token,
-      context.clock.now(),
+      context.ports.authContainer.getToken(),
+      context.ports.clock.now(),
     );
 
-    await context.repo.topic.insert(create.topic);
-    await context.repo.topic.update(create.parent);
+    await context.ports.topicRepo.insert(create.topic);
+    await context.ports.topicRepo.update(create.parent);
     await Promise.all([
-      context.repo.user.update(create.user),
-      context.repo.res.insert(create.res),
-      context.repo.res.insert(create.resParent),
+      context.ports.userRepo.update(create.user),
+      context.ports.resRepo.insert(create.res),
+      context.ports.resRepo.insert(create.resParent),
     ]);
 
-    context.logger.mutationLog("topics", create.topic.id);
-    context.logger.mutationLog("reses", create.res.id);
-    context.logger.mutationLog("reses", create.resParent.id);
+    context.ports.logger.info(
+      formatter.mutation(context.ports.ipContainer, "topics", create.topic.id),
+    );
+    context.ports.logger.info(
+      formatter.mutation(context.ports.ipContainer, "reses", create.res.id),
+    );
+    context.ports.logger.info(
+      formatter.mutation(
+        context.ports.ipContainer,
+        "reses",
+        create.resParent.id,
+      ),
+    );
 
     return create.topic.toAPI();
   },
   updateTopic: async (_obj, args, context, _info) => {
     const [topic, user] = await Promise.all([
-      context.repo.topic.findOne(args.id),
-      context.repo.user.findOne(context.auth.token.user),
+      context.ports.topicRepo.findOne(args.id),
+      context.ports.userRepo.findOne(
+        context.ports.authContainer.getToken().user,
+      ),
     ]);
 
     if (topic.type !== "normal") {
@@ -385,24 +446,33 @@ export const mutation: G.MutationResolvers = {
     }
 
     const val = topic.changeData(
-      context.objectIdGenerator,
+      context.ports.objectIdGenerator,
       user,
-      context.auth.token,
+      context.ports.authContainer.getToken(),
       nullToUndefined(args.title),
       nullToUndefined(args.tags),
       nullToUndefined(args.text),
-      context.clock.now(),
+      context.ports.clock.now(),
     );
 
     await Promise.all([
-      context.repo.res.insert(val.res),
-      context.repo.history.insert(val.history),
-      context.repo.topic.update(val.topic),
-      context.repo.user.update(val.user),
+      context.ports.resRepo.insert(val.res),
+      context.ports.historyRepo.insert(val.history),
+      context.ports.topicRepo.update(val.topic),
+      context.ports.userRepo.update(val.user),
     ]);
 
-    context.logger.mutationLog("reses", val.res.id);
-    context.logger.mutationLog("histories", val.history.id);
+    context.ports.logger.info(
+      formatter.mutation(context.ports.ipContainer, "reses", val.res.id),
+    );
+    context.ports.logger.info(
+      formatter.mutation(
+        context.ports.ipContainer,
+        "histories",
+        val.history.id,
+      ),
+    );
+
     return topic.toAPI();
   },
 };

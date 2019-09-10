@@ -9,8 +9,6 @@ export interface ITopicRepo {
 
   findTags(limit: number): Promise<{ name: string; count: number }[]>;
 
-  cron(): void;
-
   insert(topic: Topic): Promise<void>;
 
   update(topic: Topic): Promise<void>;

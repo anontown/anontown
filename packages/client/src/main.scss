@@ -9,11 +9,11 @@ html{
     &:visited {
 
     }
-    &:hover { 
+    &:hover {
       text-decoration:underline;
     }
-    &:active { 
-      
+    &:active {
+
     }
   }
 }
@@ -27,7 +27,7 @@ body,html{
   margin: 0px;
   overflow: hidden;
   -webkit-overflow-scrolling:auto;
-} 
+}
 
 #root{
   position:fixed;
@@ -35,4 +35,8 @@ body,html{
   bottom:0px;
   left: 0px;
   right: 0px;
+}
+
+pre{
+  white-space: pre-wrap;
 }

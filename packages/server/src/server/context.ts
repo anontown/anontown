@@ -1,86 +1,112 @@
-import { option } from "fp-ts";
+import { array, option } from "fp-ts";
 import { none, some } from "fp-ts/lib/Option";
 import {
+  AuthContainer,
+  ClientLoader,
+  ClientRepo,
   FixClock,
-  Loader,
+  HistoryLoader,
+  HistoryRepo,
   Logger,
+  MsgLoader,
+  MsgRepo,
   ObjectIdGenerator,
+  ProfileLoader,
+  ProfileRepo,
   RecaptchaClient,
-  Repo,
+  ResLoader,
+  ResRepo,
   SafeIdGenerator,
+  StorageRepo,
+  TokenRepo,
+  TopicLoader,
+  TopicRepo,
+  UserRepo,
 } from "../adapters";
 import { FixIpContainer } from "../adapters/fix-ip-container/index";
 import { AtAuthError } from "../at-error";
-import {
-  IClock,
-  IIpContainer,
-  ILoader,
-  ILogger,
-  IObjectIdGenerator,
-  IRecaptchaClient,
-  IRepo,
-  ISafeIdGenerator,
-} from "../ports";
-import { AuthContainer } from "./auth-container";
+import { ITokenRepo } from "../ports";
+import { Ports } from "../ports";
 import * as authFromApiParam from "./auth-from-api-param";
 
 export interface AppContext {
-  auth: AuthContainer;
-  ipContainer: IIpContainer;
-  clock: IClock;
-  logger: ILogger;
-  loader: ILoader;
-  repo: IRepo;
-  recaptcha: IRecaptchaClient;
-  safeIdGenerator: ISafeIdGenerator;
-  objectIdGenerator: IObjectIdGenerator;
+  ports: Ports;
 }
 
-async function createToken(raw: any, repo: IRepo) {
+async function createToken(raw: unknown, tokenRepo: ITokenRepo) {
   if (typeof raw !== "string") {
     return none;
   }
   const arr = raw.split(",");
-  if (arr.length !== 2) {
+  const id = array.lookup(0, arr);
+  const key = array.lookup(1, arr);
+  if (option.isNone(id) || option.isNone(key)) {
     throw new AtAuthError("パラメーターが不正です");
   }
 
-  const [id, key] = arr;
-  return some(await authFromApiParam.token(repo.token, { id, key }));
+  return some(
+    await authFromApiParam.token(tokenRepo, { id: id.value, key: key.value }),
+  );
 }
 
-export async function createContext(headers: any): Promise<AppContext> {
+export async function createContext(
+  headers: Record<string, unknown>,
+): Promise<AppContext> {
+  const xRealIp = headers["x-real-ip"];
   const ipContainer = new FixIpContainer(
-    option.fromNullable<string>(headers["x-real-ip"]),
+    typeof xRealIp === "string" ? some(xRealIp) : none,
   );
 
-  const logger = new Logger(ipContainer);
-  const repo = new Repo(logger);
+  const logger = new Logger();
+
+  const tokenRepo = new TokenRepo();
 
   const token = await createToken(
     headers["x-token"] || headers["X-Token"],
-    repo,
+    tokenRepo,
   );
 
-  const auth = new AuthContainer(token);
+  const authContainer = new AuthContainer(token);
+
+  const clientRepo = new ClientRepo();
+  const historyRepo = new HistoryRepo();
+  const msgRepo = new MsgRepo();
+  const profileRepo = new ProfileRepo();
+  const resRepo = new ResRepo();
+  const topicRepo = new TopicRepo(resRepo);
+  const userRepo = new UserRepo();
+  const storageRepo = new StorageRepo();
+  const clientLoader = new ClientLoader(clientRepo, authContainer);
+  const historyLoader = new HistoryLoader(historyRepo);
+  const msgLoader = new MsgLoader(msgRepo, authContainer);
+  const profileLoader = new ProfileLoader(profileRepo, authContainer);
+  const resLoader = new ResLoader(resRepo, authContainer);
+  const topicLoader = new TopicLoader(topicRepo);
 
   return {
-    auth,
-    ipContainer,
-    clock: new FixClock(new Date()),
-    logger,
-    loader: new Loader({
-      auth,
-      clientRepo: repo.client,
-      hisotryRepo: repo.history,
-      msgRepo: repo.msg,
-      profileRepo: repo.profile,
-      resRepo: repo.res,
-      topicRepo: repo.topic,
-    }),
-    repo,
-    recaptcha: new RecaptchaClient(),
-    safeIdGenerator: new SafeIdGenerator(),
-    objectIdGenerator: new ObjectIdGenerator(),
+    ports: {
+      authContainer,
+      ipContainer,
+      clock: new FixClock(new Date()),
+      logger,
+      recaptcha: new RecaptchaClient(),
+      safeIdGenerator: new SafeIdGenerator(),
+      objectIdGenerator: new ObjectIdGenerator(),
+      clientRepo,
+      historyRepo,
+      msgRepo,
+      profileRepo,
+      resRepo,
+      tokenRepo,
+      topicRepo,
+      userRepo,
+      storageRepo,
+      clientLoader,
+      historyLoader,
+      msgLoader,
+      profileLoader,
+      resLoader,
+      topicLoader,
+    },
   };
 }

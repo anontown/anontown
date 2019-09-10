@@ -4,8 +4,7 @@ import { AtNotFoundError } from "../../at-error";
 import { createRedisClient, ESClient, RedisClient } from "../../db";
 import { Res } from "../../entities";
 import * as G from "../../generated/graphql";
-import { IResRepo } from "../../ports";
-import { AuthContainer } from "../../server/auth-container";
+import { IAuthContainer, IResRepo } from "../../ports";
 import { fromRes, IResDB, toRes } from "./ires-db";
 
 interface ResPubSub {
@@ -152,7 +151,7 @@ export class ResRepo implements IResRepo {
   }
 
   async find(
-    auth: AuthContainer,
+    auth: IAuthContainer,
     query: G.ResQuery,
     limit: number,
   ): Promise<Res[]> {
@@ -190,7 +189,7 @@ export class ResRepo implements IResRepo {
           path: "reply",
           query: {
             term: {
-              "reply.user": auth.token.user,
+              "reply.user": auth.getToken().user,
             },
           },
         },
@@ -229,7 +228,7 @@ export class ResRepo implements IResRepo {
     if (query.self) {
       filter.push({
         term: {
-          user: auth.token.user,
+          user: auth.getToken().user,
         },
       });
     }

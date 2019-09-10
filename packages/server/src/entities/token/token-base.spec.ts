@@ -24,7 +24,7 @@ describe("TokenBase", () => {
   describe("createTokenKey", () => {
     it("正常に生成出来るか", () => {
       expect(TokenBase.createTokenKey(new DummySafeIdGenerator("a"))).not.toBe(
-        TokenBase.createTokenKey(new DummySafeIdGenerator("a")),
+        TokenBase.createTokenKey(new DummySafeIdGenerator("b")),
       );
     });
   });

@@ -8,7 +8,6 @@ import {
   paramsErrorMaker,
 } from "../../at-error";
 import { IAuthToken } from "../../auth";
-import { Config } from "../../config";
 import { IObjectIdGenerator } from "../../ports/index";
 import { applyMixins } from "../../utils";
 import { Copyable } from "../../utils";
@@ -16,6 +15,7 @@ import { History } from "../history";
 import { Profile } from "../profile";
 import { Topic, TopicFork, TopicNormal, TopicOne } from "../topic";
 import { User } from "../user";
+import { Constant } from "../../constant";
 
 export interface IVote {
   readonly user: string;
@@ -26,6 +26,15 @@ export type ResType = "normal" | "history" | "topic" | "fork";
 
 export type ResAPIType = ResType | "delete";
 
+/*
+## 共通
+  * self: 認証していなければnull。自分の書き込みかどうか
+  * voteFlag: 認証していなければnull。投票状況
+## normal
+  * isReply: 認証していないもしくはリプ先がない時null。自分に対するリプライかどうか
+## delete
+  * normalかつdeleteFlagがactiveでない時
+*/
 export type IResAPI =
   | IResNormalAPI
   | IResHistoryAPI
@@ -197,14 +206,14 @@ export class ResNormal extends Copyable<ResNormal>
       {
         field: "text",
         val: text,
-        regex: Config.res.text.regex,
-        message: Config.res.text.msg,
+        regex: Constant.res.text.regex,
+        message: Constant.res.text.msg,
       },
       {
         field: "name",
         val: name,
-        regex: Config.res.name.regex,
-        message: Config.res.name.msg,
+        regex: Constant.res.name.regex,
+        message: Constant.res.name.msg,
       },
     ]);
 

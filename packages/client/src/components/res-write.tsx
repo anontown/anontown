@@ -165,7 +165,7 @@ export const ResWrite = (props: ResWriteProps) => {
                 { value: "", text: "(プロフなし)" },
                 ...profiles.data.profiles.map(p => ({
                   value: p.id,
-                  text: `●${p.sn} ${p.name}`,
+                  text: `@${p.sn} ${p.name}`,
                 })),
               ]}
             />

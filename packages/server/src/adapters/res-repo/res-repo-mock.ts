@@ -3,8 +3,7 @@ import { Subject } from "rxjs";
 import { AtNotFoundError } from "../../at-error";
 import { Res } from "../../entities";
 import * as G from "../../generated/graphql";
-import { IResRepo } from "../../ports";
-import { AuthContainer } from "../../server/auth-container";
+import { IAuthContainer, IResRepo } from "../../ports";
 import { fromRes, IResDB, toRes } from "./ires-db";
 
 export class ResRepoMock implements IResRepo {
@@ -60,12 +59,12 @@ export class ResRepoMock implements IResRepo {
   }
 
   async find(
-    auth: AuthContainer,
+    auth: IAuthContainer,
     query: G.ResQuery,
     limit: number,
   ): Promise<Res[]> {
-    const notice = query.notice ? auth.token.user : null;
-    const self = query.self ? auth.token.user : null;
+    const notice = query.notice ? auth.getToken().user : null;
+    const self = query.self ? auth.getToken().user : null;
     const texts = !isNullish(query.text)
       ? query.text.split(/\s/).filter(x => x.length !== 0)
       : null;
