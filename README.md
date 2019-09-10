@@ -1,6 +1,5 @@
 # Anontown
 
-[![Build Status](https://travis-ci.org/anontown/anontown.svg?branch=develop)](https://travis-ci.org/anontown/anontown)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/a8646346-64ec-4f9e-a2c3-ca6c97000fab/deploy-status)](https://app.netlify.com/sites/anontown/deploys)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5114ddeb-bf24-40e2-bb0c-c55b2fa23a3d/deploy-status)](https://app.netlify.com/sites/document/deploys)
 
