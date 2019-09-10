@@ -24,7 +24,7 @@ jobs:
       - name: install
         run: |
           npm i
-          lerna bootstrap
+          npx lerna bootstrap
       - name: lint
         run: |
           npx lerna run lint --scope @anontown/client
