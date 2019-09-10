@@ -276,8 +276,8 @@ function useFetchUtils<T extends ListItemData>(
   const scrollLock = useScrollLock(data, idElMap, rootEl);
 
   const findAfterWithData = React.useCallback(
-    async (data: oset.OrdSet<T, string>) => {
-      const first = array.head(oset.toArray(data));
+    async (os: oset.OrdSet<T, string>) => {
+      const first = array.head(oset.toArray(os));
       if (option.isSome(first)) {
         await scrollLock(async () => {
           const result = await fetch({
@@ -285,7 +285,7 @@ function useFetchUtils<T extends ListItemData>(
             type: "gt",
           });
 
-          setData(oset.unsafePushFirstOrdAndUniqueArray(data, result));
+          setData(oset.unsafePushFirstOrdAndUniqueArray(os, result));
         });
       }
     },
@@ -293,8 +293,8 @@ function useFetchUtils<T extends ListItemData>(
   );
 
   const findBeforeWithData = React.useCallback(
-    async (data: oset.OrdSet<T, string>) => {
-      const old = array.last(oset.toArray(data));
+    async (os: oset.OrdSet<T, string>) => {
+      const old = array.last(oset.toArray(os));
       if (option.isSome(old)) {
         await scrollLock(async () => {
           const result = await fetch({
@@ -302,7 +302,7 @@ function useFetchUtils<T extends ListItemData>(
             type: "lt",
           });
 
-          setData(oset.unsafePushLastOrdAndUniqueArray(data, result));
+          setData(oset.unsafePushLastOrdAndUniqueArray(os, result));
         });
       }
     },
