@@ -1,5 +1,5 @@
-import { PortPick } from "../ports";
 import { ITopicAPI } from "../entities";
+import { PortPick } from "../ports";
 
 /*
 指定されたidのtopicを取得する

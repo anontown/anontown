@@ -1,5 +1,5 @@
-import { PortPick } from "../ports";
 import { IResAPI } from "../entities";
+import { PortPick } from "../ports";
 
 /*
 指定されたidのresを取得する

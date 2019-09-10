@@ -2,12 +2,12 @@ import * as Im from "immutable";
 import { AtNotFoundError, AtTokenAuthError } from "../../at-error";
 import { IAuthTokenGeneral, IAuthTokenMaster, IAuthUser } from "../../auth";
 import { Config } from "../../config";
+import { Constant } from "../../constant";
 import { IObjectIdGenerator, ISafeIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
 import { hash } from "../../utils";
 import { applyMixins } from "../../utils";
 import { Client } from "../client";
-import { Constant } from "../../constant";
 
 export interface ITokenReq {
   readonly key: string;

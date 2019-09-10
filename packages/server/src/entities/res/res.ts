@@ -8,14 +8,14 @@ import {
   paramsErrorMaker,
 } from "../../at-error";
 import { IAuthToken } from "../../auth";
+import { Constant } from "../../constant";
 import { IObjectIdGenerator } from "../../ports/index";
-import { applyMixins } from "../../utils";
 import { Copyable } from "../../utils";
+import { applyMixins } from "../../utils";
 import { History } from "../history";
 import { Profile } from "../profile";
 import { Topic, TopicFork, TopicNormal, TopicOne } from "../topic";
 import { User } from "../user";
-import { Constant } from "../../constant";
 
 export interface IVote {
   readonly user: string;

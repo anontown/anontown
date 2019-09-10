@@ -3,8 +3,8 @@ import { none, Option, some } from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
 import { AtRightError, paramsErrorMaker } from "../../at-error";
 import { IAuthToken } from "../../auth";
-import { Copyable } from "../../utils";
 import { Constant } from "../../constant";
+import { Copyable } from "../../utils";
 
 export interface IStorageAPI {
   key: string;

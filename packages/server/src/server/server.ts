@@ -2,16 +2,16 @@ import { combineResolvers } from "apollo-resolvers";
 import { ApolloServer, gql, IResolvers } from "apollo-server-express";
 import * as cors from "cors";
 import * as express from "express";
+import { either } from "fp-ts";
 import * as fs from "fs-promise";
 import { GraphQLDateTime } from "graphql-iso-date";
 import { createServer } from "http";
+import * as t from "io-ts";
 import { AtErrorSymbol, AtServerError } from "../at-error";
 import { Config } from "../config";
 import { resolvers as appResolvers } from "../resolvers";
 import { runWorker } from "../worker";
 import { AppContext, createContext } from "./context";
-import * as t from "io-ts";
-import { either } from "fp-ts";
 
 export async function serverRun() {
   const typeDefs = gql(

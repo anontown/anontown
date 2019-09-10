@@ -3,14 +3,14 @@ import moment = require("moment-timezone");
 import { AtPrerequisiteError, paramsErrorMaker } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { Config } from "../../config";
+import { Constant } from "../../constant";
 import { IObjectIdGenerator } from "../../ports";
-import { Copyable } from "../../utils";
 import { hash } from "../../utils";
 import { applyMixins } from "../../utils";
+import { Copyable } from "../../utils";
 import { History } from "../history";
 import { Res, ResFork, ResHistory, ResTopic } from "../res";
 import { User } from "../user";
-import { Constant } from "../../constant";
 
 export interface ITagsAPI {
   name: string;

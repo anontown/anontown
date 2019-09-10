@@ -1,5 +1,5 @@
 import * as G from "../generated/graphql";
-import { getTopic, getRes, getHistory, getProfile } from "../usecases";
+import { getHistory, getProfile, getRes, getTopic } from "../usecases";
 
 const resBase: Pick<G.ResResolvers, "topic"> = {
   topic: async (res, _args, context, _info) => {
