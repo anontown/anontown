@@ -356,7 +356,7 @@ export const TopicPage = (_props: {}) => {
                   boxShadow: "0px 0px 5px 3px rgba(255, 0, 255, 0.7)",
                   zIndex: 2,
                 }}
-              ></div>
+              />
             ) : null}
             {user.value !== null ? (
               <Paper className={style.resWrite}>
