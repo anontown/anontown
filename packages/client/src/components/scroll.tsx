@@ -424,6 +424,8 @@ export interface ScrollProps<T extends ListItemData> {
   style?: React.CSSProperties;
   className?: string;
   changeItems: (items: T[]) => void;
+  existUnread: boolean;
+  onChangeExistUnread: (existUnread: boolean) => void;
 }
 
 function elHeight(el: HTMLElement) {
@@ -504,6 +506,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     () => {
       switch (props.newItemOrder) {
         case "top":
+          props.onChangeExistUnread(false);
           runCmd({ type: "after" });
           break;
         case "bottom":
@@ -521,6 +524,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     () => {
       switch (props.newItemOrder) {
         case "bottom":
+          props.onChangeExistUnread(false);
           runCmd({ type: "after" });
           break;
         case "top":
@@ -563,6 +567,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
 
   // 新しいアイテム追加イベント
   const onSubscriptionDataRef = useValueRef((newData: T) => {
+    props.onChangeExistUnread(true);
     setData(
       pipe(
         data,

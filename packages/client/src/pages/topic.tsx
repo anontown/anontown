@@ -68,6 +68,7 @@ function makeUseFetch(id: string) {
 export const TopicPage = (_props: {}) => {
   const { match } = useRouter<{ id: string }>();
   const now = React.useMemo(() => new Date().toISOString(), []);
+  const [existUnread, setExistUnread] = React.useState(false);
   const [isJumpDialog, setIsJumpDialog] = React.useState(false);
   const [isAutoScrollDialog, setIsAutoScrollDialog] = React.useState(false);
   const [isNGDialog, setIsNGDialog] = React.useState(false);
@@ -346,7 +347,17 @@ export const TopicPage = (_props: {}) => {
               changeItems={x => {
                 items.current = x;
               }}
+              existUnread={existUnread}
+              onChangeExistUnread={x => setExistUnread(x)}
             />
+            {existUnread ? (
+              <div
+                style={{
+                  boxShadow: "0px 0px 5px 3px rgba(255, 0, 255, 0.7)",
+                  zIndex: 2,
+                }}
+              ></div>
+            ) : null}
             {user.value !== null ? (
               <Paper className={style.resWrite}>
                 <ResWrite
