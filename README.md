@@ -11,9 +11,9 @@ $ npx lerna bootstrap
 $ cp .env.sample .env
 # edit .env
 $ lerna run build --scope=@anontown/server --include-filtered-dependencies
-$ python3 docker-compose.py dev | docker-compose -f - build
-$ python3 docker-compose.py dev | docker-compose -f - run --rm app npx lerna run migrate --scope @anontown/server
-$ python3 docker-compose.py dev | docker-compose -f - up
+$ DC_ENV=dev python3 docker-compose.py | docker-compose -f - build
+$ DC_ENV=dev python3 docker-compose.py | docker-compose -f - run --rm app npx lerna run migrate --scope @anontown/server
+$ DC_ENV=dev python3 docker-compose.py | docker-compose -f - up
 $ ./bin/dev/watch-client.sh dev
 ```
 

@@ -9,9 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: build
-        run: python3 docker-compose.py test | docker-compose -f - build
+        run: DC_ENV=test python3 docker-compose.py | docker-compose -f - build
       - name: test
-        run: python3 docker-compose.py test | docker-compose -f - run --rm app npx lerna run test:io --scope @anontown/server
+        run: DC_ENV=test python3 docker-compose.py | docker-compose -f - run --rm app npx lerna run test:io --scope @anontown/server
   client:
     runs-on: ubuntu-latest
 

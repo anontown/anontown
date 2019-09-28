@@ -6,7 +6,7 @@ new App({
   bgs: [
     {
       prefix: "docker",
-      cmd: "python3 docker-compose.py dev | docker-compose -f - up"
+      cmd: "DC_ENV=dev python3 docker-compose.py | docker-compose -f - up"
     },
     {
       prefix: "build",
@@ -14,10 +14,11 @@ new App({
         "lerna run build:watch --parallel --scope=@anontown/server --include-filtered-dependencies"
     }
   ],
-  exits: ["python3 docker-compose.py dev | docker-compose -f - stop"],
+  exits: ["DC_ENV=dev python3 docker-compose.py | docker-compose -f - stop"],
   cmds: {
     ":r": {
-      cmd: "python3 docker-compose.py dev | docker-compose -f - restart app",
+      cmd:
+        "DC_ENV=dev python3 docker-compose.py | docker-compose -f - restart app",
       msg: "restart..."
     }
   }

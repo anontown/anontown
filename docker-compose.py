@@ -1,11 +1,12 @@
 import sys
 import json
+import os
 
 
 def get_mode():
-    if sys.argv[1] != "prod" and sys.argv[1] != "dev" and sys.argv[1] != "test":
+    if os.environ["DC_ENV"] != "prod" and os.environ["DC_ENV"] != "dev" and os.environ["DC_ENV"] != "test":
         raise Exception()
-    return sys.argv[1]
+    return os.environ["DC_ENV"]
 
 
 def compose(mode):
