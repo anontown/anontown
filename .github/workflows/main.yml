@@ -51,11 +51,13 @@ jobs:
         env:
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
       - name: build
-        run: docker build -t $APP_IMAGE_TAG .
-        run: docker build -t $ES_IMAGE_TAG es
+        run: |
+          docker build -t $APP_IMAGE_TAG .
+          docker build -t $ES_IMAGE_TAG es
       - name: push
-        run: docker push $APP_IMAGE_TAG
-        run: docker push $ES_IMAGE_TAG
+        run: |
+          docker push $APP_IMAGE_TAG
+          docker push $ES_IMAGE_TAG
   release-commit:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
