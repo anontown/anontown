@@ -39,7 +39,8 @@ const compose_services = env => ({
     dev: compose_services_es_head(env),
     [["prod", "test"]]: undefined
   }),
-  redis: compose_services_redis(env)
+  redis: compose_services_redis(env),
+  camo: compose_services_camo(env)
 });
 
 const compose_services_app = env => ({
@@ -135,6 +136,13 @@ const compose_services_redis = env => ({
     test: undefined
   }),
   command: "redis-server --appendonly yes"
+});
+
+const compose_services_camo = env => ({
+  restart: "always",
+  image: "camo",
+  environment: { PORT: "4181" },
+  ports: ["4181:4181"]
 });
 
 console.log(JSON.stringify(compose(get_env())));
