@@ -20,7 +20,7 @@ function match_mode(env, map) {
 }
 
 const compose = env => ({
-  version: "3",
+  version: "3.4",
   services: compose_services(env)
 });
 
