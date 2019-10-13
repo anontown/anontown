@@ -278,13 +278,12 @@ export class ResRepo implements IResRepo {
     return result;
   }
 
+  dispose() {
+    this.subRedis.disconnect();
+  }
+
   private async aggregate(reses: IResDB[]): Promise<Res[]> {
     const count = await this.replyCount(reses.map(x => x.id));
     return reses.map(r => toRes(r, count.get(r.id) || 0));
-  }
-
-  dispose() {
-    console.log("dispose");
-    this.subRedis.disconnect();
   }
 }
