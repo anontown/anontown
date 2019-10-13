@@ -14,7 +14,7 @@ $ lerna run build --scope=@anontown/server --include-filtered-dependencies
 $ DC_ENV=dev python3 docker-compose.py | docker-compose -f - build
 $ DC_ENV=dev python3 docker-compose.py | docker-compose -f - run --rm app npx lerna run migrate --scope @anontown/server
 $ DC_ENV=dev python3 docker-compose.py | docker-compose -f - up
-$ ./bin/dev/watch-client.js dev
+$ ENV_NAME=dev ./bin/dev/watch-client.js
 ```
 
 ## .env の編集
