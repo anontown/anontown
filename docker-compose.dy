@@ -31,6 +31,7 @@ const compose_services = env => ({
     dev: compose_services_mongo_express(env),
     [["prod", "test"]]: undefined
   }),
+  es: compose_services_es(env),
   "es-head": match_mode(env, {
     dev: compose_services_es_head(env),
     [["prod", "test"]]: undefined
