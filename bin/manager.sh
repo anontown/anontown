@@ -14,18 +14,18 @@ upload() {
 
 update() {
   git pull
-  DCDY_MODE=prod dcdy build
-  DCDY_MODE=prod dcdy run --rm app npx lerna run migrate --scope @anontown/server
+  docker-compose build
+  docker-compose run --rm app npx lerna run migrate --scope @anontown/server
 }
 
 stop() {
-  DCDY_MODE=prod dcdy stop
-  DCDY_MODE=prod dcdy rm -f
+  docker-compose stop
+  docker-compose rm -f
   sudo chown -R $USER data
 }
 
 start() {
-  DCDY_MODE=prod dcdy up -d
+  docker-compose up -d
 }
 
 case $1 in
