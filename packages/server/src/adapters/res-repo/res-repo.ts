@@ -282,4 +282,9 @@ export class ResRepo implements IResRepo {
     const count = await this.replyCount(reses.map(x => x.id));
     return reses.map(r => toRes(r, count.get(r.id) || 0));
   }
+
+  dispose() {
+    console.log("dispose");
+    this.subRedis.disconnect();
+  }
 }
