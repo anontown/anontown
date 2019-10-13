@@ -14,6 +14,8 @@ jobs:
           echo ::add-path::$HOME/.local/bin
       - name: build
         run: DCDY_MODE=test dcdy build
+      - name: lint
+        run: DCDY_MODE=test dcdy run --rm app npx lerna run lint --scope @anontown/server
       - name: test
         run: DCDY_MODE=test dcdy run --rm app npx lerna run test:io --scope @anontown/server
   client:
@@ -32,6 +34,5 @@ jobs:
       - name: lint
         run: |
           npx lerna run lint --scope @anontown/client
-          npx lerna run lint --scope @anontown/server
       - name: build
         run: npx lerna run build --scope @anontown/client --include-filtered-dependencies
