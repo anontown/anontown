@@ -1,5 +1,5 @@
 {
-  "name": "@anontown/root",
+  "name": "@anontown/server-root",
   "private": true,
   "devDependencies": {
     "lerna": "^3.14.1"

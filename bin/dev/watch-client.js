@@ -2,16 +2,18 @@
 
 const { App } = require("./watch_lib");
 
+process.chdir("/client");
+
 new App({
   bgs: [
     {
       prefix: "build",
       cmd:
-        "cd client && lerna run build:watch --parallel --scope=@anontown/client --include-filtered-dependencies"
+        "lerna run build:watch --parallel --scope=@anontown/client --include-filtered-dependencies"
     },
     {
       prefix: "server",
-      cmd: "cd client && lerna run start --scope @anontown/client"
+      cmd: "lerna run start --scope @anontown/client"
     }
   ],
   exits: [],

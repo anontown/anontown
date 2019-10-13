@@ -46,11 +46,11 @@ const compose_services = env => ({
 const compose_services_app = env => ({
   build: match_mode(env, {
     dev: {
-      context: ".",
+      context: "./server",
       dockerfile: "dev.Dockerfile"
     },
-    test: ".",
-    prod: env.appImage ? undefined : "."
+    test: "./server",
+    prod: env.appImage ? undefined : "./server"
   }),
   image: match_mode(env, {
     prod: env.appImage || undefined,
