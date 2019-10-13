@@ -1,7 +1,7 @@
 scalar DateTime
 
 # client app
-type Client{
+type Client {
   # client id
   id: ID!
   name: String!
@@ -16,7 +16,7 @@ type Client{
 }
 
 # topic edit history
-type History{
+type History {
   # history id
   id: ID!
   # target topic
@@ -32,11 +32,11 @@ type History{
   # hash(user,date,topic)
   hash: String!
   # yours
-  self:Boolean
+  self: Boolean
 }
 
 # notice message
-type Msg{
+type Msg {
   # msg id
   id: ID!
   # is private msg
@@ -48,7 +48,7 @@ type Msg{
 }
 
 # user profile
-type Profile{
+type Profile {
   # profile id
   id: ID!
   # yours
@@ -66,7 +66,7 @@ type Profile{
 }
 
 # res vote flag
-enum VoteFlag{
+enum VoteFlag {
   # up voted
   uv
   # down voted
@@ -76,14 +76,14 @@ enum VoteFlag{
 }
 
 # res delete flag
-enum ResDeleteFlag{
+enum ResDeleteFlag {
   # by user
   self
   # by manager
   freeze
 }
 
-interface Res{
+interface Res {
   # res id
   id: ID!
   # posted topic
@@ -105,7 +105,7 @@ interface Res{
 }
 
 # normal res
-type ResNormal implements Res{
+type ResNormal implements Res {
   # res id
   id: ID!
   # posted topic
@@ -138,7 +138,7 @@ type ResNormal implements Res{
 }
 
 # post history notice res
-type ResHistory implements Res{
+type ResHistory implements Res {
   # res id
   id: ID!
   # post topic
@@ -163,7 +163,7 @@ type ResHistory implements Res{
 }
 
 # first res in One/Fork Topic
-type ResTopic implements Res{
+type ResTopic implements Res {
   # res id
   id: ID!
   # post topic
@@ -185,7 +185,7 @@ type ResTopic implements Res{
 }
 
 # new fork topic notice res
-type ResFork implements Res{
+type ResFork implements Res {
   # res id
   id: ID!
   # post topic
@@ -210,7 +210,7 @@ type ResFork implements Res{
 }
 
 # deteled res
-type ResDelete implements Res{
+type ResDelete implements Res {
   # res id
   id: ID!
   # post topic
@@ -234,32 +234,32 @@ type ResDelete implements Res{
   flag: ResDeleteFlag!
 }
 
-type TokenReq{
+type TokenReq {
   token: ID!
   key: String!
 }
 
-interface Token{
+interface Token {
   id: ID!
   key: String!
   date: DateTime!
 }
 
-type TokenMaster implements Token{
+type TokenMaster implements Token {
   id: ID!
   key: String!
   date: DateTime!
 }
 
-type TokenGeneral implements Token{
+type TokenGeneral implements Token {
   id: ID!
   key: String!
   date: DateTime!
 
-  client:Client!
+  client: Client!
 }
 
-interface Topic{
+interface Topic {
   id: ID!
   title: String!
   update: DateTime!
@@ -268,7 +268,7 @@ interface Topic{
   active: Boolean!
 }
 
-interface TopicSearch{
+interface TopicSearch {
   id: ID!
   title: String!
   update: DateTime!
@@ -277,10 +277,10 @@ interface TopicSearch{
   active: Boolean!
 
   tags: [String!]!
-  text:String!
+  text: String!
 }
 
-type TopicNormal implements Topic&TopicSearch{
+type TopicNormal implements Topic & TopicSearch {
   id: ID!
   title: String!
   update: DateTime!
@@ -289,10 +289,10 @@ type TopicNormal implements Topic&TopicSearch{
   active: Boolean!
 
   tags: [String!]!
-  text:String!
+  text: String!
 }
 
-type TopicOne implements Topic&TopicSearch{
+type TopicOne implements Topic & TopicSearch {
   id: ID!
   title: String!
   update: DateTime!
@@ -301,10 +301,10 @@ type TopicOne implements Topic&TopicSearch{
   active: Boolean!
 
   tags: [String!]!
-  text:String!
+  text: String!
 }
 
-type TopicFork implements Topic{
+type TopicFork implements Topic {
   id: ID!
   title: String!
   update: DateTime!
@@ -312,125 +312,125 @@ type TopicFork implements Topic{
   resCount: Int!
   active: Boolean!
 
-  parent:TopicNormal!
+  parent: TopicNormal!
 }
 
-type Storage{
-  key:String!
-  value:String!
+type Storage {
+  key: String!
+  value: String!
 }
 
-input DateQuery{
-  date:DateTime!
-  type:DateType!
+input DateQuery {
+  date: DateTime!
+  type: DateType!
 }
 
-enum DateType{
+enum DateType {
   gt
   gte
   lt
   lte
 }
 
-type User{
-  id:ID!
-  sn:String!
+type User {
+  id: ID!
+  sn: String!
 }
 
-type Tags{
-  name:String!
-  count:Int!
+type Tags {
+  name: String!
+  count: Int!
 }
 
-input ClientQuery{
-  id:[ID!]
-  self:Boolean
+input ClientQuery {
+  id: [ID!]
+  self: Boolean
 }
 
-input HistoryQuery{
-  id:[ID!]
-  topic:[ID!]
-  date:DateQuery
+input HistoryQuery {
+  id: [ID!]
+  topic: [ID!]
+  date: DateQuery
 }
 
-input MsgQuery{
-  id:[ID!]
-  date:DateQuery
+input MsgQuery {
+  id: [ID!]
+  date: DateQuery
 }
 
-input ProfileQuery{
-  id:[ID!]
-  self:Boolean
+input ProfileQuery {
+  id: [ID!]
+  self: Boolean
 }
 
-input ResQuery{
-  id:[ID!]
-  topic:ID
-  notice:Boolean
-  hash:String
-  reply:ID
-  profile:ID
-  self:Boolean
-  text:String
-  date:DateQuery
+input ResQuery {
+  id: [ID!]
+  topic: ID
+  notice: Boolean
+  hash: String
+  reply: ID
+  profile: ID
+  self: Boolean
+  text: String
+  date: DateQuery
 }
 
-input AuthUser{
-  id:String
-  sn:String
-  pass:String!
+input AuthUser {
+  id: String
+  sn: String
+  pass: String!
 }
 
-input StorageQuery{
-  key:[String!]
+input StorageQuery {
+  key: [String!]
 }
 
-input TopicQuery{
-  id:[ID!]
-  title:String
-  tags:[String!]
-  activeOnly:Boolean
-  parent:ID
+input TopicQuery {
+  id: [ID!]
+  title: String
+  tags: [String!]
+  activeOnly: Boolean
+  parent: ID
 }
 
-type Query{
-  clients(query:ClientQuery!):[Client!]!
-  histories(query:HistoryQuery!,limit:Int!=100):[History!]!
-  msgs(query:MsgQuery!,limit:Int!=100):[Msg!]!
-  profiles(query:ProfileQuery!):[Profile!]!
-  reses(query:ResQuery!,limit:Int!=100):[Res!]!
-  storages(query:StorageQuery!):[Storage!]!
-  token:Token!
-  tokens:[Token!]!
-  topics(query:TopicQuery!,skip:Int!=0,limit:Int!=100):[Topic!]!
-  topicTags(limit:Int!=100):[Tags!]!
-  userID(sn:String!):ID!
-  userSN(id:ID!):String!
-  user:User!
+type Query {
+  clients(query: ClientQuery!): [Client!]!
+  histories(query: HistoryQuery!, limit: Int! = 100): [History!]!
+  msgs(query: MsgQuery!, limit: Int! = 100): [Msg!]!
+  profiles(query: ProfileQuery!): [Profile!]!
+  reses(query: ResQuery!, limit: Int! = 100): [Res!]!
+  storages(query: StorageQuery!): [Storage!]!
+  token: Token!
+  tokens: [Token!]!
+  topics(query: TopicQuery!, skip: Int! = 0, limit: Int! = 100): [Topic!]!
+  topicTags(limit: Int! = 100): [Tags!]!
+  userID(sn: String!): ID!
+  userSN(id: ID!): String!
+  user: User!
 }
 
-enum VoteType{
+enum VoteType {
   uv
   dv
   cv
 }
 
-type UpdateUserResponse{
-  user:User!
-  token:TokenMaster!
+type UpdateUserResponse {
+  user: User!
+  token: TokenMaster!
 }
 
-type CreateUserResponse{
-  user:User!
-  token:TokenMaster!
+type CreateUserResponse {
+  user: User!
+  token: TokenMaster!
 }
 
-type CreateTokenGeneralResponse{
-  token:TokenGeneral!
-  req:TokenReq!
+type CreateTokenGeneralResponse {
+  token: TokenGeneral!
+  req: TokenReq!
 }
 
-enum CharType{
+enum CharType {
   lc
   uc
   d
@@ -441,49 +441,69 @@ enum CharType{
   han
 }
 
-type ValidateData{
-  char:[CharType]
-  min:Int
-  max:Int
+type ValidateData {
+  char: [CharType]
+  min: Int
+  max: Int
 }
 
-type CreateClientResponseError{
-  name:ValidateData!
-  url:Boolean!
+type CreateClientResponseError {
+  name: ValidateData!
+  url: Boolean!
 }
 
-union CreateClientResponse=Client|CreateClientResponseError
+union CreateClientResponse = Client | CreateClientResponseError
 
 type Mutation {
-  createClient(name:String!,url:String!):Client!
-  updateClient(id:ID!,name:String,url:String):Client!
-  createProfile(name:String!,text:String!,sn:String!):Profile!
-  updateProfile(id:ID!,name:String,text:String,sn:String):Profile!
-  createRes(topic:String!,name:String,text:String!,reply:String,profile:String,age:Boolean!):ResNormal!
-  voteRes(res:ID!,type:VoteType!):Res!
-  delRes(res:ID!):ResDelete!
-  setStorage(key:String!,value:String!):Storage!
-  delStorage(key:String!):Boolean
-  delTokenClient(client:ID!):Boolean
-  createTokenGeneral(client:ID!):CreateTokenGeneralResponse!
-  createTokenReq:TokenReq!
-  createTokenMaster(auth:AuthUser!):TokenMaster!
-  authTokenReq(id:ID!,key:String!):TokenGeneral!
-  createTopicNormal(title:String!,tags:[String!]!,text:String!):TopicNormal!
-  createTopicOne(title:String!,tags:[String!]!,text:String!):TopicOne!
-  createTopicFork(title:String!,parent:ID!):TopicFork!
-  updateTopic(id:ID!,title:String,tags:[String!],text:String):TopicNormal!
-  createUser(sn:String!,pass:String!,recaptcha:String!):CreateUserResponse!
-  updateUser(sn:String,pass:String,auth:AuthUser!):UpdateUserResponse!
+  createClient(name: String!, url: String!): Client!
+  updateClient(id: ID!, name: String, url: String): Client!
+  createProfile(name: String!, text: String!, sn: String!): Profile!
+  updateProfile(id: ID!, name: String, text: String, sn: String): Profile!
+  createRes(
+    topic: String!
+    name: String
+    text: String!
+    reply: String
+    profile: String
+    age: Boolean!
+  ): ResNormal!
+  voteRes(res: ID!, type: VoteType!): Res!
+  delRes(res: ID!): ResDelete!
+  setStorage(key: String!, value: String!): Storage!
+  delStorage(key: String!): Boolean
+  delTokenClient(client: ID!): Boolean
+  createTokenGeneral(client: ID!): CreateTokenGeneralResponse!
+  createTokenReq: TokenReq!
+  createTokenMaster(auth: AuthUser!): TokenMaster!
+  authTokenReq(id: ID!, key: String!): TokenGeneral!
+  createTopicNormal(
+    title: String!
+    tags: [String!]!
+    text: String!
+  ): TopicNormal!
+  createTopicOne(title: String!, tags: [String!]!, text: String!): TopicOne!
+  createTopicFork(title: String!, parent: ID!): TopicFork!
+  updateTopic(
+    id: ID!
+    title: String
+    tags: [String!]
+    text: String
+  ): TopicNormal!
+  createUser(
+    sn: String!
+    pass: String!
+    recaptcha: String!
+  ): CreateUserResponse!
+  updateUser(sn: String, pass: String, auth: AuthUser!): UpdateUserResponse!
 }
 
-type ResSubscript{
-  res:Res!
-  count:Int!
+type ResSubscript {
+  res: Res!
+  count: Int!
 }
 
 type Subscription {
-  resAdded(topic:ID!):ResSubscript!
+  resAdded(topic: ID!): ResSubscript!
 }
 
 schema {
