@@ -40,6 +40,7 @@ jobs:
         run: |
           npx lerna run lint --scope @anontown/client
       - name: build
+        working-directory: client
         run: npx lerna run build --scope @anontown/client --include-filtered-dependencies
   docker-build-and-push:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/topic/')
