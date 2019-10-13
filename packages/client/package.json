@@ -67,7 +67,6 @@
   "dependencies": {
     "@anontown/client-icon": "^2.0.0",
     "@anontown/route": "^2.0.0",
-    "@anontown/schema": "^2.0.0",
     "@apollo/react-common": "^3.1.0-beta.0",
     "@apollo/react-components": "^3.1.0-beta.0",
     "@apollo/react-hooks": "^3.1.0-beta.0",
