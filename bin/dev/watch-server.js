@@ -6,7 +6,7 @@ new App({
   bgs: [
     {
       prefix: "docker",
-      cmd: "python3 docker-compose.py dev | docker-compose -f - up"
+      cmd: "DCDY_MODE=dev dcdy up"
     },
     {
       prefix: "build",
@@ -14,10 +14,10 @@ new App({
         "lerna run build:watch --parallel --scope=@anontown/server --include-filtered-dependencies"
     }
   ],
-  exits: ["python3 docker-compose.py dev | docker-compose -f - stop"],
+  exits: ["DCDY_MODE=dev dcdy stop"],
   cmds: {
     ":r": {
-      cmd: "python3 docker-compose.py dev | docker-compose -f - restart app",
+      cmd: "DCDY_MODE=dev dcdy restart app",
       msg: "restart..."
     }
   }

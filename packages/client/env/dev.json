@@ -3,7 +3,7 @@
     "origin": "http://localhost:3000"
   },
   "camo": {
-    "origin": "https://camo.anontown.com",
+    "origin": "https://localhost:4181",
     "key": "0x24FEEDFACEDEADBEEFCAFE"
   },
   "api": {
@@ -18,5 +18,5 @@
   "imgur": {
     "clientID": "042fd78266ccaaf"
   },
-  "ga":null
+  "ga": null
 }

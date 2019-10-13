@@ -48,6 +48,16 @@ export async function serverRun() {
 
       return createContext({});
     },
+    plugins: [
+      {
+        requestDidStart: () => ({
+          willSendResponse: response => {
+            const ctx = (response.context as unknown) as AppContext;
+            ctx.ports.resRepo.dispose();
+          },
+        }),
+      },
+    ],
     introspection: true,
     playground: {
       tabs: [

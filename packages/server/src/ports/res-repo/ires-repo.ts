@@ -17,4 +17,6 @@ export interface IResRepo {
   replyCount(resIDs: string[]): Promise<Map<string, number>>;
 
   find(auth: IAuthContainer, query: G.ResQuery, limit: number): Promise<Res[]>;
+
+  dispose(): void;
 }

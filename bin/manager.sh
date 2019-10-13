@@ -14,18 +14,17 @@ upload() {
 
 update() {
   git pull
-  python3 docker-compose.py prod | docker-compose -f - build
-  python3 docker-compose.py prod | docker-compose -f - run --rm app npx lerna run migrate --scope @anontown/server
+  docker-compose run --rm app npx lerna run migrate --scope @anontown/server
 }
 
 stop() {
-  python3 docker-compose.py prod | docker-compose -f - stop
-  python3 docker-compose.py prod | docker-compose -f - rm -f
+  docker-compose stop
+  docker-compose rm -f
   sudo chown -R $USER data
 }
 
 start() {
-  python3 docker-compose.py prod | docker-compose -f - up -d
+  docker-compose up -d
 }
 
 case $1 in
