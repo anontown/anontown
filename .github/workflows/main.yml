@@ -5,13 +5,17 @@ on: [push]
 jobs:
   server:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v1
+      - name: install dcdy
+        run: |
+          mkdir -p ~/.local/bin
+          curl -sSf https://raw.githubusercontent.com/kgtkr/dcdy/master/install.sh | sh
+          echo ::add-path::$HOME/.local/bin
       - name: build
-        run: DC_ENV=test python3 docker-compose.py | docker-compose -f - build
+        run: DCDY_MODE=test dcdy build
       - name: test
-        run: DC_ENV=test python3 docker-compose.py | docker-compose -f - run --rm app npx lerna run test:io --scope @anontown/server
+        run: DCDY_MODE=test dcdy run --rm app npx lerna run test:io --scope @anontown/server
   client:
     runs-on: ubuntu-latest
 

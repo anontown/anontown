@@ -1,0 +1,123 @@
+#!/usr/bin/env node
+"use strict";
+
+function get_env() {
+  const mode = process.env["DCDY_MODE"];
+  if (mode !== "prod" && mode !== "dev" && mode !== "test") {
+    throw new Error();
+  }
+
+  return { mode };
+}
+
+function match_mode(env, map) {
+  for (let key of Object.keys(map)) {
+    if (key.split(",").includes(env.mode)) {
+      return map[key];
+    }
+  }
+  throw new Error();
+}
+
+const compose = env => ({
+  version: "3",
+  services: compose_services(env)
+});
+
+const compose_services = env => ({
+  app: compose_services_app(env),
+  mongo: compose_services_mongo(mode),
+  "mongo-express": match_mode(env, {
+    dev: compose_services_mongo_express(mode),
+    [["prod", "test"]]: undefined
+  }),
+  "es-head": match_mode(env, {
+    dev: compose_services_es_head(mode),
+    [["prod", "test"]]: undefined
+  }),
+  redis: compose_services_redis(env)
+});
+
+const compose_services_app = env => ({
+  build: match_mode(env, {
+    dev: {
+      context: ".",
+      dockerfile: "dev.Dockerfile"
+    },
+    [["prod", "test"]]: "."
+  }),
+  restart: "always",
+  environment: {
+    SERVER_PORT: "8080",
+    MONGO_HOST: "mongo:27017",
+    ES_HOST: "es:9200",
+    REDIS_HOST: "redis:6379",
+    SAVE_DIR: match_mode(env, {
+      [["prod", "test"]]: "../../",
+      dev: "../../data/app"
+    })
+  },
+  env_file: match_mode(env, {
+    [["dev", "prod"]]: ".env",
+    test: ".env.sample"
+  }),
+  ports: match_mode(env, {
+    [["dev", "prod"]]: ["8080:8080"],
+    test: undefined
+  }),
+  depends_on: ["mongo", "es", "redis"],
+  volumes: match_mode(env, {
+    prod: [
+      "./data/app/logs:/home/app/.anontown/logs",
+      "./data/app/data:/home/app/.anontown/data"
+    ],
+    dev: ["./:/home/app/.anontown"],
+    test: undefined
+  })
+});
+
+const compose_services_mongo = env => ({
+  restart: "always",
+  image: "mongo:3.6.3",
+  volumes: match_mode(env, {
+    [["prod", "dev"]]: ["./data/db:/data/db"],
+    test: undefined
+  })
+});
+
+const compose_services_mongo_express = env => ({
+  restart: "always",
+  image: "mongo-express:0.40.0",
+  ports: ["8081:8081"],
+  depends_on: ["mongo"]
+});
+
+const compose_services_es = env => ({
+  build: "es",
+  restart: "always",
+  environment: { ES_JAVA_OPTS: "-Xms512m -Xmx512m" },
+  ulimits: { nofile: { soft: 65536, hard: 65536 } },
+  volumes: match_mode(env, {
+    [["prod", "dev"]]: ["./data/es:/usr/share/elasticsearch/data"],
+    test: undefined
+  })
+});
+
+const compose_services_es_head = env => ({
+  image: "mobz/elasticsearch-head:5",
+  restart: "always",
+  ports: ["9100:9100"],
+  depends_on: ["es"]
+});
+
+const compose_services_redis = env => ({
+  restart: "always",
+  image: "redis:5.0.4",
+  volumes: match_mode(env, {
+    [["prod", "dev"]]: ["./data/redis:/data"],
+    test: undefined
+  }),
+  command: "redis-server --appendonly yes"
+});
+
+console.log(JSON.stringify(compose(get_env())));

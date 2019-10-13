@@ -11,9 +11,9 @@ $ npx lerna bootstrap
 $ cp .env.sample .env
 # edit .env
 $ lerna run build --scope=@anontown/server --include-filtered-dependencies
-$ DC_ENV=dev python3 docker-compose.py | docker-compose -f - build
-$ DC_ENV=dev python3 docker-compose.py | docker-compose -f - run --rm app npx lerna run migrate --scope @anontown/server
-$ DC_ENV=dev python3 docker-compose.py | docker-compose -f - up
+$ DCDY_MODE=dev dcdy build
+$ DCDY_MODE=dev dcdy run --rm app npx lerna run migrate --scope @anontown/server
+$ DCDY_MODE=dev dcdy up
 $ ENV_NAME=dev ./bin/dev/watch-client.js
 ```
 
@@ -25,7 +25,7 @@ $ ENV_NAME=dev ./bin/dev/watch-client.js
 ## Test
 
 ```sh
-python3 docker-compose.py test | docker-compose -f - run --rm app npx lerna run test:io --scope @anontown/server
+DCDY_MODE=test dcdy run --rm app npx lerna run test:io --scope @anontown/server
 ```
 
 ## Lint
