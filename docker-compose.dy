@@ -7,7 +7,10 @@ function get_env() {
     throw new Error();
   }
 
-  return { mode };
+  const appImage = process.env["DCDY_APP_IMAGE"] || null;
+  const esImage = process.env["DCDY_ES_IMAGE"] || null;
+
+  return { mode, appImage, esImage };
 }
 
 function match_mode(env, map) {
@@ -45,7 +48,12 @@ const compose_services_app = env => ({
       context: ".",
       dockerfile: "dev.Dockerfile"
     },
-    [["prod", "test"]]: "."
+    test: ".",
+    prod: env.appImage ? undefined : "."
+  }),
+  image: match_mode(env, {
+    prod: env.appImage || undefined,
+    [["dev", "test"]]: undefined
   }),
   restart: "always",
   environment: {
@@ -95,6 +103,14 @@ const compose_services_mongo_express = env => ({
 
 const compose_services_es = env => ({
   build: "es",
+  build: match_mode(env, {
+    [["dev", "test"]]: "es",
+    prod: env.esImage ? undefined : "es"
+  }),
+  image: match_mode(env, {
+    prod: env.esImage || undefined,
+    [["dev", "test"]]: undefined
+  }),
   restart: "always",
   environment: { ES_JAVA_OPTS: "-Xms512m -Xmx512m" },
   ulimits: { nofile: { soft: 65536, hard: 65536 } },
