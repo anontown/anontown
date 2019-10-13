@@ -24,7 +24,6 @@ jobs:
         run: DCDY_MODE=test dcdy run --rm app npx lerna run test:io --scope @anontown/server
   client:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v1
       - name: setup node
@@ -32,10 +31,12 @@ jobs:
         with:
           version: 10
       - name: install
+        working-directory: client
         run: |
           npm i
           npx lerna bootstrap
       - name: lint
+        working-directory: client
         run: |
           npx lerna run lint --scope @anontown/client
       - name: build

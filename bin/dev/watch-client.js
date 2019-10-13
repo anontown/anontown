@@ -7,11 +7,11 @@ new App({
     {
       prefix: "build",
       cmd:
-        "lerna run build:watch --parallel --scope=@anontown/client --include-filtered-dependencies"
+        "cd client && lerna run build:watch --parallel --scope=@anontown/client --include-filtered-dependencies"
     },
     {
       prefix: "server",
-      cmd: "lerna run start --scope @anontown/client"
+      cmd: "cd client && lerna run start --scope @anontown/client"
     }
   ],
   exits: [],
