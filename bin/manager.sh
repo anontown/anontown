@@ -1,6 +1,11 @@
 #!/bin/sh -eu
 DATE=$(date +"%Y%m%d%H%M%S")
 
+update-before-stop() {
+  git pull origin release
+  docker-compose pull
+}
+
 backup() {
   mkdir /tmp/$DATE
   cp -r  data /tmp/$DATE/data
@@ -13,7 +18,6 @@ upload() {
 }
 
 update() {
-  git pull origin release
   docker-compose run --rm app npx lerna run migrate --scope @anontown/server
 }
 
@@ -29,6 +33,7 @@ start() {
 
 case $1 in
   "update" )
+    update-before-stop
     stop
     backup
     update
