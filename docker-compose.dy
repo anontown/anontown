@@ -26,13 +26,13 @@ const compose = env => ({
 
 const compose_services = env => ({
   app: compose_services_app(env),
-  mongo: compose_services_mongo(mode),
+  mongo: compose_services_mongo(env),
   "mongo-express": match_mode(env, {
-    dev: compose_services_mongo_express(mode),
+    dev: compose_services_mongo_express(env),
     [["prod", "test"]]: undefined
   }),
   "es-head": match_mode(env, {
-    dev: compose_services_es_head(mode),
+    dev: compose_services_es_head(env),
     [["prod", "test"]]: undefined
   }),
   redis: compose_services_redis(env)
