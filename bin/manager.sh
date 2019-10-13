@@ -14,7 +14,6 @@ upload() {
 
 update() {
   git pull
-  docker-compose build
   docker-compose run --rm app npx lerna run migrate --scope @anontown/server
 }
 
