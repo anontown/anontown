@@ -81,9 +81,7 @@ jobs:
         run: |
           mkdir release
           DCDY_MODE=prod DCDY_APP_IMAGE=$APP_IMAGE_TAG DCDY_ES_IMAGE=$ES_IMAGE_TAG ./docker-compose.dy > release/docker-compose.yml
-          cp bin/manager.sh release/manager.sh
-          chmod +x release/manager.sh
-          cp README.md release
+          cp -R release-static/ release
           cp .env.sample release
       - name: deploy
         uses: peaceiris/actions-gh-pages@v2.4.0
