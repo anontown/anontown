@@ -18,7 +18,7 @@ RUN npm ci --no-progress
 COPY lerna.json $APP_HOME/
 COPY shared $APP_HOME/shared
 COPY packages $APP_HOME/packages
-RUN npx lerna bootstrap \
+RUN npx lerna bootstrap --ci --no-progress \
   &&  npx lerna run build --scope @anontown/server
 
 CMD dockerize -wait tcp://$ES_HOST -wait tcp://$REDIS_HOST -wait tcp://$MONGO_HOST \

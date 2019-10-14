@@ -38,7 +38,7 @@ jobs:
         working-directory: client
         run: |
           npm ci --no-progress
-          npx lerna bootstrap
+          npx lerna bootstrap --ci --no-progress
       - name: lint
         working-directory: client
         run: |
