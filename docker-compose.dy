@@ -46,11 +46,11 @@ const compose_services = env => ({
 const compose_services_app = env => ({
   build: match_mode(env, {
     dev: {
-      context: ".",
+      context: "./server",
       dockerfile: "dev.Dockerfile"
     },
-    test: ".",
-    prod: env.appImage ? undefined : "."
+    test: "./server",
+    prod: env.appImage ? undefined : "./server"
   }),
   image: match_mode(env, {
     prod: env.appImage || undefined,
@@ -63,8 +63,8 @@ const compose_services_app = env => ({
     ES_HOST: "es:9200",
     REDIS_HOST: "redis:6379",
     SAVE_DIR: match_mode(env, {
-      [["prod", "test"]]: "../../",
-      dev: "../../data/app"
+      [["prod", "test"]]: "../../../",
+      dev: "../../../data/app"
     })
   },
   env_file: match_mode(env, {

@@ -2,6 +2,8 @@
 
 const { App } = require("./watch_lib");
 
+process.chdir("/client");
+
 new App({
   bgs: [
     {

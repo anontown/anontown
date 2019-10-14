@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - name: shared
+        run: ./bin/shared.sh
       - name: install dcdy
         run: |
           mkdir -p ~/.local/bin
@@ -24,21 +26,25 @@ jobs:
         run: DCDY_MODE=test dcdy run --rm app npx lerna run test:io --scope @anontown/server
   client:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v1
+      - name: shared
+        run: ./bin/shared.sh
       - name: setup node
         uses: actions/setup-node@v1
         with:
           version: 10
       - name: install
+        working-directory: client
         run: |
-          npm i
-          npx lerna bootstrap
+          npm ci --no-progress
+          npx lerna bootstrap --ci --no-progress
       - name: lint
+        working-directory: client
         run: |
           npx lerna run lint --scope @anontown/client
       - name: build
+        working-directory: client
         run: npx lerna run build --scope @anontown/client --include-filtered-dependencies
   docker-build-and-push:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/topic/')
@@ -46,13 +52,15 @@ jobs:
     needs: [server]
     steps:
       - uses: actions/checkout@v1
+      - name: shared
+        run: ./bin/shared.sh
       - name: login
         run: docker login docker.pkg.github.com -u $GITHUB_ACTOR -p $PERSONAL_TOKEN
         env:
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
       - name: build
         run: |
-          docker build -t $APP_IMAGE_TAG .
+          docker build -t $APP_IMAGE_TAG server
           docker build -t $ES_IMAGE_TAG es
       - name: push
         run: |
@@ -64,6 +72,8 @@ jobs:
     needs: [docker-build-and-push]
     steps:
       - uses: actions/checkout@v1
+      - name: shared
+        run: ./bin/shared.sh
       - uses: actions/setup-node@v1
         with:
           node-version: "10.x"
@@ -71,9 +81,7 @@ jobs:
         run: |
           mkdir release
           DCDY_MODE=prod DCDY_APP_IMAGE=$APP_IMAGE_TAG DCDY_ES_IMAGE=$ES_IMAGE_TAG ./docker-compose.dy > release/docker-compose.yml
-          cp bin/manager.sh release/manager.sh
-          chmod +x release/manager.sh
-          cp README.md release
+          cp -R release-static/ release
           cp .env.sample release
       - name: deploy
         uses: peaceiris/actions-gh-pages@v2.4.0
