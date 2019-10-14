@@ -15,7 +15,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 
 COPY package.json package-lock.json $APP_HOME/
 RUN npm i --no-progress
-COPY lerna.json schema.gql $APP_HOME/
+COPY lerna.json $APP_HOME/
 COPY shared $APP_HOME/shared
 COPY packages $APP_HOME/packages
 RUN npx lerna bootstrap \
