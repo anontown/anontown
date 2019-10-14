@@ -63,8 +63,8 @@ const compose_services_app = env => ({
     ES_HOST: "es:9200",
     REDIS_HOST: "redis:6379",
     SAVE_DIR: match_mode(env, {
-      [["prod", "test"]]: "../../",
-      dev: "../../data/app"
+      [["prod", "test"]]: "../../../",
+      dev: "../../../data/app"
     })
   },
   env_file: match_mode(env, {
