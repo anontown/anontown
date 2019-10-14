@@ -14,7 +14,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
   && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 COPY package.json package-lock.json $APP_HOME/
-RUN npm i --no-progress
+RUN npm ci --no-progress
 COPY lerna.json $APP_HOME/
 COPY shared $APP_HOME/shared
 COPY packages $APP_HOME/packages

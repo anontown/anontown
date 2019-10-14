@@ -37,7 +37,7 @@ jobs:
       - name: install
         working-directory: client
         run: |
-          npm i
+          npm ci --no-progress
           npx lerna bootstrap
       - name: lint
         working-directory: client
