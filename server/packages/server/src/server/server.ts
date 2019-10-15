@@ -14,9 +14,7 @@ import { runWorker } from "../worker";
 import { AppContext, createContext } from "./context";
 
 export async function serverRun() {
-  const typeDefs = gql(
-    await fs.readFile(require.resolve("../../shared/schema.gql"), "utf8"),
-  );
+  const typeDefs = gql(await fs.readFile("../../shared/schema.gql", "utf8"));
   const resolvers: IResolvers = combineResolvers([
     {
       DateTime: GraphQLDateTime,
