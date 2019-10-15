@@ -5,4 +5,4 @@ ENV APP_HOME=$HOME/.anontown
 
 WORKDIR $APP_HOME
 
-CMD npx lerna run start --scope @anontown/bff
+CMD npx lerna run start --scope @anontown/bff --stream
