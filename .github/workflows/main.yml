@@ -3,7 +3,7 @@ name: main
 on: [push]
 
 env:
-  APP_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/app:${{ github.sha }}
+  SERVER_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/server:${{ github.sha }}
   ES_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/es:${{ github.sha }}
   CLIENT_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/client:${{ github.sha }}
   CAMO_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/camo:${{ github.sha }}
@@ -55,13 +55,13 @@ jobs:
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
       - name: build
         run: |
-          docker build -t $APP_IMAGE_TAG server
+          docker build -t $SERVER_IMAGE_TAG server
           docker build -t $ES_IMAGE_TAG es
           docker build -t $CLIENT_IMAGE_TAG client
           docker build -t $CAMO_IMAGE_TAG client
       - name: push
         run: |
-          docker push $APP_IMAGE_TAG
+          docker push $SERVER_IMAGE_TAG
           docker push $ES_IMAGE_TAG
           docker push $CLIENT_IMAGE_TAG
           docker push $CAMO_IMAGE_TAG
@@ -79,7 +79,7 @@ jobs:
       - name: build
         run: |
           mkdir release
-          DCDY_MODE=prod DCDY_APP_IMAGE=$APP_IMAGE_TAG DCDY_ES_IMAGE=$ES_IMAGE_TAG DCDY_CLIENT_IMAGE=$CLIENT_IMAGE_TAG DCDY_CAMO_IMAGE=$CAMO_IMAGE_TAG ./docker-compose.dy > release/docker-compose.yml
+          DCDY_MODE=prod DCDY_SERVER_IMAGE=$SERVER_IMAGE_TAG DCDY_ES_IMAGE=$ES_IMAGE_TAG DCDY_CLIENT_IMAGE=$CLIENT_IMAGE_TAG DCDY_CAMO_IMAGE=$CAMO_IMAGE_TAG ./docker-compose.dy > release/docker-compose.yml
           cp -R release-static/ release
           cp .env.sample release
       - name: deploy

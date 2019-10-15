@@ -7,12 +7,12 @@ function get_env() {
     throw new Error();
   }
 
-  const appImage = process.env["DCDY_APP_IMAGE"] || null;
+  const serverImage = process.env["DCDY_SERVER_IMAGE"] || null;
   const clientImage = process.env["DCDY_CLIENT_IMAGE"] || null;
   const esImage = process.env["DCDY_ES_IMAGE"] || null;
   const camoImage = process.env["DCDY_CAMO_IMAGE"] || null;
 
-  return { mode, appImage, clientImage, esImage, camoImage };
+  return { mode, serverImage, clientImage, esImage, camoImage };
 }
 
 function match_mode(env, map) {
@@ -30,7 +30,7 @@ const compose = env => ({
 });
 
 const compose_services = env => ({
-  app: compose_services_app(env),
+  server: compose_services_server(env),
   mongo: compose_services_mongo(env),
   "mongo-express": match_mode(env, {
     dev: compose_services_mongo_express(env),
@@ -46,17 +46,17 @@ const compose_services = env => ({
   client: compose_services_client(env)
 });
 
-const compose_services_app = env => ({
+const compose_services_server = env => ({
   build: match_mode(env, {
     dev: {
       context: "./server",
       dockerfile: "dev.Dockerfile"
     },
     test: "./server",
-    prod: env.appImage ? undefined : "./server"
+    prod: env.serverImage ? undefined : "./server"
   }),
   image: match_mode(env, {
-    prod: env.appImage || undefined,
+    prod: env.serverImage || undefined,
     [["dev", "test"]]: undefined
   }),
   restart: "always",
