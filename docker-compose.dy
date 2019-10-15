@@ -10,8 +10,9 @@ function get_env() {
   const appImage = process.env["DCDY_APP_IMAGE"] || null;
   const clientImage = process.env["DCDY_CLIENT_IMAGE"] || null;
   const esImage = process.env["DCDY_ES_IMAGE"] || null;
+  const camoImage = process.env["DCDY_CAMO_IMAGE"] || null;
 
-  return { mode, appImage, clientImage, esImage };
+  return { mode, appImage, clientImage, esImage, camoImage };
 }
 
 function match_mode(env, map) {
@@ -142,7 +143,14 @@ const compose_services_redis = env => ({
 
 const compose_services_camo = env => ({
   restart: "always",
-  image: "camo",
+  build: match_mode(env, {
+    [["dev", "test"]]: "camo",
+    prod: env.camoImage ? undefined : "camo"
+  }),
+  image: match_mode(env, {
+    prod: env.camoImage || undefined,
+    [["dev", "test"]]: undefined
+  }),
   environment: { PORT: "4181" },
   ports: ["4181:4181"]
 });

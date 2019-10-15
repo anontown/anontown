@@ -6,6 +6,7 @@ env:
   APP_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/app:${{ github.sha }}
   ES_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/es:${{ github.sha }}
   ES_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/client:${{ github.sha }}
+  CAMO_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/camo:${{ github.sha }}
 
 jobs:
   server:
@@ -57,11 +58,13 @@ jobs:
           docker build -t $APP_IMAGE_TAG server
           docker build -t $ES_IMAGE_TAG es
           docker build -t $CLIENT_IMAGE_TAG client
+          docker build -t $CAMO_IMAGE_TAG client
       - name: push
         run: |
           docker push $APP_IMAGE_TAG
           docker push $ES_IMAGE_TAG
           docker push $CLIENT_IMAGE_TAG
+          docker push $CAMO_IMAGE_TAG
   release-commit:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
@@ -76,7 +79,7 @@ jobs:
       - name: build
         run: |
           mkdir release
-          DCDY_MODE=prod DCDY_APP_IMAGE=$APP_IMAGE_TAG DCDY_ES_IMAGE=$ES_IMAGE_TAG DCDY_CLIENT_IMAGE=$CLIENT_IMAGE_TAG ./docker-compose.dy > release/docker-compose.yml
+          DCDY_MODE=prod DCDY_APP_IMAGE=$APP_IMAGE_TAG DCDY_ES_IMAGE=$ES_IMAGE_TAG DCDY_CLIENT_IMAGE=$CLIENT_IMAGE_TAG DCDY_CAMO_IMAGE=$CAMO_IMAGE_TAG ./docker-compose.dy > release/docker-compose.yml
           cp -R release-static/ release
           cp .env.sample release
       - name: deploy
