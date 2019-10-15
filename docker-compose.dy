@@ -171,14 +171,33 @@ const compose_services_client = env => ({
   }),
   restart: "always",
   environment: {
-    PORT: "4200"
+    PORT: "3000",
+    ...match_mode(env, {
+      prod: {
+        RECAPTCHA_SITE_KET: "6LdoFBQUAAAAACc3lhPhbkEANEAHsmNd6UDN2vKo",
+        CLIENT_ORIGIN: "https://anontown.com",
+        CAMO_ORIGIN: "https://camo.anontown.com",
+        CAMO_KEY: "0x24FEEDFACEDEADBEEFCAFE",
+        API_ORIGIN: "https://api.anontown.com",
+        SOCKET_ORIGIN: "wss://api.anontown.com",
+        IMGUR_CLIENT_ID: "042fd78266ccaaf",
+        GA: "UA-108693999-1"
+      },
+      dev: {
+        RECAPTCHA_SITE_KET: "6LdoFBQUAAAAACc3lhPhbkEANEAHsmNd6UDN2vKo",
+        CLIENT_ORIGIN: "http://localhost:3000",
+        CAMO_ORIGIN: "https://localhost:4181",
+        CAMO_KEY: "0x24FEEDFACEDEADBEEFCAFE",
+        API_ORIGIN: "http://localhost:8080",
+        SOCKET_ORIGIN: "ws://localhost:8080",
+        IMGUR_CLIENT_ID: "042fd78266ccaaf",
+        GA: ""
+      },
+      test: {}
+    })
   },
-  env_file: match_mode(env, {
-    [["dev", "prod"]]: ".env-client",
-    test: ".env-client.sample"
-  }),
   ports: match_mode(env, {
-    [["dev", "prod"]]: ["4200:4200"],
+    [["dev", "prod"]]: ["3000:3000"],
     test: undefined
   }),
   volumes: match_mode(env, {
