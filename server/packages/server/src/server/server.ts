@@ -15,7 +15,7 @@ import { AppContext, createContext } from "./context";
 
 export async function serverRun() {
   const typeDefs = gql(
-    await fs.readFile(require.resolve("../../schema.gql"), "utf8"),
+    await fs.readFile(require.resolve("../../shared/schema.gql"), "utf8"),
   );
   const resolvers: IResolvers = combineResolvers([
     {
