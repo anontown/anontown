@@ -5,7 +5,7 @@ on: [push]
 env:
   APP_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/app:${{ github.sha }}
   ES_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/es:${{ github.sha }}
-  ES_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/client:${{ github.sha }}
+  CLIENT_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/client:${{ github.sha }}
   CAMO_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/camo:${{ github.sha }}
 
 jobs:
