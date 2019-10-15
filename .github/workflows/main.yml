@@ -27,9 +27,9 @@ jobs:
       - name: build
         run: DCDY_MODE=test dcdy build
       - name: lint
-        run: DCDY_MODE=test dcdy run --rm app npx lerna run lint --scope @anontown/server
+        run: DCDY_MODE=test dcdy run --rm server npx lerna run lint --scope @anontown/server
       - name: test
-        run: DCDY_MODE=test dcdy run --rm app npx lerna run test:io --scope @anontown/server
+        run: DCDY_MODE=test dcdy run --rm server npx lerna run test:io --scope @anontown/server
   client:
     runs-on: ubuntu-latest
     steps:

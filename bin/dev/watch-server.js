@@ -19,7 +19,7 @@ new App({
   exits: ["DCDY_MODE=dev dcdy stop"],
   cmds: {
     ":r": {
-      cmd: "DCDY_MODE=dev dcdy restart app",
+      cmd: "DCDY_MODE=dev dcdy restart server",
       msg: "restart..."
     }
   }
