@@ -5,7 +5,6 @@ import * as path from "path";
 import { RouteData, routeArray } from "@anontown/route";
 import kr = require("koa-route");
 import * as fse from "fs-extra";
-import escapeHtml = require("escape-html");
 
 const app = new Koa();
 
@@ -20,7 +19,10 @@ function addRoute<P extends string, Q extends object>(route: RouteData<P, Q>) {
         "utf8"
       );
       const initScript = `window.__ENV__=${JSON.stringify(env.jsEnv)};`;
-      ctx.body = template.replace("init_script()", escapeHtml(initScript));
+      ctx.body = template.replace(
+        "init_script()",
+        initScript.replace(/</g, "\\u003c")
+      );
     })
   );
 }
