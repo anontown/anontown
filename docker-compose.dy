@@ -65,10 +65,7 @@ const compose_services_app = env => ({
     MONGO_HOST: "mongo:27017",
     ES_HOST: "es:9200",
     REDIS_HOST: "redis:6379",
-    SAVE_DIR: match_mode(env, {
-      [["prod", "test"]]: "../../../",
-      dev: "../../../data/app"
-    })
+    SAVE_DIR: "../../"
   },
   env_file: match_mode(env, {
     [["dev", "prod"]]: ".env",
@@ -84,7 +81,11 @@ const compose_services_app = env => ({
       "./data/app/logs:/home/app/.anontown/logs",
       "./data/app/data:/home/app/.anontown/data"
     ],
-    dev: ["./:/home/app/.anontown"],
+    dev: [
+      "./server:/home/app/.anontown",
+      "./data/app/logs:/home/app/.anontown/logs",
+      "./data/app/data:/home/app/.anontown/data"
+    ],
     test: undefined
   })
 });
@@ -182,7 +183,7 @@ const compose_services_client = env => ({
   }),
   volumes: match_mode(env, {
     prod: [],
-    dev: ["./:/home/app/.anontown"],
+    dev: ["./client:/home/app/.anontown"],
     test: undefined
   })
 });
