@@ -8,9 +8,10 @@ function get_env() {
   }
 
   const appImage = process.env["DCDY_APP_IMAGE"] || null;
+  const clientImage = process.env["DCDY_CLIENT_IMAGE"] || null;
   const esImage = process.env["DCDY_ES_IMAGE"] || null;
 
-  return { mode, appImage, esImage };
+  return { mode, appImage, clientImage, esImage };
 }
 
 function match_mode(env, map) {
@@ -40,7 +41,8 @@ const compose_services = env => ({
     [["prod", "test"]]: undefined
   }),
   redis: compose_services_redis(env),
-  camo: compose_services_camo(env)
+  camo: compose_services_camo(env),
+  client: compose_services_client(env)
 });
 
 const compose_services_app = env => ({
@@ -143,6 +145,38 @@ const compose_services_camo = env => ({
   image: "camo",
   environment: { PORT: "4181" },
   ports: ["4181:4181"]
+});
+
+const compose_services_client = env => ({
+  build: match_mode(env, {
+    dev: {
+      context: "./client",
+      dockerfile: "dev.Dockerfile"
+    },
+    test: "./client",
+    prod: env.clientImage ? undefined : "./client"
+  }),
+  image: match_mode(env, {
+    prod: env.clientImage || undefined,
+    [["dev", "test"]]: undefined
+  }),
+  restart: "always",
+  environment: {
+    PORT: "4200"
+  },
+  env_file: match_mode(env, {
+    [["dev", "prod"]]: ".env-client",
+    test: ".env-client.sample"
+  }),
+  ports: match_mode(env, {
+    [["dev", "prod"]]: ["4200:4200"],
+    test: undefined
+  }),
+  volumes: match_mode(env, {
+    prod: [],
+    dev: ["./:/home/app/.anontown"],
+    test: undefined
+  })
 });
 
 console.log(JSON.stringify(compose(get_env())));
