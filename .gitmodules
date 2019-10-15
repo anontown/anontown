@@ -1,0 +1,3 @@
+[submodule "camo"]
+	path = camo
+	url = https://github.com/atmos/camo.git
