@@ -8,7 +8,7 @@ export async function getServerStatus() {
     .then(x => x.text())
     .then(x => x === "OK")
     .catch(_e => false);
-  const client = await fetch("https://anontown.com/ping", {
+  const client = await fetch(Env.client.origin + "/ping", {
     mode: "cors",
     cache: "no-store",
   })
