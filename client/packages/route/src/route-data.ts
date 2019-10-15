@@ -137,12 +137,10 @@ export class RouteData<P extends string, Q extends object> {
   }
 
   parsePathData(data: string[]): Record<P, string> {
-    const result: any = {};
-    this.pathData
+    return this.pathData
       .filter((x): x is PathDataElementVariable<any> => x.type === "variable")
-      .map((x, i) => {
+      .reduce<any>((result, x, i) => {
         result[x.name] = data[i];
-      });
-    return result;
+      }, {});
   }
 }
