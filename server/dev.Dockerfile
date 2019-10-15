@@ -14,4 +14,4 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
   && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 CMD dockerize -wait tcp://$ES_HOST -wait tcp://$REDIS_HOST -wait tcp://$MONGO_HOST \
-  && npx lerna run start --scope @anontown/server
+  && npx lerna run start --scope @anontown/server --stream

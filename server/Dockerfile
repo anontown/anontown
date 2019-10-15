@@ -22,4 +22,4 @@ RUN npx lerna bootstrap --ci --no-progress \
   &&  npx lerna run build --scope @anontown/server
 
 CMD dockerize -wait tcp://$ES_HOST -wait tcp://$REDIS_HOST -wait tcp://$MONGO_HOST \
-  && npx lerna run start --scope @anontown/server
+  && npx lerna run start --scope @anontown/server --stream

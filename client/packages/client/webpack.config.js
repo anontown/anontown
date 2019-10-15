@@ -4,7 +4,6 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
-const fs = require("fs");
 
 module.exports = {
   entry: {
@@ -23,11 +22,6 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      __ENV__: JSON.stringify(
-        JSON.parse(
-          fs.readFileSync(`env/${process.env.ENV_NAME || "prod"}.json`),
-        ),
-      ),
       __BUILD_DATE__: JSON.stringify(Date.now()),
     }),
     new OfflinePlugin({
@@ -44,6 +38,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       inject: true,
       template: "index.html",
+      filename: ".index.template.html",
     }),
     new CopyWebpackPlugin([
       {

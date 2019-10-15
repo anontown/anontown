@@ -16,7 +16,7 @@ backup.upload: backup.cp-tmp
 	skicka upload /tmp/${DATE}.zip anontown-bak/${DATE}.zip
 
 migrate: stop
-	docker-compose run --rm app npx lerna run migrate --scope @anontown/server
+	docker-compose run --rm server npx lerna run migrate --scope @anontown/server
 
 stop:
 	docker-compose stop

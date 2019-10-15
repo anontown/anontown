@@ -135,4 +135,12 @@ export class RouteData<P extends string, Q extends object> {
   parseQuery(query: string): Q {
     return this.encodeQuery(qs.parse(query));
   }
+
+  parsePathData(data: string[]): Record<P, string> {
+    return this.pathData
+      .filter((x): x is PathDataElementVariable<any> => x.type === "variable")
+      .reduce<any>((result, x, i) => {
+        result[x.name] = data[i];
+      }, {});
+  }
 }

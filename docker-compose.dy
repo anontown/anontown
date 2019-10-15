@@ -7,10 +7,12 @@ function get_env() {
     throw new Error();
   }
 
-  const appImage = process.env["DCDY_APP_IMAGE"] || null;
+  const serverImage = process.env["DCDY_SERVER_IMAGE"] || null;
+  const clientImage = process.env["DCDY_CLIENT_IMAGE"] || null;
   const esImage = process.env["DCDY_ES_IMAGE"] || null;
+  const camoImage = process.env["DCDY_CAMO_IMAGE"] || null;
 
-  return { mode, appImage, esImage };
+  return { mode, serverImage, clientImage, esImage, camoImage };
 }
 
 function match_mode(env, map) {
@@ -28,7 +30,7 @@ const compose = env => ({
 });
 
 const compose_services = env => ({
-  app: compose_services_app(env),
+  server: compose_services_server(env),
   mongo: compose_services_mongo(env),
   "mongo-express": match_mode(env, {
     dev: compose_services_mongo_express(env),
@@ -40,20 +42,21 @@ const compose_services = env => ({
     [["prod", "test"]]: undefined
   }),
   redis: compose_services_redis(env),
-  camo: compose_services_camo(env)
+  camo: compose_services_camo(env),
+  client: compose_services_client(env)
 });
 
-const compose_services_app = env => ({
+const compose_services_server = env => ({
   build: match_mode(env, {
     dev: {
       context: "./server",
       dockerfile: "dev.Dockerfile"
     },
     test: "./server",
-    prod: env.appImage ? undefined : "./server"
+    prod: env.serverImage ? undefined : "./server"
   }),
   image: match_mode(env, {
-    prod: env.appImage || undefined,
+    prod: env.serverImage || undefined,
     [["dev", "test"]]: undefined
   }),
   restart: "always",
@@ -62,10 +65,7 @@ const compose_services_app = env => ({
     MONGO_HOST: "mongo:27017",
     ES_HOST: "es:9200",
     REDIS_HOST: "redis:6379",
-    SAVE_DIR: match_mode(env, {
-      [["prod", "test"]]: "../../../",
-      dev: "../../../data/app"
-    })
+    SAVE_DIR: "../../"
   },
   env_file: match_mode(env, {
     [["dev", "prod"]]: ".env",
@@ -81,7 +81,11 @@ const compose_services_app = env => ({
       "./data/app/logs:/home/app/.anontown/logs",
       "./data/app/data:/home/app/.anontown/data"
     ],
-    dev: ["./:/home/app/.anontown"],
+    dev: [
+      "./server:/home/app/.anontown",
+      "./data/app/logs:/home/app/.anontown/logs",
+      "./data/app/data:/home/app/.anontown/data"
+    ],
     test: undefined
   })
 });
@@ -140,9 +144,67 @@ const compose_services_redis = env => ({
 
 const compose_services_camo = env => ({
   restart: "always",
-  image: "camo",
+  build: match_mode(env, {
+    [["dev", "test"]]: "camo",
+    prod: env.camoImage ? undefined : "camo"
+  }),
+  image: match_mode(env, {
+    prod: env.camoImage || undefined,
+    [["dev", "test"]]: undefined
+  }),
   environment: { PORT: "4181" },
   ports: ["4181:4181"]
+});
+
+const compose_services_client = env => ({
+  build: match_mode(env, {
+    dev: {
+      context: "./client",
+      dockerfile: "dev.Dockerfile"
+    },
+    test: "./client",
+    prod: env.clientImage ? undefined : "./client"
+  }),
+  image: match_mode(env, {
+    prod: env.clientImage || undefined,
+    [["dev", "test"]]: undefined
+  }),
+  restart: "always",
+  environment: {
+    PORT: "3000",
+    ...match_mode(env, {
+      prod: {
+        RECAPTCHA_SITE_KET: "6LdoFBQUAAAAACc3lhPhbkEANEAHsmNd6UDN2vKo",
+        CLIENT_ORIGIN: "https://anontown.com",
+        CAMO_ORIGIN: "https://camo.anontown.com",
+        CAMO_KEY: "0x24FEEDFACEDEADBEEFCAFE",
+        API_ORIGIN: "https://api.anontown.com",
+        SOCKET_ORIGIN: "wss://api.anontown.com",
+        IMGUR_CLIENT_ID: "042fd78266ccaaf",
+        GA: "UA-108693999-1"
+      },
+      dev: {
+        RECAPTCHA_SITE_KET: "6LdoFBQUAAAAACc3lhPhbkEANEAHsmNd6UDN2vKo",
+        CLIENT_ORIGIN: "http://localhost:3000",
+        CAMO_ORIGIN: "https://localhost:4181",
+        CAMO_KEY: "0x24FEEDFACEDEADBEEFCAFE",
+        API_ORIGIN: "http://localhost:8080",
+        SOCKET_ORIGIN: "ws://localhost:8080",
+        IMGUR_CLIENT_ID: "042fd78266ccaaf",
+        GA: ""
+      },
+      test: {}
+    })
+  },
+  ports: match_mode(env, {
+    [["dev", "prod"]]: ["3000:3000"],
+    test: undefined
+  }),
+  volumes: match_mode(env, {
+    prod: [],
+    dev: ["./client:/home/app/.anontown"],
+    test: undefined
+  })
 });
 
 console.log(JSON.stringify(compose(get_env())));
