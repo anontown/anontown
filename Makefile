@@ -1,4 +1,4 @@
-.PHONY: bootstrap migrate shared build.all.server build.all.client build.all up stop rm restart.server restart.client watch.bff build.bff watch.client build.client build.client-icon watch.route build.route watch.server build.server
+.PHONY: bootstrap migrate shared build.all.server build.all.client build.all up stop rm restart.server restart.client watch.bff build.bff watch.client build.client build.client-icon watch.route build.route watch.server build.server lint.fix test
 
 bootstrap:
 	cd server && npm ci && npx lerna bootstrap --ci
@@ -54,8 +54,15 @@ watch.route:
 build.route:
 	cd client && npx lerna run build:dev --scope=@anontown/route --stream
 
-watch.server: shared
+watch.server:
 	cd server && npx lerna run build:watch --scope=@anontown/server --stream
 
-build.server: shared
+build.server:
 	cd server && npx lerna run build:dev --scope=@anontown/server --stream
+
+lint.fix:
+	cd server && npx lerna run lint:fix
+	cd client && npx lerna run lint:fix
+
+test:
+	DCDY_MODE=test dcdy run --rm server npx lerna run test:io --scope @anontown/server

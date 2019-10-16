@@ -6,15 +6,23 @@
 ## Develop
 
 ```sh
-$ npm i
-$ npx lerna bootstrap
+$ make bootstrap
+$ make build.all
 $ cp .env.sample .env
 # edit .env
-$ lerna run build --scope=@anontown/server --include-filtered-dependencies
-$ DCDY_MODE=dev dcdy build
-$ DCDY_MODE=dev dcdy run --rm app npx lerna run migrate --scope @anontown/server
-$ DCDY_MODE=dev dcdy up
-$ ENV_NAME=dev ./bin/dev/watch-client.js
+$ make migrate
+$ make up
+```
+
+edit server
+```sh
+$ make watch.server
+$ make restart.server
+```
+
+edit client
+```sh
+$ make watch.client
 ```
 
 ## .env の編集
@@ -25,13 +33,13 @@ $ ENV_NAME=dev ./bin/dev/watch-client.js
 ## Test
 
 ```sh
-DCDY_MODE=test dcdy run --rm app npx lerna run test:io --scope @anontown/server
+make test
 ```
 
-## Lint
+## Lint Fix
 
 ```sh
-lerna run lint:fix
+make lint.fix
 ```
 
 ## npm scripts
