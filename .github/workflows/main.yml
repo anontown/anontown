@@ -6,17 +6,12 @@ env:
   SERVER_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/server:${{ github.sha }}
   ES_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/es:${{ github.sha }}
   CLIENT_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/client:${{ github.sha }}
-  CAMO_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/camo:${{ github.sha }}
 
 jobs:
   server:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: submodule
-        run: |
-          git submodule init
-          git submodule update
       - name: shared
         run: ./bin/shared.sh
       - name: install dcdy
@@ -34,10 +29,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: submodule
-        run: |
-          git submodule init
-          git submodule update
       - name: shared
         run: ./bin/shared.sh
       - name: install dcdy
@@ -55,10 +46,6 @@ jobs:
     needs: [server, client]
     steps:
       - uses: actions/checkout@v1
-      - name: submodule
-        run: |
-          git submodule init
-          git submodule update
       - name: shared
         run: ./bin/shared.sh
       - name: login
@@ -70,23 +57,17 @@ jobs:
           docker build -t $SERVER_IMAGE_TAG server
           docker build -t $ES_IMAGE_TAG es
           docker build -t $CLIENT_IMAGE_TAG client
-          docker build -t $CAMO_IMAGE_TAG client
       - name: push
         run: |
           docker push $SERVER_IMAGE_TAG
           docker push $ES_IMAGE_TAG
           docker push $CLIENT_IMAGE_TAG
-          docker push $CAMO_IMAGE_TAG
   release-commit:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     needs: [docker-build-and-push]
     steps:
       - uses: actions/checkout@v1
-      - name: submodule
-        run: |
-          git submodule init
-          git submodule update
       - name: shared
         run: ./bin/shared.sh
       - uses: actions/setup-node@v1
@@ -95,7 +76,7 @@ jobs:
       - name: build
         run: |
           mkdir release
-          DCDY_MODE=prod DCDY_SERVER_IMAGE=$SERVER_IMAGE_TAG DCDY_ES_IMAGE=$ES_IMAGE_TAG DCDY_CLIENT_IMAGE=$CLIENT_IMAGE_TAG DCDY_CAMO_IMAGE=$CAMO_IMAGE_TAG ./docker-compose.dy > release/docker-compose.yml
+          DCDY_MODE=prod DCDY_SERVER_IMAGE=$SERVER_IMAGE_TAG DCDY_ES_IMAGE=$ES_IMAGE_TAG DCDY_CLIENT_IMAGE=$CLIENT_IMAGE_TAG ./docker-compose.dy > release/docker-compose.yml
           cp -R release-static/ release
           cp .env.sample release
       - name: deploy
