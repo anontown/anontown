@@ -15,6 +15,14 @@ function get_env() {
   return { mode, serverImage, clientImage, esImage, debugTools };
 }
 
+const ports = {
+  server: 8080,
+  mongoExpress: 8081,
+  esHead: 9100,
+  camo: 4181,
+  client: 3000
+};
+
 function match_mode(env, map) {
   for (let key of Object.keys(map)) {
     if (key.split(",").includes(env.mode)) {
@@ -72,7 +80,7 @@ const compose_services_server = env => ({
     test: ".env.sample"
   }),
   ports: match_mode(env, {
-    [["dev", "prod"]]: ["8080:8080"],
+    [["dev", "prod"]]: [`${ports.server}:8080`],
     test: undefined
   }),
   depends_on: ["mongo", "es", "redis"],
@@ -102,7 +110,7 @@ const compose_services_mongo = env => ({
 const compose_services_mongo_express = env => ({
   restart: "always",
   image: "mongo-express:0.40.0",
-  ports: ["8081:8081"],
+  ports: [`${ports.mongoExpress}:8081`],
   depends_on: ["mongo"]
 });
 
@@ -128,7 +136,7 @@ const compose_services_es = env => ({
 const compose_services_es_head = env => ({
   image: "mobz/elasticsearch-head:5",
   restart: "always",
-  ports: ["9100:9100"],
+  ports: [`${ports.esHead}:9100`],
   depends_on: ["es"]
 });
 
@@ -146,7 +154,7 @@ const compose_services_camo = env => ({
   restart: "always",
   image: "kgtkr/camo:e59df56a01c023850962fac16905269d264fba50",
   environment: { PORT: "4181" },
-  ports: ["4181:4181"]
+  ports: [`${ports.camo}:4181`]
 });
 
 const compose_services_client = env => ({
@@ -178,11 +186,11 @@ const compose_services_client = env => ({
       },
       dev: {
         RECAPTCHA_SITE_KET: "6LdoFBQUAAAAACc3lhPhbkEANEAHsmNd6UDN2vKo",
-        CLIENT_ORIGIN: "http://localhost:3000",
-        CAMO_ORIGIN: "https://localhost:4181",
+        CLIENT_ORIGIN: `http://localhost:${ports.client}`,
+        CAMO_ORIGIN: `https://localhost:${ports.camo}`,
         CAMO_KEY: "0x24FEEDFACEDEADBEEFCAFE",
-        API_ORIGIN: "http://localhost:8080",
-        SOCKET_ORIGIN: "ws://localhost:8080",
+        API_ORIGIN: `http://localhost:${ports.server}`,
+        SOCKET_ORIGIN: `ws://localhost:${ports.server}`,
         IMGUR_CLIENT_ID: "042fd78266ccaaf",
         GA: ""
       },
@@ -190,7 +198,7 @@ const compose_services_client = env => ({
     })
   },
   ports: match_mode(env, {
-    [["dev", "prod"]]: ["3000:3000"],
+    [["dev", "prod"]]: [`${ports.client}:3000`],
     test: undefined
   }),
   volumes: match_mode(env, {
