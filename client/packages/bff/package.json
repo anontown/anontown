@@ -6,7 +6,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./dist/app.js",
-    "build": "tsc"
+    "build": "tsc",
+    "build:dev": "npm run build",
+    "build:watch": "tsc -w",
+    "clean": "rm -rf ./dist"
   },
   "author": "kgtkr",
   "license": "AGPL-3.0",
