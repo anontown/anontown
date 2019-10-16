@@ -7,7 +7,7 @@ function get_env() {
     throw new Error();
   }
 
-  const debugTools = !process.env["DCDY_DEBUG_TOOLS"];
+  const debugTools = Boolean(process.env["DCDY_DEBUG_TOOLS"]);
   const serverImage = process.env["DCDY_SERVER_IMAGE"] || null;
   const clientImage = process.env["DCDY_CLIENT_IMAGE"] || null;
   const esImage = process.env["DCDY_ES_IMAGE"] || null;
