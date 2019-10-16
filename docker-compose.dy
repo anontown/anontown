@@ -7,11 +7,12 @@ function get_env() {
     throw new Error();
   }
 
+  const debugTools = !process.env["DCDY_DEBUG_TOOLS"];
   const serverImage = process.env["DCDY_SERVER_IMAGE"] || null;
   const clientImage = process.env["DCDY_CLIENT_IMAGE"] || null;
   const esImage = process.env["DCDY_ES_IMAGE"] || null;
 
-  return { mode, serverImage, clientImage, esImage };
+  return { mode, serverImage, clientImage, esImage, debugTools };
 }
 
 function match_mode(env, map) {
@@ -32,12 +33,12 @@ const compose_services = env => ({
   server: compose_services_server(env),
   mongo: compose_services_mongo(env),
   "mongo-express": match_mode(env, {
-    dev: compose_services_mongo_express(env),
+    dev: env.debugTools ? compose_services_mongo_express(env) : undefined,
     [["prod", "test"]]: undefined
   }),
   es: compose_services_es(env),
   "es-head": match_mode(env, {
-    dev: compose_services_es_head(env),
+    dev: env.debugTools ? compose_services_es_head(env) : undefined,
     [["prod", "test"]]: undefined
   }),
   redis: compose_services_redis(env),
