@@ -65,4 +65,4 @@ lint.fix:
 	cd client && npx lerna run lint:fix
 
 test:
-	DCDY_MODE=test dcdy run --rm server npx lerna run test:io --scope @anontown/server
+	DCDY_MODE=test dcdy run --rm server npx lerna run test:io --scope @anontown/server --stream
