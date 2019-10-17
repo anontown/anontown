@@ -11,8 +11,9 @@ function get_env() {
   const serverImage = process.env["DCDY_SERVER_IMAGE"] || null;
   const clientImage = process.env["DCDY_CLIENT_IMAGE"] || null;
   const esImage = process.env["DCDY_ES_IMAGE"] || null;
+  const docImage = process.env["DCDY_DOC_IMAGE"] || null;
 
-  return { mode, serverImage, clientImage, esImage, debugTools };
+  return { mode, serverImage, clientImage, esImage, debugTools, docImage };
 }
 
 const ports = {
@@ -20,7 +21,8 @@ const ports = {
   mongoExpress: 8081,
   esHead: 9100,
   camo: 4181,
-  client: 3000
+  client: 3000,
+  doc: 4928
 };
 
 function match_mode(env, map) {
@@ -51,7 +53,11 @@ const compose_services = env => ({
   }),
   redis: compose_services_redis(env),
   camo: compose_services_camo(env),
-  client: compose_services_client(env)
+  client: compose_services_client(env),
+  doc: match_mode(env, {
+    [["prod", "dev"]]: compose_services_doc(env),
+    test: undefined
+  })
 });
 
 const compose_services_server = env => ({
@@ -205,6 +211,28 @@ const compose_services_client = env => ({
     prod: [],
     dev: ["./client:/home/app/.anontown"],
     test: undefined
+  })
+});
+
+const compose_services_doc = env => ({
+  build: match_mode(env, {
+    dev: {
+      context: "./doc",
+      dockerfile: "dev.Dockerfile"
+    },
+    prod: env.docImage ? undefined : "./doc"
+  }),
+  image: match_mode(env, {
+    prod: env.docImage || undefined,
+    dev: undefined
+  }),
+  restart: "always",
+  environment: {},
+  ports: [`${ports.doc}:80`],
+  depends_on: [],
+  volumes: match_mode(env, {
+    dev: ["./doc/dist:/usr/share/nginx/html"],
+    prod: []
   })
 });
 
