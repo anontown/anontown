@@ -14,4 +14,4 @@ RUN npx lerna bootstrap --ci --no-progress \
   && npx lerna run build --scope @anontown/client --include-filtered-dependencies \
   && npx lerna run build --scope @anontown/bff --include-filtered-dependencies
 
-CMD npx lerna run start --scope @anontown/bff --stream
+CMD cd bff && npm start
