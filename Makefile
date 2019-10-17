@@ -30,7 +30,7 @@ stop:
 	DCDY_MODE=dev dcdy stop
 
 rm:
-	DCDY_MODE=dev dcdy rm
+	DCDY_MODE=dev dcdy rm -f
 
 restart.server:
 	DCDY_MODE=dev dcdy restart server
