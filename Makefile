@@ -1,4 +1,4 @@
-.PHONY: bootstrap migrate shared build.all.server build.all.client build.all up stop rm restart.server restart.client watch.bff build.bff watch.client build.client build.client-icon watch.route build.route watch.server build.server lint.fix test build.doc
+.PHONY: bootstrap migrate shared build.all.server build.all.client build.all up stop rm restart.server restart.client watch.bff build.bff watch.client build.client build.client-icon watch.route build.route watch.server build.server lint.fix test build.doc build.docker
 
 bootstrap:
 	cd server && npm ci && npx lerna bootstrap --ci
@@ -7,6 +7,9 @@ bootstrap:
 
 migrate:
 	cd server && DCDY_MODE=dev dcdy run --rm app npx lerna run migrate --scope @anontown/server
+
+build.docker:
+	DCDY_MODE=dev dcdy build
 
 shared:
 	./bin/shared.sh
