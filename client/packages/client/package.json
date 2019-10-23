@@ -6,7 +6,9 @@
   "main": "index.js",
   "scripts": {
     "build:watch": "npm run codegen:watch | xargs -L1 echo [codegen] & webpack --mode development -w | xargs -L1 echo [webpack]",
+    "build:dev": "npm run codegen && webpack --mode development",
     "build": "npm run codegen && webpack -p --mode production",
+    "clean": "rm -rf ./dist && rm -rf ./src/generated",
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts{,x}'",
     "lint:fix": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts{,x}' --fix",
     "loc": "sloc --format cli-table ./src",

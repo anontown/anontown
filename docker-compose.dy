@@ -7,21 +7,31 @@ function get_env() {
     throw new Error();
   }
 
+  const debugTools = Boolean(process.env["DCDY_DEBUG_TOOLS"]);
   const serverImage = process.env["DCDY_SERVER_IMAGE"] || null;
   const clientImage = process.env["DCDY_CLIENT_IMAGE"] || null;
   const esImage = process.env["DCDY_ES_IMAGE"] || null;
-  const camoImage = process.env["DCDY_CAMO_IMAGE"] || null;
+  const docImage = process.env["DCDY_DOC_IMAGE"] || null;
 
-  return { mode, serverImage, clientImage, esImage, camoImage };
+  return { mode, serverImage, clientImage, esImage, debugTools, docImage };
 }
+
+const ports = {
+  server: 8080,
+  mongoExpress: 8081,
+  esHead: 9100,
+  camo: 4181,
+  client: 3000,
+  doc: 4928
+};
 
 function match_mode(env, map) {
   for (let key of Object.keys(map)) {
     if (key.split(",").includes(env.mode)) {
-      return map[key];
+      return map[key]();
     }
   }
-  throw new Error();
+  throw new Error(env.mode);
 }
 
 const compose = env => ({
@@ -33,31 +43,36 @@ const compose_services = env => ({
   server: compose_services_server(env),
   mongo: compose_services_mongo(env),
   "mongo-express": match_mode(env, {
-    dev: compose_services_mongo_express(env),
-    [["prod", "test"]]: undefined
+    dev: () =>
+      env.debugTools ? compose_services_mongo_express(env) : undefined,
+    [["prod", "test"]]: () => undefined
   }),
   es: compose_services_es(env),
   "es-head": match_mode(env, {
-    dev: compose_services_es_head(env),
-    [["prod", "test"]]: undefined
+    dev: () => (env.debugTools ? compose_services_es_head(env) : undefined),
+    [["prod", "test"]]: () => undefined
   }),
   redis: compose_services_redis(env),
   camo: compose_services_camo(env),
-  client: compose_services_client(env)
+  client: compose_services_client(env),
+  doc: match_mode(env, {
+    [["prod", "dev"]]: () => compose_services_doc(env),
+    test: () => undefined
+  })
 });
 
 const compose_services_server = env => ({
   build: match_mode(env, {
-    dev: {
+    dev: () => ({
       context: "./server",
       dockerfile: "dev.Dockerfile"
-    },
-    test: "./server",
-    prod: env.serverImage ? undefined : "./server"
+    }),
+    test: () => "./server",
+    prod: () => (env.serverImage ? undefined : "./server")
   }),
   image: match_mode(env, {
-    prod: env.serverImage || undefined,
-    [["dev", "test"]]: undefined
+    prod: () => env.serverImage || undefined,
+    [["dev", "test"]]: () => undefined
   }),
   restart: "always",
   environment: {
@@ -68,25 +83,25 @@ const compose_services_server = env => ({
     SAVE_DIR: "../../"
   },
   env_file: match_mode(env, {
-    [["dev", "prod"]]: ".env",
-    test: ".env.sample"
+    [["dev", "prod"]]: () => ".env",
+    test: () => ".env.sample"
   }),
   ports: match_mode(env, {
-    [["dev", "prod"]]: ["8080:8080"],
-    test: undefined
+    [["dev", "prod"]]: () => [`${ports.server}:8080`],
+    test: () => undefined
   }),
   depends_on: ["mongo", "es", "redis"],
   volumes: match_mode(env, {
-    prod: [
+    prod: () => [
       "./data/app/logs:/home/app/.anontown/logs",
       "./data/app/data:/home/app/.anontown/data"
     ],
-    dev: [
+    dev: () => [
       "./server:/home/app/.anontown",
       "./data/app/logs:/home/app/.anontown/logs",
       "./data/app/data:/home/app/.anontown/data"
     ],
-    test: undefined
+    test: () => undefined
   })
 });
 
@@ -94,41 +109,41 @@ const compose_services_mongo = env => ({
   restart: "always",
   image: "mongo:3.6.3",
   volumes: match_mode(env, {
-    [["prod", "dev"]]: ["./data/db:/data/db"],
-    test: undefined
+    [["prod", "dev"]]: () => ["./data/db:/data/db"],
+    test: () => undefined
   })
 });
 
 const compose_services_mongo_express = env => ({
   restart: "always",
   image: "mongo-express:0.40.0",
-  ports: ["8081:8081"],
+  ports: [`${ports.mongoExpress}:8081`],
   depends_on: ["mongo"]
 });
 
 const compose_services_es = env => ({
   build: "es",
   build: match_mode(env, {
-    [["dev", "test"]]: "es",
-    prod: env.esImage ? undefined : "es"
+    [["dev", "test"]]: () => "es",
+    prod: () => (env.esImage ? undefined : "es")
   }),
   image: match_mode(env, {
-    prod: env.esImage || undefined,
-    [["dev", "test"]]: undefined
+    prod: () => env.esImage || undefined,
+    [["dev", "test"]]: () => undefined
   }),
   restart: "always",
   environment: { ES_JAVA_OPTS: "-Xms512m -Xmx512m" },
   ulimits: { nofile: { soft: 65536, hard: 65536 } },
   volumes: match_mode(env, {
-    [["prod", "dev"]]: ["./data/es:/usr/share/elasticsearch/data"],
-    test: undefined
+    [["prod", "dev"]]: () => ["./data/es:/usr/share/elasticsearch/data"],
+    test: () => undefined
   })
 });
 
 const compose_services_es_head = env => ({
   image: "mobz/elasticsearch-head:5",
   restart: "always",
-  ports: ["9100:9100"],
+  ports: [`${ports.esHead}:9100`],
   depends_on: ["es"]
 });
 
@@ -136,44 +151,37 @@ const compose_services_redis = env => ({
   restart: "always",
   image: "redis:5.0.4",
   volumes: match_mode(env, {
-    [["prod", "dev"]]: ["./data/redis:/data"],
-    test: undefined
+    [["prod", "dev"]]: () => ["./data/redis:/data"],
+    test: () => undefined
   }),
   command: "redis-server --appendonly yes"
 });
 
 const compose_services_camo = env => ({
   restart: "always",
-  build: match_mode(env, {
-    [["dev", "test"]]: "camo",
-    prod: env.camoImage ? undefined : "camo"
-  }),
-  image: match_mode(env, {
-    prod: env.camoImage || undefined,
-    [["dev", "test"]]: undefined
-  }),
+  image: "kgtkr/camo:e59df56a01c023850962fac16905269d264fba50",
   environment: { PORT: "4181" },
-  ports: ["4181:4181"]
+  ports: [`${ports.camo}:4181`]
 });
 
 const compose_services_client = env => ({
   build: match_mode(env, {
-    dev: {
+    dev: () => ({
       context: "./client",
       dockerfile: "dev.Dockerfile"
-    },
-    test: "./client",
-    prod: env.clientImage ? undefined : "./client"
+    }),
+    test: () => "./client",
+    prod: () => (env.clientImage ? undefined : "./client")
   }),
   image: match_mode(env, {
-    prod: env.clientImage || undefined,
-    [["dev", "test"]]: undefined
+    prod: () => env.clientImage || undefined,
+    [["dev", "test"]]: () => undefined
   }),
   restart: "always",
   environment: {
     PORT: "3000",
     ...match_mode(env, {
-      prod: {
+      prod: () => ({
         RECAPTCHA_SITE_KET: "6LdoFBQUAAAAACc3lhPhbkEANEAHsmNd6UDN2vKo",
         CLIENT_ORIGIN: "https://anontown.com",
         CAMO_ORIGIN: "https://camo.anontown.com",
@@ -182,28 +190,50 @@ const compose_services_client = env => ({
         SOCKET_ORIGIN: "wss://api.anontown.com",
         IMGUR_CLIENT_ID: "042fd78266ccaaf",
         GA: "UA-108693999-1"
-      },
-      dev: {
+      }),
+      dev: () => ({
         RECAPTCHA_SITE_KET: "6LdoFBQUAAAAACc3lhPhbkEANEAHsmNd6UDN2vKo",
-        CLIENT_ORIGIN: "http://localhost:3000",
-        CAMO_ORIGIN: "https://localhost:4181",
+        CLIENT_ORIGIN: `http://localhost:${ports.client}`,
+        CAMO_ORIGIN: `https://localhost:${ports.camo}`,
         CAMO_KEY: "0x24FEEDFACEDEADBEEFCAFE",
-        API_ORIGIN: "http://localhost:8080",
-        SOCKET_ORIGIN: "ws://localhost:8080",
+        API_ORIGIN: `http://localhost:${ports.server}`,
+        SOCKET_ORIGIN: `ws://localhost:${ports.server}`,
         IMGUR_CLIENT_ID: "042fd78266ccaaf",
         GA: ""
-      },
-      test: {}
+      }),
+      test: () => ({})
     })
   },
   ports: match_mode(env, {
-    [["dev", "prod"]]: ["3000:3000"],
-    test: undefined
+    [["dev", "prod"]]: () => [`${ports.client}:3000`],
+    test: () => undefined
   }),
   volumes: match_mode(env, {
-    prod: [],
-    dev: ["./client:/home/app/.anontown"],
-    test: undefined
+    prod: () => [],
+    dev: () => ["./client:/home/app/.anontown"],
+    test: () => undefined
+  })
+});
+
+const compose_services_doc = env => ({
+  build: match_mode(env, {
+    dev: () => ({
+      context: "./doc",
+      dockerfile: "dev.Dockerfile"
+    }),
+    prod: () => (env.docImage ? undefined : "./doc")
+  }),
+  image: match_mode(env, {
+    prod: () => env.docImage || undefined,
+    dev: () => undefined
+  }),
+  restart: "always",
+  environment: {},
+  ports: [`${ports.doc}:80`],
+  depends_on: [],
+  volumes: match_mode(env, {
+    dev: () => ["./doc/dist:/usr/share/nginx/html"],
+    prod: () => []
   })
 });
 

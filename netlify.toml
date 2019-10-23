@@ -1,3 +1,0 @@
-[build]
-  publish = "deploy"
-  command = "./netlify/$SITE.sh"
