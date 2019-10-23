@@ -1,6 +1,9 @@
 DATE := $(shell date +"%Y%m%d%H%M%S")
 
-.PHONY: pull backup.cp-tmp backup.upload migrate stop clean data.chown up update backup restart
+.PHONY: noop pull backup.cp-tmp backup.upload migrate stop clean data.chown up update backup restart
+
+noop:
+	echo
 
 pull:
 	git pull origin release
