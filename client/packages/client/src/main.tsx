@@ -7,16 +7,22 @@ import * as Modal from "react-modal";
 import { BrowserRouter } from "react-router-dom";
 import { App } from "./components/app";
 import { gqlClient } from "./utils";
+import { Provider } from "react-redux";
+import { configureStore } from "./domain";
 
 Modal.setAppElement("#root");
 
 // Installing ServiceWorker
 OfflinePluginRuntime.install();
 
+const store = configureStore();
+
 ReactDOM.render(
   <ApolloProvider client={gqlClient}>
     <BrowserRouter>
-      <App />
+      <Provider store={store}>
+        <App />
+      </Provider>
     </BrowserRouter>
   </ApolloProvider>,
   document.querySelector("#root"),
