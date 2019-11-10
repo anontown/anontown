@@ -1,9 +1,9 @@
+import { connectRouter } from "connected-react-router";
+import { History } from "history";
+import { combineReducers } from "redux";
+import { RootAction } from "../actions";
 import { initialAppState, RootState } from "../state";
 import { composeReducers } from "./compose-reducers";
-import { combineReducers } from "redux";
-import { connectRouter } from "connected-react-router";
-import { RootAction } from "../actions";
-import { History } from "history";
 
 export const appReducer = composeReducers(initialAppState, []);
 

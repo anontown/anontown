@@ -1,5 +1,5 @@
-import { createAction, ActionType } from "typesafe-actions";
 import { routerActions } from "connected-react-router";
+import { ActionType, createAction } from "typesafe-actions";
 
 export const nop = createAction("NOP")();
 

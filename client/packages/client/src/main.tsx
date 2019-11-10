@@ -1,14 +1,14 @@
 import { ApolloProvider } from "@apollo/react-common";
+import { ConnectedRouter } from "connected-react-router";
 import "core-js";
 import * as OfflinePluginRuntime from "offline-plugin/runtime";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as Modal from "react-modal";
-import { App } from "./components/app";
-import { gqlClient } from "./utils";
 import { Provider } from "react-redux";
+import { App } from "./components/app";
 import { configureStore, history } from "./domain";
-import { ConnectedRouter } from "connected-react-router";
+import { gqlClient } from "./utils";
 
 Modal.setAppElement("#root");
 

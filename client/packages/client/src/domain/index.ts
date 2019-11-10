@@ -3,17 +3,17 @@ export * from "./epics";
 export * from "./reducers";
 export * from "./state";
 
-import { createStore, applyMiddleware, Store, Middleware } from "redux";
+import { applyMiddleware, createStore, Middleware, Store } from "redux";
 import { RootAction } from "./actions";
+import { epics } from "./epics";
 import { createRootReducer } from "./reducers";
 import { RootState } from "./state";
-import { epics } from "./epics";
 
-import { createEpicMiddleware } from "redux-observable";
-import { createBrowserHistory } from "history";
 import { routerMiddleware } from "connected-react-router";
-import { Mode } from "../env";
+import { createBrowserHistory } from "history";
 import { logger } from "redux-logger";
+import { createEpicMiddleware } from "redux-observable";
+import { Mode } from "../env";
 
 export const history = createBrowserHistory();
 
