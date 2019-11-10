@@ -2,3 +2,4 @@
 .env
 /deploy/
 /.vscode
+.DS_Store
