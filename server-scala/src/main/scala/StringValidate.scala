@@ -50,23 +50,36 @@ object CharType {
   final case class Han() extends CharType {
     val charClass = "\\p{IsHan}"
   }
+
+  // 改行
+  final case class NewLine() extends CharType {
+    val charClass = "\\s"
+  }
+
+  // 改行以外
+  final case class NotNewLine() extends CharType {
+    val charClass = "\\S"
+  }
 }
 
 final case class StringValidate(
-    char: Option[List[CharType]],
+    char: List[CharType],
     min: Option[Int],
     max: Option[Int]
 ) {
   private val pattern: Pattern = {
-    val charReg = char
-      .map(_.map(_.charClass).mkString(""))
-      .map("[" + _ + "]")
-      .getOrElse(".");
+    val charReg = s"[${char.map(_.charClass).mkString("")}]";
     val lenReg =
       s"{${min.getOrElse(0).toString},${max.map(_.toString).getOrElse("")}}";
     Pattern.compile(s"${charReg}${lenReg}")
   };
 
+  def validate(s: String): Boolean = {
+    pattern.matcher(s).matches()
+  }
+}
+
+final case class RegexValidate(pattern: Pattern, msg: String) {
   def validate(s: String): Boolean = {
     pattern.matcher(s).matches()
   }

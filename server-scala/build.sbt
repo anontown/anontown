@@ -14,7 +14,14 @@ lazy val commonSettings = Seq(
     "-Ywarn-macros:after"
   ),
   wartremoverErrors in (Compile, compile) ++= Warts
-    .allBut(Wart.Any, Wart.Nothing, Wart.DefaultArguments)
+    .allBut(
+      Wart.Any,
+      Wart.Nothing,
+      Wart.DefaultArguments,
+      Wart.JavaSerializable,
+      Wart.Product,
+      Wart.Serializable
+    )
 )
 
 lazy val root = (project in file("."))
