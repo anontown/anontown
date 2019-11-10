@@ -33,20 +33,20 @@ export class Profile extends Copyable<Profile> {
       {
         field: "name",
         val: name,
-        regex: Constant.user.profile.name.regex,
-        message: Constant.user.profile.name.msg,
+        regex: Constant.profile.name.regex,
+        message: Constant.profile.name.msg,
       },
       {
         field: "text",
         val: text,
-        regex: Constant.user.profile.text.regex,
-        message: Constant.user.profile.text.msg,
+        regex: Constant.profile.text.regex,
+        message: Constant.profile.text.msg,
       },
       {
         field: "sn",
         val: sn,
-        regex: Constant.user.profile.sn.regex,
-        message: Constant.user.profile.sn.msg,
+        regex: Constant.profile.sn.regex,
+        message: Constant.profile.sn.msg,
       },
     ]);
 
@@ -103,20 +103,20 @@ export class Profile extends Copyable<Profile> {
       {
         field: "name",
         val: name,
-        regex: Constant.user.profile.name.regex,
-        message: Constant.user.profile.name.msg,
+        regex: Constant.profile.name.regex,
+        message: Constant.profile.name.msg,
       },
       {
         field: "text",
         val: text,
-        regex: Constant.user.profile.text.regex,
-        message: Constant.user.profile.text.msg,
+        regex: Constant.profile.text.regex,
+        message: Constant.profile.text.msg,
       },
       {
         field: "sn",
         val: sn,
-        regex: Constant.user.profile.sn.regex,
-        message: Constant.user.profile.sn.msg,
+        regex: Constant.profile.sn.regex,
+        message: Constant.profile.sn.msg,
       },
     ]);
 

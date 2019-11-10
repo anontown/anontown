@@ -167,7 +167,7 @@ export class TokenGeneral extends Copyable<TokenGeneral>
       req = {
         key: TokenBase.createTokenKey(randomGenerator),
         expireDate: new Date(
-          nowNum + 1000 * 60 * Constant.user.token.req.expireMinute,
+          nowNum + 1000 * 60 * Constant.token.req.expireMinute,
         ),
         active: true,
       };
