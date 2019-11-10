@@ -1,8 +1,10 @@
 import { Env as EnvType } from "@anontown/client-types";
 
-declare var __ENV__: EnvType;
-declare var __BUILD_DATE__: number;
+declare const __ENV__: EnvType;
+declare const __BUILD_DATE__: number;
+declare const __MODE__: string;
 
 export const BUILD_DATE = __BUILD_DATE__;
 
 export const Env = __ENV__;
+export const Mode = __MODE__;
