@@ -1,9 +1,11 @@
 import { createAction, ActionType } from "typesafe-actions";
+import { routerActions } from "connected-react-router";
 
 export const nop = createAction("NOP")();
 
-export const actions = { nop };
+export const appActions = { nop };
 
 export type RootAction = ActionType<{
-  actions: typeof actions;
+  app: typeof appActions;
+  router: typeof routerActions;
 }>;

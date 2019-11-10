@@ -4,11 +4,11 @@ import * as OfflinePluginRuntime from "offline-plugin/runtime";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as Modal from "react-modal";
-import { BrowserRouter } from "react-router-dom";
 import { App } from "./components/app";
 import { gqlClient } from "./utils";
 import { Provider } from "react-redux";
-import { configureStore } from "./domain";
+import { configureStore, history } from "./domain";
+import { ConnectedRouter } from "connected-react-router";
 
 Modal.setAppElement("#root");
 
@@ -19,11 +19,11 @@ const store = configureStore();
 
 ReactDOM.render(
   <ApolloProvider client={gqlClient}>
-    <BrowserRouter>
-      <Provider store={store}>
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
         <App />
-      </Provider>
-    </BrowserRouter>
+      </ConnectedRouter>
+    </Provider>
   </ApolloProvider>,
   document.querySelector("#root"),
 );
