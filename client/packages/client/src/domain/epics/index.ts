@@ -1,5 +1,10 @@
 import { combineEpics, Epic } from "redux-observable";
-import { Action } from "../actions";
+import { RootAction } from "../actions";
 import { State } from "../state";
 
-export const epics: Epic<Action, Action, State, unknown> = combineEpics();
+export const epics: Epic<
+  RootAction,
+  RootAction,
+  State,
+  unknown
+> = combineEpics();

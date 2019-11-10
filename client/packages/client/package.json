@@ -122,6 +122,7 @@
     "styled-components": "^4.2.0",
     "subscriptions-transport-ws": "^0.9.16",
     "type-zoo": "^3.3.0",
+    "typesafe-actions": "^5.1.0",
     "unified": "^7.1.0",
     "use-react-router": "^1.0.7",
     "uuid": "^3.3.2",
