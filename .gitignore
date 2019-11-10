@@ -3,3 +3,4 @@
 /deploy/
 /.vscode
 .DS_Store
+/.metals/
