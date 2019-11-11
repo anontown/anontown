@@ -4,8 +4,8 @@ import java.time.OffsetDateTime;
 import net.kgtkr.anontown.ports.ObjectIdGenerator
 import net.kgtkr.anontown.ports.Clock
 import net.kgtkr.anontown.utils;
+import net.kgtkr.anontown.utils.Impl._;
 import net.kgtkr.anontown.Config
-import cats.implicits._
 import net.kgtkr.anontown.Constant
 import net.kgtkr.anontown.AtError
 import net.kgtkr.anontown.AtParamsError
@@ -13,8 +13,21 @@ import net.kgtkr.anontown.AuthUser
 import cats.data.Validated
 import net.kgtkr.anontown.AtUserAuthError
 import net.kgtkr.anontown.AtPrerequisiteError
+import cats._, cats.implicits._, cats.derived._
 
 final case class UserAPI(id: String, sn: String);
+
+object UserAPI {
+  implicit val eqImpl: Eq[UserAPI] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  implicit val showImpl: Show[UserAPI] = {
+    import auto.show._
+    semi.show
+  }
+}
 
 final case class ResWaitCount(
     m10: Int,
@@ -25,7 +38,31 @@ final case class ResWaitCount(
     d1: Int
 );
 
+object ResWaitCount {
+  implicit val eqImpl: Eq[ResWaitCount] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  implicit val showImpl: Show[ResWaitCount] = {
+    import auto.show._
+    semi.show
+  }
+}
+
 final case class ResWait(last: OffsetDateTime, count: ResWaitCount)
+
+object ResWait {
+  implicit val eqImpl: Eq[ResWait] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  implicit val showImpl: Show[ResWait] = {
+    import auto.show._
+    semi.show
+  }
+}
 
 final case class User(
     id: String,
@@ -44,10 +81,12 @@ final case class User(
   }
 
   def change(
-      _authUser: AuthUser,
+      authUser: AuthUser,
       pass: Option[String],
       sn: Option[String]
   ): Either[AtError, User] = {
+    require(authUser.id === this.id);
+
     (
       pass
         .map(Constant.User.passRegex.apValidate("pass", _))
@@ -147,6 +186,16 @@ final case class User(
 }
 
 object User {
+  implicit val eqImpl: Eq[User] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  implicit val showImpl: Show[User] = {
+    import auto.show._
+    semi.show
+  }
+
   def create(
       sn: String,
       pass: String,

@@ -1,6 +1,15 @@
 package net.kgtkr.anontown;
 
 package object utils {
+  object Impl {
+    import java.time.OffsetDateTime
+    import cats.Eq
+    import cats.Show
+
+    implicit val eqOffsetDateTime: Eq[OffsetDateTime] = Eq.fromUniversalEquals
+    implicit val showOffsetDateTime: Show[OffsetDateTime] = Show.fromToString
+  }
+
   def hash(str: String): String = {
     import java.security.MessageDigest;
     import java.util.Base64;
