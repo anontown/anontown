@@ -62,11 +62,15 @@ object CharType {
   }
 }
 
-final case class StringValidate(
+trait Validator {
+  def validate(s: String): Boolean;
+}
+
+final case class StructureValidator(
     char: List[CharType],
     min: Option[Int],
     max: Option[Int]
-) {
+) extends Validator {
   private val pattern: Pattern = {
     val charReg = s"[${char.map(_.charClass).mkString("")}]";
     val lenReg =
@@ -79,7 +83,8 @@ final case class StringValidate(
   }
 }
 
-final case class RegexValidate(pattern: Pattern, msg: String) {
+final case class RegexValidator(pattern: Pattern, msg: String)
+    extends Validator {
   def validate(s: String): Boolean = {
     pattern.matcher(s).matches()
   }
