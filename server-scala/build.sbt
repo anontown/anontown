@@ -43,7 +43,8 @@ lazy val root = (project in file("."))
       "org.typelevel" %% "cats-mtl-core" % "0.7.0",
       "org.typelevel" %% "cats-effect" % "2.0.0",
       "org.atnos" %% "eff" % "5.5.2",
-      "org.typelevel" %% "kittens" % "2.0.0"
+      "org.typelevel" %% "kittens" % "2.0.0",
+      "org.mongodb.scala" %% "mongo-scala-driver" % "2.7.0"
     ),
     mainClass in assembly := Some("net.kgtkr.anontown.App"),
     assemblyJarName in assembly := "app.jar"
