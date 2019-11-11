@@ -1,6 +1,7 @@
 package net.kgtkr.anontown;
 
 import java.util.regex.Pattern;
+import cats.data.Validated;
 
 /**
   * 文字の種類
@@ -64,6 +65,17 @@ object CharType {
 
 trait Validator {
   def validate(s: String): Boolean;
+  val message: String;
+  def apValidate(
+      field: String,
+      value: String
+  ): Validated[List[AtParamsErrorItem], Unit] = {
+    if (this.validate(value)) {
+      Validated.Valid(())
+    } else {
+      Validated.Invalid(List(AtParamsErrorItem(field, this.message)))
+    }
+  }
 }
 
 final case class StructureValidator(
@@ -71,6 +83,8 @@ final case class StructureValidator(
     min: Option[Int],
     max: Option[Int]
 ) extends Validator {
+  val message = "StructureValidator Error";
+
   private val pattern: Pattern = {
     val charReg = s"[${char.map(_.charClass).mkString("")}]";
     val lenReg =
@@ -83,7 +97,7 @@ final case class StructureValidator(
   }
 }
 
-final case class RegexValidator(pattern: Pattern, msg: String)
+final case class RegexValidator(pattern: Pattern, message: String)
     extends Validator {
   def validate(s: String): Boolean = {
     pattern.matcher(s).matches()
