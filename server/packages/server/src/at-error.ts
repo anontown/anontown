@@ -4,11 +4,6 @@ import { pipe } from "fp-ts/lib/pipeable";
 
 export const AtErrorSymbol = Symbol("AtError");
 
-export interface AtErrorItem {
-  message: string;
-  data: any;
-}
-
 export interface AtErrorPublic {
   code: string;
   message: string;
