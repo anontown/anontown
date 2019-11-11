@@ -14,6 +14,85 @@ import cats.data.Validated
 import net.kgtkr.anontown.AtUserAuthError
 import net.kgtkr.anontown.AtPrerequisiteError
 import cats._, cats.implicits._, cats.derived._
+import net.kgtkr.anontown.AtParamsErrorItem
+import scala.util.chaining._
+
+final case class UserId(value: String) extends AnyVal;
+object UserId {
+  implicit val eqImpl: Eq[UserId] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  implicit val showImpl: Show[UserId] = {
+    import auto.show._
+    semi.show
+  }
+}
+
+final case class UserSn(value: String) extends AnyVal;
+object UserSn {
+  implicit val eqImpl: Eq[UserSn] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  implicit val showImpl: Show[UserSn] = {
+    import auto.show._
+    semi.show
+  }
+
+  def fromString(
+      value: String
+  ): Either[AtParamsError, UserSn] = {
+    Constant.User.snRegex.apValidate("sn", value).map(UserSn(_))
+  }
+}
+
+final case class UserRawPass(value: String) extends AnyVal;
+object UserRawPass {
+  implicit val eqImpl: Eq[UserRawPass] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  implicit val showImpl: Show[UserRawPass] = {
+    import auto.show._
+    semi.show
+  }
+
+  def fromString(
+      value: String
+  ): Either[AtParamsError, UserRawPass] = {
+    Constant.User.passRegex.apValidate("pass", value).map(UserRawPass(_))
+  }
+}
+
+final case class UserEncryptedPass(value: String) extends AnyVal {
+  def validation(pass: String): Boolean = {
+    this.value === UserEncryptedPass.hash(pass)
+  }
+}
+
+object UserEncryptedPass {
+  implicit val eqImpl: Eq[UserEncryptedPass] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  implicit val showImpl: Show[UserEncryptedPass] = {
+    import auto.show._
+    semi.show
+  }
+
+  def fromRawPass(pass: UserRawPass): UserEncryptedPass = {
+    UserEncryptedPass(UserEncryptedPass.hash(pass.value))
+  }
+
+  private def hash(pass: String): String = {
+    utils.hash(pass + Config.config.salt.pass)
+  }
+}
 
 final case class UserAPI(id: String, sn: String);
 
@@ -65,9 +144,9 @@ object ResWait {
 }
 
 final case class User(
-    id: String,
-    sn: String,
-    pass: String,
+    id: UserId,
+    sn: UserSn,
+    pass: UserEncryptedPass,
     lv: Int,
     resWait: ResWait,
     lastTopic: OffsetDateTime,
@@ -77,7 +156,7 @@ final case class User(
     lastOneTopic: OffsetDateTime
 ) {
   def toAPI(): UserAPI = {
-    UserAPI(id = this.id, sn = this.sn);
+    UserAPI(id = this.id.value, sn = this.sn.value);
   }
 
   def change(
@@ -89,28 +168,26 @@ final case class User(
 
     (
       pass
-        .map(Constant.User.passRegex.apValidate("pass", _))
-        .getOrElse(Validated.Valid(())),
+        .map(UserRawPass.fromString(_).map(UserEncryptedPass.fromRawPass(_)))
+        .getOrElse(Right(this.pass))
+        .toValidated,
       sn.map(
-          Constant.User.snRegex
-            .apValidate("sn", _)
+          UserSn.fromString(_)
         )
-        .getOrElse(Validated.Valid(()))
+        .getOrElse(Right(this.sn))
+        .toValidated
     ).mapN(
-        (_, _) =>
+        (pass, sn) =>
           this.copy(
+            sn = sn,
             pass = pass
-              .map(User.hash(_))
-              .getOrElse(this.pass),
-            sn = sn.getOrElse(this.sn)
           )
       )
-      .toEither
-      .leftMap(AtParamsError);
+      .toEither;
   }
 
   def auth(pass: String): Either[AtError, AuthUser] = {
-    if (this.pass === User.hash(pass)) {
+    if (this.pass.validation(pass)) {
       Right(AuthUser(id = this.id, pass = this.pass))
     } else {
       Left(AtUserAuthError())
@@ -202,15 +279,14 @@ object User {
       ports: ObjectIdGenerator with Clock
   ): Either[AtError, User] = {
     (
-      Constant.User.passRegex.apValidate("pass", pass),
-      Constant.User.snRegex
-        .apValidate("sn", sn)
+      UserSn.fromString(sn).toValidated,
+      UserRawPass.fromString(pass).toValidated
     ).mapN(
-        (_, _) =>
+        (sn, pass) =>
           User(
-            id = ports.generateObjectId(),
+            id = UserId(ports.generateObjectId()),
             sn = sn,
-            pass = User.hash(pass),
+            pass = UserEncryptedPass.fromRawPass(pass),
             lv = 1,
             resWait = ResWait(
               last = ports.now(),
@@ -223,11 +299,6 @@ object User {
             lastOneTopic = ports.now()
           )
       )
-      .toEither
-      .leftMap(AtParamsError);
-  }
-
-  def hash(pass: String): String = {
-    utils.hash(pass + Config.config.salt.pass)
+      .toEither;
   }
 }

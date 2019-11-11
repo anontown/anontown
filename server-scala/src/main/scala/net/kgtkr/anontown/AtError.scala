@@ -1,6 +1,8 @@
 package net.kgtkr.anontown;
 
 import io.circe.Json;
+import cats.data.NonEmptyList;
+import cats.implicits._, cats._, cats.derived._
 
 trait AtError {
   val code: String;
@@ -25,10 +27,18 @@ final case class AtParamsErrorItem(field: String, message: String) {
   )
 }
 
-final case class AtParamsError(items: List[AtParamsErrorItem]) extends AtError {
+final case class AtParamsError(items: NonEmptyList[AtParamsErrorItem])
+    extends AtError {
   val code = "params";
   val message = "パラメーターが不正です";
-  override val data = Json.arr(items.map(_.json): _*);
+  override val data = Json.arr(items.map(_.json).toList: _*);
+}
+
+object AtParamsError {
+  implicit val semigroupImpl: Semigroup[AtParamsError] = {
+    import auto.semigroup._
+    semi.semigroup
+  }
 }
 
 final case class AtRightError(message: String) extends AtError {

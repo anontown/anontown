@@ -1,7 +1,7 @@
 package net.kgtkr.anontown;
 
 import java.util.regex.Pattern;
-import cats.data.Validated;
+import cats.data.NonEmptyList
 
 /**
   * 文字の種類
@@ -69,11 +69,15 @@ trait Validator {
   def apValidate(
       field: String,
       value: String
-  ): Validated[List[AtParamsErrorItem], Unit] = {
+  ): Either[AtParamsError, String] = {
     if (this.validate(value)) {
-      Validated.Valid(())
+      Right(value)
     } else {
-      Validated.Invalid(List(AtParamsErrorItem(field, this.message)))
+      Left(
+        AtParamsError(
+          NonEmptyList.of(AtParamsErrorItem(field, this.message))
+        )
+      )
     }
   }
 }
