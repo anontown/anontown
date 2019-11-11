@@ -1,3 +1,5 @@
+package net.kgtkr.anontown;
+
 final case class Config(
     timezone: String,
     saveDir: String,

@@ -1,3 +1,5 @@
+package net.kgtkr.anontown;
+
 import io.circe.Json;
 
 trait AtError {
