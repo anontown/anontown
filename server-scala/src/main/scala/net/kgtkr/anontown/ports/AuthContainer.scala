@@ -9,3 +9,7 @@ trait AuthContainer {
   def getMaybeToken(): Option[AuthTokenMaster];
   def getMaybeMasterToken(): Option[AuthTokenMaster];
 }
+
+trait AuthContainerComponent {
+  val authContainer: AuthContainer;
+}

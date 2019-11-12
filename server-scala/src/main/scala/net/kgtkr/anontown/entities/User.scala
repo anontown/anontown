@@ -1,8 +1,6 @@
 package net.kgtkr.anontown.entities;
 
 import java.time.OffsetDateTime;
-import net.kgtkr.anontown.ports.ObjectIdGenerator
-import net.kgtkr.anontown.ports.Clock
 import net.kgtkr.anontown.utils;
 import net.kgtkr.anontown.utils.Impl._;
 import net.kgtkr.anontown.Config
@@ -16,6 +14,8 @@ import net.kgtkr.anontown.AtPrerequisiteError
 import cats._, cats.implicits._, cats.derived._
 import net.kgtkr.anontown.AtParamsErrorItem
 import scala.util.chaining._
+import net.kgtkr.anontown.ports.ObjectIdGeneratorComponent
+import net.kgtkr.anontown.ports.ClockComponent
 
 final case class UserId(value: String) extends AnyVal;
 object UserId {
@@ -276,7 +276,7 @@ object User {
   def create(
       sn: String,
       pass: String,
-      ports: ObjectIdGenerator with Clock
+      ports: ObjectIdGeneratorComponent with ClockComponent
   ): Either[AtError, User] = {
     (
       UserSn.fromString(sn).toValidated,
@@ -284,19 +284,19 @@ object User {
     ).mapN(
         (sn, pass) =>
           User(
-            id = UserId(ports.generateObjectId()),
+            id = UserId(ports.objectIdGenerator.generateObjectId()),
             sn = sn,
             pass = UserEncryptedPass.fromRawPass(pass),
             lv = 1,
             resWait = ResWait(
-              last = ports.now(),
+              last = ports.clock.now(),
               count =
                 ResWaitCount(m10 = 0, m30 = 0, h1 = 0, h6 = 0, h12 = 0, d1 = 0)
             ),
-            lastTopic = ports.now(),
-            date = ports.now(),
+            lastTopic = ports.clock.now(),
+            date = ports.clock.now(),
             point = 0,
-            lastOneTopic = ports.now()
+            lastOneTopic = ports.clock.now()
           )
       )
       .toEither;

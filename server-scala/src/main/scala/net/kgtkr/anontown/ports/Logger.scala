@@ -8,3 +8,7 @@ trait Logger {
   def debug(msg: String): Unit;
   def silly(msg: String): Unit;
 }
+
+trait LoggerComponent {
+  val logger: Logger;
+}

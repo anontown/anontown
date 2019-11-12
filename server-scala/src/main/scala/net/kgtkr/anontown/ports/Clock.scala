@@ -5,3 +5,7 @@ import java.time.OffsetDateTime;
 trait Clock {
   def now(): OffsetDateTime;
 }
+
+trait ClockComponent {
+  val clock: Clock;
+}

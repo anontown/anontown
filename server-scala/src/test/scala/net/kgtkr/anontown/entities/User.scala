@@ -7,6 +7,8 @@ import java.time.Instant
 import java.time.ZoneOffset
 import net.kgtkr.anontown.ports.ObjectIdGenerator
 import net.kgtkr.anontown.ports.Clock
+import net.kgtkr.anontown.ports.ObjectIdGeneratorComponent
+import net.kgtkr.anontown.ports.ClockComponent
 
 class UserSpec extends FlatSpec with Matchers {
   val userID = new ObjectId().toHexString()
@@ -39,10 +41,15 @@ class UserSpec extends FlatSpec with Matchers {
     (User.create(
       sn = "scn",
       pass = "pass",
-      ports = new ObjectIdGenerator with Clock {
-        def generateObjectId() = userID;
-        def now() =
-          OffsetDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC);
+      ports = new ObjectIdGeneratorComponent with ClockComponent {
+        val objectIdGenerator = new ObjectIdGenerator {
+          def generateObjectId() = userID;
+        }
+
+        val clock = new Clock {
+          def now() =
+            OffsetDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC);
+        }
       }
     ) should be(
       user.copy(
