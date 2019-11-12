@@ -2,7 +2,7 @@ package net.kgtkr.anontown;
 
 import io.circe.Json;
 import cats.data.NonEmptyList;
-import cats.implicits._, cats._, cats.derived._
+import cats._, cats.derived._
 
 trait AtError {
   val code: String;
