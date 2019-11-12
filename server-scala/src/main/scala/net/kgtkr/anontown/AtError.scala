@@ -10,7 +10,7 @@ trait AtError {
   val data: Json = Json.Null;
 }
 
-final case class AtServerError() extends AtError {
+final case class AtServerError(reason: Option[Any] = None) extends AtError {
   val code = "server";
   val message = "サーバー内部エラー";
 }
