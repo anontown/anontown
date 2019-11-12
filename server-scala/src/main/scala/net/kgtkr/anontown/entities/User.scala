@@ -301,14 +301,14 @@ object User {
             pass = UserEncryptedPass.fromRawPass(pass, ports),
             lv = 1,
             resWait = ResWait(
-              last = ports.clock.now(),
+              last = ports.clock.requestDate,
               count =
                 ResWaitCount(m10 = 0, m30 = 0, h1 = 0, h6 = 0, h12 = 0, d1 = 0)
             ),
-            lastTopic = ports.clock.now(),
-            date = ports.clock.now(),
+            lastTopic = ports.clock.requestDate,
+            date = ports.clock.requestDate,
             point = 0,
-            lastOneTopic = ports.clock.now()
+            lastOneTopic = ports.clock.requestDate
           )
       )
       .toEither;

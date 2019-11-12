@@ -1,7 +1,7 @@
 package net.kgtkr.anontown.ports;
 
 trait IpContainer {
-  def getIp(): Option[String];
+  val requestIp: Option[String];
 }
 
 trait IpContainerComponent {

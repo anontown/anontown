@@ -4,10 +4,10 @@ import net.kgtkr.anontown.AuthToken;
 import net.kgtkr.anontown.AuthTokenMaster
 
 trait AuthContainer {
-  def getToken(): Either[AtError, AuthToken];
-  def getTokenMaster(): Either[AtError, AuthTokenMaster];
-  def getMaybeToken(): Option[AuthTokenMaster];
-  def getMaybeMasterToken(): Option[AuthTokenMaster];
+  def token: Either[AtError, AuthToken];
+  def tokenMaster: Either[AtError, AuthTokenMaster];
+  def optionToken: Option[AuthTokenMaster];
+  def optionMasterToken: Option[AuthTokenMaster];
 }
 
 trait AuthContainerComponent {
