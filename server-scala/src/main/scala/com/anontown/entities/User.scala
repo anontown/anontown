@@ -68,8 +68,8 @@ object UserRawPass {
 }
 
 final case class UserEncryptedPass(value: String) extends AnyVal {
-  def validation(pass: String, ports: ConfigContainerComponent): Boolean = {
-    this.value === UserEncryptedPass.hash(pass, ports)
+  def validation(pass: String)(ports: ConfigContainerComponent): Boolean = {
+    this.value === UserEncryptedPass.hash(pass)(ports)
   }
 }
 
@@ -87,10 +87,10 @@ object UserEncryptedPass {
   def fromRawPass(
       pass: UserRawPass
   )(ports: ConfigContainerComponent): UserEncryptedPass = {
-    UserEncryptedPass(UserEncryptedPass.hash(pass.value, ports))
+    UserEncryptedPass(UserEncryptedPass.hash(pass.value)(ports))
   }
 
-  private def hash(pass: String, ports: ConfigContainerComponent): String = {
+  def hash(pass: String)(ports: ConfigContainerComponent): String = {
     utils.hash(pass + ports.configContainer.config.salt.pass)
   }
 }
@@ -189,11 +189,10 @@ final case class User(
       .toEither;
   }
 
-  def auth(
-      pass: String,
+  def auth(pass: String)(
       ports: ConfigContainerComponent
   ): Either[AtError, AuthUser] = {
-    if (this.pass.validation(pass, ports)) {
+    if (this.pass.validation(pass)(ports)) {
       Right(AuthUser(id = this.id, pass = this.pass))
     } else {
       Left(AtUserAuthError())
