@@ -1,7 +1,9 @@
 package net.kgtkr.anontown.ports;
+import zio.IO
+import net.kgtkr.anontown.AtServerError
 
 trait ObjectIdGenerator {
-  def generateObjectId(): String;
+  def generateObjectId(): IO[AtServerError, String];
 }
 
 trait ObjectIdGeneratorComponent {

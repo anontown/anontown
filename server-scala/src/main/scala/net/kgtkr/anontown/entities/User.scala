@@ -3,20 +3,17 @@ package net.kgtkr.anontown.entities;
 import java.time.OffsetDateTime;
 import net.kgtkr.anontown.utils;
 import net.kgtkr.anontown.utils.Impl._;
-import net.kgtkr.anontown.Config
 import net.kgtkr.anontown.Constant
 import net.kgtkr.anontown.AtError
 import net.kgtkr.anontown.AtParamsError
 import net.kgtkr.anontown.AuthUser
-import cats.data.Validated
 import net.kgtkr.anontown.AtUserAuthError
 import net.kgtkr.anontown.AtPrerequisiteError
 import cats._, cats.implicits._, cats.derived._
-import net.kgtkr.anontown.AtParamsErrorItem
-import scala.util.chaining._
 import net.kgtkr.anontown.ports.ObjectIdGeneratorComponent
 import net.kgtkr.anontown.ports.ClockComponent
 import net.kgtkr.anontown.ports.ConfigContainerComponent
+import zio.ZIO
 
 final case class UserId(value: String) extends AnyVal;
 object UserId {
@@ -87,9 +84,8 @@ object UserEncryptedPass {
   }
 
   def fromRawPass(
-      pass: UserRawPass,
-      ports: ConfigContainerComponent
-  ): UserEncryptedPass = {
+      pass: UserRawPass
+  )(ports: ConfigContainerComponent): UserEncryptedPass = {
     UserEncryptedPass(UserEncryptedPass.hash(pass.value, ports))
   }
 
@@ -166,15 +162,14 @@ final case class User(
   def change(
       authUser: AuthUser,
       pass: Option[String],
-      sn: Option[String],
-      ports: ConfigContainerComponent
-  ): Either[AtError, User] = {
+      sn: Option[String]
+  )(ports: ConfigContainerComponent): Either[AtError, User] = {
     require(authUser.id === this.id);
 
     (
       pass
         .map(
-          UserRawPass.fromString(_).map(UserEncryptedPass.fromRawPass(_, ports))
+          UserRawPass.fromString(_).map(UserEncryptedPass.fromRawPass(_)(ports))
         )
         .getOrElse(Right(this.pass))
         .toValidated,
@@ -285,32 +280,45 @@ object User {
 
   def create(
       sn: String,
-      pass: String,
-      ports: ObjectIdGeneratorComponent
-        with ClockComponent
-        with ConfigContainerComponent
-  ): Either[AtError, User] = {
-    (
-      UserSn.fromString(sn).toValidated,
-      UserRawPass.fromString(pass).toValidated
-    ).mapN(
-        (sn, pass) =>
-          User(
-            id = UserId(ports.objectIdGenerator.generateObjectId()),
-            sn = sn,
-            pass = UserEncryptedPass.fromRawPass(pass, ports),
-            lv = 1,
-            resWait = ResWait(
-              last = ports.clock.requestDate,
-              count =
-                ResWaitCount(m10 = 0, m30 = 0, h1 = 0, h6 = 0, h12 = 0, d1 = 0)
-            ),
-            lastTopic = ports.clock.requestDate,
-            date = ports.clock.requestDate,
-            point = 0,
-            lastOneTopic = ports.clock.requestDate
-          )
+      pass: String
+  ): ZIO[
+    ObjectIdGeneratorComponent with ClockComponent with ConfigContainerComponent,
+    AtError,
+    User
+  ] = {
+    for {
+      tmp <- ZIO.fromEither(
+        (
+          UserSn.fromString(sn).toValidated,
+          UserRawPass.fromString(pass).toValidated
+        ).mapN((_, _)).toEither
       )
-      .toEither;
+
+      val (sn, pass) = tmp
+
+      clock <- ZIO.access[
+        ClockComponent
+      ](_.clock)
+
+      objectIdGenerator <- ZIO.access[ObjectIdGeneratorComponent](
+        _.objectIdGenerator
+      )
+
+      id <- objectIdGenerator.generateObjectId()
+      pass <- ZIO.fromFunction(UserEncryptedPass.fromRawPass(pass))
+    } yield User(
+      id = UserId(id),
+      sn = sn,
+      pass = pass,
+      lv = 1,
+      resWait = ResWait(
+        last = clock.requestDate,
+        count = ResWaitCount(m10 = 0, m30 = 0, h1 = 0, h6 = 0, h12 = 0, d1 = 0)
+      ),
+      lastTopic = clock.requestDate,
+      date = clock.requestDate,
+      point = 0,
+      lastOneTopic = clock.requestDate
+    )
   }
 }
