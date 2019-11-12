@@ -14,6 +14,7 @@ import com.anontown.ports.ObjectIdGeneratorComponent
 import com.anontown.ports.ClockComponent
 import com.anontown.ports.ConfigContainerComponent
 import zio.ZIO
+import com.anontown.utils.OffsetDateTimeUtils._
 
 final case class UserId(value: String) extends AnyVal;
 object UserId {
@@ -228,8 +229,8 @@ final case class User(
         this.resWait.count.h1.toDouble < Constant.Res.Wait.h1.toDouble * coe &&
         this.resWait.count.m30.toDouble < Constant.Res.Wait.m30.toDouble * coe &&
         this.resWait.count.m10.toDouble < Constant.Res.Wait.m10.toDouble * coe &&
-        this.resWait.last.toEpochSecond() + Constant.Res.Wait.minSecond <
-          lastRes.toEpochSecond()) {
+        this.resWait.last.toEpochMilli + 1000 * Constant.Res.Wait.minSecond <
+          lastRes.toEpochMilli) {
       Right(
         this.copy(
           resWait = ResWait(
@@ -251,7 +252,7 @@ final case class User(
   }
 
   def changeLastTopic(lastTopic: OffsetDateTime): Either[AtError, User] = {
-    if (this.lastTopic.toEpochSecond + 60 * 30 < lastTopic.toEpochSecond) {
+    if (this.lastTopic.toEpochMilli + 1000 * 60 * 30 < lastTopic.toEpochMilli) {
       Right(this.copy(lastTopic = lastTopic));
     } else {
       Left(AtPrerequisiteError("連続書き込みはできません"));
@@ -259,7 +260,7 @@ final case class User(
   }
 
   def changeLastOneTopic(lastTopic: OffsetDateTime): Either[AtError, User] = {
-    if (this.lastOneTopic.toEpochSecond + 60 * 10 < lastTopic.toEpochSecond) {
+    if (this.lastOneTopic.toEpochMilli + 1000 * 60 * 10 < lastTopic.toEpochMilli) {
       Right(this.copy(lastOneTopic = lastTopic));
     } else {
       Left(AtPrerequisiteError("連続書き込みはできません"));
