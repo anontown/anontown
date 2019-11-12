@@ -3,7 +3,6 @@ package com.anontown.entities;
 import org.scalatest._
 import org.mongodb.scala.bson.ObjectId
 import java.time.OffsetDateTime
-import java.time.Instant
 import java.time.ZoneOffset
 import com.anontown.ports.ObjectIdGenerator
 import com.anontown.ports.Clock
@@ -19,6 +18,8 @@ import com.anontown.ports.ConfigContainer
 import com.anontown.TestHelper
 import zio.ZIO
 import com.anontown.utils.ZIOUtils._
+import com.anontown.utils.OffsetDateTimeUtils
+import com.anontown.AuthUser
 
 object UserFixtures {
   val userID = new ObjectId().toHexString()
@@ -31,25 +32,21 @@ object UserFixtures {
       }
     ),
     lv = 1,
-    resWait =
-      ResWait(
-        last =
-          OffsetDateTime.ofInstant(Instant.ofEpochMilli(300), ZoneOffset.UTC),
-        count = ResWaitCount(
-          m10 = 0,
-          m30 = 0,
-          h1 = 0,
-          h6 = 0,
-          h12 = 0,
-          d1 = 0
-        )
-      ),
-    lastTopic =
-      OffsetDateTime.ofInstant(Instant.ofEpochMilli(100), ZoneOffset.UTC),
-    date = OffsetDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
+    resWait = ResWait(
+      last = OffsetDateTimeUtils.ofEpochMilli(300),
+      count = ResWaitCount(
+        m10 = 0,
+        m30 = 0,
+        h1 = 0,
+        h6 = 0,
+        h12 = 0,
+        d1 = 0
+      )
+    ),
+    lastTopic = OffsetDateTimeUtils.ofEpochMilli(100),
+    date = OffsetDateTimeUtils.ofEpochMilli(0),
     point = 0,
-    lastOneTopic =
-      OffsetDateTime.ofInstant(Instant.ofEpochMilli(150), ZoneOffset.UTC)
+    lastOneTopic = OffsetDateTimeUtils.ofEpochMilli(150)
   )
 }
 
@@ -61,7 +58,7 @@ class UserSpec extends FlatSpec with Matchers {
         new DummyObjectIdGenerator(UserFixtures.userID)
 
       val clock = new ClockImpl(
-        OffsetDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        OffsetDateTimeUtils.ofEpochMilli(0)
       )
 
       val configContainer = new DummyConfigContainerImpl()
@@ -79,13 +76,10 @@ class UserSpec extends FlatSpec with Matchers {
         user should be(
           UserFixtures.user.copy(
             resWait = UserFixtures.user.resWait.copy(
-              last = OffsetDateTime
-                .ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+              last = OffsetDateTimeUtils.ofEpochMilli(0)
             ),
-            lastTopic =
-              OffsetDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
-            lastOneTopic =
-              OffsetDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+            lastTopic = OffsetDateTimeUtils.ofEpochMilli(0),
+            lastOneTopic = OffsetDateTimeUtils.ofEpochMilli(0)
           )
         );
       })
@@ -158,4 +152,86 @@ class UserSpec extends FlatSpec with Matchers {
     )
   }
 
+  val authUser = AuthUser(
+    id = UserId(UserFixtures.userID),
+    pass = UserEncryptedPass.fromRawPass(UserRawPass("pass"))(createPorts())
+  )
+
+  "change" should "正常に変更出来るか" in {
+    UserFixtures.user.change(authUser, pass = None, sn = Some("scn2"))(
+      createPorts()
+    ) should be(
+      Right(
+        UserFixtures.user.copy(
+          sn = UserSn("scn2"),
+          pass =
+            UserEncryptedPass.fromRawPass(UserRawPass("pass"))(createPorts())
+        )
+      )
+    )
+
+    UserFixtures.user.change(authUser, pass = Some("pass2"), sn = None)(
+      createPorts()
+    ) should be(
+      Right(
+        UserFixtures.user.copy(
+          sn = UserSn("scn"),
+          pass =
+            UserEncryptedPass.fromRawPass(UserRawPass("pass2"))(createPorts())
+        )
+      )
+    )
+  }
+
+  it should "パスワードが不正な時エラーになるか" in {
+    assert(
+      UserFixtures.user
+        .change(authUser, pass = Some("x"), sn = Some("scn"))(
+          createPorts()
+        )
+        .isLeft
+    )
+
+    assert(
+      UserFixtures.user
+        .change(authUser, pass = Some("x".repeat(51)), sn = Some("scn"))(
+          createPorts()
+        )
+        .isLeft
+    )
+
+    assert(
+      UserFixtures.user
+        .change(authUser, pass = Some("あ"), sn = Some("scn"))(
+          createPorts()
+        )
+        .isLeft
+    )
+  }
+
+  it should "スクリーンネームが不正な時エラーになるか" in {
+    assert(
+      UserFixtures.user
+        .change(authUser, pass = Some("pass"), sn = Some("x"))(
+          createPorts()
+        )
+        .isLeft
+    )
+
+    assert(
+      UserFixtures.user
+        .change(authUser, pass = Some("pass"), sn = Some("x".repeat(21)))(
+          createPorts()
+        )
+        .isLeft
+    )
+
+    assert(
+      UserFixtures.user
+        .change(authUser, pass = Some("pass"), sn = Some("あ"))(
+          createPorts()
+        )
+        .isLeft
+    )
+  }
 }
