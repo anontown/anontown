@@ -33,7 +33,7 @@ object Constant {
 
   object Profile {
     val nameRegex: RegexValidator = RegexValidator(
-      Pattern.compile("[\\S]{1,50}"),
+      Pattern.compile(".{1,50}"),
       "名前は1～50文字にして下さい"
     );
 
@@ -63,7 +63,7 @@ object Constant {
 
     val text: StructureValidator =
       StructureValidator(
-        List(CharType.NotNewLine(), CharType.NewLine()),
+        List(CharType.All()),
         Some(1),
         Some(3000)
       );
@@ -92,7 +92,7 @@ object Constant {
       );
 
     val key: StructureValidator = StructureValidator(
-      List(CharType.NewLine(), CharType.NotNewLine()),
+      List(CharType.All()),
       Some(1),
       Some(100)
     );
@@ -104,7 +104,7 @@ object Constant {
       );
 
     val value: StructureValidator = StructureValidator(
-      List(CharType.NewLine(), CharType.NotNewLine()),
+      List(CharType.All()),
       Some(0),
       Some(100000)
     );
@@ -171,7 +171,7 @@ object Constant {
       );
 
     val text: StructureValidator = StructureValidator(
-      List(CharType.NotNewLine(), CharType.NewLine()),
+      List(CharType.All()),
       Some(1),
       Some(10000)
     );
@@ -199,7 +199,7 @@ object Constant {
       );
 
     val text: StructureValidator = StructureValidator(
-      List(CharType.NotNewLine(), CharType.NewLine()),
+      List(CharType.All()),
       Some(1),
       Some(5000)
     );

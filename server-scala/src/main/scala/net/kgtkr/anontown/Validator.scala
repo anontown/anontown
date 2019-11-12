@@ -53,13 +53,13 @@ object CharType {
   }
 
   // 改行
-  final case class NewLine() extends CharType {
-    val charClass = "\\s"
+  final case class All() extends CharType {
+    val charClass = "\\s\\S"
   }
 
   // 改行以外
   final case class NotNewLine() extends CharType {
-    val charClass = "\\S"
+    val charClass = "."
   }
 }
 
