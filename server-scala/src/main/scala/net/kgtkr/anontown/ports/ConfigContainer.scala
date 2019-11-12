@@ -3,7 +3,7 @@ package net.kgtkr.anontown.ports
 import net.kgtkr.anontown.Config
 
 trait ConfigContainer {
-  def config(): Config
+  val config: Config;
 }
 
 trait ConfigContainerComponent {

@@ -16,6 +16,7 @@ import net.kgtkr.anontown.AtParamsErrorItem
 import scala.util.chaining._
 import net.kgtkr.anontown.ports.ObjectIdGeneratorComponent
 import net.kgtkr.anontown.ports.ClockComponent
+import net.kgtkr.anontown.ports.ConfigContainerComponent
 
 final case class UserId(value: String) extends AnyVal;
 object UserId {
@@ -69,8 +70,8 @@ object UserRawPass {
 }
 
 final case class UserEncryptedPass(value: String) extends AnyVal {
-  def validation(pass: String): Boolean = {
-    this.value === UserEncryptedPass.hash(pass)
+  def validation(pass: String, ports: ConfigContainerComponent): Boolean = {
+    this.value === UserEncryptedPass.hash(pass, ports)
   }
 }
 
@@ -85,12 +86,15 @@ object UserEncryptedPass {
     semi.show
   }
 
-  def fromRawPass(pass: UserRawPass): UserEncryptedPass = {
-    UserEncryptedPass(UserEncryptedPass.hash(pass.value))
+  def fromRawPass(
+      pass: UserRawPass,
+      ports: ConfigContainerComponent
+  ): UserEncryptedPass = {
+    UserEncryptedPass(UserEncryptedPass.hash(pass.value, ports))
   }
 
-  private def hash(pass: String): String = {
-    utils.hash(pass + Config.config.salt.pass)
+  private def hash(pass: String, ports: ConfigContainerComponent): String = {
+    utils.hash(pass + ports.configContainer.config.salt.pass)
   }
 }
 
@@ -162,13 +166,16 @@ final case class User(
   def change(
       authUser: AuthUser,
       pass: Option[String],
-      sn: Option[String]
+      sn: Option[String],
+      ports: ConfigContainerComponent
   ): Either[AtError, User] = {
     require(authUser.id === this.id);
 
     (
       pass
-        .map(UserRawPass.fromString(_).map(UserEncryptedPass.fromRawPass(_)))
+        .map(
+          UserRawPass.fromString(_).map(UserEncryptedPass.fromRawPass(_, ports))
+        )
         .getOrElse(Right(this.pass))
         .toValidated,
       sn.map(
@@ -186,8 +193,11 @@ final case class User(
       .toEither;
   }
 
-  def auth(pass: String): Either[AtError, AuthUser] = {
-    if (this.pass.validation(pass)) {
+  def auth(
+      pass: String,
+      ports: ConfigContainerComponent
+  ): Either[AtError, AuthUser] = {
+    if (this.pass.validation(pass, ports)) {
       Right(AuthUser(id = this.id, pass = this.pass))
     } else {
       Left(AtUserAuthError())
@@ -276,7 +286,9 @@ object User {
   def create(
       sn: String,
       pass: String,
-      ports: ObjectIdGeneratorComponent with ClockComponent
+      ports: ObjectIdGeneratorComponent
+        with ClockComponent
+        with ConfigContainerComponent
   ): Either[AtError, User] = {
     (
       UserSn.fromString(sn).toValidated,
@@ -286,7 +298,7 @@ object User {
           User(
             id = UserId(ports.objectIdGenerator.generateObjectId()),
             sn = sn,
-            pass = UserEncryptedPass.fromRawPass(pass),
+            pass = UserEncryptedPass.fromRawPass(pass, ports),
             lv = 1,
             resWait = ResWait(
               last = ports.clock.now(),
