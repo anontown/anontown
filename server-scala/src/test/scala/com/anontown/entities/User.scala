@@ -17,6 +17,8 @@ import com.anontown.adapters.DummyObjectIdGenerator
 import com.anontown.adapters.DummyConfigContainerImpl
 import com.anontown.ports.ConfigContainer
 import com.anontown.TestHelper
+import zio.ZIO
+import com.anontown.utils.ZIOUtils._
 
 object UserFixtures {
   val userID = new ObjectId().toHexString()
@@ -89,4 +91,71 @@ class UserSpec extends FlatSpec with Matchers {
       })
     }
   }
+
+  it should "パスワードが不正な時エラーになるか" in {
+    TestHelper.runZioTest(createPorts()) {
+      (for {
+        result1 <- User
+          .create(
+            sn = "scn",
+            pass = "x"
+          )
+          .toEither
+        result2 <- User
+          .create(
+            sn = "scn",
+            pass = "x".repeat(51)
+          )
+          .toEither
+
+        result3 <- User
+          .create(
+            sn = "scn",
+            pass = "あ"
+          )
+          .toEither
+      } yield {
+        assert(result1.isLeft)
+        assert(result2.isLeft)
+        assert(result3.isLeft)
+      })
+    }
+  }
+
+  it should "スクリーンネームが不正な時エラーになるか" in {
+    TestHelper.runZioTest(createPorts()) {
+      (for {
+        result1 <- User
+          .create(
+            sn = "x",
+            pass = "pass"
+          )
+          .toEither
+        result2 <- User
+          .create(
+            sn = "x".repeat(21),
+            pass = "pass"
+          )
+          .toEither
+
+        result3 <- User
+          .create(
+            sn = "あ",
+            pass = "pass"
+          )
+          .toEither
+      } yield {
+        assert(result1.isLeft)
+        assert(result2.isLeft)
+        assert(result3.isLeft)
+      })
+    }
+  }
+
+  "toAPI" should "正常に変換出来るか" in {
+    UserFixtures.user.toAPI() should be(
+      UserAPI(id = UserFixtures.userID, sn = "scn")
+    )
+  }
+
 }
