@@ -296,15 +296,14 @@ object User {
 
       val (sn, pass) = tmp
 
-      clock <- ZIO.access[
+      date <- ZIO.access[
         ClockComponent
-      ](_.clock)
+      ](_.clock.requestDate)
 
-      objectIdGenerator <- ZIO.access[ObjectIdGeneratorComponent](
-        _.objectIdGenerator
+      id <- ZIO.accessM[ObjectIdGeneratorComponent](
+        _.objectIdGenerator.generateObjectId()
       )
 
-      id <- objectIdGenerator.generateObjectId()
       pass <- ZIO.fromFunction(UserEncryptedPass.fromRawPass(pass))
     } yield User(
       id = UserId(id),
@@ -312,13 +311,13 @@ object User {
       pass = pass,
       lv = 1,
       resWait = ResWait(
-        last = clock.requestDate,
+        last = date,
         count = ResWaitCount(m10 = 0, m30 = 0, h1 = 0, h6 = 0, h12 = 0, d1 = 0)
       ),
-      lastTopic = clock.requestDate,
-      date = clock.requestDate,
+      lastTopic = date,
+      date = date,
       point = 0,
-      lastOneTopic = clock.requestDate
+      lastOneTopic = date
     )
   }
 }
