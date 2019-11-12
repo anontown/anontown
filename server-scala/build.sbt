@@ -24,6 +24,8 @@ lazy val commonSettings = Seq(
     )
 )
 
+val zioVersion = "1.0.0-RC14"
+
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
   .settings(
@@ -37,8 +39,8 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-parser" % "0.12.1",
       "org.scalactic" %% "scalactic" % "3.0.8",
       "org.scalatest" %% "scalatest" % "3.0.8" % "test",
-      "dev.zio" %% "zio" % "1.0.0-RC14",
-      "dev.zio" %% "zio-streams" % "1.0.0-RC14",
+      "dev.zio" %% "zio" % zioVersion,
+      "dev.zio" %% "zio-streams" % zioVersion,
       "org.typelevel" %% "cats-tagless-macros" % "0.10",
       "org.typelevel" %% "cats-mtl-core" % "0.7.0",
       "org.typelevel" %% "cats-effect" % "2.0.0",

@@ -9,13 +9,26 @@ import net.kgtkr.anontown.ports.ObjectIdGenerator
 import net.kgtkr.anontown.ports.Clock
 import net.kgtkr.anontown.ports.ObjectIdGeneratorComponent
 import net.kgtkr.anontown.ports.ClockComponent
+import net.kgtkr.anontown.adapters.ClockImpl
+import net.kgtkr.anontown.ports.ConfigContainerComponent
+import net.kgtkr.anontown.adapters.ConfigContainerImpl
+import net.kgtkr.anontown.ConfigFixtures
+import net.kgtkr.anontown.adapters.DummyObjectIdGenerator
+import net.kgtkr.anontown.adapters.DummyConfigContainerImpl
+import net.kgtkr.anontown.ports.ConfigContainer
+import zio.internal.PlatformLive
+import zio.Runtime
 
-class UserSpec extends FlatSpec with Matchers {
+object UserFixtures {
   val userID = new ObjectId().toHexString()
   val user = User(
     id = UserId(userID),
     sn = UserSn("scn"),
-    pass = UserEncryptedPass.fromRawPass(UserRawPass("pass")),
+    pass = UserEncryptedPass.fromRawPass(UserRawPass("pass"))(
+      new ConfigContainerComponent {
+        val configContainer = new DummyConfigContainerImpl()
+      }
+    ),
     lv = 1,
     resWait =
       ResWait(
@@ -37,23 +50,32 @@ class UserSpec extends FlatSpec with Matchers {
     lastOneTopic =
       OffsetDateTime.ofInstant(Instant.ofEpochMilli(150), ZoneOffset.UTC)
   )
-  "create" should "正常に作れるか" in {
-    (User.create(
-      sn = "scn",
-      pass = "pass",
-      ports = new ObjectIdGeneratorComponent with ClockComponent {
-        val objectIdGenerator = new ObjectIdGenerator {
-          def generateObjectId() = userID;
-        }
+}
 
-        val clock = new Clock {
-          def now() =
-            OffsetDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC);
-        }
-      }
+class UserSpec extends FlatSpec with Matchers {
+  "create" should "正常に作れるか" in {
+    Runtime(
+      new ObjectIdGeneratorComponent with ClockComponent
+      with ConfigContainerComponent {
+        val objectIdGenerator =
+          new DummyObjectIdGenerator(UserFixtures.userID)
+
+        val clock = new ClockImpl(
+          OffsetDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        )
+
+        val configContainer = new DummyConfigContainerImpl()
+      },
+      PlatformLive.Default
+    ).unsafeRun(
+      User
+        .create(
+          sn = "scn",
+          pass = "pass"
+        )
     ) should be(
-      user.copy(
-        resWait = user.resWait.copy(
+      UserFixtures.user.copy(
+        resWait = UserFixtures.user.resWait.copy(
           last =
             OffsetDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         ),
@@ -62,6 +84,6 @@ class UserSpec extends FlatSpec with Matchers {
         lastOneTopic =
           OffsetDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
       )
-    ))
+    )
   }
 }
