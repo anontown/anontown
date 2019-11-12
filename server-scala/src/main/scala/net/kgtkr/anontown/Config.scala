@@ -85,7 +85,7 @@ object RecaptchaConfig {
 }
 
 object Config {
-  val config: Config = Config.create()
+  lazy val config: Config = Config.create()
 
   def fromEnv(env: Map[String, String]): Option[Config] = {
     for {
