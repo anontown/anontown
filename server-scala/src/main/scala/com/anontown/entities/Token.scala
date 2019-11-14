@@ -16,6 +16,8 @@ import com.anontown.AuthUser
 import com.anontown.ports.ObjectIdGeneratorComponent
 import com.anontown.ports.ClockComponent
 import com.anontown.Constant
+import com.anontown.AuthTokenGeneral
+import com.anontown.AtNotFoundError
 
 final case class TokenId(value: String) extends AnyVal
 
@@ -227,6 +229,74 @@ final case class TokenGeneral(
     } yield (
       this.copy(req = this.req.appended(req)),
       TokenReqAPI(this.id.value, key = req.key)
+    )
+  }
+
+  def authReq(key: String): ZIO[ClockComponent, AtError, AuthTokenGeneral] = {
+    val req = this.req.find(_.key === key);
+
+    for {
+      now <- ZIO.access[ClockComponent](_.clock.requestDate)
+      _ <- req match {
+        case Some(req)
+            if req.active && req.expireDate.toEpochMilli >= now.toEpochMilli =>
+          ZIO.succeed(())
+        case _ => ZIO.fail(new AtNotFoundError("トークンリクエストが見つかりません"))
+      }
+    } yield AuthTokenGeneral(
+      id = this.id,
+      key = this.key,
+      user = this.user,
+      client = this.client
+    )
+  }
+
+  def auth(key: String): Either[AtError, AuthTokenGeneral] = {
+    if (this.key === key) {
+      Right(
+        AuthTokenGeneral(
+          id = this.id,
+          key = this.key,
+          user = this.user,
+          client = this.client
+        )
+      )
+    } else {
+      Left(new AtTokenAuthError())
+    }
+  }
+}
+
+object TokenGeneral {
+  implicit val eqImpl: Eq[TokenGeneral] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  implicit val showImpl: Show[TokenGeneral] = {
+    import auto.show._
+    semi.show
+  }
+
+  // TODO client
+  def create(authToken: AuthTokenMaster, client: Client): ZIO[
+    ClockComponent with ObjectIdGeneratorComponent with SafeIdGeneratorComponent with ConfigContainerComponent,
+    AtServerError,
+    TokenGeneral
+  ] = {
+    for {
+      id <- ZIO.accessM[ObjectIdGeneratorComponent](
+        _.objectIdGenerator.generateObjectId()
+      )
+      key <- Token.createTokenKey()
+      now <- ZIO.access[ClockComponent](_.clock.requestDate)
+    } yield TokenGeneral(
+      id = TokenId(id),
+      key = key,
+      client = client.id,
+      user = authToken.user,
+      req = List(),
+      date = now
     )
   }
 }
