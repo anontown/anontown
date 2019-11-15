@@ -8,9 +8,9 @@ import com.anontown.ports.ObjectIdGeneratorComponent
 import com.anontown.ports.ClockComponent
 import com.anontown.ports.SafeIdGeneratorComponent
 import com.anontown.ports.ConfigContainerComponent
-import com.anontown.adapters.DummyObjectIdGenerator
+import com.anontown.adapters.DummyObjectIdGeneratorImpl
 import com.anontown.adapters.ClockImpl
-import com.anontown.adapters.DummySafeIdGenerator
+import com.anontown.adapters.DummySafeIdGeneratorImpl
 import com.anontown.adapters.DummyConfigContainerImpl
 
 object TestHelper {
@@ -30,11 +30,11 @@ object TestHelper {
     new ObjectIdGeneratorComponent with ClockComponent
     with ConfigContainerComponent with SafeIdGeneratorComponent {
       val objectIdGenerator =
-        new DummyObjectIdGenerator(objectIdIt)
+        new DummyObjectIdGeneratorImpl(objectIdIt)
 
       val clock = new ClockImpl(requestDate)
 
-      val safeIdGenerator = new DummySafeIdGenerator(safeIdIt)
+      val safeIdGenerator = new DummySafeIdGeneratorImpl(safeIdIt)
 
       val configContainer = new DummyConfigContainerImpl()
     }

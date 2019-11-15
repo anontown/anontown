@@ -12,7 +12,7 @@ import com.anontown.adapters.ClockImpl
 import com.anontown.ports.ConfigContainerComponent
 import com.anontown.adapters.ConfigContainerImpl
 import com.anontown.ConfigFixtures
-import com.anontown.adapters.DummyObjectIdGenerator
+import com.anontown.adapters.DummyObjectIdGeneratorImpl
 import com.anontown.adapters.DummyConfigContainerImpl
 import com.anontown.ports.ConfigContainer
 import com.anontown.TestHelper

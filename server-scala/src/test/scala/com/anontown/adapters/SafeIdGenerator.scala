@@ -4,7 +4,7 @@ import zio.IO
 import com.anontown.AtServerError
 import zio.ZIO
 
-class DummySafeIdGenerator(val safeIdIt: Iterator[String])
+class DummySafeIdGeneratorImpl(val safeIdIt: Iterator[String])
     extends SafeIdGenerator {
   def generateSafeId(): IO[AtServerError, String] = {
     ZIO.succeed(safeIdIt.next())
