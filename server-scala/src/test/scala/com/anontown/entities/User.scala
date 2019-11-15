@@ -51,22 +51,11 @@ object UserFixtures {
 }
 
 class UserSpec extends FunSpec with Matchers {
-  def createPorts() =
-    new ObjectIdGeneratorComponent with ClockComponent
-    with ConfigContainerComponent {
-      val objectIdGenerator =
-        new DummyObjectIdGenerator(UserFixtures.userID)
-
-      val clock = new ClockImpl(
-        OffsetDateTimeUtils.ofEpochMilli(0)
-      )
-
-      val configContainer = new DummyConfigContainerImpl()
-    }
-
   describe("create") {
     it("正常に作れるか") {
-      TestHelper.runZioTest(createPorts()) {
+      TestHelper.runZioTest(
+        TestHelper.createPorts(objectIdIt = Iterator(UserFixtures.userID))
+      ) {
         (for {
           user <- User
             .create(
@@ -88,7 +77,7 @@ class UserSpec extends FunSpec with Matchers {
     }
 
     it("パスワードが不正な時エラーになるか") {
-      TestHelper.runZioTest(createPorts()) {
+      TestHelper.runZioTest(TestHelper.createPorts()) {
         (for {
           result1 <- User
             .create(
@@ -118,7 +107,7 @@ class UserSpec extends FunSpec with Matchers {
     }
 
     it("スクリーンネームが不正な時エラーになるか") {
-      TestHelper.runZioTest(createPorts()) {
+      TestHelper.runZioTest(TestHelper.createPorts()) {
         (for {
           result1 <- User
             .create(
@@ -159,30 +148,34 @@ class UserSpec extends FunSpec with Matchers {
   describe("change") {
     val authUser = AuthUser(
       id = UserId(UserFixtures.userID),
-      pass = UserEncryptedPass.fromRawPass(UserRawPass("pass"))(createPorts())
+      pass = UserEncryptedPass.fromRawPass(UserRawPass("pass"))(
+        TestHelper.createPorts()
+      )
     )
 
     it("正常に変更出来るか") {
       UserFixtures.user.change(authUser, pass = None, sn = Some("scn2"))(
-        createPorts()
+        TestHelper.createPorts()
       ) should be(
         Right(
           UserFixtures.user.copy(
             sn = UserSn("scn2"),
-            pass =
-              UserEncryptedPass.fromRawPass(UserRawPass("pass"))(createPorts())
+            pass = UserEncryptedPass.fromRawPass(UserRawPass("pass"))(
+              TestHelper.createPorts()
+            )
           )
         )
       )
 
       UserFixtures.user.change(authUser, pass = Some("pass2"), sn = None)(
-        createPorts()
+        TestHelper.createPorts()
       ) should be(
         Right(
           UserFixtures.user.copy(
             sn = UserSn("scn"),
-            pass =
-              UserEncryptedPass.fromRawPass(UserRawPass("pass2"))(createPorts())
+            pass = UserEncryptedPass.fromRawPass(UserRawPass("pass2"))(
+              TestHelper.createPorts()
+            )
           )
         )
       )
@@ -192,7 +185,7 @@ class UserSpec extends FunSpec with Matchers {
       assert(
         UserFixtures.user
           .change(authUser, pass = Some("x"), sn = Some("scn"))(
-            createPorts()
+            TestHelper.createPorts()
           )
           .isLeft
       )
@@ -200,7 +193,7 @@ class UserSpec extends FunSpec with Matchers {
       assert(
         UserFixtures.user
           .change(authUser, pass = Some("x".repeat(51)), sn = Some("scn"))(
-            createPorts()
+            TestHelper.createPorts()
           )
           .isLeft
       )
@@ -208,7 +201,7 @@ class UserSpec extends FunSpec with Matchers {
       assert(
         UserFixtures.user
           .change(authUser, pass = Some("あ"), sn = Some("scn"))(
-            createPorts()
+            TestHelper.createPorts()
           )
           .isLeft
       )
@@ -218,7 +211,7 @@ class UserSpec extends FunSpec with Matchers {
       assert(
         UserFixtures.user
           .change(authUser, pass = Some("pass"), sn = Some("x"))(
-            createPorts()
+            TestHelper.createPorts()
           )
           .isLeft
       )
@@ -226,7 +219,7 @@ class UserSpec extends FunSpec with Matchers {
       assert(
         UserFixtures.user
           .change(authUser, pass = Some("pass"), sn = Some("x".repeat(21)))(
-            createPorts()
+            TestHelper.createPorts()
           )
           .isLeft
       )
@@ -234,7 +227,7 @@ class UserSpec extends FunSpec with Matchers {
       assert(
         UserFixtures.user
           .change(authUser, pass = Some("pass"), sn = Some("あ"))(
-            createPorts()
+            TestHelper.createPorts()
           )
           .isLeft
       )
@@ -243,26 +236,26 @@ class UserSpec extends FunSpec with Matchers {
 
   describe("auth") {
     it("正常に認証出来るか") {
-      val ports = createPorts()
       UserFixtures.user
         .auth("pass")(
-          ports
+          TestHelper.createPorts()
         ) should be(
         Right(
           AuthUser(
             id = UserId(UserFixtures.userID),
-            pass = UserEncryptedPass.fromRawPass(UserRawPass("pass"))(ports)
+            pass = UserEncryptedPass.fromRawPass(UserRawPass("pass"))(
+              TestHelper.createPorts()
+            )
           )
         )
       )
     }
 
     it("パスワードが違う時エラーになるか") {
-      val ports = createPorts()
       assert(
         UserFixtures.user
           .auth("pass2")(
-            ports
+            TestHelper.createPorts()
           )
           .isLeft
       )
