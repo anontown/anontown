@@ -193,7 +193,7 @@ final case class User(
       ports: ConfigContainerComponent
   ): Either[AtError, AuthUser] = {
     if (this.pass.validation(pass)(ports)) {
-      Right(AuthUser(id = this.id, pass = this.pass))
+      Right(AuthUser(id = this.id))
     } else {
       Left(AtUserAuthError())
     }

@@ -159,7 +159,7 @@ final case class TokenMaster(
     if (this.key =!= key) {
       Left(new AtTokenAuthError());
     } else {
-      Right(AuthTokenMaster(id = this.id, key = this.key, user = this.user))
+      Right(AuthTokenMaster(id = this.id, user = this.user))
     }
   }
 }
@@ -245,7 +245,6 @@ final case class TokenGeneral(
       }
     } yield AuthTokenGeneral(
       id = this.id,
-      key = this.key,
       user = this.user,
       client = this.client
     )
@@ -256,7 +255,6 @@ final case class TokenGeneral(
       Right(
         AuthTokenGeneral(
           id = this.id,
-          key = this.key,
           user = this.user,
           client = this.client
         )

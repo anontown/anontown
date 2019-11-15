@@ -64,8 +64,7 @@ class TokenSpec extends FunSpec with Matchers {
               token <- TokenMaster
                 .create(
                   authUser = AuthUser(
-                    id = UserId("user"),
-                    pass = UserEncryptedPass("pass")
+                    id = UserId("user")
                   )
                 )
             } yield {

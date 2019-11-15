@@ -147,10 +147,7 @@ class UserSpec extends FunSpec with Matchers {
 
   describe("change") {
     val authUser = AuthUser(
-      id = UserId(UserFixtures.userID),
-      pass = UserEncryptedPass.fromRawPass(UserRawPass("pass"))(
-        TestHelper.createPorts()
-      )
+      id = UserId(UserFixtures.userID)
     )
 
     it("正常に変更出来るか") {
@@ -242,10 +239,7 @@ class UserSpec extends FunSpec with Matchers {
         ) should be(
         Right(
           AuthUser(
-            id = UserId(UserFixtures.userID),
-            pass = UserEncryptedPass.fromRawPass(UserRawPass("pass"))(
-              TestHelper.createPorts()
-            )
+            id = UserId(UserFixtures.userID)
           )
         )
       )
