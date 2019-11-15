@@ -53,7 +53,7 @@ object UserFixtures {
 class UserSpec extends FunSpec with Matchers {
   describe("create") {
     it("正常に作れるか") {
-      TestHelper.runZioTest(
+      TestHelper.runZio(
         TestHelper.createPorts(objectIdIt = Iterator(UserFixtures.userID))
       ) {
         (for {
@@ -77,7 +77,7 @@ class UserSpec extends FunSpec with Matchers {
     }
 
     it("パスワードが不正な時エラーになるか") {
-      TestHelper.runZioTest(TestHelper.createPorts()) {
+      TestHelper.runZio(TestHelper.createPorts()) {
         (for {
           result1 <- User
             .create(
@@ -107,7 +107,7 @@ class UserSpec extends FunSpec with Matchers {
     }
 
     it("スクリーンネームが不正な時エラーになるか") {
-      TestHelper.runZioTest(TestHelper.createPorts()) {
+      TestHelper.runZio(TestHelper.createPorts()) {
         (for {
           result1 <- User
             .create(

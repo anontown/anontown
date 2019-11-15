@@ -14,12 +14,11 @@ import com.anontown.adapters.DummySafeIdGeneratorImpl
 import com.anontown.adapters.DummyConfigContainerImpl
 
 object TestHelper {
-  def runZioTest[R, E, A](ports: R)(zio: ZIO[R, E, A]): Unit = {
+  def runZio[R, E, A](ports: R)(zio: ZIO[R, E, A]): A = {
     Runtime(
       ports,
       PlatformLive.Default
-    ).unsafeRun(zio);
-    ()
+    ).unsafeRun(zio)
   }
 
   def createPorts(

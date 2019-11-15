@@ -24,4 +24,67 @@ import com.anontown.AuthUser
 import com.anontown.ports.SafeIdGeneratorComponent
 import com.anontown.ports.SafeIdGenerator
 
-class TokenSpec extends FunSpec with Matchers {}
+object TokenFixtures {
+  val tokenID = new ObjectId().toHexString()
+  val tokenMaster =
+    TokenMaster(
+      id = TokenId(tokenID),
+      key = "key",
+      user = UserId(UserFixtures.userID),
+      date = OffsetDateTimeUtils.ofEpochMilli(0)
+    );
+}
+
+class TokenSpec extends FunSpec with Matchers {
+  describe("createTokenKey") {
+    it("正常に生成出来るか") {
+      TestHelper.runZio(
+        TestHelper.createPorts(safeIdIt = Iterator("a", "b"))
+      ) {
+        (for {
+          key1 <- Token.createTokenKey()
+          key2 <- Token.createTokenKey()
+        } yield {
+          key1 should not be (key2)
+        })
+      }
+    }
+
+    describe("TokenMaster") {
+      describe("create") {
+        it("正常に生成出来るか") {
+          TestHelper.runZio(
+            TestHelper.createPorts(
+              objectIdIt = Iterator("token"),
+              safeIdIt = Iterator("key"),
+              requestDate = OffsetDateTimeUtils.ofEpochMilli(100)
+            )
+          ) {
+            (for {
+              token <- TokenMaster
+                .create(
+                  authUser = AuthUser(
+                    id = UserId("user"),
+                    pass = UserEncryptedPass("pass")
+                  )
+                )
+            } yield {
+              token should be(
+                TokenMaster(
+                  id = TokenId("token"),
+                  key = TestHelper.runZio(
+                    TestHelper.createPorts(
+                      safeIdIt = Iterator("key")
+                    )
+                  )(Token.createTokenKey()),
+                  user = UserId("user"),
+                  date = OffsetDateTimeUtils.ofEpochMilli(100)
+                )
+              );
+            })
+          }
+        }
+      }
+    }
+  }
+}
