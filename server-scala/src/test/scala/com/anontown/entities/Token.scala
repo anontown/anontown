@@ -115,5 +115,7 @@ class TokenSpec extends FunSpec with Matchers {
         assert(TokenFixtures.tokenMaster.auth("key2").isLeft)
       }
     }
+
+    // TODO: TokenGeneral
   }
 }
