@@ -23,6 +23,7 @@ import com.anontown.utils.OffsetDateTimeUtils
 import com.anontown.AuthUser
 import com.anontown.ports.SafeIdGeneratorComponent
 import com.anontown.ports.SafeIdGenerator
+import com.anontown.AuthTokenMaster
 
 object TokenFixtures {
   val tokenID = new ObjectId().toHexString()
@@ -83,6 +84,35 @@ class TokenSpec extends FunSpec with Matchers {
             })
           }
         }
+      }
+    }
+
+    describe("toAPI") {
+      it("正常に変換出来るか") {
+        TokenFixtures.tokenMaster.toAPI() should be(
+          TokenMasterAPI(
+            id = TokenFixtures.tokenID,
+            key = "key",
+            date = "1970-01-01T00:00Z"
+          )
+        )
+      }
+    }
+
+    describe("auth") {
+      it("正常に認証出来るか") {
+        TokenFixtures.tokenMaster.auth("key") should be(
+          Right(
+            AuthTokenMaster(
+              id = TokenId(TokenFixtures.tokenID),
+              user = UserId(UserFixtures.userID)
+            )
+          )
+        )
+      }
+
+      it("keyが違う時エラーになるか") {
+        assert(TokenFixtures.tokenMaster.auth("key2").isLeft)
       }
     }
   }
