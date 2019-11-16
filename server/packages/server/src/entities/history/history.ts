@@ -5,7 +5,6 @@ import * as Im from "immutable";
 import { IAuthToken } from "../../auth";
 import { IObjectIdGenerator } from "../../ports";
 import { Copyable } from "../../utils";
-import { TopicNormal } from "../topic";
 import { User } from "../user";
 
 /*
