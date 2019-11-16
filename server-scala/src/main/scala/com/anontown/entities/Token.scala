@@ -256,7 +256,7 @@ object TokenGeneral {
     } yield TokenGeneral(
       id = TokenId(id),
       key = key,
-      client = client.id,
+      client = client.id.value,
       user = authToken.user,
       req = List(),
       date = now

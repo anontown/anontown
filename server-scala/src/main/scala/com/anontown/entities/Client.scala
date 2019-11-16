@@ -35,19 +35,43 @@ object ClientAPI {
   }
 }
 
+final case class ClientId(value: String) extends AnyVal;
+object ClientId {
+  implicit val eqImpl: Eq[ClientId] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
+final case class ClientName(value: String) extends AnyVal;
+object ClientName {
+  implicit val eqImpl: Eq[ClientName] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
+final case class ClientUrl(value: String) extends AnyVal;
+object ClientUrl {
+  implicit val eqImpl: Eq[ClientUrl] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
 final case class Client(
-    id: String,
-    name: String,
-    url: String,
+    id: ClientId,
+    name: ClientName,
+    url: ClientUrl,
     user: UserId,
     date: OffsetDateTime,
     update: OffsetDateTime
 ) {
   def toAPI(authToken: Option[AuthTokenMaster]): ClientAPI = {
     ClientAPI(
-      id = this.id,
-      name = this.name,
-      url = this.url,
+      id = this.id.value,
+      name = this.name.value,
+      url = this.url.value,
       self = authToken.map(_.user === this.user),
       date = this.date.toString(),
       update = this.update.toString()
