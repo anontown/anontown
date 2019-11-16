@@ -26,11 +26,6 @@ object TokenId {
     import auto.eq._
     semi.eq
   }
-
-  implicit val showImpl: Show[TokenId] = {
-    import auto.show._
-    semi.show
-  }
 }
 
 final case class TokenReq(
@@ -44,11 +39,6 @@ object TokenReq {
     import auto.eq._
     semi.eq
   }
-
-  implicit val showImpl: Show[TokenReq] = {
-    import auto.show._
-    semi.show
-  }
 }
 
 final case class TokenReqAPI(token: String, key: String)
@@ -57,11 +47,6 @@ object TokenReqAPI {
   implicit val eqImpl: Eq[TokenReqAPI] = {
     import auto.eq._
     semi.eq
-  }
-
-  implicit val showImpl: Show[TokenReqAPI] = {
-    import auto.show._
-    semi.show
   }
 }
 
@@ -79,11 +64,6 @@ object TokenMasterAPI {
     import auto.eq._
     semi.eq
   }
-
-  implicit val showImpl: Show[TokenMasterAPI] = {
-    import auto.show._
-    semi.show
-  }
 }
 
 final case class TokenGeneralAPI(
@@ -97,11 +77,6 @@ object TokenGeneralAPI {
   implicit val eqImpl: Eq[TokenGeneralAPI] = {
     import auto.eq._
     semi.eq
-  }
-
-  implicit val showImpl: Show[TokenGeneralAPI] = {
-    import auto.show._
-    semi.show
   }
 }
 
@@ -168,11 +143,6 @@ object TokenMaster {
   implicit val eqImpl: Eq[TokenMaster] = {
     import auto.eq._
     semi.eq
-  }
-
-  implicit val showImpl: Show[TokenMaster] = {
-    import auto.show._
-    semi.show
   }
 
   def create(authUser: AuthUser): ZIO[
@@ -269,11 +239,6 @@ object TokenGeneral {
   implicit val eqImpl: Eq[TokenGeneral] = {
     import auto.eq._
     semi.eq
-  }
-
-  implicit val showImpl: Show[TokenGeneral] = {
-    import auto.show._
-    semi.show
   }
 
   // TODO client

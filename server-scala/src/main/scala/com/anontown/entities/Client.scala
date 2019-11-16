@@ -33,11 +33,6 @@ object ClientAPI {
     import auto.eq._
     semi.eq
   }
-
-  implicit val showImpl: Show[ClientAPI] = {
-    import auto.show._
-    semi.show
-  }
 }
 
 final case class Client(

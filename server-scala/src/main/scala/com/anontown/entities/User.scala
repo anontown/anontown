@@ -22,11 +22,6 @@ object UserId {
     import auto.eq._
     semi.eq
   }
-
-  implicit val showImpl: Show[UserId] = {
-    import auto.show._
-    semi.show
-  }
 }
 
 final case class UserSn(value: String) extends AnyVal;
@@ -34,11 +29,6 @@ object UserSn {
   implicit val eqImpl: Eq[UserSn] = {
     import auto.eq._
     semi.eq
-  }
-
-  implicit val showImpl: Show[UserSn] = {
-    import auto.show._
-    semi.show
   }
 
   def fromString(
@@ -53,11 +43,6 @@ object UserRawPass {
   implicit val eqImpl: Eq[UserRawPass] = {
     import auto.eq._
     semi.eq
-  }
-
-  implicit val showImpl: Show[UserRawPass] = {
-    import auto.show._
-    semi.show
   }
 
   def fromString(
@@ -79,11 +64,6 @@ object UserEncryptedPass {
     semi.eq
   }
 
-  implicit val showImpl: Show[UserEncryptedPass] = {
-    import auto.show._
-    semi.show
-  }
-
   def fromRawPass(
       pass: UserRawPass
   )(ports: ConfigContainerComponent): UserEncryptedPass = {
@@ -102,11 +82,6 @@ object UserAPI {
     import auto.eq._
     semi.eq
   }
-
-  implicit val showImpl: Show[UserAPI] = {
-    import auto.show._
-    semi.show
-  }
 }
 
 final case class ResWaitCount(
@@ -123,11 +98,6 @@ object ResWaitCount {
     import auto.eq._
     semi.eq
   }
-
-  implicit val showImpl: Show[ResWaitCount] = {
-    import auto.show._
-    semi.show
-  }
 }
 
 final case class ResWait(last: OffsetDateTime, count: ResWaitCount)
@@ -136,11 +106,6 @@ object ResWait {
   implicit val eqImpl: Eq[ResWait] = {
     import auto.eq._
     semi.eq
-  }
-
-  implicit val showImpl: Show[ResWait] = {
-    import auto.show._
-    semi.show
   }
 }
 
@@ -271,11 +236,6 @@ object User {
   implicit val eqImpl: Eq[User] = {
     import auto.eq._
     semi.eq
-  }
-
-  implicit val showImpl: Show[User] = {
-    import auto.show._
-    semi.show
   }
 
   def create(
