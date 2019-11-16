@@ -1,6 +1,5 @@
 package com.anontown;
 import com.anontown.entities.UserId
-import com.anontown.entities.UserEncryptedPass
 import com.anontown.entities.TokenId
 
 sealed trait AuthToken {

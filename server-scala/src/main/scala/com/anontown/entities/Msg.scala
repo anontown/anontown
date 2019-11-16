@@ -3,22 +3,10 @@ package com.anontown.entities
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
-import com.anontown.utils;
-import com.anontown.utils.OffsetDateTimeUtils._;
-import com.anontown.ports.SafeIdGeneratorComponent
 import zio.ZIO
-import com.anontown.AtServerError
-import com.anontown.ports.ConfigContainerComponent
-import com.anontown.AuthTokenMaster
 import com.anontown.AtError
-import com.anontown.AtTokenAuthError
-import com.anontown.AuthUser
 import com.anontown.ports.ObjectIdGeneratorComponent
 import com.anontown.ports.ClockComponent
-import com.anontown.Constant
-import com.anontown.AuthTokenGeneral
-import com.anontown.AtNotFoundError
-import com.anontown.AtParamsError
 import com.anontown.AtRightError
 import com.anontown.AuthToken
 
