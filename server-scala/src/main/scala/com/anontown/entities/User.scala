@@ -247,14 +247,12 @@ object User {
     User
   ] = {
     for {
-      tmp <- ZIO.fromEither(
+      (sn, pass) <- ZIO.fromEither(
         (
           UserSn.fromString(sn).toValidated,
           UserRawPass.fromString(pass).toValidated
         ).mapN((_, _)).toEither
       )
-
-      val (sn, pass) = tmp
 
       date <- ZIO.access[
         ClockComponent

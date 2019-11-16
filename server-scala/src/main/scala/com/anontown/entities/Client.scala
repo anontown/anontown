@@ -132,14 +132,12 @@ object Client {
         _.objectIdGenerator.generateObjectId()
       )
 
-      tmp <- ZIO.fromEither(
+      (name, url) <- ZIO.fromEither(
         (
           ClientName.fromString(name).toValidated,
           ClientUrl.fromString(url).toValidated
         ).mapN((_, _)).toEither
       )
-
-      val (name, url) = tmp
 
       date <- ZIO.access[ClockComponent](_.clock.requestDate)
     } yield Client(

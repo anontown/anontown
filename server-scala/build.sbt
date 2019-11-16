@@ -2,6 +2,7 @@ resolvers += Resolver.sonatypeRepo("releases")
 addCompilerPlugin(
   "org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full
 )
+addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
 lazy val commonSettings = Seq(
   organization := "net.kgtkr",
