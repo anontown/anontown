@@ -149,38 +149,4 @@ object Client {
       update = date
     )
   }
-
-  /*
-    static create(
-    objidGenerator: IObjectIdGenerator,
-    authToken: IAuthTokenMaster,
-    name: string,
-    url: string,
-    now: Date,
-  ): Client {
-    paramsErrorMaker([
-      {
-        field: "name",
-        val: name,
-        regex: Constant.client.name.regex,
-        message: Constant.client.name.msg,
-      },
-      {
-        field: "url",
-        val: url,
-        regex: Constant.client.url.regex,
-        message: Constant.client.url.msg,
-      },
-    ]);
-
-    return new Client(
-      objidGenerator.generateObjectId(),
-      name,
-      url,
-      authToken.user,
-      now,
-      now,
-    );
-  }
- */
 }
