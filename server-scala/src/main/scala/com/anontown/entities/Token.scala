@@ -197,7 +197,7 @@ final case class TokenGeneral(
         active = true
       )
     } yield (
-      this.copy(req = this.req.appended(req)),
+      this.copy(req = reqFilter.appended(req)),
       TokenReqAPI(this.id.value, key = req.key)
     )
   }
