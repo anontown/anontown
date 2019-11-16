@@ -50,7 +50,7 @@ final case class Storage(
       case AuthTokenMaster(_, _)            => None;
       case auth @ AuthTokenGeneral(_, _, _) => Some(auth.client);
     };
-    if (authToken.user =!= this.user || authClient =!= this.client.map(_.value)) {
+    if (authToken.user =!= this.user || authClient =!= this.client) {
       Left(new AtRightError("権限がありません"))
     } else {
       Right(StorageAPI(key = this.key.value, value = this.value.value))
@@ -79,7 +79,7 @@ object Storage {
         StorageValue.fromString(value).toValidated
       ).mapN((_, _)).toEither
     } yield Storage(
-      client = client.map(ClientId(_)),
+      client = client,
       user = authToken.user,
       key = key,
       value = value

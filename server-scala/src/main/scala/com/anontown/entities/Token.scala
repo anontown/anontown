@@ -168,7 +168,7 @@ object TokenMaster {
 final case class TokenGeneral(
     id: TokenId,
     key: String,
-    client: String,
+    client: ClientId,
     user: UserId,
     req: List[TokenReq],
     date: OffsetDateTime
@@ -176,7 +176,12 @@ final case class TokenGeneral(
   type API = TokenGeneralAPI
 
   def fromBaseAPI(id: String, key: String, date: String): TokenGeneralAPI = {
-    TokenGeneralAPI(id = id, key = key, date = date, clientID = this.client)
+    TokenGeneralAPI(
+      id = id,
+      key = key,
+      date = date,
+      clientID = this.client.value
+    )
   }
 
   def createReq(): ZIO[
@@ -256,7 +261,7 @@ object TokenGeneral {
     } yield TokenGeneral(
       id = TokenId(id),
       key = key,
-      client = client.id.value,
+      client = client.id,
       user = authToken.user,
       req = List(),
       date = now

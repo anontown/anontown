@@ -1,6 +1,7 @@
 package com.anontown;
 import com.anontown.entities.UserId
 import com.anontown.entities.TokenId
+import com.anontown.entities.ClientId
 
 sealed trait AuthToken {
   val id: TokenId;
@@ -10,7 +11,7 @@ sealed trait AuthToken {
 final case class AuthTokenGeneral(
     id: TokenId,
     user: UserId,
-    client: String
+    client: ClientId
 ) extends AuthToken;
 
 final case class AuthTokenMaster(
