@@ -25,17 +25,20 @@ export interface IHistoryAPI {
 export class History extends Copyable<History> {
   static create(
     objidGenerator: IObjectIdGenerator,
-    topic: TopicNormal,
+    topicID: string,
+    title: string,
+    tags: string[],
+    text: string,
     date: Date,
     hash: string,
     user: User,
   ): History {
     return new History(
       objidGenerator.generateObjectId(),
-      topic.id,
-      topic.title,
-      Im.List(topic.tags),
-      topic.text,
+      topicID,
+      title,
+      Im.List(tags),
+      text,
       date,
       hash,
       user.id,

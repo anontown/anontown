@@ -1,23 +1,11 @@
 import { none, some } from "fp-ts/lib/Option";
 import * as Im from "immutable";
-import { DummyObjectIdGenerator, History, TopicNormal, User } from "../../";
+import { DummyObjectIdGenerator, History, User } from "../../";
 import { IAuthToken } from "../../auth";
 
 describe("History", () => {
   describe("create", () => {
     it("正常に作れるか", () => {
-      const topic = new TopicNormal(
-        "topic",
-        "title",
-        Im.List(),
-        "text",
-        new Date(100),
-        new Date(0),
-        10,
-        new Date(50),
-        true,
-      );
-
       const user = new User(
         "user",
         "sn",
@@ -41,7 +29,10 @@ describe("History", () => {
       expect(
         History.create(
           new DummyObjectIdGenerator("history"),
-          topic,
+          "topic",
+          "title",
+          [],
+          "text",
           new Date(300),
           "hash",
           user,

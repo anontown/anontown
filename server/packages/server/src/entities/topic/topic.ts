@@ -258,7 +258,10 @@ export class TopicNormal extends Copyable<TopicNormal>
 
     const history = History.create(
       objidGenerator,
-      newTopic,
+      newTopic.id,
+      newTopic.title,
+      newTopic.tags.toArray(),
+      newTopic.text,
       now,
       newTopic.hash(now, newUser),
       newUser,
