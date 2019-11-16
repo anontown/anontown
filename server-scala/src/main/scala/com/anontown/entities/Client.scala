@@ -44,7 +44,18 @@ final case class Client(
     id: String,
     name: String,
     url: String,
-    user: String,
+    user: UserId,
     date: OffsetDateTime,
     update: OffsetDateTime
-) {}
+) {
+  def toAPI(authToken: Option[AuthTokenMaster]): ClientAPI = {
+    ClientAPI(
+      id = this.id,
+      name = this.name,
+      url = this.url,
+      self = authToken.map(_.user === this.user),
+      date = this.date.toString(),
+      update = this.update.toString()
+    )
+  }
+}
