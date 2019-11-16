@@ -18,6 +18,8 @@ import com.anontown.ports.ClockComponent
 import com.anontown.Constant
 import com.anontown.AuthTokenGeneral
 import com.anontown.AtNotFoundError
+import com.anontown.AtParamsError
+import com.anontown.AtRightError
 
 final case class ClientAPI(
     id: String,
@@ -49,6 +51,12 @@ object ClientName {
     import auto.eq._
     semi.eq
   }
+
+  def fromString(
+      value: String
+  ): Either[AtParamsError, ClientName] = {
+    Constant.Client.nameRegex.apValidate("name", value).map(ClientName(_))
+  }
 }
 
 final case class ClientUrl(value: String) extends AnyVal;
@@ -56,6 +64,12 @@ object ClientUrl {
   implicit val eqImpl: Eq[ClientUrl] = {
     import auto.eq._
     semi.eq
+  }
+
+  def fromString(
+      value: String
+  ): Either[AtParamsError, ClientUrl] = {
+    Constant.Client.urlRegex.apValidate("url", value).map(ClientUrl(_))
   }
 }
 
@@ -77,4 +91,98 @@ final case class Client(
       update = this.update.toString()
     )
   }
+
+  def changeData(
+      authToken: AuthTokenMaster,
+      name: Option[String],
+      url: Option[String]
+  )(ports: ClockComponent): Either[AtError, Client] = {
+    if (authToken.user =!= this.user) {
+      Left(new AtRightError("人のクライアント変更は出来ません"));
+    } else {
+      (
+        name
+          .map(ClientName.fromString(_))
+          .getOrElse(Right(this.name))
+          .toValidated,
+        url.map(ClientUrl.fromString(_)).getOrElse(Right(this.url)).toValidated
+      ).mapN(
+          (name, url) =>
+            this.copy(name = name, url = url, update = ports.clock.requestDate)
+        )
+        .toEither
+    }
+  }
+
+}
+
+object Client {
+  implicit val eqImpl: Eq[Client] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  def create(
+      authToken: AuthTokenMaster,
+      name: String,
+      url: String
+  ): ZIO[ObjectIdGeneratorComponent with ClockComponent, AtError, Client] = {
+    for {
+      id <- ZIO.accessM[ObjectIdGeneratorComponent](
+        _.objectIdGenerator.generateObjectId()
+      )
+
+      tmp <- ZIO.fromEither(
+        (
+          ClientName.fromString(name).toValidated,
+          ClientUrl.fromString(url).toValidated
+        ).mapN((_, _)).toEither
+      )
+
+      val (name, url) = tmp
+
+      date <- ZIO.access[ClockComponent](_.clock.requestDate)
+    } yield Client(
+      id = ClientId(id),
+      name = name,
+      url = url,
+      user = authToken.user,
+      date = date,
+      update = date
+    )
+  }
+
+  /*
+    static create(
+    objidGenerator: IObjectIdGenerator,
+    authToken: IAuthTokenMaster,
+    name: string,
+    url: string,
+    now: Date,
+  ): Client {
+    paramsErrorMaker([
+      {
+        field: "name",
+        val: name,
+        regex: Constant.client.name.regex,
+        message: Constant.client.name.msg,
+      },
+      {
+        field: "url",
+        val: url,
+        regex: Constant.client.url.regex,
+        message: Constant.client.url.msg,
+      },
+    ]);
+
+    return new Client(
+      objidGenerator.generateObjectId(),
+      name,
+      url,
+      authToken.user,
+      now,
+      now,
+    );
+  }
+ */
 }
