@@ -12,7 +12,21 @@ import com.anontown.AuthToken
 
 final case class MsgAPI(id: String, priv: Boolean, text: String, date: String);
 
+object MsgAPI {
+  implicit val eqImpl: Eq[MsgAPI] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
 final case class MsgId(value: String) extends AnyVal;
+
+object MsgId {
+  implicit val eqImpl: Eq[MsgId] = {
+    import auto.eq._
+    semi.eq
+  }
+}
 
 final case class Msg(
     id: MsgId,
@@ -38,7 +52,7 @@ final case class Msg(
 }
 
 object Msg {
-  implicit val eqImpl: Eq[Client] = {
+  implicit val eqImpl: Eq[Msg] = {
     import auto.eq._
     semi.eq
   }
