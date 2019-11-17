@@ -29,7 +29,7 @@ object TokenFixtures {
   val tokenID = new ObjectId().toHexString()
   val tokenMaster =
     TokenMaster(
-      id = TokenId(tokenID),
+      id = TokenMasterId(tokenID),
       key = "key",
       user = UserId(UserFixtures.userID),
       date = OffsetDateTimeUtils.ofEpochMilli(0)
@@ -71,7 +71,7 @@ class TokenSpec extends FunSpec with Matchers {
             } yield {
               token should be(
                 TokenMaster(
-                  id = TokenId("token"),
+                  id = TokenMasterId("token"),
                   key = TestHelper.runZio(
                     TestHelper.createPorts(
                       safeIdIt = Iterator("key")
@@ -104,7 +104,7 @@ class TokenSpec extends FunSpec with Matchers {
         TokenFixtures.tokenMaster.auth("key") should be(
           Right(
             AuthTokenMaster(
-              id = TokenId(TokenFixtures.tokenID),
+              id = TokenMasterId(TokenFixtures.tokenID),
               user = UserId(UserFixtures.userID)
             )
           )

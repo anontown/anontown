@@ -19,10 +19,22 @@ import com.anontown.Constant
 import com.anontown.AuthTokenGeneral
 import com.anontown.AtNotFoundError
 
-final case class TokenId(value: String) extends AnyVal
+trait TokenId {
+  val value: String;
+}
+final case class TokenGeneralId(value: String) extends TokenId
 
-object TokenId {
-  implicit val eqImpl: Eq[TokenId] = {
+object TokenGeneralId {
+  implicit val eqImpl: Eq[TokenGeneralId] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
+final case class TokenMasterId(value: String) extends TokenId
+
+object TokenMasterId {
+  implicit val eqImpl: Eq[TokenMasterId] = {
     import auto.eq._
     semi.eq
   }
@@ -81,7 +93,9 @@ object TokenGeneralAPI {
 }
 
 sealed trait Token {
-  val id: TokenId;
+  type Id <: TokenId
+
+  val id: Id;
   val key: String;
   val user: UserId;
   val date: OffsetDateTime;
@@ -119,12 +133,13 @@ object Token {
 }
 
 final case class TokenMaster(
-    id: TokenId,
+    id: TokenMasterId,
     key: String,
     user: UserId,
     date: OffsetDateTime
 ) extends Token {
   type API = TokenMasterAPI
+  type Id = TokenMasterId
 
   def fromBaseAPI(id: String, key: String, date: String): TokenMasterAPI = {
     TokenMasterAPI(id = id, key = key, date = date)
@@ -157,7 +172,7 @@ object TokenMaster {
       key <- Token.createTokenKey()
       now <- ZIO.access[ClockComponent](_.clock.requestDate)
     } yield TokenMaster(
-      id = TokenId(id),
+      id = TokenMasterId(id),
       key = key,
       user = authUser.id,
       date = now
@@ -166,7 +181,7 @@ object TokenMaster {
 }
 
 final case class TokenGeneral(
-    id: TokenId,
+    id: TokenGeneralId,
     key: String,
     client: ClientId,
     user: UserId,
@@ -174,6 +189,7 @@ final case class TokenGeneral(
     date: OffsetDateTime
 ) extends Token {
   type API = TokenGeneralAPI
+  type Id = TokenGeneralId
 
   def fromBaseAPI(id: String, key: String, date: String): TokenGeneralAPI = {
     TokenGeneralAPI(
@@ -259,7 +275,7 @@ object TokenGeneral {
       key <- Token.createTokenKey()
       now <- ZIO.access[ClockComponent](_.clock.requestDate)
     } yield TokenGeneral(
-      id = TokenId(id),
+      id = TokenGeneralId(id),
       key = key,
       client = client.id,
       user = authToken.user,
