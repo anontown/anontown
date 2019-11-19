@@ -94,8 +94,9 @@ sealed trait TopicId extends Any {
 }
 
 sealed trait TopicSearchId extends Any with TopicId;
+sealed trait TopicTemporaryId extends Any with TopicId;
 
-final case class TopicForkId(value: String) extends AnyVal with TopicId;
+final case class TopicForkId(value: String) extends AnyVal with TopicTemporaryId;
 object TopicForkId {
   implicit val eqImpl: Eq[TopicForkId] = {
     import auto.eq._
@@ -111,7 +112,10 @@ object TopicNormalId {
   }
 }
 
-final case class TopicOneId(value: String) extends AnyVal with TopicSearchId;
+final case class TopicOneId(value: String)
+    extends AnyVal
+    with TopicSearchId
+    with TopicTemporaryId;
 object TopicOneId {
   implicit val eqImpl: Eq[TopicOneId] = {
     import auto.eq._
@@ -170,6 +174,10 @@ sealed trait TopicSearch extends Topic {
   val text: TopicText;
 }
 
+sealed trait TopicTemporary extends Topic {
+  type Id <: TopicTemporaryId;
+}
+
 final case class TopicNormal(
     id: TopicNormalId,
     title: TopicTitle,
@@ -201,7 +209,8 @@ final case class TopicOne(
     active: Boolean,
     tags: TopicTags,
     text: TopicText
-) extends TopicSearch {
+) extends TopicSearch
+    with TopicTemporary {
   type Id = TopicOneId;
 }
 
@@ -221,7 +230,8 @@ final case class TopicFork(
     ageUpdate: OffsetDateTime,
     active: Boolean,
     parent: TopicNormalId
-) extends Topic {
+) extends Topic
+    with TopicTemporary {
   type Id = TopicForkId;
 }
 

@@ -238,9 +238,10 @@ object ResForkId {
 
 sealed trait Res {
   type Id <: ResId;
+  type TId <: TopicId;
 
   val id: Id;
-  val topic: TopicId;
+  val topic: TId;
   val date: OffsetDateTime;
   val user: UserId;
   val votes: List[Vote];
@@ -266,6 +267,7 @@ final case class ResNormal(
     age: Boolean
 ) extends Res {
   type Id = ResNormalId;
+  type TId = TopicId;
 }
 
 object ResNormal {
@@ -287,6 +289,7 @@ final case class ResHistory(
     history: HistoryId
 ) extends Res {
   type Id = ResHistoryId;
+  type TId = TopicNormalId;
 }
 
 object ResHistory {
@@ -298,7 +301,7 @@ object ResHistory {
 
 final case class ResTopic(
     id: ResTopicId,
-    topic: TopicId,
+    topic: TopicTemporaryId,
     date: OffsetDateTime,
     user: UserId,
     votes: List[Vote],
@@ -307,6 +310,7 @@ final case class ResTopic(
     replyCount: Int
 ) extends Res {
   type Id = ResTopicId;
+  type TId = TopicTemporaryId;
 }
 
 object ResTopic {
@@ -328,6 +332,7 @@ final case class ResFork(
     fork: TopicForkId
 ) extends Res {
   type Id = ResForkId;
+  type TId = TopicNormalId;
 }
 
 object ResFork {
