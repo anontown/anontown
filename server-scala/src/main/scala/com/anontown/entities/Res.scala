@@ -14,7 +14,7 @@ import com.anontown.AtRightError
 import com.anontown.AuthToken
 import com.anontown.AtServerError
 
-final case class Vote(user: String, value: Int);
+final case class Vote(user: UserId, value: Int);
 
 object Vote {
   implicit val eqImpl: Eq[Vote] = {
@@ -240,7 +240,7 @@ sealed trait Res {
   type Id <: ResId;
 
   val id: Id;
-  val topic: String;
+  val topic: TopicId;
   val date: OffsetDateTime;
   val user: UserId;
   val votes: List[Vote];
@@ -251,7 +251,7 @@ sealed trait Res {
 
 final case class ResNormal(
     id: ResNormalId,
-    topic: String,
+    topic: TopicId,
     date: OffsetDateTime,
     user: UserId,
     votes: List[Vote],
@@ -277,7 +277,7 @@ object ResNormal {
 
 final case class ResHistory(
     id: ResHistoryId,
-    topic: String,
+    topic: TopicNormalId,
     date: OffsetDateTime,
     user: UserId,
     votes: List[Vote],
@@ -298,7 +298,7 @@ object ResHistory {
 
 final case class ResTopic(
     id: ResTopicId,
-    topic: String,
+    topic: TopicId,
     date: OffsetDateTime,
     user: UserId,
     votes: List[Vote],
@@ -318,14 +318,14 @@ object ResTopic {
 
 final case class ResFork(
     id: ResForkId,
-    topic: String,
+    topic: TopicNormalId,
     date: OffsetDateTime,
     user: UserId,
     votes: List[Vote],
     lv: Int,
     hash: String,
     replyCount: Int,
-    fork: String
+    fork: TopicForkId
 ) extends Res {
   type Id = ResForkId;
 }
