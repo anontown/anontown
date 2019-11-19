@@ -196,11 +196,11 @@ object Reply {
   }
 }
 
-sealed trait ResId {
-  val value: String;
+sealed trait ResId extends Any {
+  def value: String;
 }
 
-final case class ResNormalId(value: String) extends ResId;
+final case class ResNormalId(value: String) extends AnyVal with ResId;
 
 object ResNormalId {
   implicit val eqImpl: Eq[ResNormalId] = {
@@ -209,7 +209,7 @@ object ResNormalId {
   }
 }
 
-final case class ResHistoryId(value: String) extends ResId;
+final case class ResHistoryId(value: String) extends AnyVal with ResId;
 
 object ResHistoryId {
   implicit val eqImpl: Eq[ResHistoryId] = {
@@ -218,7 +218,7 @@ object ResHistoryId {
   }
 }
 
-final case class ResTopicId(value: String) extends ResId;
+final case class ResTopicId(value: String) extends AnyVal with ResId;
 
 object ResTopicId {
   implicit val eqImpl: Eq[ResTopicId] = {
@@ -227,7 +227,7 @@ object ResTopicId {
   }
 }
 
-final case class ResForkId(value: String) extends ResId;
+final case class ResForkId(value: String) extends AnyVal with ResId;
 
 object ResForkId {
   implicit val eqImpl: Eq[ResForkId] = {
