@@ -119,11 +119,43 @@ object TopicOneId {
   }
 }
 
+final case class TopicTitle(value: String) extends AnyVal;
+object TopicTitle {
+  implicit val eqImpl: Eq[TopicTitle] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
+final case class TopicText(value: String) extends AnyVal;
+object TopicText {
+  implicit val eqImpl: Eq[TopicText] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
+final case class TopicTag(value: String) extends AnyVal;
+object TopicTag {
+  implicit val eqImpl: Eq[TopicTag] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
+final case class TopicTags(value: List[TopicTag]) extends AnyVal;
+object TopicTags {
+  implicit val eqImpl: Eq[TopicTags] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
 sealed trait Topic {
   type Id <: TopicId;
 
   val id: Id;
-  val title: String;
+  val title: TopicTitle;
   val update: OffsetDateTime;
   val date: OffsetDateTime;
   val resCount: Int;
@@ -134,41 +166,55 @@ sealed trait Topic {
 sealed trait TopicSearch extends Topic {
   type Id <: TopicSearchId;
 
-  val tags: List[String];
-  val text: String;
+  val tags: TopicTags;
+  val text: TopicText;
 }
 
 final case class TopicNormal(
     id: TopicNormalId,
-    title: String,
+    title: TopicTitle,
     update: OffsetDateTime,
     date: OffsetDateTime,
     resCount: Int,
     ageUpdate: OffsetDateTime,
     active: Boolean,
-    tags: List[String],
-    text: String
+    tags: TopicTags,
+    text: TopicText
 ) extends TopicSearch {
   type Id = TopicNormalId;
 }
 
+object TopicNormal {
+  implicit val eqImpl: Eq[TopicNormal] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
 final case class TopicOne(
     id: TopicOneId,
-    title: String,
+    title: TopicTitle,
     update: OffsetDateTime,
     date: OffsetDateTime,
     resCount: Int,
     ageUpdate: OffsetDateTime,
     active: Boolean,
-    tags: List[String],
-    text: String
+    tags: TopicTags,
+    text: TopicText
 ) extends TopicSearch {
   type Id = TopicOneId;
 }
 
+object TopicOne {
+  implicit val eqImpl: Eq[TopicOne] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
 final case class TopicFork(
     id: TopicForkId,
-    title: String,
+    title: TopicTitle,
     update: OffsetDateTime,
     date: OffsetDateTime,
     resCount: Int,
@@ -177,4 +223,11 @@ final case class TopicFork(
     parent: TopicNormalId
 ) extends Topic {
   type Id = TopicForkId;
+}
+
+object TopicFork {
+  implicit val eqImpl: Eq[TopicFork] = {
+    import auto.eq._
+    semi.eq
+  }
 }
