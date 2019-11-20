@@ -13,6 +13,9 @@ import com.anontown.AtParamsError
 import com.anontown.AtRightError
 import com.anontown.AuthToken
 import com.anontown.AtServerError
+import com.anontown.AtPrerequisiteError
+import com.anontown.entities.VoteType.Uv
+import com.anontown.entities.VoteType.Dv
 
 final case class Vote(user: UserId, value: Int);
 
@@ -21,6 +24,18 @@ object Vote {
     import auto.eq._
     semi.eq
   }
+}
+
+sealed trait VoteType;
+
+object VoteType {
+  implicit val eqImpl: Eq[VoteType] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  final case class Uv() extends VoteType;
+  final case class Dv() extends VoteType;
 }
 
 sealed trait ResAPI {
@@ -239,6 +254,7 @@ object ResForkId {
 sealed trait Res {
   type Id <: ResId;
   type TId <: TopicId;
+  type Self <: Res;
 
   val id: Id;
   val topic: TId;
@@ -248,6 +264,86 @@ sealed trait Res {
   val lv: Int;
   val hash: String;
   val replyCount: Int;
+
+  def self: Self;
+  def withVotes(votes: List[Vote]): Self;
+
+  def v(
+      resUser: User,
+      user: User,
+      vtype: VoteType,
+      authToken: AuthToken
+  ): Either[AtError, (Self#Self, User)] = {
+    assert(resUser.id === this.user);
+    assert(user.id === authToken.user);
+
+    val voted = this.votes.find(_.user === user.id);
+    for {
+      data <- voted match {
+        case Some(voted)
+            if ((voted.value > 0 && vtype === VoteType
+              .Uv()) || (voted.value < 0 && vtype === VoteType
+              .Dv())) =>
+          this.cv(resUser, user, authToken)
+        case _ => Right((this.self, resUser))
+      }
+
+      result <- data._1._v(data._2, user, vtype, authToken)
+    } yield result
+  }
+
+  // 既に投票していたらエラー
+  def _v(
+      resUser: User,
+      user: User,
+      vtype: VoteType,
+      authToken: AuthToken
+  ): Either[AtError, (Self, User)] = {
+    assert(resUser.id === this.user);
+    assert(user.id === authToken.user);
+
+    if (user.id === this.user) {
+      Left(new AtRightError("自分に投票は出来ません"));
+    } else if (this.votes.find(_.user === user.id).isDefined) {
+      Left(new AtPrerequisiteError("既に投票しています"))
+    } else {
+      val valueAbs = (user.lv.toDouble / 100.0).floor.toInt + 1;
+      val value = vtype match {
+        case Uv() => valueAbs;
+        case Dv() => -valueAbs;
+      }
+      val newResUser = resUser.changeLv(resUser.lv + value);
+      Right(
+        (
+          this
+            .withVotes(
+              this.votes.appended(Vote(user = user.id, value = value))
+            ),
+          newResUser
+        )
+      )
+    }
+  }
+
+  def cv(
+      resUser: User,
+      user: User,
+      authToken: AuthToken
+  ): Either[AtError, (Self, User)] = {
+    assert(resUser.id === this.user);
+    assert(user.id === authToken.user);
+
+    val vote = this.votes.find(_.user === user.id);
+    vote match {
+      case Some(vote) => {
+        val newResUser = resUser.changeLv(resUser.lv - vote.value);
+        Right(
+          (this.withVotes(this.votes.filter(_.user =!= user.id)), newResUser)
+        )
+      }
+      case None => Left(new AtPrerequisiteError("投票していません"))
+    }
+  }
 }
 
 final case class ResNormal(
@@ -266,8 +362,13 @@ final case class ResNormal(
     profile: Option[ProfileId],
     age: Boolean
 ) extends Res {
+  type Self = ResNormal;
   type Id = ResNormalId;
   type TId = TopicId;
+
+  override def withVotes(votes: List[Vote]): Self = {
+    this.copy(votes = votes)
+  }
 }
 
 object ResNormal {
@@ -288,8 +389,13 @@ final case class ResHistory(
     replyCount: Int,
     history: HistoryId
 ) extends Res {
+  type Self = ResHistory;
   type Id = ResHistoryId;
   type TId = TopicNormalId;
+
+  override def withVotes(votes: List[Vote]): Self = {
+    this.copy(votes = votes)
+  }
 }
 
 object ResHistory {
@@ -309,8 +415,13 @@ final case class ResTopic(
     hash: String,
     replyCount: Int
 ) extends Res {
+  type Self = ResTopic;
   type Id = ResTopicId;
   type TId = TopicTemporaryId;
+
+  override def withVotes(votes: List[Vote]): Self = {
+    this.copy(votes = votes)
+  }
 }
 
 object ResTopic {
@@ -331,8 +442,13 @@ final case class ResFork(
     replyCount: Int,
     fork: TopicForkId
 ) extends Res {
+  type Self = ResFork;
   type Id = ResForkId;
   type TId = TopicNormalId;
+
+  override def withVotes(votes: List[Vote]): Self = {
+    this.copy(votes = votes)
+  }
 }
 
 object ResFork {
