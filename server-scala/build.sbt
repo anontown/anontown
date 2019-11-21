@@ -8,7 +8,8 @@ lazy val commonSettings = Seq(
   organization := "net.kgtkr",
   scalaVersion := "2.13.1",
   scalacOptions ++= Seq(
-    "-language:higherKinds"
+    "-language:higherKinds",
+    "-Ymacro-annotations"
   ),
   scalacOptions in (Compile, compile) ++= Seq(
     "-Ywarn-unused",
@@ -47,7 +48,8 @@ lazy val root = (project in file("."))
       "org.typelevel" %% "cats-effect" % "2.0.0",
       "org.atnos" %% "eff" % "5.5.2",
       "org.typelevel" %% "kittens" % "2.0.0",
-      "org.mongodb.scala" %% "mongo-scala-driver" % "2.7.0"
+      "org.mongodb.scala" %% "mongo-scala-driver" % "2.7.0",
+      "org.typelevel" %% "simulacrum" % "1.0.0"
     ),
     mainClass in assembly := Some("com.anontown.App"),
     assemblyJarName in assembly := "app.jar"
