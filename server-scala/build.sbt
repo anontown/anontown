@@ -22,11 +22,13 @@ lazy val commonSettings = Seq(
       Wart.DefaultArguments,
       Wart.JavaSerializable,
       Wart.Product,
-      Wart.Serializable
+      Wart.Serializable,
+      Wart.PublicInference
     )
 )
 
 val zioVersion = "1.0.0-RC14"
+val monocleVersion = "2.0.0"
 
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
@@ -49,7 +51,9 @@ lazy val root = (project in file("."))
       "org.atnos" %% "eff" % "5.5.2",
       "org.typelevel" %% "kittens" % "2.0.0",
       "org.mongodb.scala" %% "mongo-scala-driver" % "2.7.0",
-      "org.typelevel" %% "simulacrum" % "1.0.0"
+      "org.typelevel" %% "simulacrum" % "1.0.0",
+      "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
+      "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion
     ),
     mainClass in assembly := Some("com.anontown.App"),
     assemblyJarName in assembly := "app.jar"
