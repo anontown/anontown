@@ -4,9 +4,11 @@ addCompilerPlugin(
 )
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
+val scalaVersionValue = "2.13.1"
+
 lazy val commonSettings = Seq(
   organization := "net.kgtkr",
-  scalaVersion := "2.13.1",
+  scalaVersion := scalaVersionValue,
   scalacOptions ++= Seq(
     "-language:higherKinds",
     "-Ymacro-annotations"
@@ -31,6 +33,7 @@ val zioVersion = "1.0.0-RC14"
 val monocleVersion = "2.0.0"
 
 lazy val root = (project in file("."))
+  .dependsOn(macros)
   .settings(commonSettings: _*)
   .settings(
     name := "anontown",
@@ -57,4 +60,15 @@ lazy val root = (project in file("."))
     ),
     mainClass in assembly := Some("com.anontown.App"),
     assemblyJarName in assembly := "app.jar"
+  )
+  .aggregate(macros)
+
+lazy val macros = (project in file("macros"))
+  .settings(commonSettings: _*)
+  .settings(
+    name := "anontown-macros",
+    version := "0.1",
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersionValue
+    )
   )

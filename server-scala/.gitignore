@@ -4,3 +4,4 @@
 /.bloop/
 /project/.bloop/
 /target/
+/macros/target/
