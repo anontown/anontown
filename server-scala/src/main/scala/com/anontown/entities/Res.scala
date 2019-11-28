@@ -242,16 +242,29 @@ trait Res[A] {
   type Id <: ResId;
   type TId <: TopicId;
 
+  type SelfLens[T] = Lens[A, T]
   type SelfApplyLens[T] = ApplyLens[A, A, T, T]
 
-  def id(self: A): SelfApplyLens[Id];
-  def topic(self: A): SelfApplyLens[TId];
-  def date(self: A): SelfApplyLens[OffsetDateTime];
-  def user(self: A): SelfApplyLens[UserId];
-  def votes(self: A): SelfApplyLens[List[Vote]];
-  def lv(self: A): SelfApplyLens[Int];
-  def hash(self: A): SelfApplyLens[String];
-  def replyCount(self: A): SelfApplyLens[Int];
+  def idLens: SelfLens[Id];
+  def topicLens: SelfLens[TId];
+  def dateLens: SelfLens[OffsetDateTime];
+  def userLens: SelfLens[UserId];
+  def votesLens: SelfLens[List[Vote]];
+  def lvLens: SelfLens[Int];
+  def hashLens: SelfLens[String];
+  def replyCountLens: SelfLens[Int];
+
+  def id(self: A): SelfApplyLens[Id] = self.applyLens(this.idLens);
+  def topic(self: A): SelfApplyLens[TId] = self.applyLens(this.topicLens);
+  def date(self: A): SelfApplyLens[OffsetDateTime] =
+    self.applyLens(this.dateLens);
+  def user(self: A): SelfApplyLens[UserId] = self.applyLens(this.userLens);
+  def votes(self: A): SelfApplyLens[List[Vote]] =
+    self.applyLens(this.votesLens);
+  def lv(self: A): SelfApplyLens[Int] = self.applyLens(this.lvLens);
+  def hash(self: A): SelfApplyLens[String] = self.applyLens(this.hashLens);
+  def replyCount(self: A): SelfApplyLens[Int] =
+    self.applyLens(this.replyCountLens);
 
   def v(self: A)(
       resUser: User,
@@ -360,15 +373,15 @@ object ResNormal {
     type Id = ResNormalId;
     type TId = TopicId;
 
-    override def id(self: Self) = self.applyLens(GenLens[Self](_.id))
-    override def topic(self: Self) = self.applyLens(GenLens[Self](_.topic))
-    override def date(self: Self) = self.applyLens(GenLens[Self](_.date))
-    override def user(self: Self) = self.applyLens(GenLens[Self](_.user))
-    override def votes(self: Self) = self.applyLens(GenLens[Self](_.votes))
-    override def lv(self: Self) = self.applyLens(GenLens[Self](_.lv))
-    override def hash(self: Self) = self.applyLens(GenLens[Self](_.hash))
-    override def replyCount(self: Self) =
-      self.applyLens(GenLens[Self](_.replyCount))
+    override def idLens = GenLens[Self](_.id)
+    override def topicLens = GenLens[Self](_.topic)
+    override def dateLens = GenLens[Self](_.date)
+    override def userLens = GenLens[Self](_.user)
+    override def votesLens = GenLens[Self](_.votes)
+    override def lvLens = GenLens[Self](_.lv)
+    override def hashLens = GenLens[Self](_.hash)
+    override def replyCountLens =
+      GenLens[Self](_.replyCount)
   }
 }
 
@@ -394,15 +407,15 @@ object ResHistory {
     type Id = ResHistoryId;
     type TId = TopicNormalId;
 
-    override def id(self: Self) = self.applyLens(GenLens[Self](_.id))
-    override def topic(self: Self) = self.applyLens(GenLens[Self](_.topic))
-    override def date(self: Self) = self.applyLens(GenLens[Self](_.date))
-    override def user(self: Self) = self.applyLens(GenLens[Self](_.user))
-    override def votes(self: Self) = self.applyLens(GenLens[Self](_.votes))
-    override def lv(self: Self) = self.applyLens(GenLens[Self](_.lv))
-    override def hash(self: Self) = self.applyLens(GenLens[Self](_.hash))
-    override def replyCount(self: Self) =
-      self.applyLens(GenLens[Self](_.replyCount))
+    override def idLens = GenLens[Self](_.id)
+    override def topicLens = GenLens[Self](_.topic)
+    override def dateLens = GenLens[Self](_.date)
+    override def userLens = GenLens[Self](_.user)
+    override def votesLens = GenLens[Self](_.votes)
+    override def lvLens = GenLens[Self](_.lv)
+    override def hashLens = GenLens[Self](_.hash)
+    override def replyCountLens =
+      GenLens[Self](_.replyCount)
   }
 }
 
@@ -431,15 +444,15 @@ object ResTopic {
     type Id = ResTopicId;
     type TId = TopicTemporaryId;
 
-    override def id(self: Self) = self.applyLens(GenLens[Self](_.id))
-    override def topic(self: Self) = self.applyLens(GenLens[Self](_.topic))
-    override def date(self: Self) = self.applyLens(GenLens[Self](_.date))
-    override def user(self: Self) = self.applyLens(GenLens[Self](_.user))
-    override def votes(self: Self) = self.applyLens(GenLens[Self](_.votes))
-    override def lv(self: Self) = self.applyLens(GenLens[Self](_.lv))
-    override def hash(self: Self) = self.applyLens(GenLens[Self](_.hash))
-    override def replyCount(self: Self) =
-      self.applyLens(GenLens[Self](_.replyCount))
+    override def idLens = GenLens[Self](_.id)
+    override def topicLens = GenLens[Self](_.topic)
+    override def dateLens = GenLens[Self](_.date)
+    override def userLens = GenLens[Self](_.user)
+    override def votesLens = GenLens[Self](_.votes)
+    override def lvLens = GenLens[Self](_.lv)
+    override def hashLens = GenLens[Self](_.hash)
+    override def replyCountLens =
+      GenLens[Self](_.replyCount)
   }
 }
 
@@ -465,14 +478,14 @@ object ResFork {
     type Id = ResForkId;
     type TId = TopicNormalId;
 
-    override def id(self: Self) = self.applyLens(GenLens[Self](_.id))
-    override def topic(self: Self) = self.applyLens(GenLens[Self](_.topic))
-    override def date(self: Self) = self.applyLens(GenLens[Self](_.date))
-    override def user(self: Self) = self.applyLens(GenLens[Self](_.user))
-    override def votes(self: Self) = self.applyLens(GenLens[Self](_.votes))
-    override def lv(self: Self) = self.applyLens(GenLens[Self](_.lv))
-    override def hash(self: Self) = self.applyLens(GenLens[Self](_.hash))
-    override def replyCount(self: Self) =
-      self.applyLens(GenLens[Self](_.replyCount))
+    override def idLens = GenLens[Self](_.id)
+    override def topicLens = GenLens[Self](_.topic)
+    override def dateLens = GenLens[Self](_.date)
+    override def userLens = GenLens[Self](_.user)
+    override def votesLens = GenLens[Self](_.votes)
+    override def lvLens = GenLens[Self](_.lv)
+    override def hashLens = GenLens[Self](_.hash)
+    override def replyCountLens =
+      GenLens[Self](_.replyCount)
   }
 }
