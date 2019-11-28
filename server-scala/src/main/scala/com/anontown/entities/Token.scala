@@ -19,9 +19,17 @@ import com.anontown.Constant
 import com.anontown.AuthTokenGeneral
 import com.anontown.AtNotFoundError
 
-trait TokenId {
+sealed trait TokenId {
   val value: String;
 }
+
+object TokenId {
+  implicit val eqImpl: Eq[TokenId] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
 final case class TokenGeneralId(value: String) extends TokenId
 
 object TokenGeneralId {
