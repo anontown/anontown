@@ -53,8 +53,10 @@ sealed trait ResAPI {
   val dv: Int;
   val hash: String;
   val replyCount: Int;
-  val voteFlag: VoteFlag;
+  val voteFlag: Option[VoteFlag];
 }
+
+sealed trait ResNormalOrDeleteAPI extends ResAPI;
 
 sealed trait VoteFlag;
 object VoteFlag {
@@ -88,13 +90,14 @@ final case class ResNormalAPI(
     dv: Int,
     hash: String,
     replyCount: Int,
-    voteFlag: VoteFlag,
+    voteFlag: Option[VoteFlag],
     name: Option[String],
     text: String,
     replyID: Option[String],
     profileID: Option[String],
     isReply: Option[Boolean]
-) extends ResAPI;
+) extends ResAPI
+    with ResNormalOrDeleteAPI;
 
 object ResNormalAPI {
   implicit val eqImpl: Eq[ResNormalAPI] = {
@@ -112,7 +115,7 @@ final case class ResHistoryAPI(
     dv: Int,
     hash: String,
     replyCount: Int,
-    voteFlag: VoteFlag,
+    voteFlag: Option[VoteFlag],
     historyID: String
 ) extends ResAPI;
 
@@ -132,7 +135,7 @@ final case class ResTopicAPI(
     dv: Int,
     hash: String,
     replyCount: Int,
-    voteFlag: VoteFlag
+    voteFlag: Option[VoteFlag]
 ) extends ResAPI;
 
 object ResTopicAPI {
@@ -151,7 +154,7 @@ final case class ResForkAPI(
     dv: Int,
     hash: String,
     replyCount: Int,
-    voteFlag: VoteFlag,
+    voteFlag: Option[VoteFlag],
     forkID: String
 ) extends ResAPI;
 
@@ -171,9 +174,10 @@ final case class ResDeletePI(
     dv: Int,
     hash: String,
     replyCount: Int,
-    voteFlag: VoteFlag,
+    voteFlag: Option[VoteFlag],
     flag: ResDeleteReason
-) extends ResAPI;
+) extends ResAPI
+    with ResNormalOrDeleteAPI;
 
 object ResDeletePI {
   implicit val eqImpl: Eq[ResDeletePI] = {
@@ -236,14 +240,40 @@ object ResForkId {
 @typeclass
 trait Res[A] {
   import Res.ops._;
-  private implicit def resImpl: Res[A] = this;
+  private implicit def resImpl = this;
 
   type Self = A;
   type Id <: ResId;
   type TId <: TopicId;
+  type API <: ResAPI;
 
   type SelfLens[T] = Lens[A, T]
   type SelfApplyLens[T] = ApplyLens[A, A, T, T]
+
+  def fromBaseAPI(self: A)(authToken: Option[AuthToken], api: ResAPI): API;
+  def toAPI(self: A)(authToken: Option[AuthToken]): API = {
+    val s = self
+    this.fromBaseAPI(self)(
+      authToken,
+      new ResAPI {
+        val id = s.id.get.value
+        val topicID = s.topic.get.value
+        val date = s.date.get.toString
+        val self = authToken.map(_.user === s.user.get)
+        val uv = s.votes.get.filter(x => x.value > 0).size
+        val dv = s.votes.get.filter(x => x.value < 0).size
+        val hash = s.hash.get
+        val replyCount = s.replyCount.get
+        val voteFlag = authToken.map(
+          authToken =>
+            s.votes.get
+              .find(authToken.user === _.user)
+              .map(vote => if (vote.value > 0) VoteFlag.Uv() else VoteFlag.Dv())
+              .getOrElse(VoteFlag.Not())
+        )
+      }
+    )
+  }
 
   def idLens: SelfLens[Id];
   def topicLens: SelfLens[TId];
@@ -372,6 +402,7 @@ object ResNormal {
   implicit val resImpl = new Res[ResNormal] {
     type Id = ResNormalId;
     type TId = TopicId;
+    type API = ResNormalOrDeleteAPI;
 
     override def idLens = GenLens[Self](_.id)
     override def topicLens = GenLens[Self](_.topic)
@@ -382,6 +413,45 @@ object ResNormal {
     override def hashLens = GenLens[Self](_.hash)
     override def replyCountLens =
       GenLens[Self](_.replyCount)
+
+    override def fromBaseAPI(
+        self: Self
+    )(authToken: Option[AuthToken], base: ResAPI): API = {
+      self.deleteFlag match {
+        case None =>
+          ResNormalAPI(
+            id = base.id,
+            topicID = base.topicID,
+            date = base.date,
+            self = base.self,
+            uv = base.uv,
+            dv = base.dv,
+            hash = base.hash,
+            replyCount = base.replyCount,
+            voteFlag = base.voteFlag,
+            name = self.name,
+            text = self.text,
+            replyID = self.reply.map(_.res),
+            profileID = self.profile.map(_.value),
+            isReply = authToken.flatMap(
+              authToken => self.reply.map(authToken.user === _.user)
+            )
+          )
+        case Some(deleteFlag) =>
+          ResDeletePI(
+            id = base.id,
+            topicID = base.topicID,
+            date = base.date,
+            self = base.self,
+            uv = base.uv,
+            dv = base.dv,
+            hash = base.hash,
+            replyCount = base.replyCount,
+            voteFlag = base.voteFlag,
+            flag = deleteFlag
+          )
+      }
+    }
   }
 }
 
@@ -406,6 +476,7 @@ object ResHistory {
   implicit val resImpl = new Res[ResHistory] {
     type Id = ResHistoryId;
     type TId = TopicNormalId;
+    type API = ResHistoryAPI
 
     override def idLens = GenLens[Self](_.id)
     override def topicLens = GenLens[Self](_.topic)
@@ -416,6 +487,23 @@ object ResHistory {
     override def hashLens = GenLens[Self](_.hash)
     override def replyCountLens =
       GenLens[Self](_.replyCount)
+
+    override def fromBaseAPI(
+        self: Self
+    )(authToken: Option[AuthToken], base: ResAPI): API = {
+      ResHistoryAPI(
+        id = base.id,
+        topicID = base.topicID,
+        date = base.date,
+        self = base.self,
+        uv = base.uv,
+        dv = base.dv,
+        hash = base.hash,
+        replyCount = base.replyCount,
+        voteFlag = base.voteFlag,
+        historyID = self.history.value
+      )
+    }
   }
 }
 
@@ -443,6 +531,7 @@ object ResTopic {
   implicit val resImpl = new Res[ResTopic] {
     type Id = ResTopicId;
     type TId = TopicTemporaryId;
+    type API = ResTopicAPI
 
     override def idLens = GenLens[Self](_.id)
     override def topicLens = GenLens[Self](_.topic)
@@ -453,6 +542,22 @@ object ResTopic {
     override def hashLens = GenLens[Self](_.hash)
     override def replyCountLens =
       GenLens[Self](_.replyCount)
+
+    override def fromBaseAPI(
+        self: Self
+    )(authToken: Option[AuthToken], base: ResAPI): API = {
+      ResTopicAPI(
+        id = base.id,
+        topicID = base.topicID,
+        date = base.date,
+        self = base.self,
+        uv = base.uv,
+        dv = base.dv,
+        hash = base.hash,
+        replyCount = base.replyCount,
+        voteFlag = base.voteFlag
+      )
+    }
   }
 }
 
@@ -477,6 +582,7 @@ object ResFork {
   implicit val resImpl = new Res[ResFork] {
     type Id = ResForkId;
     type TId = TopicNormalId;
+    type API = ResForkAPI
 
     override def idLens = GenLens[Self](_.id)
     override def topicLens = GenLens[Self](_.topic)
@@ -487,5 +593,22 @@ object ResFork {
     override def hashLens = GenLens[Self](_.hash)
     override def replyCountLens =
       GenLens[Self](_.replyCount)
+
+    override def fromBaseAPI(
+        self: Self
+    )(authToken: Option[AuthToken], base: ResAPI): API = {
+      ResForkAPI(
+        id = base.id,
+        topicID = base.topicID,
+        date = base.date,
+        self = base.self,
+        uv = base.uv,
+        dv = base.dv,
+        hash = base.hash,
+        replyCount = base.replyCount,
+        voteFlag = base.voteFlag,
+        forkID = self.fork.value
+      )
+    }
   }
 }
