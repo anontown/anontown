@@ -93,8 +93,28 @@ sealed trait TopicId extends Any {
   def value: String;
 }
 
+object TopicId {
+  implicit val eqImpl: Eq[TopicId] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
 sealed trait TopicSearchId extends Any with TopicId;
+object TopicSearchId {
+  implicit val eqImpl: Eq[TopicSearchId] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
 sealed trait TopicTemporaryId extends Any with TopicId;
+object TopicTemporaryId {
+  implicit val eqImpl: Eq[TopicTemporaryId] = {
+    import auto.eq._
+    semi.eq
+  }
+}
 
 final case class TopicForkId(value: String) extends AnyVal with TopicTemporaryId;
 object TopicForkId {

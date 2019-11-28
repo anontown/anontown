@@ -231,6 +231,13 @@ sealed trait ResId extends Any {
   def value: String;
 }
 
+object ResId {
+  implicit val eqImpl: Eq[ResId] = {
+    import auto.eq._
+    semi.eq
+  }
+}
+
 final case class ResNormalId(value: String) extends AnyVal with ResId;
 
 object ResNormalId {
@@ -549,7 +556,9 @@ object ResNormal {
       _ <- ZIO.fromEither(
         Either.cond(
           // TODO: id.valueしなくても比較できるようにする
-          reply.map(_.topic.get.value === topic.id.value).getOrElse(true),
+          reply
+            .map(reply => (reply.topic.get: TopicId) === (topic.id: TopicId))
+            .getOrElse(true),
           (),
           new AtPrerequisiteError("他のトピックのレスへのリプは出来ません")
         )
