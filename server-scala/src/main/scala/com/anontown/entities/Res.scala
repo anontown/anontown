@@ -20,6 +20,8 @@ import monocle.syntax.apply._
 import monocle.macros.GenLens
 import monocle.syntax.ApplyLens
 import Res.ops._;
+import shapeless._
+import record._
 
 final case class Vote(user: UserId, value: Int);
 
@@ -163,7 +165,7 @@ object ResForkAPI {
   }
 }
 
-final case class ResDeletePI(
+final case class ResDeleteAPI(
     id: String,
     topicID: String,
     date: String,
@@ -177,8 +179,8 @@ final case class ResDeletePI(
 ) extends ResAPI
     with ResNormalOrDeleteAPI;
 
-object ResDeletePI {
-  implicit val eqImpl: Eq[ResDeletePI] = {
+object ResDeleteAPI {
+  implicit val eqImpl: Eq[ResDeleteAPI] = {
     import auto.eq._
     semi.eq
   }
@@ -281,29 +283,33 @@ trait Res[A] {
 
   type SelfLens[T] = Lens[A, T]
   type SelfApplyLens[T] = ApplyLens[A, A, T, T]
+  type ResBaseRecord =
+    Record.`'id -> String, 'topicID -> String, 'date -> String, 'self -> Option[Boolean], 'uv -> Int, 'dv -> Int, 'hash -> String, 'replyCount -> Int, 'voteFlag -> Option[VoteFlag]`.T
 
-  def fromBaseAPI(self: A)(authToken: Option[AuthToken], api: ResAPI): API;
+  def fromBaseAPI(self: A)(
+      authToken: Option[AuthToken],
+      api: ResBaseRecord
+  ): API;
   def toAPI(self: A)(authToken: Option[AuthToken]): API = {
-    val s = self
     this.fromBaseAPI(self)(
       authToken,
-      new ResAPI {
-        val id = s.id.get.value
-        val topicID = s.topic.get.value
-        val date = s.date.get.toString
-        val self = authToken.map(_.user === s.user.get)
-        val uv = s.votes.get.filter(x => x.value > 0).size
-        val dv = s.votes.get.filter(x => x.value < 0).size
-        val hash = s.hash.get
-        val replyCount = s.replyCount.get
-        val voteFlag = authToken.map(
+      Record(
+        id = self.id.get.value,
+        topicID = self.topic.get.value,
+        date = self.date.get.toString,
+        self = authToken.map(_.user === self.user.get),
+        uv = self.votes.get.filter(x => x.value > 0).size,
+        dv = self.votes.get.filter(x => x.value < 0).size,
+        hash = self.hash.get,
+        replyCount = self.replyCount.get,
+        voteFlag = authToken.map(
           authToken =>
-            s.votes.get
+            self.votes.get
               .find(authToken.user === _.user)
               .map(vote => if (vote.value > 0) VoteFlag.Uv() else VoteFlag.Dv())
               .getOrElse(VoteFlag.Not())
         )
-      }
+      )
     )
   }
 
@@ -477,39 +483,29 @@ object ResNormal {
 
     override def fromBaseAPI(
         self: Self
-    )(authToken: Option[AuthToken], base: ResAPI): API = {
+    )(authToken: Option[AuthToken], base: ResBaseRecord): API = {
       self.deleteFlag match {
         case None =>
-          ResNormalAPI(
-            id = base.id,
-            topicID = base.topicID,
-            date = base.date,
-            self = base.self,
-            uv = base.uv,
-            dv = base.dv,
-            hash = base.hash,
-            replyCount = base.replyCount,
-            voteFlag = base.voteFlag,
-            name = self.name.map(_.value),
-            text = self.text.value,
-            replyID = self.reply.map(_.res.value),
-            profileID = self.profile.map(_.value),
-            isReply = authToken.flatMap(
-              authToken => self.reply.map(authToken.user === _.user)
+          LabelledGeneric[ResNormalAPI].from(
+            base.merge(
+              Record(
+                name = self.name.map(_.value),
+                text = self.text.value,
+                replyID = self.reply.map(_.res.value),
+                profileID = self.profile.map(_.value),
+                isReply = authToken.flatMap(
+                  authToken => self.reply.map(authToken.user === _.user)
+                )
+              )
             )
           )
         case Some(deleteFlag) =>
-          ResDeletePI(
-            id = base.id,
-            topicID = base.topicID,
-            date = base.date,
-            self = base.self,
-            uv = base.uv,
-            dv = base.dv,
-            hash = base.hash,
-            replyCount = base.replyCount,
-            voteFlag = base.voteFlag,
-            flag = deleteFlag
+          LabelledGeneric[ResDeleteAPI].from(
+            base.merge(
+              Record(
+                flag = deleteFlag
+              )
+            )
           )
       }
     }
@@ -628,18 +624,13 @@ object ResHistory {
 
     override def fromBaseAPI(
         self: Self
-    )(authToken: Option[AuthToken], base: ResAPI): API = {
-      ResHistoryAPI(
-        id = base.id,
-        topicID = base.topicID,
-        date = base.date,
-        self = base.self,
-        uv = base.uv,
-        dv = base.dv,
-        hash = base.hash,
-        replyCount = base.replyCount,
-        voteFlag = base.voteFlag,
-        historyID = self.history.value
+    )(authToken: Option[AuthToken], base: ResBaseRecord): API = {
+      LabelledGeneric[ResHistoryAPI].from(
+        base.merge(
+          Record(
+            historyID = self.history.value
+          )
+        )
       )
     }
   }
@@ -717,18 +708,8 @@ object ResTopic {
 
     override def fromBaseAPI(
         self: Self
-    )(authToken: Option[AuthToken], base: ResAPI): API = {
-      ResTopicAPI(
-        id = base.id,
-        topicID = base.topicID,
-        date = base.date,
-        self = base.self,
-        uv = base.uv,
-        dv = base.dv,
-        hash = base.hash,
-        replyCount = base.replyCount,
-        voteFlag = base.voteFlag
-      )
+    )(authToken: Option[AuthToken], base: ResBaseRecord): API = {
+      LabelledGeneric[ResTopicAPI].from(base)
     }
   }
 
@@ -801,18 +782,9 @@ object ResFork {
 
     override def fromBaseAPI(
         self: Self
-    )(authToken: Option[AuthToken], base: ResAPI): API = {
-      ResForkAPI(
-        id = base.id,
-        topicID = base.topicID,
-        date = base.date,
-        self = base.self,
-        uv = base.uv,
-        dv = base.dv,
-        hash = base.hash,
-        replyCount = base.replyCount,
-        voteFlag = base.voteFlag,
-        forkID = self.fork.value
+    )(authToken: Option[AuthToken], base: ResBaseRecord): API = {
+      LabelledGeneric[ResForkAPI].from(
+        base.merge(Record(forkID = self.fork.value))
       )
     }
   }
