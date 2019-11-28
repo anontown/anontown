@@ -391,7 +391,36 @@ final case class ResNormal(
     deleteFlag: Option[ResDeleteReason],
     profile: Option[ProfileId],
     age: Boolean
-);
+) {
+  def del(
+      resUser: User,
+      authToken: AuthToken
+  ): Either[AtError, (ResNormal, User)] = {
+    assert(resUser.id === authToken.user);
+    for {
+      _ <- Either.cond(
+        authToken.user === this.user,
+        (),
+        new AtRightError("人の書き込み削除は出来ません")
+      )
+
+      _ <- Either.cond(
+        this.deleteFlag.isEmpty,
+        (),
+        new AtPrerequisiteError("既に削除済みです")
+      )
+
+      val newResUser = resUser.changeLv(resUser.lv - 1)
+    } yield (
+      (
+        this.copy(
+          deleteFlag = Some(ResDeleteReason.Self())
+        ),
+        newResUser
+      )
+    )
+  }
+}
 
 object ResNormal {
   implicit val eqImpl: Eq[ResNormal] = {
