@@ -56,7 +56,8 @@ lazy val root = (project in file("."))
       "org.mongodb.scala" %% "mongo-scala-driver" % "2.7.0",
       "org.typelevel" %% "simulacrum" % "1.0.0",
       "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
-      "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion
+      "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion,
+      "com.chuusai" %% "shapeless" % "2.3.3"
     ),
     mainClass in assembly := Some("com.anontown.App"),
     assemblyJarName in assembly := "app.jar"
