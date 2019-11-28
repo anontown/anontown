@@ -4,7 +4,6 @@ import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
 import zio.ZIO
-import com.anontown.AuthTokenMaster
 import com.anontown.AtError
 import com.anontown.ports.ObjectIdGeneratorComponent
 import com.anontown.ports.ClockComponent
@@ -12,12 +11,10 @@ import com.anontown.Constant
 import com.anontown.AtParamsError
 import com.anontown.AtRightError
 import com.anontown.AuthToken
-import com.anontown.AtServerError
 import com.anontown.AtPrerequisiteError
 import com.anontown.entities.VoteType.Uv
 import com.anontown.entities.VoteType.Dv
 import simulacrum._
-import scala.util.chaining._;
 import monocle.Lens
 import monocle.syntax.apply._
 import monocle.macros.GenLens
