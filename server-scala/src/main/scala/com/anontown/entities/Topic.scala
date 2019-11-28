@@ -165,6 +165,10 @@ sealed trait Topic {
   val resCount: Int;
   val ageUpdate: OffsetDateTime;
   val active: Boolean;
+
+  def hash(user: User)(ports: ClockComponent) = { ??? }
+
+  def resUpdate[R: Res](res: R): Either[AtError, Topic] = { ??? }
 }
 
 sealed trait TopicSearch extends Topic {

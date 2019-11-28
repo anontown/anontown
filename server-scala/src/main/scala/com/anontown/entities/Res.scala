@@ -22,6 +22,7 @@ import monocle.Lens
 import monocle.syntax.apply._
 import monocle.macros.GenLens
 import monocle.syntax.ApplyLens
+import Res.ops._;
 
 final case class Vote(user: UserId, value: Int);
 
@@ -187,7 +188,7 @@ object ResDeletePI {
 }
 
 final case class Reply(
-    res: String,
+    res: ResId,
     user: UserId
 );
 
@@ -195,6 +196,34 @@ object Reply {
   implicit val eqImpl: Eq[Reply] = {
     import auto.eq._
     semi.eq
+  }
+}
+
+final case class ResName(value: String) extends AnyVal;
+object ResName {
+  implicit val eqImpl: Eq[ResName] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  def fromString(
+      value: String
+  ): Either[AtParamsError, ResName] = {
+    Constant.Res.nameRegex.apValidate("name", value).map(ResName(_))
+  }
+}
+
+final case class ResText(value: String) extends AnyVal;
+object ResText {
+  implicit val eqImpl: Eq[ResText] = {
+    import auto.eq._
+    semi.eq
+  }
+
+  def fromString(
+      value: String
+  ): Either[AtParamsError, ResText] = {
+    Constant.Res.textRegex.apValidate("text", value).map(ResText(_))
   }
 }
 
@@ -239,7 +268,6 @@ object ResForkId {
 }
 @typeclass
 trait Res[A] {
-  import Res.ops._;
   private implicit def resImpl = this;
 
   type Self = A;
@@ -385,8 +413,8 @@ final case class ResNormal(
     lv: Int,
     hash: String,
     replyCount: Int,
-    name: Option[String],
-    text: String,
+    name: Option[ResName],
+    text: ResText,
     reply: Option[Reply],
     deleteFlag: Option[ResDeleteReason],
     profile: Option[ProfileId],
@@ -458,9 +486,9 @@ object ResNormal {
             hash = base.hash,
             replyCount = base.replyCount,
             voteFlag = base.voteFlag,
-            name = self.name,
-            text = self.text,
-            replyID = self.reply.map(_.res),
+            name = self.name.map(_.value),
+            text = self.text.value,
+            replyID = self.reply.map(_.res.value),
             profileID = self.profile.map(_.value),
             isReply = authToken.flatMap(
               authToken => self.reply.map(authToken.user === _.user)
@@ -481,6 +509,81 @@ object ResNormal {
           )
       }
     }
+  }
+
+  def create[R: Res](
+      topic: Topic,
+      user: User,
+      authUser: AuthToken,
+      name: Option[String],
+      text: String,
+      reply: Option[R],
+      profile: Option[Profile],
+      age: Boolean
+  ): ZIO[
+    ObjectIdGeneratorComponent with ClockComponent,
+    AtError,
+    (ResNormal, User, Topic)
+  ] = {
+    assert(user.id === authUser.user);
+    for {
+      (name, text) <- ZIO.fromEither(
+        (
+          name
+            .map(ResName.fromString(_).map(Some(_)))
+            .getOrElse(Right(None))
+            .toValidated,
+          ResText.fromString(text).toValidated
+        ).mapN((_, _)).toEither
+      )
+
+      _ <- ZIO.fromEither(
+        Either.cond(
+          profile.map(_.user === user.id).getOrElse(true),
+          (),
+          new AtRightError("自分のプロフィールを指定して下さい。")
+        )
+      )
+
+      // もしリプ先があるかつ、トピックがリプ先と違えばエラー
+      _ <- ZIO.fromEither(
+        Either.cond(
+          // TODO: id.valueしなくても比較できるようにする
+          reply.map(_.topic.get.value === topic.id.value).getOrElse(true),
+          (),
+          new AtPrerequisiteError("他のトピックのレスへのリプは出来ません")
+        )
+      )
+
+      requestDate <- ZIO.access[ClockComponent](_.clock.requestDate)
+
+      newUser <- ZIO.fromEither(user.changeLastRes(requestDate))
+
+      id <- ZIO.accessM[ObjectIdGeneratorComponent](
+        _.objectIdGenerator.generateObjectId()
+      )
+
+      hash <- ZIO.access[ClockComponent](topic.hash(newUser)(_))
+
+      val result = ResNormal(
+        name = name,
+        text = text,
+        reply =
+          reply.map(reply => Reply(res = reply.id.get, user = reply.user.get)),
+        deleteFlag = None,
+        profile = profile.map(_.id),
+        age = age,
+        id = ResNormalId(id),
+        topic = topic.id,
+        date = requestDate,
+        user = newUser.id,
+        votes = List(),
+        lv = newUser.lv * 5,
+        hash = hash,
+        replyCount = 0
+      )
+      newTopic <- ZIO.fromEither(topic.resUpdate(result))
+    } yield (result, newUser, newTopic)
   }
 }
 
