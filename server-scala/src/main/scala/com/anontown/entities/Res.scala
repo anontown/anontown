@@ -637,6 +637,40 @@ object ResHistory {
       )
     }
   }
+
+  def create(
+      topic: TopicNormal,
+      user: User,
+      authUser: AuthToken,
+      history: History
+  ): ZIO[
+    ObjectIdGeneratorComponent with ClockComponent,
+    AtError,
+    (ResHistory, Topic)
+  ] = {
+    assert(user.id === authUser.user);
+    for {
+      requestDate <- ZIO.access[ClockComponent](_.clock.requestDate)
+      id <- ZIO.accessM[ObjectIdGeneratorComponent](
+        _.objectIdGenerator.generateObjectId()
+      )
+
+      hash <- ZIO.access[ClockComponent](topic.hash(user)(_))
+
+      val result = ResHistory(
+        history = history.id,
+        id = ResHistoryId(id),
+        topic = topic.id,
+        date = requestDate,
+        user = user.id,
+        votes = List(),
+        lv = user.lv * 5,
+        hash = hash,
+        replyCount = 0
+      )
+      newTopic <- ZIO.fromEither(topic.resUpdate(result))
+    } yield (result, newTopic)
+  }
 }
 
 final case class ResTopic(
@@ -691,6 +725,39 @@ object ResTopic {
       )
     }
   }
+
+  // TODO: TopicOne | TopicForkを受け取ってそれをかえす
+  def create(
+      topic: TopicTemporary,
+      user: User,
+      authUser: AuthToken
+  ): ZIO[
+    ObjectIdGeneratorComponent with ClockComponent,
+    AtError,
+    (ResTopic, Topic)
+  ] = {
+    assert(user.id === authUser.user);
+    for {
+      requestDate <- ZIO.access[ClockComponent](_.clock.requestDate)
+      id <- ZIO.accessM[ObjectIdGeneratorComponent](
+        _.objectIdGenerator.generateObjectId()
+      )
+
+      hash <- ZIO.access[ClockComponent](topic.hash(user)(_))
+
+      val result = ResTopic(
+        id = ResTopicId(id),
+        topic = topic.id,
+        date = requestDate,
+        user = user.id,
+        votes = List(),
+        lv = user.lv * 5,
+        hash = hash,
+        replyCount = 0
+      )
+      newTopic <- ZIO.fromEither(topic.resUpdate(result))
+    } yield (result, newTopic)
+  }
 }
 
 final case class ResFork(
@@ -742,5 +809,40 @@ object ResFork {
         forkID = self.fork.value
       )
     }
+  }
+
+  // TODO: TopicNormalを返す
+  def create(
+      topic: TopicNormal,
+      user: User,
+      authUser: AuthToken,
+      fork: TopicFork
+  ): ZIO[
+    ObjectIdGeneratorComponent with ClockComponent,
+    AtError,
+    (ResFork, Topic)
+  ] = {
+    assert(user.id === authUser.user);
+    for {
+      requestDate <- ZIO.access[ClockComponent](_.clock.requestDate)
+      id <- ZIO.accessM[ObjectIdGeneratorComponent](
+        _.objectIdGenerator.generateObjectId()
+      )
+
+      hash <- ZIO.access[ClockComponent](topic.hash(user)(_))
+
+      val result = ResFork(
+        fork = fork.id,
+        id = ResForkId(id),
+        topic = topic.id,
+        date = requestDate,
+        user = user.id,
+        votes = List(),
+        lv = user.lv * 5,
+        hash = hash,
+        replyCount = 0
+      )
+      newTopic <- ZIO.fromEither(topic.resUpdate(result))
+    } yield (result, newTopic)
   }
 }
