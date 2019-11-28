@@ -19,8 +19,9 @@ import com.anontown.entities.VoteType.Dv
 import simulacrum._
 import scala.util.chaining._;
 import monocle.Lens
+import monocle.syntax.apply._
 import monocle.macros.GenLens
-import com.anontown.macros.lensTypeClass
+import monocle.syntax.ApplyLens
 
 final case class Vote(user: UserId, value: Int);
 
@@ -232,23 +233,25 @@ object ResForkId {
     semi.eq
   }
 }
-@lensTypeClass
 @typeclass
 trait Res[A] {
   import Res.ops._;
   private implicit def resImpl: Res[A] = this;
 
+  type Self = A;
   type Id <: ResId;
   type TId <: TopicId;
 
-  def idLens: Lens[A, Id];
-  def topicLens: Lens[A, TId];
-  def dateLens: Lens[A, OffsetDateTime];
-  def userLens: Lens[A, UserId];
-  def votesLens: Lens[A, List[Vote]];
-  def lvLens: Lens[A, Int];
-  def hashLens: Lens[A, String];
-  def replyCountLens: Lens[A, Int];
+  type SelfApplyLens[T] = ApplyLens[A, A, T, T]
+
+  def id(self: A): SelfApplyLens[Id];
+  def topic(self: A): SelfApplyLens[TId];
+  def date(self: A): SelfApplyLens[OffsetDateTime];
+  def user(self: A): SelfApplyLens[UserId];
+  def votes(self: A): SelfApplyLens[List[Vote]];
+  def lv(self: A): SelfApplyLens[Int];
+  def hash(self: A): SelfApplyLens[String];
+  def replyCount(self: A): SelfApplyLens[Int];
 
   def v(self: A)(
       resUser: User,
@@ -256,10 +259,10 @@ trait Res[A] {
       vtype: VoteType,
       authToken: AuthToken
   ): Either[AtError, (A, User)] = {
-    assert(resUser.id === self.user);
+    assert(resUser.id === self.user.get);
     assert(user.id === authToken.user);
 
-    val voted = self.votes.find(_.user === user.id);
+    val voted = self.votes.get.find(_.user === user.id);
     for {
       data <- voted match {
         case Some(voted)
@@ -281,12 +284,12 @@ trait Res[A] {
       vtype: VoteType,
       authToken: AuthToken
   ): Either[AtError, (A, User)] = {
-    assert(resUser.id === self.user);
+    assert(resUser.id === self.user.get);
     assert(user.id === authToken.user);
 
-    if (user.id === self.user) {
+    if (user.id === self.user.get) {
       Left(new AtRightError("自分に投票は出来ません"));
-    } else if (self.votes.find(_.user === user.id).isDefined) {
+    } else if (self.votes.get.find(_.user === user.id).isDefined) {
       Left(new AtPrerequisiteError("既に投票しています"))
     } else {
       val valueAbs = (user.lv.toDouble / 100.0).floor.toInt + 1;
@@ -297,10 +300,9 @@ trait Res[A] {
       val newResUser = resUser.changeLv(resUser.lv + value);
       Right(
         (
-          self
-            .modifyVotes(
-              _.appended(Vote(user = user.id, value = value))
-            ),
+          self.votes.modify(
+            _.appended(Vote(user = user.id, value = value))
+          ),
           newResUser
         )
       )
@@ -312,16 +314,16 @@ trait Res[A] {
       user: User,
       authToken: AuthToken
   ): Either[AtError, (A, User)] = {
-    assert(resUser.id === self.user);
+    assert(resUser.id === self.user.get);
     assert(user.id === authToken.user);
 
-    val vote = self.votes.find(_.user === user.id);
+    val vote = self.votes.get.find(_.user === user.id);
     vote match {
       case Some(vote) => {
         val newResUser = resUser.changeLv(resUser.lv - vote.value);
         Right(
           (
-            self.modifyVotes(_.filter(_.user =!= user.id)),
+            self.votes.modify(_.filter(_.user =!= user.id)),
             newResUser
           )
         )
@@ -358,14 +360,15 @@ object ResNormal {
     type Id = ResNormalId;
     type TId = TopicId;
 
-    override def idLens = GenLens[ResNormal](_.id)
-    override def topicLens = GenLens[ResNormal](_.topic)
-    override def dateLens = GenLens[ResNormal](_.date)
-    override def userLens = GenLens[ResNormal](_.user)
-    override def votesLens = GenLens[ResNormal](_.votes)
-    override def lvLens = GenLens[ResNormal](_.lv)
-    override def hashLens = GenLens[ResNormal](_.hash)
-    override def replyCountLens = GenLens[ResNormal](_.replyCount)
+    override def id(self: Self) = self.applyLens(GenLens[Self](_.id))
+    override def topic(self: Self) = self.applyLens(GenLens[Self](_.topic))
+    override def date(self: Self) = self.applyLens(GenLens[Self](_.date))
+    override def user(self: Self) = self.applyLens(GenLens[Self](_.user))
+    override def votes(self: Self) = self.applyLens(GenLens[Self](_.votes))
+    override def lv(self: Self) = self.applyLens(GenLens[Self](_.lv))
+    override def hash(self: Self) = self.applyLens(GenLens[Self](_.hash))
+    override def replyCount(self: Self) =
+      self.applyLens(GenLens[Self](_.replyCount))
   }
 }
 
@@ -388,18 +391,18 @@ object ResHistory {
   }
 
   implicit val resImpl = new Res[ResHistory] {
-    type Self = ResHistory;
     type Id = ResHistoryId;
     type TId = TopicNormalId;
 
-    override def idLens = GenLens[ResHistory](_.id)
-    override def topicLens = GenLens[ResHistory](_.topic)
-    override def dateLens = GenLens[ResHistory](_.date)
-    override def userLens = GenLens[ResHistory](_.user)
-    override def votesLens = GenLens[ResHistory](_.votes)
-    override def lvLens = GenLens[ResHistory](_.lv)
-    override def hashLens = GenLens[ResHistory](_.hash)
-    override def replyCountLens = GenLens[ResHistory](_.replyCount)
+    override def id(self: Self) = self.applyLens(GenLens[Self](_.id))
+    override def topic(self: Self) = self.applyLens(GenLens[Self](_.topic))
+    override def date(self: Self) = self.applyLens(GenLens[Self](_.date))
+    override def user(self: Self) = self.applyLens(GenLens[Self](_.user))
+    override def votes(self: Self) = self.applyLens(GenLens[Self](_.votes))
+    override def lv(self: Self) = self.applyLens(GenLens[Self](_.lv))
+    override def hash(self: Self) = self.applyLens(GenLens[Self](_.hash))
+    override def replyCount(self: Self) =
+      self.applyLens(GenLens[Self](_.replyCount))
   }
 }
 
@@ -428,14 +431,15 @@ object ResTopic {
     type Id = ResTopicId;
     type TId = TopicTemporaryId;
 
-    override def idLens = GenLens[ResTopic](_.id)
-    override def topicLens = GenLens[ResTopic](_.topic)
-    override def dateLens = GenLens[ResTopic](_.date)
-    override def userLens = GenLens[ResTopic](_.user)
-    override def votesLens = GenLens[ResTopic](_.votes)
-    override def lvLens = GenLens[ResTopic](_.lv)
-    override def hashLens = GenLens[ResTopic](_.hash)
-    override def replyCountLens = GenLens[ResTopic](_.replyCount)
+    override def id(self: Self) = self.applyLens(GenLens[Self](_.id))
+    override def topic(self: Self) = self.applyLens(GenLens[Self](_.topic))
+    override def date(self: Self) = self.applyLens(GenLens[Self](_.date))
+    override def user(self: Self) = self.applyLens(GenLens[Self](_.user))
+    override def votes(self: Self) = self.applyLens(GenLens[Self](_.votes))
+    override def lv(self: Self) = self.applyLens(GenLens[Self](_.lv))
+    override def hash(self: Self) = self.applyLens(GenLens[Self](_.hash))
+    override def replyCount(self: Self) =
+      self.applyLens(GenLens[Self](_.replyCount))
   }
 }
 
@@ -461,13 +465,14 @@ object ResFork {
     type Id = ResForkId;
     type TId = TopicNormalId;
 
-    override def idLens = GenLens[ResFork](_.id)
-    override def topicLens = GenLens[ResFork](_.topic)
-    override def dateLens = GenLens[ResFork](_.date)
-    override def userLens = GenLens[ResFork](_.user)
-    override def votesLens = GenLens[ResFork](_.votes)
-    override def lvLens = GenLens[ResFork](_.lv)
-    override def hashLens = GenLens[ResFork](_.hash)
-    override def replyCountLens = GenLens[ResFork](_.replyCount)
+    override def id(self: Self) = self.applyLens(GenLens[Self](_.id))
+    override def topic(self: Self) = self.applyLens(GenLens[Self](_.topic))
+    override def date(self: Self) = self.applyLens(GenLens[Self](_.date))
+    override def user(self: Self) = self.applyLens(GenLens[Self](_.user))
+    override def votes(self: Self) = self.applyLens(GenLens[Self](_.votes))
+    override def lv(self: Self) = self.applyLens(GenLens[Self](_.lv))
+    override def hash(self: Self) = self.applyLens(GenLens[Self](_.hash))
+    override def replyCount(self: Self) =
+      self.applyLens(GenLens[Self](_.replyCount))
   }
 }
