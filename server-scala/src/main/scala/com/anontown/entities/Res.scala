@@ -22,6 +22,7 @@ import monocle.syntax.ApplyLens
 import Res.ops._;
 import shapeless._
 import record._
+import com.anontown.utils.Record._
 
 final case class Vote(user: UserId, value: Int);
 
@@ -284,7 +285,16 @@ trait Res[A] {
   type SelfLens[T] = Lens[A, T]
   type SelfApplyLens[T] = ApplyLens[A, A, T, T]
   type ResBaseRecord =
-    Record.`'id -> String, 'topicID -> String, 'date -> String, 'self -> Option[Boolean], 'uv -> Int, 'dv -> Int, 'hash -> String, 'replyCount -> Int, 'voteFlag -> Option[VoteFlag]`.T
+    ("id" ->> String) ::
+      ("topicID" ->> String) ::
+      ("date" ->> String) ::
+      ("self" ->> Option[Boolean]) ::
+      ("uv" ->> Int) ::
+      ("dv" ->> Int) ::
+      ("hash" ->> String) ::
+      ("replyCount" ->> Int) ::
+      ("voteFlag" ->> Option[VoteFlag]) ::
+      HNil
 
   def fromBaseAPI(self: A)(
       authToken: Option[AuthToken],
