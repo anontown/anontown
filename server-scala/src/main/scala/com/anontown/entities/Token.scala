@@ -270,7 +270,6 @@ object TokenGeneral {
     semi.eq
   }
 
-  // TODO client
   def create(authToken: AuthTokenMaster, client: Client): ZIO[
     ClockComponent with ObjectIdGeneratorComponent with SafeIdGeneratorComponent with ConfigContainerComponent,
     AtServerError,
