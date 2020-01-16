@@ -34,7 +34,7 @@ import com.anontown.entities.history.{HistoryId, History}
 trait ResId extends Any {
   def value: String;
 
-  def equals_id(other: ResId): Boolean = {
+  def resIdEquals(other: ResId): Boolean = {
     this.value === other.value
   }
 }

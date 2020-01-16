@@ -86,13 +86,22 @@ object TopicForkAPI {
 trait TopicId extends Any {
   def value: String;
 
-  def equals_id(other: TopicId): Boolean = {
+  def topicIdEquals(other: TopicId): Boolean = {
     this.value === other.value
   }
 }
 
-trait TopicSearchId extends Any with TopicId;
-trait TopicTemporaryId extends Any with TopicId
+trait TopicSearchId extends Any with TopicId {
+  def topicSearchIdEquals(other: TopicSearchId): Boolean = {
+    this.value === other.value
+  }
+}
+
+trait TopicTemporaryId extends Any with TopicId {
+  def topicTemporaryIdEquals(other: TopicTemporaryId): Boolean = {
+    this.value === other.value
+  }
+}
 
 final case class TopicForkId(value: String) extends AnyVal with TopicTemporaryId;
 object TopicForkId {

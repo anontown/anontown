@@ -5,7 +5,7 @@ import cats.implicits._
 trait TokenId {
   val value: String;
 
-  def equals_id(other: TokenId): Boolean = {
+  def tokenIdEquals(other: TokenId): Boolean = {
     this.value === other.value
   }
 }

@@ -210,7 +210,7 @@ object ResNormal {
         Either.cond(
           // TODO: id.valueしなくても比較できるようにする
           reply
-            .map(reply => (reply.topic.get: TopicId) === (topic.id: TopicId))
+            .map(reply => reply.topic.get topicIdEquals topic.id)
             .getOrElse(true),
           (),
           new AtPrerequisiteError("他のトピックのレスへのリプは出来ません")
