@@ -1,7 +1,7 @@
 package com.anontown;
-import com.anontown.entities.UserId
-import com.anontown.entities.TokenId
-import com.anontown.entities.ClientId
+import com.anontown.entities.user.UserId
+import com.anontown.entities.token.TokenId
+import com.anontown.entities.client.ClientId
 
 sealed trait AuthToken {
   val id: TokenId;

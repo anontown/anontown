@@ -1,4 +1,4 @@
-package com.anontown.entities;
+package com.anontown.entities.user;
 
 import java.time.OffsetDateTime;
 import com.anontown.utils;

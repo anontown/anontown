@@ -1,4 +1,4 @@
-package com.anontown.entities
+package com.anontown.entities.msg
 
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
@@ -9,6 +9,7 @@ import com.anontown.ports.ObjectIdGeneratorComponent
 import com.anontown.ports.ClockComponent
 import com.anontown.AtRightError
 import com.anontown.AuthToken
+import com.anontown.entities.user.{UserId, User}
 
 final case class MsgAPI(id: String, priv: Boolean, text: String, date: String);
 

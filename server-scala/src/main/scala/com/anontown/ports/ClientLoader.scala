@@ -1,8 +1,7 @@
 package com.anontown.ports
-import com.anontown.entities.ClientId
 import zio.IO
 import com.anontown.AtError
-import com.anontown.entities.Client
+import com.anontown.entities.client.{Client, ClientId}
 
 trait ClientLoader {
   def load(id: ClientId): IO[AtError, Client];

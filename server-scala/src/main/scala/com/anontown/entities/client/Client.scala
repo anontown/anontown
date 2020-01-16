@@ -1,4 +1,4 @@
-package com.anontown.entities
+package com.anontown.entities.client
 
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
@@ -11,6 +11,7 @@ import com.anontown.ports.ClockComponent
 import com.anontown.Constant
 import com.anontown.AtParamsError
 import com.anontown.AtRightError
+import com.anontown.entities.user.UserId
 
 final case class ClientAPI(
     id: String,

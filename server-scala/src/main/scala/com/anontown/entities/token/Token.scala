@@ -1,4 +1,4 @@
-package com.anontown.entities
+package com.anontown.entities.token
 
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
@@ -18,6 +18,8 @@ import com.anontown.ports.ClockComponent
 import com.anontown.Constant
 import com.anontown.AuthTokenGeneral
 import com.anontown.AtNotFoundError
+import com.anontown.entities.user.UserId
+import com.anontown.entities.client.{ClientId, Client}
 
 sealed trait TokenId {
   val value: String;

@@ -1,4 +1,4 @@
-package com.anontown.entities
+package com.anontown.entities.storage
 
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.AuthTokenMaster
@@ -8,6 +8,8 @@ import com.anontown.AuthTokenGeneral
 import com.anontown.AtParamsError
 import com.anontown.AtRightError
 import com.anontown.AuthToken
+import com.anontown.entities.user.UserId
+import com.anontown.entities.client.ClientId
 
 final case class StorageAPI(key: String, value: String);
 

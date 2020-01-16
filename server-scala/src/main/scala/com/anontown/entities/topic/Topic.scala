@@ -1,10 +1,12 @@
-package com.anontown.entities
+package com.anontown.entities.topic
 
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
 import com.anontown.AtError
 import com.anontown.ports.ClockComponent
+import com.anontown.entities.res.Res
+import com.anontown.entities.user.User
 
 final case class TagsAPI(name: String, count: Int);
 object TagsAPI {
