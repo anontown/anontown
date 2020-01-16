@@ -25,7 +25,9 @@ lazy val commonSettings = Seq(
       Wart.JavaSerializable,
       Wart.Product,
       Wart.Serializable,
-      Wart.PublicInference
+      Wart.PublicInference,
+      Wart.ImplicitParameter,
+      Wart.ExplicitImplicitTypes
     )
 )
 

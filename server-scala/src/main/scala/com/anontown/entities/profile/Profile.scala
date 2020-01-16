@@ -9,8 +9,6 @@ import com.anontown.ports.ObjectIdGeneratorComponent
 import com.anontown.ports.ClockComponent
 import com.anontown.AtRightError
 import com.anontown.AuthToken
-import com.anontown.AtParamsError
-import com.anontown.Constant
 import com.anontown.entities.user.UserId
 
 final case class ProfileAPI(
@@ -27,60 +25,6 @@ object ProfileAPI {
   implicit val eqImpl: Eq[ProfileAPI] = {
     import auto.eq._
     semi.eq
-  }
-}
-
-final case class ProfileId(value: String) extends AnyVal;
-
-object ProfileId {
-  implicit val eqImpl: Eq[ProfileId] = {
-    import auto.eq._
-    semi.eq
-  }
-}
-
-final case class ProfileName(value: String) extends AnyVal;
-
-object ProfileName {
-  implicit val eqImpl: Eq[ProfileName] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  def fromString(
-      value: String
-  ): Either[AtParamsError, ProfileName] = {
-    Constant.Profile.nameRegex.apValidate("name", value).map(ProfileName(_))
-  }
-}
-
-final case class ProfileText(value: String) extends AnyVal;
-
-object ProfileText {
-  implicit val eqImpl: Eq[ProfileText] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  def fromString(
-      value: String
-  ): Either[AtParamsError, ProfileText] = {
-    Constant.Profile.textRegex.apValidate("text", value).map(ProfileText(_))
-  }
-}
-
-final case class ProfileSn(value: String) extends AnyVal;
-
-object ProfileSn {
-  implicit val eqImpl: Eq[ProfileSn] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  def fromString(
-      value: String
-  ): Either[AtParamsError, ProfileSn] = {
-    Constant.Profile.snRegex.apValidate("sn", value).map(ProfileSn(_))
   }
 }
 

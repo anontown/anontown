@@ -8,8 +8,6 @@ import com.anontown.AuthTokenMaster
 import com.anontown.AtError
 import com.anontown.ports.ObjectIdGeneratorComponent
 import com.anontown.ports.ClockComponent
-import com.anontown.Constant
-import com.anontown.AtParamsError
 import com.anontown.AtRightError
 import com.anontown.entities.user.UserId
 
@@ -26,42 +24,6 @@ object ClientAPI {
   implicit val eqImpl: Eq[ClientAPI] = {
     import auto.eq._
     semi.eq
-  }
-}
-
-final case class ClientId(value: String) extends AnyVal;
-object ClientId {
-  implicit val eqImpl: Eq[ClientId] = {
-    import auto.eq._
-    semi.eq
-  }
-}
-
-final case class ClientName(value: String) extends AnyVal;
-object ClientName {
-  implicit val eqImpl: Eq[ClientName] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  def fromString(
-      value: String
-  ): Either[AtParamsError, ClientName] = {
-    Constant.Client.nameRegex.apValidate("name", value).map(ClientName(_))
-  }
-}
-
-final case class ClientUrl(value: String) extends AnyVal;
-object ClientUrl {
-  implicit val eqImpl: Eq[ClientUrl] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  def fromString(
-      value: String
-  ): Either[AtParamsError, ClientUrl] = {
-    Constant.Client.urlRegex.apValidate("url", value).map(ClientUrl(_))
   }
 }
 

@@ -28,15 +28,6 @@ object HistoryAPI {
   }
 }
 
-final case class HistoryId(value: String) extends AnyVal;
-
-object HistoryId {
-  implicit val eqImpl: Eq[HistoryId] = {
-    import auto.eq._
-    semi.eq
-  }
-}
-
 final case class History(
     id: HistoryId,
     topic: String,

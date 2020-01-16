@@ -7,8 +7,6 @@ import zio.ZIO
 import com.anontown.AtError
 import com.anontown.ports.ObjectIdGeneratorComponent
 import com.anontown.ports.ClockComponent
-import com.anontown.Constant
-import com.anontown.AtParamsError
 import com.anontown.AtRightError
 import com.anontown.AuthToken
 import com.anontown.AtPrerequisiteError
@@ -33,28 +31,7 @@ import com.anontown.entities.topic.{
 import com.anontown.entities.profile.{ProfileId, Profile}
 import com.anontown.entities.history.{HistoryId, History}
 
-final case class Vote(user: UserId, value: Int);
-
-object Vote {
-  implicit val eqImpl: Eq[Vote] = {
-    import auto.eq._
-    semi.eq
-  }
-}
-
-sealed trait VoteType;
-
-object VoteType {
-  implicit val eqImpl: Eq[VoteType] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  final case class Uv() extends VoteType;
-  final case class Dv() extends VoteType;
-}
-
-sealed trait ResAPI {
+trait ResAPI {
   val id: String;
   val topicID: String;
   val date: String;
@@ -66,32 +43,9 @@ sealed trait ResAPI {
   val voteFlag: Option[VoteFlag];
 }
 
-sealed trait ResNormalOrDeleteAPI extends ResAPI;
+sealed trait ResNormalAPI extends ResAPI;
 
-sealed trait VoteFlag;
-object VoteFlag {
-  final case class Uv() extends VoteFlag;
-  final case class Dv() extends VoteFlag;
-  final case class Not() extends VoteFlag;
-
-  implicit val eqImpl: Eq[VoteFlag] = {
-    import auto.eq._
-    semi.eq
-  }
-}
-
-sealed trait ResDeleteReason;
-object ResDeleteReason {
-  implicit val eqImpl: Eq[ResDeleteReason] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  final case class Self() extends ResDeleteReason;
-  final case class Freeze() extends ResDeleteReason;
-}
-
-final case class ResNormalAPI(
+final case class ResNormalActiveAPI(
     id: String,
     topicID: String,
     date: String,
@@ -107,10 +61,10 @@ final case class ResNormalAPI(
     profileID: Option[String],
     isReply: Option[Boolean]
 ) extends ResAPI
-    with ResNormalOrDeleteAPI;
+    with ResNormalAPI;
 
-object ResNormalAPI {
-  implicit val eqImpl: Eq[ResNormalAPI] = {
+object ResNormalActiveAPI {
+  implicit val eqImpl: Eq[ResNormalActiveAPI] = {
     import auto.eq._
     semi.eq
   }
@@ -175,7 +129,7 @@ object ResForkAPI {
   }
 }
 
-final case class ResDeleteAPI(
+final case class ResNormalDeleteAPI(
     id: String,
     topicID: String,
     date: String,
@@ -187,63 +141,20 @@ final case class ResDeleteAPI(
     voteFlag: Option[VoteFlag],
     flag: ResDeleteReason
 ) extends ResAPI
-    with ResNormalOrDeleteAPI;
+    with ResNormalAPI;
 
-object ResDeleteAPI {
-  implicit val eqImpl: Eq[ResDeleteAPI] = {
+object ResNormalDeleteAPI {
+  implicit val eqImpl: Eq[ResNormalDeleteAPI] = {
     import auto.eq._
     semi.eq
   }
 }
 
-final case class Reply(
-    res: ResId,
-    user: UserId
-);
-
-object Reply {
-  implicit val eqImpl: Eq[Reply] = {
-    import auto.eq._
-    semi.eq
-  }
-}
-
-final case class ResName(value: String) extends AnyVal;
-object ResName {
-  implicit val eqImpl: Eq[ResName] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  def fromString(
-      value: String
-  ): Either[AtParamsError, ResName] = {
-    Constant.Res.nameRegex.apValidate("name", value).map(ResName(_))
-  }
-}
-
-final case class ResText(value: String) extends AnyVal;
-object ResText {
-  implicit val eqImpl: Eq[ResText] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  def fromString(
-      value: String
-  ): Either[AtParamsError, ResText] = {
-    Constant.Res.textRegex.apValidate("text", value).map(ResText(_))
-  }
-}
-
-sealed trait ResId extends Any {
+trait ResId extends Any {
   def value: String;
-}
 
-object ResId {
-  implicit val eqImpl: Eq[ResId] = {
-    import auto.eq._
-    semi.eq
+  def equals_id(other: ResId): Boolean = {
+    this.value === other.value
   }
 }
 
@@ -420,7 +331,7 @@ trait Res[A] {
   }
 }
 
-final case class ResNormal(
+final case class ResNormal[+ReplyResId <: ResId](
     id: ResNormalId,
     topic: TopicId,
     date: OffsetDateTime,
@@ -431,7 +342,7 @@ final case class ResNormal(
     replyCount: Int,
     name: Option[ResName],
     text: ResText,
-    reply: Option[Reply],
+    reply: Option[Reply[ReplyResId]],
     deleteFlag: Option[ResDeleteReason],
     profile: Option[ProfileId],
     age: Boolean
@@ -439,7 +350,7 @@ final case class ResNormal(
   def del(
       resUser: User,
       authToken: AuthToken
-  ): Either[AtError, (ResNormal, User)] = {
+  ): Either[AtError, (ResNormal[ReplyResId], User)] = {
     assert(resUser.id === authToken.user);
     for {
       _ <- Either.cond(
@@ -467,15 +378,10 @@ final case class ResNormal(
 }
 
 object ResNormal {
-  implicit val eqImpl: Eq[ResNormal] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  implicit val resImpl = new Res[ResNormal] {
+  implicit def resImpl[ReplyResId <: ResId] = new Res[ResNormal[ReplyResId]] {
     type Id = ResNormalId;
     type TId = TopicId;
-    type API = ResNormalOrDeleteAPI;
+    type API = ResNormalAPI;
 
     override def id(self: Self) = self.lens(_.id)
     override def topic(self: Self) = self.lens(_.topic)
@@ -492,7 +398,7 @@ object ResNormal {
     )(authToken: Option[AuthToken], base: ResBaseRecord): API = {
       self.deleteFlag match {
         case None =>
-          LabelledGeneric[ResNormalAPI].from(
+          LabelledGeneric[ResNormalActiveAPI].from(
             base.merge(
               Record(
                 name = self.name.map(_.value),
@@ -506,7 +412,7 @@ object ResNormal {
             )
           )
         case Some(deleteFlag) =>
-          LabelledGeneric[ResDeleteAPI].from(
+          LabelledGeneric[ResNormalDeleteAPI].from(
             base.merge(
               Record(
                 flag = deleteFlag
@@ -517,7 +423,7 @@ object ResNormal {
     }
   }
 
-  def create[R: Res](
+  def create[RId <: ResId, R](
       topic: Topic,
       user: User,
       authUser: AuthToken,
@@ -526,10 +432,10 @@ object ResNormal {
       reply: Option[R],
       profile: Option[Profile],
       age: Boolean
-  ): ZIO[
+  )(implicit r: Res[R] { type Id = RId }): ZIO[
     ObjectIdGeneratorComponent with ClockComponent,
     AtError,
-    (ResNormal, User, Topic)
+    (ResNormal[RId], User, Topic)
   ] = {
     assert(user.id === authUser.user);
     for {
@@ -608,11 +514,6 @@ final case class ResHistory(
 );
 
 object ResHistory {
-  implicit val eqImpl: Eq[ResHistory] = {
-    import auto.eq._
-    semi.eq
-  }
-
   implicit val resImpl = new Res[ResHistory] {
     type Id = ResHistoryId;
     type TId = TopicNormalId;
@@ -692,11 +593,6 @@ final case class ResTopic(
 }
 
 object ResTopic {
-  implicit val eqImpl: Eq[ResTopic] = {
-    import auto.eq._
-    semi.eq
-  }
-
   implicit val resImpl = new Res[ResTopic] {
     type Id = ResTopicId;
     type TId = TopicTemporaryId;
@@ -766,11 +662,6 @@ final case class ResFork(
 );
 
 object ResFork {
-  implicit val eqImpl: Eq[ResFork] = {
-    import auto.eq._
-    semi.eq
-  }
-
   implicit val resImpl = new Res[ResFork] {
     type Id = ResForkId;
     type TId = TopicNormalId;

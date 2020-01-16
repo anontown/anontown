@@ -20,15 +20,6 @@ object MsgAPI {
   }
 }
 
-final case class MsgId(value: String) extends AnyVal;
-
-object MsgId {
-  implicit val eqImpl: Eq[MsgId] = {
-    import auto.eq._
-    semi.eq
-  }
-}
-
 final case class Msg(
     id: MsgId,
     receiver: Option[UserId],
