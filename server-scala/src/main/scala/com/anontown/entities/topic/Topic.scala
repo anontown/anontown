@@ -16,7 +16,7 @@ object TagsAPI {
   }
 }
 
-sealed trait TopicAPI {
+trait TopicAPI {
   val id: String;
   val title: String;
   val update: String;
@@ -25,7 +25,7 @@ sealed trait TopicAPI {
   val active: Boolean;
 }
 
-sealed trait TopicSearchAPI extends TopicAPI {
+trait TopicSearchAPI extends TopicAPI {
   val tags: List[String];
   val text: String;
 }
@@ -83,32 +83,16 @@ object TopicForkAPI {
   }
 }
 
-sealed trait TopicId extends Any {
+trait TopicId extends Any {
   def value: String;
-}
 
-object TopicId {
-  implicit val eqImpl: Eq[TopicId] = {
-    import auto.eq._
-    semi.eq
+  def equals_id(other: TopicId): Boolean = {
+    this.value === other.value
   }
 }
 
-sealed trait TopicSearchId extends Any with TopicId;
-object TopicSearchId {
-  implicit val eqImpl: Eq[TopicSearchId] = {
-    import auto.eq._
-    semi.eq
-  }
-}
-
-sealed trait TopicTemporaryId extends Any with TopicId;
-object TopicTemporaryId {
-  implicit val eqImpl: Eq[TopicTemporaryId] = {
-    import auto.eq._
-    semi.eq
-  }
-}
+trait TopicSearchId extends Any with TopicId;
+trait TopicTemporaryId extends Any with TopicId
 
 final case class TopicForkId(value: String) extends AnyVal with TopicTemporaryId;
 object TopicForkId {
@@ -169,7 +153,7 @@ object TopicTags {
   }
 }
 
-sealed trait Topic {
+trait Topic {
   type Id <: TopicId;
 
   val id: Id;
@@ -185,14 +169,14 @@ sealed trait Topic {
   def resUpdate[R: Res](res: R): Either[AtError, Topic] = { ??? }
 }
 
-sealed trait TopicSearch extends Topic {
+trait TopicSearch extends Topic {
   type Id <: TopicSearchId;
 
   val tags: TopicTags;
   val text: TopicText;
 }
 
-sealed trait TopicTemporary extends Topic {
+trait TopicTemporary extends Topic {
   type Id <: TopicTemporaryId;
 }
 
