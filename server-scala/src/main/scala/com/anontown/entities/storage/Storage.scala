@@ -3,43 +3,13 @@ package com.anontown.entities.storage
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.AuthTokenMaster
 import com.anontown.AtError
-import com.anontown.Constant
 import com.anontown.AuthTokenGeneral
-import com.anontown.AtParamsError
 import com.anontown.AtRightError
 import com.anontown.AuthToken
 import com.anontown.entities.user.UserId
 import com.anontown.entities.client.ClientId
 
 final case class StorageAPI(key: String, value: String);
-
-final case class StorageKey(value: String) extends AnyVal;
-object StorageKey {
-  implicit val eqImpl: Eq[StorageKey] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  def fromString(
-      value: String
-  ): Either[AtParamsError, StorageKey] = {
-    Constant.Storage.keyRegex.apValidate("key", value).map(StorageKey(_))
-  }
-}
-
-final case class StorageValue(value: String) extends AnyVal;
-object StorageValue {
-  implicit val eqImpl: Eq[StorageKey] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  def fromString(
-      value: String
-  ): Either[AtParamsError, StorageValue] = {
-    Constant.Storage.valueRegex.apValidate("value", value).map(StorageValue(_))
-  }
-}
 
 final case class Storage(
     client: Option[ClientId],
