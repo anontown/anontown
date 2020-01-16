@@ -1,11 +1,9 @@
 package com.anontown.entities.user;
 
 import java.time.OffsetDateTime;
-import com.anontown.utils;
 import com.anontown.utils.Impl._;
 import com.anontown.Constant
 import com.anontown.AtError
-import com.anontown.AtParamsError
 import com.anontown.AuthUser
 import com.anontown.AtUserAuthError
 import com.anontown.AtPrerequisiteError
@@ -16,94 +14,10 @@ import com.anontown.ports.ConfigContainerComponent
 import zio.ZIO
 import com.anontown.utils.OffsetDateTimeUtils._
 
-final case class UserId(value: String) extends AnyVal;
-object UserId {
-  implicit val eqImpl: Eq[UserId] = {
-    import auto.eq._
-    semi.eq
-  }
-}
-
-final case class UserSn(value: String) extends AnyVal;
-object UserSn {
-  implicit val eqImpl: Eq[UserSn] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  def fromString(
-      value: String
-  ): Either[AtParamsError, UserSn] = {
-    Constant.User.snRegex.apValidate("sn", value).map(UserSn(_))
-  }
-}
-
-final case class UserRawPass(value: String) extends AnyVal;
-object UserRawPass {
-  implicit val eqImpl: Eq[UserRawPass] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  def fromString(
-      value: String
-  ): Either[AtParamsError, UserRawPass] = {
-    Constant.User.passRegex.apValidate("pass", value).map(UserRawPass(_))
-  }
-}
-
-final case class UserEncryptedPass(value: String) extends AnyVal {
-  def validation(pass: String)(ports: ConfigContainerComponent): Boolean = {
-    this.value === UserEncryptedPass.hash(pass)(ports)
-  }
-}
-
-object UserEncryptedPass {
-  implicit val eqImpl: Eq[UserEncryptedPass] = {
-    import auto.eq._
-    semi.eq
-  }
-
-  def fromRawPass(
-      pass: UserRawPass
-  )(ports: ConfigContainerComponent): UserEncryptedPass = {
-    UserEncryptedPass(UserEncryptedPass.hash(pass.value)(ports))
-  }
-
-  def hash(pass: String)(ports: ConfigContainerComponent): String = {
-    utils.hash(pass + ports.configContainer.config.salt.pass)
-  }
-}
-
 final case class UserAPI(id: String, sn: String);
 
 object UserAPI {
   implicit val eqImpl: Eq[UserAPI] = {
-    import auto.eq._
-    semi.eq
-  }
-}
-
-final case class ResWaitCount(
-    m10: Int,
-    m30: Int,
-    h1: Int,
-    h6: Int,
-    h12: Int,
-    d1: Int
-);
-
-object ResWaitCount {
-  implicit val eqImpl: Eq[ResWaitCount] = {
-    import auto.eq._
-    semi.eq
-  }
-}
-
-final case class ResWait(last: OffsetDateTime, count: ResWaitCount)
-
-object ResWait {
-  implicit val eqImpl: Eq[ResWait] = {
     import auto.eq._
     semi.eq
   }
