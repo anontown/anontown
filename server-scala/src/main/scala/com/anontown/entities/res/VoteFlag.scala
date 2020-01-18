@@ -1,6 +1,6 @@
 package com.anontown.entities.res
 
-import cats._, cats.implicits._, cats.derived._
+import cats._, cats.derived._
 
 sealed trait VoteFlag;
 object VoteFlag {
