@@ -85,7 +85,7 @@ trait Res[A] {
   def hash(self: A): SelfApplyLens[String];
   def replyCount(self: A): SelfApplyLens[Int];
 
-  def v(self: A)(
+  def resetAndVote(self: A)(
       resUser: User,
       user: User,
       vtype: VoteType,
@@ -105,12 +105,12 @@ trait Res[A] {
         case _ => Right((self, resUser))
       }
 
-      result <- data._1._v(data._2, user, vtype, authToken)
+      result <- data._1.vote(data._2, user, vtype, authToken)
     } yield result
   }
 
   // 既に投票していたらエラー
-  def _v(self: A)(
+  def vote(self: A)(
       resUser: User,
       user: User,
       vtype: VoteType,
