@@ -32,7 +32,7 @@ trait ResAPI {
 trait Res[A] extends AnyRef {
   type Self = A;
   type IdType;
-  implicit val idImpl: ResId[IdType];
+  implicit val resIdImpl: ResId[IdType];
 
   type TopicIdType <: TopicId;
   type API <: ResAPI;
@@ -69,7 +69,7 @@ object Res {
   implicit class ResService[A](val self: A)(
       implicit val resImpl: Res[A]
   ) {
-    import resImpl.idImpl
+    import resImpl.resIdImpl
 
     def toAPI(authToken: Option[AuthToken]): resImpl.API = {
       self.fromBaseAPI(

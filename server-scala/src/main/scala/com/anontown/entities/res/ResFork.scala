@@ -54,7 +54,7 @@ final case class ResFork(
 object ResFork {
   implicit val resImpl = new Res[ResFork] {
     type IdType = ResForkId;
-    val idImpl = implicitly[ResId[IdType]]
+    val resIdImpl = implicitly[ResId[IdType]]
     type TopicIdType = TopicNormalId;
     type API = ResForkAPI
 
