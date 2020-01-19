@@ -50,7 +50,7 @@ final case class ResHistory(
 object ResHistory {
   implicit val resImpl = new Res[ResHistory] {
     type IdType = ResHistoryId;
-    val resIdImpl = implicitly[ResId[IdType]]
+    val resIdImpl = ResId[IdType]
     type TopicIdType = TopicNormalId;
     type API = ResHistoryAPI
 
