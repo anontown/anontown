@@ -53,8 +53,8 @@ final case class ResFork(
 
 object ResFork {
   implicit val resImpl = new Res[ResFork] {
-    type Id = ResForkId;
-    type TId = TopicNormalId;
+    type IdType = ResForkId;
+    type TopicIdType = TopicNormalId;
     type API = ResForkAPI
 
     override def id(self: Self) = self.lens(_.id)

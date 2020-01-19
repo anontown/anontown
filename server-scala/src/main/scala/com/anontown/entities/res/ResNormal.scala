@@ -113,8 +113,8 @@ final case class ResNormal[+ReplyResId <: ResId](
 
 object ResNormal {
   implicit def resImpl[ReplyResId <: ResId] = new Res[ResNormal[ReplyResId]] {
-    type Id = ResNormalId;
-    type TId = TopicId;
+    type IdType = ResNormalId;
+    type TopicIdType = TopicId;
     type API = ResNormalAPI;
 
     override def id(self: Self) = self.lens(_.id)
@@ -166,7 +166,7 @@ object ResNormal {
       reply: Option[R],
       profile: Option[Profile],
       age: Boolean
-  )(implicit r: Res[R] { type Id = RId }): ZIO[
+  )(implicit r: Res[R] { type IdType = RId }): ZIO[
     ObjectIdGeneratorComponent with ClockComponent,
     AtError,
     (ResNormal[RId], User, Topic)

@@ -48,8 +48,8 @@ final case class ResHistory(
 
 object ResHistory {
   implicit val resImpl = new Res[ResHistory] {
-    type Id = ResHistoryId;
-    type TId = TopicNormalId;
+    type IdType = ResHistoryId;
+    type TopicIdType = TopicNormalId;
     type API = ResHistoryAPI
 
     override def id(self: Self) = self.lens(_.id)

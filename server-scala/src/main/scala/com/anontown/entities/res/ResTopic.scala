@@ -42,14 +42,14 @@ final case class ResTopic(
     replyCount: Int
 ) {
   type Self = ResTopic;
-  type Id = ResTopicId;
-  type TId = TopicTemporaryId;
+  type IdType = ResTopicId;
+  type TopicIdType = TopicTemporaryId;
 }
 
 object ResTopic {
   implicit val resImpl = new Res[ResTopic] {
-    type Id = ResTopicId;
-    type TId = TopicTemporaryId;
+    type IdType = ResTopicId;
+    type TopicIdType = TopicTemporaryId;
     type API = ResTopicAPI
 
     override def id(self: Self) = self.lens(_.id)

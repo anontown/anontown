@@ -30,8 +30,8 @@ trait ResAPI {
 @typeclass
 trait Res[A] {
   type Self = A;
-  type Id <: ResId;
-  type TId <: TopicId;
+  type IdType <: ResId;
+  type TopicIdType <: TopicId;
   type API <: ResAPI;
 
   type SelfApplyLens[T] = ApplyLens[A, A, T, T]
@@ -52,8 +52,8 @@ trait Res[A] {
       api: ResBaseAPIRecord
   ): API;
 
-  def id(self: A): SelfApplyLens[Id];
-  def topic(self: A): SelfApplyLens[TId];
+  def id(self: A): SelfApplyLens[IdType];
+  def topic(self: A): SelfApplyLens[TopicIdType];
   def date(self: A): SelfApplyLens[OffsetDateTime];
   def user(self: A): SelfApplyLens[UserId];
   def votes(self: A): SelfApplyLens[List[Vote]];
