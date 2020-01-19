@@ -31,7 +31,7 @@ final case class TopicFork(
     parent: TopicNormalId
 ) extends Topic
     with TopicTemporary {
-  type Id = TopicForkId;
+  type IdType = TopicForkId;
 }
 
 object TopicFork {

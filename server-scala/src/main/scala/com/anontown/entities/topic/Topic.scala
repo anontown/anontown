@@ -16,9 +16,9 @@ trait TopicAPI {
 }
 
 trait Topic {
-  type Id <: TopicId;
+  type IdType <: TopicId;
 
-  val id: Id;
+  val id: IdType;
   val title: TopicTitle;
   val update: OffsetDateTime;
   val date: OffsetDateTime;

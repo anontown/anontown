@@ -6,7 +6,7 @@ trait TopicSearchAPI extends TopicAPI {
 }
 
 trait TopicSearch extends Topic {
-  type Id <: TopicSearchId;
+  type IdType <: TopicSearchId;
 
   val tags: TopicTags;
   val text: TopicText;

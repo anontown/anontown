@@ -33,7 +33,7 @@ final case class TopicOne(
     text: TopicText
 ) extends TopicSearch
     with TopicTemporary {
-  type Id = TopicOneId;
+  type IdType = TopicOneId;
 }
 
 object TopicOne {

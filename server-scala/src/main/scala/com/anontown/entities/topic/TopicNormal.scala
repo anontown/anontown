@@ -32,7 +32,7 @@ final case class TopicNormal(
     tags: TopicTags,
     text: TopicText
 ) extends TopicSearch {
-  type Id = TopicNormalId;
+  type IdType = TopicNormalId;
 }
 
 object TopicNormal {
