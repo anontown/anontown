@@ -42,7 +42,7 @@ final case class TokenGeneral(
     date: OffsetDateTime
 ) extends Token {
   type API = TokenGeneralAPI
-  type Id = TokenGeneralId
+  type IdType = TokenGeneralId
 
   def fromBaseAPI(id: String, key: String, date: String): TokenGeneralAPI = {
     TokenGeneralAPI(

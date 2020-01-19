@@ -15,9 +15,9 @@ trait TokenAPI {
 }
 
 trait Token {
-  type Id <: TokenId
+  type IdType <: TokenId
 
-  val id: Id;
+  val id: IdType;
   val key: String;
   val user: UserId;
   val date: OffsetDateTime;

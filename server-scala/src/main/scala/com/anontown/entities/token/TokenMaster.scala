@@ -32,7 +32,7 @@ final case class TokenMaster(
     date: OffsetDateTime
 ) extends Token {
   type API = TokenMasterAPI
-  type Id = TokenMasterId
+  type IdType = TokenMasterId
 
   def fromBaseAPI(id: String, key: String, date: String): TokenMasterAPI = {
     TokenMasterAPI(id = id, key = key, date = date)
