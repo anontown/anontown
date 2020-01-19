@@ -18,6 +18,9 @@ import com.anontown.AuthTokenGeneral
 import com.anontown.AtNotFoundError
 import com.anontown.entities.user.UserId
 import com.anontown.entities.client.{ClientId, Client}
+import shapeless._
+import record._
+import monocle.macros.syntax.lens._
 
 final case class TokenGeneralAPI(
     id: String,
@@ -40,19 +43,7 @@ final case class TokenGeneral(
     user: UserId,
     req: List[TokenReq],
     date: OffsetDateTime
-) extends Token {
-  type API = TokenGeneralAPI
-  type IdType = TokenGeneralId
-
-  def fromBaseAPI(id: String, key: String, date: String): TokenGeneralAPI = {
-    TokenGeneralAPI(
-      id = id,
-      key = key,
-      date = date,
-      clientID = this.client.value
-    )
-  }
-
+) {
   def createReq(): ZIO[
     ClockComponent with ConfigContainerComponent with SafeIdGeneratorComponent,
     AtServerError,
@@ -113,6 +104,24 @@ object TokenGeneral {
   implicit val eqImpl: Eq[TokenGeneral] = {
     import auto.eq._
     semi.eq
+  }
+
+  implicit val tokenImpl = new Token[TokenGeneral] {
+    type IdType = TokenGeneralId;
+    type API = TokenGeneralAPI;
+
+    override def id(self: Self) = self.lens(_.id);
+    override def key(self: Self) = self.lens(_.key);
+    override def user(self: Self) = self.lens(_.user);
+    override def date(self: Self) = self.lens(_.date);
+
+    override def fromBaseAPI(
+        self: Self
+    )(base: TokenAPIBaseRecord): TokenGeneralAPI = {
+      LabelledGeneric[TokenGeneralAPI].from(
+        base.merge(Record(clientID = self.client.value))
+      )
+    }
   }
 
   def create(authToken: AuthTokenMaster, client: Client): ZIO[

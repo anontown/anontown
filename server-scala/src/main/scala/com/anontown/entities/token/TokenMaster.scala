@@ -14,6 +14,8 @@ import com.anontown.AuthUser
 import com.anontown.ports.ObjectIdGeneratorComponent
 import com.anontown.ports.ClockComponent
 import com.anontown.entities.user.UserId
+import shapeless._
+import monocle.macros.syntax.lens._
 
 final case class TokenMasterAPI(id: String, key: String, date: String)
     extends TokenAPI
@@ -30,14 +32,7 @@ final case class TokenMaster(
     key: String,
     user: UserId,
     date: OffsetDateTime
-) extends Token {
-  type API = TokenMasterAPI
-  type IdType = TokenMasterId
-
-  def fromBaseAPI(id: String, key: String, date: String): TokenMasterAPI = {
-    TokenMasterAPI(id = id, key = key, date = date)
-  }
-
+) {
   def auth(key: String): Either[AtError, AuthTokenMaster] = {
     if (this.key =!= key) {
       Left(new AtTokenAuthError());
@@ -51,6 +46,24 @@ object TokenMaster {
   implicit val eqImpl: Eq[TokenMaster] = {
     import auto.eq._
     semi.eq
+  }
+
+  implicit val tokenImpl = new Token[TokenMaster] {
+    type API = TokenMasterAPI;
+    type IdType = TokenMasterId;
+
+    def id(self: Self) = self.lens(_.id);
+    def key(self: Self) = self.lens(_.key);
+    def user(self: Self) = self.lens(_.user);
+    def date(self: Self) = self.lens(_.date);
+
+    def fromBaseAPI(
+        self: Self
+    )(base: TokenAPIBaseRecord): TokenMasterAPI = {
+      LabelledGeneric[TokenMasterAPI].from(
+        base
+      )
+    }
   }
 
   def create(authUser: AuthUser): ZIO[

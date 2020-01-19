@@ -7,6 +7,11 @@ import zio.ZIO
 import com.anontown.AtServerError
 import com.anontown.ports.ConfigContainerComponent
 import com.anontown.entities.user.UserId
+import monocle.syntax.ApplyLens
+import shapeless._
+import record._
+import simulacrum._
+import com.anontown.utils.Record._
 
 trait TokenAPI {
   val id: String
@@ -14,29 +19,42 @@ trait TokenAPI {
   val date: String
 }
 
-trait Token {
-  type IdType <: TokenId
-
-  val id: IdType;
-  val key: String;
-  val user: UserId;
-  val date: OffsetDateTime;
-
+@typeclass
+trait Token[A] {
+  type Self = A;
+  type IdType <: TokenId;
   type API <: TokenAPI;
+  type SelfApplyLens[T] = ApplyLens[A, A, T, T];
+  type TokenAPIBaseRecord =
+    ("id" ->> String) ::
+      ("key" ->> String) ::
+      ("date" ->> String) ::
+      HNil;
 
-  // toBaseAPIどう実装しよう
-  def toAPI(): API = {
-    this.fromBaseAPI(
-      id = Token.this.id.value,
-      key = Token.this.key,
-      date = Token.this.date.toString()
-    )
-  }
+  def id(self: A): SelfApplyLens[IdType];
+  def key(self: A): SelfApplyLens[String];
+  def user(self: A): SelfApplyLens[UserId];
+  def date(self: A): SelfApplyLens[OffsetDateTime];
 
-  def fromBaseAPI(id: String, key: String, date: String): API;
+  def fromBaseAPI(self: A)(base: TokenAPIBaseRecord): API;
 }
 
 object Token {
+  implicit class TokenService[A](val self: A)(
+      implicit val tokenImpl: Token[A]
+  ) {
+    import Token.ops._;
+    def toAPI(): tokenImpl.API = {
+      self.fromBaseAPI(
+        Record(
+          id = self.id.get.value,
+          key = self.key.get,
+          date = self.date.get.toString
+        )
+      )
+    }
+  }
+
   def createTokenKey(): ZIO[
     SafeIdGeneratorComponent with ConfigContainerComponent,
     AtServerError,
