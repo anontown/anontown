@@ -1,11 +1,10 @@
 package com.anontown.entities.res
 
-import cats.implicits._
+import simulacrum._
 
-trait ResId extends Any {
-  def value: String;
+@typeclass
+trait ResId[A] {
+  type Self = A;
 
-  def resIdEquals(other: ResId): Boolean = {
-    this.value === other.value
-  }
+  def value(self: A): String;
 }

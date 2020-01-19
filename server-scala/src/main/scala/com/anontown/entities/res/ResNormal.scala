@@ -18,6 +18,7 @@ import com.anontown.entities.topic.{TopicId, Topic}
 import com.anontown.entities.profile.{ProfileId, Profile}
 import com.anontown.entities.topic.Topic.ops._
 import com.anontown.entities.topic.Topic.TopicService
+import com.anontown.entities.res.ResId.ops._
 
 sealed trait ResNormalAPI extends ResAPI;
 
@@ -67,7 +68,7 @@ object ResNormalDeleteAPI {
   }
 }
 
-final case class ResNormal[+ReplyResId <: ResId](
+final case class ResNormal[+ReplyResId: ResId](
     id: ResNormalId,
     topic: TopicId,
     date: OffsetDateTime,
@@ -114,8 +115,10 @@ final case class ResNormal[+ReplyResId <: ResId](
 }
 
 object ResNormal {
-  implicit def resImpl[ReplyResId <: ResId] = new Res[ResNormal[ReplyResId]] {
+  implicit def resImpl[ReplyResId: ResId] = new Res[ResNormal[ReplyResId]] {
     type IdType = ResNormalId;
+    val idImpl = implicitly[ResId[IdType]]
+
     type TopicIdType = TopicId;
     type API = ResNormalAPI;
 
@@ -159,7 +162,7 @@ object ResNormal {
     }
   }
 
-  def create[ResIdType <: ResId, ResType, TopicType: Topic](
+  def create[ResIdType: ResId, ResType, TopicType: Topic](
       topic: TopicType,
       user: User,
       authUser: AuthToken,
