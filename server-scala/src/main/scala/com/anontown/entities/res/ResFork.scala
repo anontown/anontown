@@ -69,7 +69,7 @@ object ResFork {
 
     override def fromBaseAPI(
         self: Self
-    )(authToken: Option[AuthToken], base: ResBaseRecord): API = {
+    )(authToken: Option[AuthToken], base: ResBaseAPIRecord): API = {
       LabelledGeneric[ResForkAPI].from(
         base.merge(Record(forkID = self.fork.value))
       )
