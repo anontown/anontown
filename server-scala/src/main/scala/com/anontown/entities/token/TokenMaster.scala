@@ -51,7 +51,7 @@ object TokenMaster {
   implicit val tokenImpl = new Token[TokenMaster] {
     type API = TokenMasterAPI;
     type IdType = TokenMasterId;
-    val tokenIdImpl = TokenId[IdType]
+    val idTypeImpls = new IdTypeImpls()
 
     def id(self: Self) = self.lens(_.id);
     def key(self: Self) = self.lens(_.key);

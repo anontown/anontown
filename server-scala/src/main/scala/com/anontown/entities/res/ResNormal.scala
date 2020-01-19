@@ -117,7 +117,7 @@ final case class ResNormal[+ReplyResId: ResId](
 object ResNormal {
   implicit def resImpl[ReplyResId: ResId] = new Res[ResNormal[ReplyResId]] {
     type IdType = ResNormalId;
-    val resIdImpl = ResId[IdType]
+    val idTypeImpls = new IdTypeImpls()
 
     type TopicIdType = TopicId;
     type API = ResNormalAPI;

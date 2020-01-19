@@ -51,7 +51,7 @@ final case class ResTopic(
 object ResTopic {
   implicit val resImpl = new Res[ResTopic] {
     type IdType = ResTopicId;
-    val resIdImpl = ResId[IdType]
+    val idTypeImpls = new IdTypeImpls()
     type TopicIdType = TopicTemporaryId;
     type API = ResTopicAPI
 

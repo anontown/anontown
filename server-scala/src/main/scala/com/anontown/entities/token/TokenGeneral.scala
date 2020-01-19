@@ -108,7 +108,7 @@ object TokenGeneral {
 
   implicit val tokenImpl = new Token[TokenGeneral] {
     type IdType = TokenGeneralId;
-    val tokenIdImpl = TokenId[IdType]
+    val idTypeImpls = new IdTypeImpls()
 
     type API = TokenGeneralAPI;
 
