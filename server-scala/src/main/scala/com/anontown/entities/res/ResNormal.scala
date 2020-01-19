@@ -159,19 +159,19 @@ object ResNormal {
     }
   }
 
-  def create[RId <: ResId, R, TopicType: Topic](
+  def create[ResIdType <: ResId, ResType, TopicType: Topic](
       topic: TopicType,
       user: User,
       authUser: AuthToken,
       name: Option[String],
       text: String,
-      reply: Option[R],
+      reply: Option[ResType],
       profile: Option[Profile],
       age: Boolean
-  )(implicit r: Res[R] { type IdType = RId }): ZIO[
+  )(implicit resImpl: Res[ResType] { type IdType = ResIdType }): ZIO[
     ObjectIdGeneratorComponent with ClockComponent,
     AtError,
-    (ResNormal[RId], User, TopicType)
+    (ResNormal[ResIdType], User, TopicType)
   ] = {
     assert(user.id === authUser.user);
     for {

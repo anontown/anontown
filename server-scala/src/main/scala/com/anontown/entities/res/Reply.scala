@@ -9,7 +9,7 @@ final case class Reply[+RId <: ResId](
 );
 
 object Reply {
-  implicit def eqImpl[RId <: ResId](implicit ridEq: Eq[RId]): Eq[Reply[RId]] = {
+  implicit def eqImpl[ResIdType <: ResId: Eq]: Eq[Reply[ResIdType]] = {
     import auto.eq._
     semi.eq
   }
