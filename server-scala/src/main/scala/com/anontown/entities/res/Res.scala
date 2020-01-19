@@ -62,8 +62,8 @@ trait Res[A] {
   def replyCount(self: A): SelfApplyLens[Int];
 }
 
-trait ResService {
-  implicit class ResImplicits[A](val self: A)(implicit val res: Res[A]) {
+object Res {
+  implicit class ResService[A](val self: A)(implicit val res: Res[A]) {
     def toAPI(authToken: Option[AuthToken]): res.API = {
       self.fromBaseAPI(
         authToken,
