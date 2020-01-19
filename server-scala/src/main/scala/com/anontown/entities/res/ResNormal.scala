@@ -16,6 +16,8 @@ import record._
 import com.anontown.entities.user.{UserId, User}
 import com.anontown.entities.topic.{TopicId, Topic}
 import com.anontown.entities.profile.{ProfileId, Profile}
+import com.anontown.entities.topic.Topic.ops._
+import com.anontown.entities.topic.Topic.TopicService
 
 sealed trait ResNormalAPI extends ResAPI;
 
@@ -157,8 +159,8 @@ object ResNormal {
     }
   }
 
-  def create[RId <: ResId, R](
-      topic: Topic,
+  def create[RId <: ResId, R, TopicType: Topic](
+      topic: TopicType,
       user: User,
       authUser: AuthToken,
       name: Option[String],
@@ -169,7 +171,7 @@ object ResNormal {
   )(implicit r: Res[R] { type IdType = RId }): ZIO[
     ObjectIdGeneratorComponent with ClockComponent,
     AtError,
-    (ResNormal[RId], User, Topic)
+    (ResNormal[RId], User, TopicType)
   ] = {
     assert(user.id === authUser.user);
     for {
@@ -196,7 +198,7 @@ object ResNormal {
         Either.cond(
           // TODO: id.valueしなくても比較できるようにする
           reply
-            .map(reply => reply.topic.get topicIdEquals topic.id)
+            .map(reply => reply.topic.get topicIdEquals topic.id.get)
             .getOrElse(true),
           (),
           new AtPrerequisiteError("他のトピックのレスへのリプは出来ません")
@@ -222,7 +224,7 @@ object ResNormal {
         profile = profile.map(_.id),
         age = age,
         id = ResNormalId(id),
-        topic = topic.id,
+        topic = topic.id.get,
         date = requestDate,
         user = newUser.id,
         votes = List(),

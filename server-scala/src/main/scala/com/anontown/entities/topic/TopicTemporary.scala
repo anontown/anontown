@@ -1,5 +1,8 @@
 package com.anontown.entities.topic
 
-trait TopicTemporary extends Topic {
+import simulacrum._
+
+@typeclass
+trait TopicTemporary[A] extends Topic[A] {
   type IdType <: TopicTemporaryId;
 }

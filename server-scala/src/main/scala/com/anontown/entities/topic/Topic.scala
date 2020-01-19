@@ -5,6 +5,8 @@ import com.anontown.AtError
 import com.anontown.ports.ClockComponent
 import com.anontown.entities.res.Res
 import com.anontown.entities.user.User
+import monocle.syntax.ApplyLens
+import simulacrum._
 
 trait TopicAPI {
   val id: String;
@@ -15,18 +17,27 @@ trait TopicAPI {
   val active: Boolean;
 }
 
-trait Topic {
+@typeclass
+trait Topic[A] {
+  type Self = A;
   type IdType <: TopicId;
+  type SelfApplyLens[T] = ApplyLens[A, A, T, T];
 
-  val id: IdType;
-  val title: TopicTitle;
-  val update: OffsetDateTime;
-  val date: OffsetDateTime;
-  val resCount: Int;
-  val ageUpdate: OffsetDateTime;
-  val active: Boolean;
+  def id(self: A): SelfApplyLens[IdType];
+  def title(self: A): SelfApplyLens[TopicTitle];
+  def update(self: A): SelfApplyLens[OffsetDateTime];
+  def date(self: A): SelfApplyLens[OffsetDateTime];
+  def resCount(self: A): SelfApplyLens[Int];
+  def ageUpdate(self: A): SelfApplyLens[OffsetDateTime];
+  def active(self: A): SelfApplyLens[Boolean];
+}
 
-  def hash(user: User)(ports: ClockComponent) = { ??? }
+object Topic {
+  implicit class TopicService[A](val self: A)(
+      implicit val topicImpl: Topic[A]
+  ) {
+    def hash(user: User)(ports: ClockComponent) = { ??? }
 
-  def resUpdate[R: Res](res: R): Either[AtError, Topic] = { ??? }
+    def resUpdate[R: Res](res: R): Either[AtError, A] = { ??? }
+  }
 }

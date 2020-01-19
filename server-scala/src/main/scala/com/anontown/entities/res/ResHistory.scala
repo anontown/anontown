@@ -11,8 +11,9 @@ import monocle.macros.syntax.lens._
 import shapeless._
 import record._
 import com.anontown.entities.user.{UserId, User}
-import com.anontown.entities.topic.{Topic, TopicNormalId, TopicNormal}
+import com.anontown.entities.topic.{TopicNormalId, TopicNormal}
 import com.anontown.entities.history.{HistoryId, History}
+import com.anontown.entities.topic.Topic.TopicService
 
 final case class ResHistoryAPI(
     id: String,
@@ -83,7 +84,7 @@ object ResHistory {
   ): ZIO[
     ObjectIdGeneratorComponent with ClockComponent,
     AtError,
-    (ResHistory, Topic)
+    (ResHistory, TopicNormal)
   ] = {
     assert(user.id === authUser.user);
     for {

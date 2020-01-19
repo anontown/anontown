@@ -10,7 +10,9 @@ import com.anontown.AuthToken
 import monocle.macros.syntax.lens._
 import shapeless._
 import com.anontown.entities.user.{UserId, User}
-import com.anontown.entities.topic.{Topic, TopicTemporaryId, TopicTemporary}
+import com.anontown.entities.topic.{TopicTemporaryId, TopicTemporary}
+import com.anontown.entities.topic.Topic.TopicService
+import com.anontown.entities.topic.Topic.ops._
 
 final case class ResTopicAPI(
     id: String,
@@ -69,15 +71,14 @@ object ResTopic {
     }
   }
 
-  // TODO: TopicOne | TopicForkを受け取ってそれをかえす
-  def create(
-      topic: TopicTemporary,
+  def create[TopicTemporaryType: TopicTemporary](
+      topic: TopicTemporaryType,
       user: User,
       authUser: AuthToken
   ): ZIO[
     ObjectIdGeneratorComponent with ClockComponent,
     AtError,
-    (ResTopic, Topic)
+    (ResTopic, TopicTemporaryType)
   ] = {
     assert(user.id === authUser.user);
     for {
@@ -90,7 +91,7 @@ object ResTopic {
 
       val result = ResTopic(
         id = ResTopicId(id),
-        topic = topic.id,
+        topic = topic.id.get,
         date = requestDate,
         user = user.id,
         votes = List(),

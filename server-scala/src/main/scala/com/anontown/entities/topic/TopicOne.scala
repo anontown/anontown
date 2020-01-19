@@ -3,6 +3,7 @@ package com.anontown.entities.topic
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
 import java.time.OffsetDateTime
+import monocle.macros.syntax.lens._
 
 final case class TopicOneAPI(
     id: String,
@@ -31,14 +32,26 @@ final case class TopicOne(
     active: Boolean,
     tags: TopicTags,
     text: TopicText
-) extends TopicSearch
-    with TopicTemporary {
-  type IdType = TopicOneId;
-}
+);
 
 object TopicOne {
   implicit val eqImpl: Eq[TopicOne] = {
     import auto.eq._
     semi.eq
+  }
+
+  implicit val topicImpl = new TopicSearch[TopicOne]
+  with TopicTemporary[TopicOne] {
+    type IdType = TopicOneId;
+
+    override def id(self: Self) = self.lens(_.id);
+    override def title(self: Self) = self.lens(_.title);
+    override def update(self: Self) = self.lens(_.update);
+    override def date(self: Self) = self.lens(_.date);
+    override def resCount(self: Self) = self.lens(_.resCount);
+    override def ageUpdate(self: Self) = self.lens(_.ageUpdate);
+    override def active(self: Self) = self.lens(_.active);
+    override def tags(self: Self) = self.lens(_.tags);
+    override def text(self: Self) = self.lens(_.text);
   }
 }

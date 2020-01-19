@@ -12,12 +12,12 @@ import shapeless._
 import record._
 import com.anontown.entities.user.{UserId, User}
 import com.anontown.entities.topic.{
-  Topic,
   TopicNormalId,
   TopicNormal,
   TopicForkId,
   TopicFork
 }
+import com.anontown.entities.topic.Topic.TopicService
 
 final case class ResForkAPI(
     id: String,
@@ -76,7 +76,6 @@ object ResFork {
     }
   }
 
-  // TODO: TopicNormalを返す
   def create(
       topic: TopicNormal,
       user: User,
@@ -85,7 +84,7 @@ object ResFork {
   ): ZIO[
     ObjectIdGeneratorComponent with ClockComponent,
     AtError,
-    (ResFork, Topic)
+    (ResFork, TopicNormal)
   ] = {
     assert(user.id === authUser.user);
     for {

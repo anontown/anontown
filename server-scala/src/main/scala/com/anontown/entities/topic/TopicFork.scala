@@ -3,6 +3,7 @@ package com.anontown.entities.topic
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
 import java.time.OffsetDateTime
+import monocle.macros.syntax.lens._
 
 final case class TopicForkAPI(
     id: String,
@@ -29,12 +30,21 @@ final case class TopicFork(
     ageUpdate: OffsetDateTime,
     active: Boolean,
     parent: TopicNormalId
-) extends Topic
-    with TopicTemporary {
-  type IdType = TopicForkId;
-}
+);
 
 object TopicFork {
+  implicit val topicImpl = new TopicTemporary[TopicFork] {
+    type IdType = TopicForkId;
+
+    override def id(self: Self) = self.lens(_.id);
+    override def title(self: Self) = self.lens(_.title);
+    override def update(self: Self) = self.lens(_.update);
+    override def date(self: Self) = self.lens(_.date);
+    override def resCount(self: Self) = self.lens(_.resCount);
+    override def ageUpdate(self: Self) = self.lens(_.ageUpdate);
+    override def active(self: Self) = self.lens(_.active);
+  }
+
   implicit val eqImpl: Eq[TopicFork] = {
     import auto.eq._
     semi.eq
