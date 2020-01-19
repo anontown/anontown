@@ -63,8 +63,8 @@ trait Res[A] {
 }
 
 object Res {
-  implicit class ResService[A](val self: A)(implicit val res: Res[A]) {
-    def toAPI(authToken: Option[AuthToken]): res.API = {
+  implicit class ResService[A](val self: A)(implicit val resImpl: Res[A]) {
+    def toAPI(authToken: Option[AuthToken]): resImpl.API = {
       self.fromBaseAPI(
         authToken,
         Record(
