@@ -129,7 +129,7 @@ object ResNormal {
 
     override def fromBaseAPI(
         self: Self
-    )(authToken: Option[AuthToken], base: ResBaseAPIRecord): API = {
+    )(authToken: Option[AuthToken], base: ResAPIBaseRecord): API = {
       self.deleteFlag match {
         case None =>
           LabelledGeneric[ResNormalActiveAPI].from(

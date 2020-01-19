@@ -35,7 +35,7 @@ trait Res[A] {
   type API <: ResAPI;
 
   type SelfApplyLens[T] = ApplyLens[A, A, T, T]
-  type ResBaseAPIRecord =
+  type ResAPIBaseRecord =
     ("id" ->> String) ::
       ("topicID" ->> String) ::
       ("date" ->> String) ::
@@ -49,7 +49,7 @@ trait Res[A] {
 
   def fromBaseAPI(self: A)(
       authToken: Option[AuthToken],
-      api: ResBaseAPIRecord
+      api: ResAPIBaseRecord
   ): API;
 
   def id(self: A): SelfApplyLens[IdType];

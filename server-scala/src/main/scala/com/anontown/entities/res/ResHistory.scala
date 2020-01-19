@@ -64,7 +64,7 @@ object ResHistory {
 
     override def fromBaseAPI(
         self: Self
-    )(authToken: Option[AuthToken], base: ResBaseAPIRecord): API = {
+    )(authToken: Option[AuthToken], base: ResAPIBaseRecord): API = {
       LabelledGeneric[ResHistoryAPI].from(
         base.merge(
           Record(

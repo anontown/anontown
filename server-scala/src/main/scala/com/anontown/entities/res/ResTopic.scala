@@ -64,7 +64,7 @@ object ResTopic {
 
     override def fromBaseAPI(
         self: Self
-    )(authToken: Option[AuthToken], base: ResBaseAPIRecord): API = {
+    )(authToken: Option[AuthToken], base: ResAPIBaseRecord): API = {
       LabelledGeneric[ResTopicAPI].from(base)
     }
   }
