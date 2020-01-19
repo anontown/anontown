@@ -49,7 +49,7 @@ trait Res[A] {
 
   def fromBaseAPI(self: A)(
       authToken: Option[AuthToken],
-      api: ResAPIBaseRecord
+      base: ResAPIBaseRecord
   ): API;
 
   def id(self: A): SelfApplyLens[IdType];
