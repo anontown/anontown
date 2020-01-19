@@ -12,6 +12,7 @@ import shapeless._
 import record._
 import simulacrum._
 import com.anontown.utils.Record._
+import com.anontown.entities.token.TokenId.ops._
 
 trait TokenAPI {
   val id: String
@@ -20,9 +21,11 @@ trait TokenAPI {
 }
 
 @typeclass
-trait Token[A] {
+trait Token[A] extends AnyRef {
   type Self = A;
-  type IdType <: TokenId;
+  type IdType;
+  implicit val tokenIdImpl: TokenId[IdType];
+
   type API <: TokenAPI;
   type SelfApplyLens[T] = ApplyLens[A, A, T, T];
   type TokenAPIBaseRecord =
@@ -44,6 +47,8 @@ object Token {
       implicit val tokenImpl: Token[A]
   ) {
     import Token.ops._;
+    import tokenImpl.tokenIdImpl;
+
     def toAPI(): tokenImpl.API = {
       self.fromBaseAPI(
         Record(

@@ -1,11 +1,10 @@
 package com.anontown.entities.token
 
-import cats.implicits._
+import simulacrum._
 
-trait TokenId {
-  val value: String;
+@typeclass
+trait TokenId[A] {
+  type Self = A;
 
-  def tokenIdEquals(other: TokenId): Boolean = {
-    this.value === other.value
-  }
+  def value(self: A): String;
 }

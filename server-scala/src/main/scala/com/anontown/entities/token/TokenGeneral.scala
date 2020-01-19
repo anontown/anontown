@@ -108,6 +108,8 @@ object TokenGeneral {
 
   implicit val tokenImpl = new Token[TokenGeneral] {
     type IdType = TokenGeneralId;
+    val tokenIdImpl = TokenId[IdType]
+
     type API = TokenGeneralAPI;
 
     override def id(self: Self) = self.lens(_.id);
