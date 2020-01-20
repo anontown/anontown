@@ -18,9 +18,11 @@ trait TopicAPI {
 }
 
 @typeclass
-trait Topic[A] {
+trait Topic[A] extends AnyRef {
   type Self = A;
-  type IdType <: TopicId;
+  type IdType;
+  implicit val topicIdImplIdType: TopicId[IdType];
+
   type SelfApplyLens[T] = ApplyLens[A, A, T, T];
 
   def id(self: A): SelfApplyLens[IdType];

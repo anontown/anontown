@@ -1,11 +1,10 @@
 package com.anontown.entities.topic
 
-import cats.implicits._
+import simulacrum._
 
-trait TopicId extends Any {
-  def value: String;
+@typeclass
+trait TopicId[A] {
+  type Self = A;
 
-  def topicIdEquals(other: TopicId): Boolean = {
-    this.value === other.value
-  }
+  def value(self: A): String;
 }

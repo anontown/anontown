@@ -1,9 +1,6 @@
 package com.anontown.entities.topic
 
-import cats.implicits._
+import simulacrum._
 
-trait TopicTemporaryId extends Any with TopicId {
-  def topicTemporaryIdEquals(other: TopicTemporaryId): Boolean = {
-    this.value === other.value
-  }
-}
+@typeclass
+trait TopicTemporaryId[A] extends TopicId[A] {}
