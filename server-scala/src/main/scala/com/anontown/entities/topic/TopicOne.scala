@@ -44,6 +44,9 @@ object TopicOne {
   with TopicTemporary[TopicOne] {
     type IdType = TopicOneId;
 
+    val topicIdImplIdType =
+      implicitly[TopicSearchId[IdType] with TopicTemporaryId[IdType]]
+
     override def id(self: Self) = self.lens(_.id);
     override def title(self: Self) = self.lens(_.title);
     override def update(self: Self) = self.lens(_.update);

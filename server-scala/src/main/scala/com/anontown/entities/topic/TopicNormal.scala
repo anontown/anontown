@@ -43,6 +43,8 @@ object TopicNormal {
   implicit val topicImpl = new TopicSearch[TopicNormal] {
     type IdType = TopicNormalId;
 
+    val topicIdImplIdType = implicitly
+
     override def id(self: Self) = self.lens(_.id);
     override def title(self: Self) = self.lens(_.title);
     override def update(self: Self) = self.lens(_.update);

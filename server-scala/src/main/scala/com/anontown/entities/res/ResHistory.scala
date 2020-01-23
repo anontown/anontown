@@ -52,6 +52,8 @@ object ResHistory {
     type IdType = ResHistoryId;
     val idTypeImpls = new IdTypeImpls()
     type TopicIdType = TopicNormalId;
+    val implTopicIdForTopicIdType = implicitly
+
     type API = ResHistoryAPI
 
     override def id(self: Self) = self.lens(_.id)

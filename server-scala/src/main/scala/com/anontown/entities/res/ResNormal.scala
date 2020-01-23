@@ -19,6 +19,7 @@ import com.anontown.entities.profile.{ProfileId, Profile}
 import com.anontown.entities.topic.Topic.ops._
 import com.anontown.entities.topic.Topic.TopicService
 import com.anontown.entities.res.ResId.ops._
+import com.anontown.entities.topic.AnyTopicId
 
 sealed trait ResNormalAPI extends ResAPI;
 
@@ -68,9 +69,9 @@ object ResNormalDeleteAPI {
   }
 }
 
-final case class ResNormal[+ReplyResId: ResId](
+final case class ResNormal[+ReplyResId: ResId, TopicIdType](
     id: ResNormalId,
-    topic: TopicId,
+    topic: TopicIdType,
     date: OffsetDateTime,
     user: UserId,
     votes: List[Vote],
@@ -87,7 +88,7 @@ final case class ResNormal[+ReplyResId: ResId](
   def del(
       resUser: User,
       authToken: AuthToken
-  ): Either[AtError, (ResNormal[ReplyResId], User)] = {
+  ): Either[AtError, (ResNormal[ReplyResId, TopicIdType], User)] = {
     assert(resUser.id === authToken.user);
     for {
       _ <- Either.cond(
@@ -115,54 +116,57 @@ final case class ResNormal[+ReplyResId: ResId](
 }
 
 object ResNormal {
-  implicit def resImpl[ReplyResId: ResId] = new Res[ResNormal[ReplyResId]] {
-    type IdType = ResNormalId;
-    val idTypeImpls = new IdTypeImpls()
+  implicit def resImpl[ReplyResId: ResId, TopicIdTy: TopicId] =
+    new Res[ResNormal[ReplyResId, TopicIdTy]] {
+      type IdType = ResNormalId;
+      val idTypeImpls = new IdTypeImpls()
 
-    type TopicIdType = TopicId;
-    type API = ResNormalAPI;
+      type TopicIdType = TopicIdTy;
+      val implTopicIdForTopicIdType = implicitly
 
-    override def id(self: Self) = self.lens(_.id)
-    override def topic(self: Self) = self.lens(_.topic)
-    override def date(self: Self) = self.lens(_.date)
-    override def user(self: Self) = self.lens(_.user)
-    override def votes(self: Self) = self.lens(_.votes)
-    override def lv(self: Self) = self.lens(_.lv)
-    override def hash(self: Self) = self.lens(_.hash)
-    override def replyCount(self: Self) =
-      self.lens(_.replyCount)
+      type API = ResNormalAPI;
 
-    override def fromBaseAPI(
-        self: Self
-    )(authToken: Option[AuthToken], base: ResAPIBaseRecord): API = {
-      self.deleteFlag match {
-        case None =>
-          LabelledGeneric[ResNormalActiveAPI].from(
-            base.merge(
-              Record(
-                name = self.name.map(_.value),
-                text = self.text.value,
-                replyID = self.reply.map(_.res.value),
-                profileID = self.profile.map(_.value),
-                isReply = authToken.flatMap(
-                  authToken => self.reply.map(authToken.user === _.user)
+      override def id(self: Self) = self.lens(_.id)
+      override def topic(self: Self) = self.lens(_.topic)
+      override def date(self: Self) = self.lens(_.date)
+      override def user(self: Self) = self.lens(_.user)
+      override def votes(self: Self) = self.lens(_.votes)
+      override def lv(self: Self) = self.lens(_.lv)
+      override def hash(self: Self) = self.lens(_.hash)
+      override def replyCount(self: Self) =
+        self.lens(_.replyCount)
+
+      override def fromBaseAPI(
+          self: Self
+      )(authToken: Option[AuthToken], base: ResAPIBaseRecord): API = {
+        self.deleteFlag match {
+          case None =>
+            LabelledGeneric[ResNormalActiveAPI].from(
+              base.merge(
+                Record(
+                  name = self.name.map(_.value),
+                  text = self.text.value,
+                  replyID = self.reply.map(_.res.value),
+                  profileID = self.profile.map(_.value),
+                  isReply = authToken.flatMap(
+                    authToken => self.reply.map(authToken.user === _.user)
+                  )
                 )
               )
             )
-          )
-        case Some(deleteFlag) =>
-          LabelledGeneric[ResNormalDeleteAPI].from(
-            base.merge(
-              Record(
-                flag = deleteFlag
+          case Some(deleteFlag) =>
+            LabelledGeneric[ResNormalDeleteAPI].from(
+              base.merge(
+                Record(
+                  flag = deleteFlag
+                )
               )
             )
-          )
+        }
       }
     }
-  }
 
-  def create[ResIdType: ResId, ResType, TopicType: Topic](
+  def create[ResIdType: ResId, ResType, TopicType](
       topic: TopicType,
       user: User,
       authUser: AuthToken,
@@ -171,12 +175,17 @@ object ResNormal {
       reply: Option[ResType],
       profile: Option[Profile],
       age: Boolean
-  )(implicit resImpl: Res[ResType] { type IdType = ResIdType }): ZIO[
-    ObjectIdGeneratorComponent with ClockComponent,
-    AtError,
-    (ResNormal[ResIdType], User, TopicType)
-  ] = {
+  )(implicit resImpl: Res[ResType] { type IdType = ResIdType }, topicImpl: Topic[TopicType])
+      : ZIO[
+        ObjectIdGeneratorComponent with ClockComponent,
+        AtError,
+        (ResNormal[ResIdType, topicImpl.IdType], User, TopicType)
+      ] = {
     assert(user.id === authUser.user);
+
+    import resImpl.implTopicIdForTopicIdType
+    import topicImpl.topicIdImplIdType
+
     for {
       (name, text) <- ZIO.fromEither(
         (
@@ -201,7 +210,9 @@ object ResNormal {
         Either.cond(
           // TODO: id.valueしなくても比較できるようにする
           reply
-            .map(reply => reply.topic.get topicIdEquals topic.id.get)
+            .map(
+              reply => AnyTopicId(reply.topic.get) === AnyTopicId(topic.id.get)
+            )
             .getOrElse(true),
           (),
           new AtPrerequisiteError("他のトピックのレスへのリプは出来ません")

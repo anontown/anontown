@@ -15,6 +15,7 @@ import com.anontown.utils.Record._
 import com.anontown.entities.user.{UserId, User}
 import com.anontown.entities.topic.TopicId
 import com.anontown.entities.res.ResId.ops._
+import com.anontown.entities.topic.TopicId.ops._
 
 trait ResAPI {
   val id: String;
@@ -35,7 +36,9 @@ trait Res[A] extends AnyRef {
   class IdTypeImpls(implicit val resIdImpl: ResId[IdType]);
   val idTypeImpls: IdTypeImpls;
 
-  type TopicIdType <: TopicId;
+  type TopicIdType;
+  implicit val implTopicIdForTopicIdType: TopicId[TopicIdType]
+
   type API <: ResAPI;
 
   type SelfApplyLens[T] = ApplyLens[A, A, T, T]
@@ -71,6 +74,7 @@ object Res {
       implicit val resImpl: Res[A]
   ) {
     import resImpl.idTypeImpls._
+    import resImpl.implTopicIdForTopicIdType;
 
     def toAPI(authToken: Option[AuthToken]): resImpl.API = {
       self.fromBaseAPI(

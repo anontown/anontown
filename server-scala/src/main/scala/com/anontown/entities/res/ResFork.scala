@@ -56,6 +56,8 @@ object ResFork {
     type IdType = ResForkId;
     val idTypeImpls = new IdTypeImpls()
     type TopicIdType = TopicNormalId;
+    val implTopicIdForTopicIdType = implicitly
+
     type API = ResForkAPI
 
     override def id(self: Self) = self.lens(_.id)

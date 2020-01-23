@@ -33,9 +33,9 @@ object ResTopicAPI {
   }
 }
 
-final case class ResTopic(
+final case class ResTopic[TopicArg](
     id: ResTopicId,
-    topic: TopicTemporaryId,
+    topic: TopicArg,
     date: OffsetDateTime,
     user: UserId,
     votes: List[Vote],
@@ -43,45 +43,52 @@ final case class ResTopic(
     hash: String,
     replyCount: Int
 ) {
-  type Self = ResTopic;
+  type Self = ResTopic[TopicArg];
   type IdType = ResTopicId;
-  type TopicIdType = TopicTemporaryId;
+  type TopicIdType = TopicArg;
 }
 
 object ResTopic {
-  implicit val resImpl = new Res[ResTopic] {
-    type IdType = ResTopicId;
-    val idTypeImpls = new IdTypeImpls()
-    type TopicIdType = TopicTemporaryId;
-    type API = ResTopicAPI
+  implicit def resImpl[TopicArg: TopicTemporaryId] =
+    new Res[ResTopic[TopicArg]] {
+      type IdType = ResTopicId;
+      val idTypeImpls = new IdTypeImpls()
 
-    override def id(self: Self) = self.lens(_.id)
-    override def topic(self: Self) = self.lens(_.topic)
-    override def date(self: Self) = self.lens(_.date)
-    override def user(self: Self) = self.lens(_.user)
-    override def votes(self: Self) = self.lens(_.votes)
-    override def lv(self: Self) = self.lens(_.lv)
-    override def hash(self: Self) = self.lens(_.hash)
-    override def replyCount(self: Self) =
-      self.lens(_.replyCount)
+      type TopicIdType = TopicArg
+      val implTopicIdForTopicIdType = implicitly
 
-    override def fromBaseAPI(
-        self: Self
-    )(authToken: Option[AuthToken], base: ResAPIBaseRecord): API = {
-      LabelledGeneric[ResTopicAPI].from(base)
+      type API = ResTopicAPI
+
+      override def id(self: Self) = self.lens(_.id)
+      override def topic(self: Self) = self.lens(_.topic)
+      override def date(self: Self) = self.lens(_.date)
+      override def user(self: Self) = self.lens(_.user)
+      override def votes(self: Self) = self.lens(_.votes)
+      override def lv(self: Self) = self.lens(_.lv)
+      override def hash(self: Self) = self.lens(_.hash)
+      override def replyCount(self: Self) =
+        self.lens(_.replyCount)
+
+      override def fromBaseAPI(
+          self: Self
+      )(authToken: Option[AuthToken], base: ResAPIBaseRecord): API = {
+        LabelledGeneric[ResTopicAPI].from(base)
+      }
     }
-  }
 
-  def create[TopicTemporaryType: TopicTemporary](
+  def create[TopicTemporaryType](
       topic: TopicTemporaryType,
       user: User,
       authUser: AuthToken
-  ): ZIO[
+  )(implicit implTopicTemporary: TopicTemporary[TopicTemporaryType]): ZIO[
     ObjectIdGeneratorComponent with ClockComponent,
     AtError,
-    (ResTopic, TopicTemporaryType)
+    (ResTopic[implTopicTemporary.IdType], TopicTemporaryType)
   ] = {
     assert(user.id === authUser.user);
+
+    import implTopicTemporary.topicIdImplIdType
+
     for {
       requestDate <- ZIO.access[ClockComponent](_.clock.requestDate)
       id <- ZIO.accessM[ObjectIdGeneratorComponent](

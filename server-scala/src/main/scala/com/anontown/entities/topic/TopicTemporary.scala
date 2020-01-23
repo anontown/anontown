@@ -4,5 +4,5 @@ import simulacrum._
 
 @typeclass
 trait TopicTemporary[A] extends Topic[A] {
-  val topicIdImplIdType: TopicTemporaryId[IdType];
+  implicit val topicIdImplIdType: TopicTemporaryId[IdType];
 }
