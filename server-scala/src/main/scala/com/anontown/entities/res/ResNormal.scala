@@ -69,7 +69,7 @@ object ResNormalDeleteAPI {
   }
 }
 
-final case class ResNormal[+ReplyResId: ResId, TopicIdType](
+final case class ResNormal[+ReplyResId, TopicIdType](
     id: ResNormalId,
     topic: TopicIdType,
     date: OffsetDateTime,
@@ -84,36 +84,7 @@ final case class ResNormal[+ReplyResId: ResId, TopicIdType](
     deleteFlag: Option[ResDeleteReason],
     profile: Option[ProfileId],
     age: Boolean
-) {
-  def del(
-      resUser: User,
-      authToken: AuthToken
-  ): Either[AtError, (ResNormal[ReplyResId, TopicIdType], User)] = {
-    assert(resUser.id === authToken.user);
-    for {
-      _ <- Either.cond(
-        authToken.user === this.user,
-        (),
-        new AtRightError("人の書き込み削除は出来ません")
-      )
-
-      _ <- Either.cond(
-        this.deleteFlag.isEmpty,
-        (),
-        new AtPrerequisiteError("既に削除済みです")
-      )
-
-      val newResUser = resUser.changeLv(resUser.lv - 1)
-    } yield (
-      (
-        this.copy(
-          deleteFlag = Some(ResDeleteReason.Self())
-        ),
-        newResUser
-      )
-    )
-  }
-}
+);
 
 object ResNormal {
   implicit def implResId[ReplyResId: ResId, TopicIdTy: TopicId] =
@@ -248,5 +219,38 @@ object ResNormal {
       )
       newTopic <- ZIO.fromEither(topic.resUpdate(result))
     } yield (result, newUser, newTopic)
+  }
+
+  implicit class ResNormalService[ReplyResId: ResId, TopicIdType](
+      val self: ResNormal[ReplyResId, TopicIdType]
+  ) {
+    def del(
+        resUser: User,
+        authToken: AuthToken
+    ): Either[AtError, (ResNormal[ReplyResId, TopicIdType], User)] = {
+      assert(resUser.id === authToken.user);
+      for {
+        _ <- Either.cond(
+          authToken.user === self.user,
+          (),
+          new AtRightError("人の書き込み削除は出来ません")
+        )
+
+        _ <- Either.cond(
+          self.deleteFlag.isEmpty,
+          (),
+          new AtPrerequisiteError("既に削除済みです")
+        )
+
+        val newResUser = resUser.changeLv(resUser.lv - 1)
+      } yield (
+        (
+          self.copy(
+            deleteFlag = Some(ResDeleteReason.Self())
+          ),
+          newResUser
+        )
+      )
+    }
   }
 }

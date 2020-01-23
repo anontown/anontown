@@ -16,19 +16,7 @@ final case class Storage(
     user: UserId,
     key: StorageKey,
     value: StorageValue
-) {
-  def toAPI(authToken: AuthToken): Either[AtError, StorageAPI] = {
-    val authClient = authToken match {
-      case AuthTokenMaster(_, _)            => None;
-      case auth @ AuthTokenGeneral(_, _, _) => Some(auth.client);
-    };
-    if (authToken.user =!= this.user || authClient =!= this.client) {
-      Left(new AtRightError("権限がありません"))
-    } else {
-      Right(StorageAPI(key = this.key.value, value = this.value.value))
-    }
-  }
-}
+);
 
 object Storage {
   implicit val implEq: Eq[Storage] = {
@@ -56,5 +44,19 @@ object Storage {
       key = key,
       value = value
     )
+  }
+
+  implicit class StorageService(val self: Storage) {
+    def toAPI(authToken: AuthToken): Either[AtError, StorageAPI] = {
+      val authClient = authToken match {
+        case AuthTokenMaster(_, _)            => None;
+        case auth @ AuthTokenGeneral(_, _, _) => Some(auth.client);
+      };
+      if (authToken.user =!= self.user || authClient =!= self.client) {
+        Left(new AtRightError("権限がありません"))
+      } else {
+        Right(StorageAPI(key = self.key.value, value = self.value.value))
+      }
+    }
   }
 }

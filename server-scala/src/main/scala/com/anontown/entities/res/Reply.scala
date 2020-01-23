@@ -3,7 +3,7 @@ package com.anontown.entities.res
 import cats._, cats.derived._
 import com.anontown.entities.user.UserId
 
-final case class Reply[+ResIdType: ResId](
+final case class Reply[+ResIdType](
     res: ResIdType,
     user: UserId
 );

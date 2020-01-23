@@ -37,20 +37,7 @@ final case class History(
     date: OffsetDateTime,
     hash: String,
     user: UserId
-) {
-  def toAPI(authToken: Option[AuthToken]): HistoryAPI = {
-    HistoryAPI(
-      id = this.id.value,
-      topicID = this.topic,
-      title = this.title,
-      tags = this.tags,
-      text = this.text,
-      date = this.date.toString(),
-      hash = this.hash,
-      self = authToken.map(_.user === this.user)
-    )
-  }
-}
+);
 
 object History {
   implicit val implEq: Eq[History] = {
@@ -85,5 +72,20 @@ object History {
       hash = hash,
       user = user.id
     )
+  }
+
+  implicit class HistoryService(val self: History) {
+    def toAPI(authToken: Option[AuthToken]): HistoryAPI = {
+      HistoryAPI(
+        id = self.id.value,
+        topicID = self.topic,
+        title = self.title,
+        tags = self.tags,
+        text = self.text,
+        date = self.date.toString(),
+        hash = self.hash,
+        self = authToken.map(_.user === self.user)
+      )
+    }
   }
 }

@@ -34,117 +34,7 @@ final case class User(
     // 毎日リセットされ、特殊動作をすると増えるポイント
     point: Int,
     lastOneTopic: OffsetDateTime
-) {
-  def toAPI(): UserAPI = {
-    UserAPI(id = this.id.value, sn = this.sn.value);
-  }
-
-  def change(
-      authUser: AuthUser,
-      pass: Option[String],
-      sn: Option[String]
-  )(ports: ConfigContainerComponent): Either[AtError, User] = {
-    require(authUser.id === this.id);
-
-    (
-      pass
-        .map(
-          UserRawPass.fromString(_).map(UserEncryptedPass.fromRawPass(_)(ports))
-        )
-        .getOrElse(Right(this.pass))
-        .toValidated,
-      sn.map(
-          UserSn.fromString(_)
-        )
-        .getOrElse(Right(this.sn))
-        .toValidated
-    ).mapN(
-        (pass, sn) =>
-          this.copy(
-            sn = sn,
-            pass = pass
-          )
-      )
-      .toEither;
-  }
-
-  def auth(pass: String)(
-      ports: ConfigContainerComponent
-  ): Either[AtError, AuthUser] = {
-    if (this.pass.validation(pass)(ports)) {
-      Right(AuthUser(id = this.id))
-    } else {
-      Left(AtUserAuthError())
-    }
-  }
-
-  def usePoint(value: Int): Either[AtError, User] = {
-    if (this.lv < this.point + value) {
-      Left(AtPrerequisiteError("LVが足りません"))
-    } else {
-      Right(this.copy(point = this.point + value));
-    }
-  }
-
-  def changeLv(lv: Int): User = {
-    this.copy(
-      lv =
-        if (lv < 1) 1
-        else (if (lv > Constant.User.lvMax) Constant.User.lvMax
-              else lv)
-    );
-  }
-
-  def changeLastRes(lastRes: OffsetDateTime): Either[AtError, User] = {
-    // 条件
-    // 係数
-    // Constant.user.lvMaxの時、Constant.res.wait.maxLv倍緩和
-    val coe =
-      (this.lv.toDouble / Constant.User.lvMax.toDouble) * (Constant.Res.Wait.maxLv.toDouble - 1) + 1;
-    if (this.resWait.count.d1.toDouble < Constant.Res.Wait.d1.toDouble * coe &&
-        this.resWait.count.h12.toDouble < Constant.Res.Wait.h12.toDouble * coe &&
-        this.resWait.count.h6.toDouble < Constant.Res.Wait.h6.toDouble * coe &&
-        this.resWait.count.h1.toDouble < Constant.Res.Wait.h1.toDouble * coe &&
-        this.resWait.count.m30.toDouble < Constant.Res.Wait.m30.toDouble * coe &&
-        this.resWait.count.m10.toDouble < Constant.Res.Wait.m10.toDouble * coe &&
-        this.resWait.last.toEpochMilli + 1000 * Constant.Res.Wait.minSecond <
-          lastRes.toEpochMilli) {
-      Right(
-        this.copy(
-          resWait = ResWait(
-            last = lastRes,
-            count = ResWaitCount(
-              d1 = this.resWait.count.d1 + 1,
-              h12 = this.resWait.count.h12 + 1,
-              h6 = this.resWait.count.h6 + 1,
-              h1 = this.resWait.count.h1 + 1,
-              m30 = this.resWait.count.m30 + 1,
-              m10 = this.resWait.count.m10 + 1
-            )
-          )
-        )
-      );
-    } else {
-      Left(AtPrerequisiteError("連続書き込みはできません"));
-    }
-  }
-
-  def changeLastTopic(lastTopic: OffsetDateTime): Either[AtError, User] = {
-    if (this.lastTopic.toEpochMilli + 1000 * 60 * 30 < lastTopic.toEpochMilli) {
-      Right(this.copy(lastTopic = lastTopic));
-    } else {
-      Left(AtPrerequisiteError("連続書き込みはできません"));
-    }
-  }
-
-  def changeLastOneTopic(lastTopic: OffsetDateTime): Either[AtError, User] = {
-    if (this.lastOneTopic.toEpochMilli + 1000 * 60 * 10 < lastTopic.toEpochMilli) {
-      Right(this.copy(lastOneTopic = lastTopic));
-    } else {
-      Left(AtPrerequisiteError("連続書き込みはできません"));
-    }
-  }
-}
+);
 
 object User {
   implicit val implEq: Eq[User] = {
@@ -191,5 +81,121 @@ object User {
       point = 0,
       lastOneTopic = date
     )
+  }
+
+  implicit class UserService(val self: User) {
+    def toAPI(): UserAPI = {
+      UserAPI(id = self.id.value, sn = self.sn.value);
+    }
+
+    def change(
+        authUser: AuthUser,
+        pass: Option[String],
+        sn: Option[String]
+    )(ports: ConfigContainerComponent): Either[AtError, User] = {
+      require(authUser.id === self.id);
+
+      (
+        pass
+          .map(
+            UserRawPass
+              .fromString(_)
+              .map(UserEncryptedPass.fromRawPass(_)(ports))
+          )
+          .getOrElse(Right(self.pass))
+          .toValidated,
+        sn.map(
+            UserSn.fromString(_)
+          )
+          .getOrElse(Right(self.sn))
+          .toValidated
+      ).mapN(
+          (pass, sn) =>
+            self.copy(
+              sn = sn,
+              pass = pass
+            )
+        )
+        .toEither;
+    }
+
+    def auth(pass: String)(
+        ports: ConfigContainerComponent
+    ): Either[AtError, AuthUser] = {
+      if (self.pass.validation(pass)(ports)) {
+        Right(AuthUser(id = self.id))
+      } else {
+        Left(AtUserAuthError())
+      }
+    }
+
+    def usePoint(value: Int): Either[AtError, User] = {
+      if (self.lv < self.point + value) {
+        Left(AtPrerequisiteError("LVが足りません"))
+      } else {
+        Right(self.copy(point = self.point + value));
+      }
+    }
+
+    def changeLv(lv: Int): User = {
+      self.copy(
+        lv =
+          if (lv < 1) 1
+          else (if (lv > Constant.User.lvMax) Constant.User.lvMax
+                else lv)
+      );
+    }
+
+    def changeLastRes(lastRes: OffsetDateTime): Either[AtError, User] = {
+      // 条件
+      // 係数
+      // Constant.user.lvMaxの時、Constant.res.wait.maxLv倍緩和
+      val coe =
+        (self.lv.toDouble / Constant.User.lvMax.toDouble) * (Constant.Res.Wait.maxLv.toDouble - 1) + 1;
+      if (self.resWait.count.d1.toDouble < Constant.Res.Wait.d1.toDouble * coe &&
+          self.resWait.count.h12.toDouble < Constant.Res.Wait.h12.toDouble * coe &&
+          self.resWait.count.h6.toDouble < Constant.Res.Wait.h6.toDouble * coe &&
+          self.resWait.count.h1.toDouble < Constant.Res.Wait.h1.toDouble * coe &&
+          self.resWait.count.m30.toDouble < Constant.Res.Wait.m30.toDouble * coe &&
+          self.resWait.count.m10.toDouble < Constant.Res.Wait.m10.toDouble * coe &&
+          self.resWait.last.toEpochMilli + 1000 * Constant.Res.Wait.minSecond <
+            lastRes.toEpochMilli) {
+        Right(
+          self.copy(
+            resWait = ResWait(
+              last = lastRes,
+              count = ResWaitCount(
+                d1 = self.resWait.count.d1 + 1,
+                h12 = self.resWait.count.h12 + 1,
+                h6 = self.resWait.count.h6 + 1,
+                h1 = self.resWait.count.h1 + 1,
+                m30 = self.resWait.count.m30 + 1,
+                m10 = self.resWait.count.m10 + 1
+              )
+            )
+          )
+        );
+      } else {
+        Left(AtPrerequisiteError("連続書き込みはできません"));
+      }
+    }
+
+    def changeLastTopic(lastTopic: OffsetDateTime): Either[AtError, User] = {
+      if (self.lastTopic.toEpochMilli + 1000 * 60 * 30 < lastTopic.toEpochMilli) {
+        Right(self.copy(lastTopic = lastTopic));
+      } else {
+        Left(AtPrerequisiteError("連続書き込みはできません"));
+      }
+    }
+
+    def changeLastOneTopic(
+        lastTopic: OffsetDateTime
+    ): Either[AtError, User] = {
+      if (self.lastOneTopic.toEpochMilli + 1000 * 60 * 10 < lastTopic.toEpochMilli) {
+        Right(self.copy(lastOneTopic = lastTopic));
+      } else {
+        Left(AtPrerequisiteError("連続書き込みはできません"));
+      }
+    }
   }
 }

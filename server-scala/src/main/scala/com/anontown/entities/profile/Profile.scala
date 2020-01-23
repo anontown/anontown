@@ -36,49 +36,7 @@ final case class Profile(
     date: OffsetDateTime,
     update: OffsetDateTime,
     sn: ProfileSn
-) {
-  def toAPI(authToken: Option[AuthToken]): ProfileAPI = {
-    ProfileAPI(
-      id = this.id.value,
-      self = authToken.map(_.user === this.user),
-      name = this.name.value,
-      text = this.text.value,
-      date = this.date.toString(),
-      update = this.update.toString(),
-      sn = this.sn.value
-    )
-  }
-
-  def changeData(
-      authToken: AuthToken,
-      name: Option[String],
-      text: Option[String],
-      sn: Option[String]
-  )(ports: ClockComponent): Either[AtError, Profile] = {
-    if (authToken.user =!= this.user) {
-      Left(new AtRightError("人のプロフィール変更は出来ません"))
-    } else {
-      for {
-        (name, text, sn) <- (
-          name
-            .map(ProfileName.fromString(_))
-            .getOrElse(Right(this.name))
-            .toValidated,
-          text
-            .map(ProfileText.fromString(_))
-            .getOrElse(Right(this.text))
-            .toValidated,
-          sn.map(ProfileSn.fromString(_)).getOrElse(Right(this.sn)).toValidated
-        ).mapN((_, _, _)).toEither
-      } yield this.copy(
-        name = name,
-        text = text,
-        sn = sn,
-        update = ports.clock.requestDate
-      );
-    }
-  }
-}
+);
 
 object Profile {
   implicit val implEq: Eq[Profile] = {
@@ -114,5 +72,51 @@ object Profile {
       update = date,
       sn = sn
     )
+  }
+
+  implicit class ProfileService(val self: Profile) {
+    def toAPI(authToken: Option[AuthToken]): ProfileAPI = {
+      ProfileAPI(
+        id = self.id.value,
+        self = authToken.map(_.user === self.user),
+        name = self.name.value,
+        text = self.text.value,
+        date = self.date.toString(),
+        update = self.update.toString(),
+        sn = self.sn.value
+      )
+    }
+
+    def changeData(
+        authToken: AuthToken,
+        name: Option[String],
+        text: Option[String],
+        sn: Option[String]
+    )(ports: ClockComponent): Either[AtError, Profile] = {
+      if (authToken.user =!= self.user) {
+        Left(new AtRightError("人のプロフィール変更は出来ません"))
+      } else {
+        for {
+          (name, text, sn) <- (
+            name
+              .map(ProfileName.fromString(_))
+              .getOrElse(Right(self.name))
+              .toValidated,
+            text
+              .map(ProfileText.fromString(_))
+              .getOrElse(Right(self.text))
+              .toValidated,
+            sn.map(ProfileSn.fromString(_))
+              .getOrElse(Right(self.sn))
+              .toValidated
+          ).mapN((_, _, _)).toEither
+        } yield self.copy(
+          name = name,
+          text = text,
+          sn = sn,
+          update = ports.clock.requestDate
+        );
+      }
+    }
   }
 }

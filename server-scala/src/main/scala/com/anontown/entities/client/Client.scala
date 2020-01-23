@@ -34,41 +34,7 @@ final case class Client(
     user: UserId,
     date: OffsetDateTime,
     update: OffsetDateTime
-) {
-  def toAPI(authToken: Option[AuthTokenMaster]): ClientAPI = {
-    ClientAPI(
-      id = this.id.value,
-      name = this.name.value,
-      url = this.url.value,
-      self = authToken.map(_.user === this.user),
-      date = this.date.toString(),
-      update = this.update.toString()
-    )
-  }
-
-  def changeData(
-      authToken: AuthTokenMaster,
-      name: Option[String],
-      url: Option[String]
-  )(ports: ClockComponent): Either[AtError, Client] = {
-    if (authToken.user =!= this.user) {
-      Left(new AtRightError("人のクライアント変更は出来ません"));
-    } else {
-      (
-        name
-          .map(ClientName.fromString(_))
-          .getOrElse(Right(this.name))
-          .toValidated,
-        url.map(ClientUrl.fromString(_)).getOrElse(Right(this.url)).toValidated
-      ).mapN(
-          (name, url) =>
-            this.copy(name = name, url = url, update = ports.clock.requestDate)
-        )
-        .toEither
-    }
-  }
-
-}
+);
 
 object Client {
   implicit val implEq: Eq[Client] = {
@@ -102,5 +68,44 @@ object Client {
       date = date,
       update = date
     )
+  }
+
+  implicit class ClientService(val self: Client) {
+    def toAPI(authToken: Option[AuthTokenMaster]): ClientAPI = {
+      ClientAPI(
+        id = self.id.value,
+        name = self.name.value,
+        url = self.url.value,
+        self = authToken.map(_.user === self.user),
+        date = self.date.toString(),
+        update = self.update.toString()
+      )
+    }
+
+    def changeData(
+        authToken: AuthTokenMaster,
+        name: Option[String],
+        url: Option[String]
+    )(ports: ClockComponent): Either[AtError, Client] = {
+      if (authToken.user =!= self.user) {
+        Left(new AtRightError("人のクライアント変更は出来ません"));
+      } else {
+        (
+          name
+            .map(ClientName.fromString(_))
+            .getOrElse(Right(self.name))
+            .toValidated,
+          url
+            .map(ClientUrl.fromString(_))
+            .getOrElse(Right(self.url))
+            .toValidated
+        ).mapN(
+            (name, url) =>
+              self
+                .copy(name = name, url = url, update = ports.clock.requestDate)
+          )
+          .toEither
+      }
+    }
   }
 }

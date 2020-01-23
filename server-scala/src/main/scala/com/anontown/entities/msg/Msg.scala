@@ -25,23 +25,7 @@ final case class Msg(
     receiver: Option[UserId],
     text: String,
     date: OffsetDateTime
-) {
-
-  def toAPI(authToken: AuthToken): Either[AtError, MsgAPI] = {
-    if (this.receiver.map(_ =!= authToken.user).getOrElse(false)) {
-      Left(new AtRightError("アクセス権がありません。"))
-    } else {
-      Right(
-        MsgAPI(
-          id = this.id.value,
-          priv = this.receiver.isDefined,
-          text = this.text,
-          date = this.date.toString()
-        )
-      )
-    }
-  }
-}
+);
 
 object Msg {
   implicit val implEq: Eq[Msg] = {
@@ -64,5 +48,22 @@ object Msg {
       text = text,
       date = date
     )
+  }
+
+  implicit class HistoryService(val self: Msg) {
+    def toAPI(authToken: AuthToken): Either[AtError, MsgAPI] = {
+      if (self.receiver.map(_ =!= authToken.user).getOrElse(false)) {
+        Left(new AtRightError("アクセス権がありません。"))
+      } else {
+        Right(
+          MsgAPI(
+            id = self.id.value,
+            priv = self.receiver.isDefined,
+            text = self.text,
+            date = self.date.toString()
+          )
+        )
+      }
+    }
   }
 }

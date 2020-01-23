@@ -32,15 +32,7 @@ final case class TokenMaster(
     key: String,
     user: UserId,
     date: OffsetDateTime
-) {
-  def auth(key: String): Either[AtError, AuthTokenMaster] = {
-    if (this.key =!= key) {
-      Left(new AtTokenAuthError());
-    } else {
-      Right(AuthTokenMaster(id = this.id, user = this.user))
-    }
-  }
-}
+);
 
 object TokenMaster {
   implicit val implEq: Eq[TokenMaster] = {
@@ -84,5 +76,15 @@ object TokenMaster {
       user = authUser.id,
       date = now
     )
+  }
+
+  implicit class TokenMasterService(val self: TokenMaster) {
+    def auth(key: String): Either[AtError, AuthTokenMaster] = {
+      if (self.key =!= key) {
+        Left(new AtTokenAuthError());
+      } else {
+        Right(AuthTokenMaster(id = self.id, user = self.user))
+      }
+    }
   }
 }

@@ -42,11 +42,7 @@ final case class ResTopic[TopicArg](
     lv: Int,
     hash: String,
     replyCount: Int
-) {
-  type Self = ResTopic[TopicArg];
-  type IdType = ResTopicId;
-  type TopicIdType = TopicArg;
-}
+);
 
 object ResTopic {
   implicit def implRes[TopicArg: TopicTemporaryId] =

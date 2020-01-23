@@ -43,62 +43,7 @@ final case class TokenGeneral(
     user: UserId,
     req: List[TokenReq],
     date: OffsetDateTime
-) {
-  def createReq(): ZIO[
-    ClockComponent with ConfigContainerComponent with SafeIdGeneratorComponent,
-    AtServerError,
-    (TokenGeneral, TokenReqAPI)
-  ] = {
-    for {
-      now <- ZIO.access[ClockComponent](_.clock.requestDate)
-      val reqFilter = this.req
-        .filter(r => r.active && now.toEpochMilli < r.expireDate.toEpochMilli)
-      key <- Token.createTokenKey()
-      val req = TokenReq(
-        key = key,
-        expireDate = ofEpochMilli(
-          now.toEpochMilli + 1000 * 60 * Constant.Token.reqExpireMinute
-        ),
-        active = true
-      )
-    } yield (
-      this.copy(req = reqFilter.appended(req)),
-      TokenReqAPI(this.id.value, key = req.key)
-    )
-  }
-
-  def authReq(key: String): ZIO[ClockComponent, AtError, AuthTokenGeneral] = {
-    val req = this.req.find(_.key === key);
-
-    for {
-      now <- ZIO.access[ClockComponent](_.clock.requestDate)
-      _ <- req match {
-        case Some(req)
-            if req.active && req.expireDate.toEpochMilli >= now.toEpochMilli =>
-          ZIO.succeed(())
-        case _ => ZIO.fail(new AtNotFoundError("トークンリクエストが見つかりません"))
-      }
-    } yield AuthTokenGeneral(
-      id = this.id,
-      user = this.user,
-      client = this.client
-    )
-  }
-
-  def auth(key: String): Either[AtError, AuthTokenGeneral] = {
-    if (this.key === key) {
-      Right(
-        AuthTokenGeneral(
-          id = this.id,
-          user = this.user,
-          client = this.client
-        )
-      )
-    } else {
-      Left(new AtTokenAuthError())
-    }
-  }
-}
+);
 
 object TokenGeneral {
   implicit val implEq: Eq[TokenGeneral] = {
@@ -145,5 +90,62 @@ object TokenGeneral {
       req = List(),
       date = now
     )
+  }
+
+  implicit class TokenGeneralService(val self: TokenGeneral) {
+    def createReq(): ZIO[
+      ClockComponent with ConfigContainerComponent with SafeIdGeneratorComponent,
+      AtServerError,
+      (TokenGeneral, TokenReqAPI)
+    ] = {
+      for {
+        now <- ZIO.access[ClockComponent](_.clock.requestDate)
+        val reqFilter = self.req
+          .filter(r => r.active && now.toEpochMilli < r.expireDate.toEpochMilli)
+        key <- Token.createTokenKey()
+        val req = TokenReq(
+          key = key,
+          expireDate = ofEpochMilli(
+            now.toEpochMilli + 1000 * 60 * Constant.Token.reqExpireMinute
+          ),
+          active = true
+        )
+      } yield (
+        self.copy(req = reqFilter.appended(req)),
+        TokenReqAPI(self.id.value, key = req.key)
+      )
+    }
+
+    def authReq(key: String): ZIO[ClockComponent, AtError, AuthTokenGeneral] = {
+      val req = self.req.find(_.key === key);
+
+      for {
+        now <- ZIO.access[ClockComponent](_.clock.requestDate)
+        _ <- req match {
+          case Some(req)
+              if req.active && req.expireDate.toEpochMilli >= now.toEpochMilli =>
+            ZIO.succeed(())
+          case _ => ZIO.fail(new AtNotFoundError("トークンリクエストが見つかりません"))
+        }
+      } yield AuthTokenGeneral(
+        id = self.id,
+        user = self.user,
+        client = self.client
+      )
+    }
+
+    def auth(key: String): Either[AtError, AuthTokenGeneral] = {
+      if (self.key === key) {
+        Right(
+          AuthTokenGeneral(
+            id = self.id,
+            user = self.user,
+            client = self.client
+          )
+        )
+      } else {
+        Left(new AtTokenAuthError())
+      }
+    }
   }
 }
