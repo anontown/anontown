@@ -6,7 +6,7 @@ import com.anontown.AtParamsError
 
 final case class ResText(value: String) extends AnyVal;
 object ResText {
-  implicit val eqImpl: Eq[ResText] = {
+  implicit val implEq: Eq[ResText] = {
     import auto.eq._
     semi.eq
   }

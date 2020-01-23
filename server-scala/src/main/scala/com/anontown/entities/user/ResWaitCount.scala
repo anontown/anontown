@@ -12,7 +12,7 @@ final case class ResWaitCount(
 );
 
 object ResWaitCount {
-  implicit val eqImpl: Eq[ResWaitCount] = {
+  implicit val implEq: Eq[ResWaitCount] = {
     import auto.eq._
     semi.eq
   }

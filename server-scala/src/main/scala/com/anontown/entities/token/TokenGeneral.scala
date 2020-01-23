@@ -30,7 +30,7 @@ final case class TokenGeneralAPI(
 ) extends TokenAPI
 
 object TokenGeneralAPI {
-  implicit val eqImpl: Eq[TokenGeneralAPI] = {
+  implicit val implEq: Eq[TokenGeneralAPI] = {
     import auto.eq._
     semi.eq
   }
@@ -101,7 +101,7 @@ final case class TokenGeneral(
 }
 
 object TokenGeneral {
-  implicit val eqImpl: Eq[TokenGeneral] = {
+  implicit val implEq: Eq[TokenGeneral] = {
     import auto.eq._
     semi.eq
   }

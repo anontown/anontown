@@ -31,7 +31,7 @@ final case class Storage(
 }
 
 object Storage {
-  implicit val eqImpl: Eq[Storage] = {
+  implicit val implEq: Eq[Storage] = {
     import auto.eq._
     semi.eq
   }

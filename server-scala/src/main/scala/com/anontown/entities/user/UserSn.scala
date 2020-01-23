@@ -6,7 +6,7 @@ import com.anontown.Constant
 
 final case class UserSn(value: String) extends AnyVal;
 object UserSn {
-  implicit val eqImpl: Eq[UserSn] = {
+  implicit val implEq: Eq[UserSn] = {
     import auto.eq._
     semi.eq
   }

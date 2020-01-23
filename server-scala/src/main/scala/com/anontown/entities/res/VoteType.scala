@@ -5,7 +5,7 @@ import cats._, cats.derived._
 sealed trait VoteType;
 
 object VoteType {
-  implicit val eqImpl: Eq[VoteType] = {
+  implicit val implEq: Eq[VoteType] = {
     import auto.eq._
     semi.eq
   }

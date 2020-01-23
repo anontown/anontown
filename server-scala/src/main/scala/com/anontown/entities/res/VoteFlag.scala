@@ -8,7 +8,7 @@ object VoteFlag {
   final case class Dv() extends VoteFlag;
   final case class Not() extends VoteFlag;
 
-  implicit val eqImpl: Eq[VoteFlag] = {
+  implicit val implEq: Eq[VoteFlag] = {
     import auto.eq._
     semi.eq
   }

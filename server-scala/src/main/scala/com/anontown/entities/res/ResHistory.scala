@@ -29,7 +29,7 @@ final case class ResHistoryAPI(
 ) extends ResAPI;
 
 object ResHistoryAPI {
-  implicit val eqImpl: Eq[ResHistoryAPI] = {
+  implicit val implEq: Eq[ResHistoryAPI] = {
     import auto.eq._
     semi.eq
   }

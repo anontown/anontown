@@ -42,7 +42,7 @@ final case class ResNormalActiveAPI(
     with ResNormalAPI;
 
 object ResNormalActiveAPI {
-  implicit val eqImpl: Eq[ResNormalActiveAPI] = {
+  implicit val implEq: Eq[ResNormalActiveAPI] = {
     import auto.eq._
     semi.eq
   }
@@ -63,7 +63,7 @@ final case class ResNormalDeleteAPI(
     with ResNormalAPI;
 
 object ResNormalDeleteAPI {
-  implicit val eqImpl: Eq[ResNormalDeleteAPI] = {
+  implicit val implEq: Eq[ResNormalDeleteAPI] = {
     import auto.eq._
     semi.eq
   }

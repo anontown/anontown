@@ -21,7 +21,7 @@ final case class ClientAPI(
 );
 
 object ClientAPI {
-  implicit val eqImpl: Eq[ClientAPI] = {
+  implicit val implEq: Eq[ClientAPI] = {
     import auto.eq._
     semi.eq
   }
@@ -71,7 +71,7 @@ final case class Client(
 }
 
 object Client {
-  implicit val eqImpl: Eq[Client] = {
+  implicit val implEq: Eq[Client] = {
     import auto.eq._
     semi.eq
   }

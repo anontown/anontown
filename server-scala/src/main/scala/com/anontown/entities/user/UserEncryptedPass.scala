@@ -11,7 +11,7 @@ final case class UserEncryptedPass(value: String) extends AnyVal {
 }
 
 object UserEncryptedPass {
-  implicit val eqImpl: Eq[UserEncryptedPass] = {
+  implicit val implEq: Eq[UserEncryptedPass] = {
     import auto.eq._
     semi.eq
   }

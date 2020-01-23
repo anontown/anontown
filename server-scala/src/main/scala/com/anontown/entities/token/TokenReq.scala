@@ -11,7 +11,7 @@ final case class TokenReq(
 );
 
 object TokenReq {
-  implicit val eqImpl: Eq[TokenReq] = {
+  implicit val implEq: Eq[TokenReq] = {
     import auto.eq._
     semi.eq
   }
@@ -20,7 +20,7 @@ object TokenReq {
 final case class TokenReqAPI(token: String, key: String)
 
 object TokenReqAPI {
-  implicit val eqImpl: Eq[TokenReqAPI] = {
+  implicit val implEq: Eq[TokenReqAPI] = {
     import auto.eq._
     semi.eq
   }

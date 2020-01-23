@@ -4,7 +4,7 @@ import cats._, cats.derived._
 
 sealed trait ResDeleteReason;
 object ResDeleteReason {
-  implicit val eqImpl: Eq[ResDeleteReason] = {
+  implicit val implEq: Eq[ResDeleteReason] = {
     import auto.eq._
     semi.eq
   }

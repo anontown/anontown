@@ -14,7 +14,7 @@ import com.anontown.entities.user.{UserId, User}
 final case class MsgAPI(id: String, priv: Boolean, text: String, date: String);
 
 object MsgAPI {
-  implicit val eqImpl: Eq[MsgAPI] = {
+  implicit val implEq: Eq[MsgAPI] = {
     import auto.eq._
     semi.eq
   }
@@ -44,7 +44,7 @@ final case class Msg(
 }
 
 object Msg {
-  implicit val eqImpl: Eq[Msg] = {
+  implicit val implEq: Eq[Msg] = {
     import auto.eq._
     semi.eq
   }

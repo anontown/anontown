@@ -5,7 +5,7 @@ import cats._, cats.implicits._, cats.derived._
 final case class ResNormalId(value: String) extends AnyVal;
 
 object ResNormalId {
-  implicit val eqImpl: Eq[ResNormalId] = {
+  implicit val implEq: Eq[ResNormalId] = {
     import auto.eq._
     semi.eq
   }

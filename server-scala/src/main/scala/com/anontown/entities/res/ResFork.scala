@@ -33,7 +33,7 @@ final case class ResForkAPI(
 ) extends ResAPI;
 
 object ResForkAPI {
-  implicit val eqImpl: Eq[ResForkAPI] = {
+  implicit val implEq: Eq[ResForkAPI] = {
     import auto.eq._
     semi.eq
   }

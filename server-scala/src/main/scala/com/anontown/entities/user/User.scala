@@ -17,7 +17,7 @@ import com.anontown.utils.OffsetDateTimeUtils._
 final case class UserAPI(id: String, sn: String);
 
 object UserAPI {
-  implicit val eqImpl: Eq[UserAPI] = {
+  implicit val implEq: Eq[UserAPI] = {
     import auto.eq._
     semi.eq
   }
@@ -147,7 +147,7 @@ final case class User(
 }
 
 object User {
-  implicit val eqImpl: Eq[User] = {
+  implicit val implEq: Eq[User] = {
     import auto.eq._
     semi.eq
   }

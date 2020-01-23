@@ -7,7 +7,7 @@ import com.anontown.utils.Impl._;
 final case class ResWait(last: OffsetDateTime, count: ResWaitCount);
 
 object ResWait {
-  implicit val eqImpl: Eq[ResWait] = {
+  implicit val implEq: Eq[ResWait] = {
     import auto.eq._
     semi.eq
   }

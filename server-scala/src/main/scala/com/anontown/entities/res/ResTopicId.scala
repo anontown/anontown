@@ -5,7 +5,7 @@ import cats._, cats.implicits._, cats.derived._
 final case class ResTopicId(value: String) extends AnyVal;
 
 object ResTopicId {
-  implicit val eqImpl: Eq[ResTopicId] = {
+  implicit val implEq: Eq[ResTopicId] = {
     import auto.eq._
     semi.eq
   }

@@ -6,7 +6,7 @@ import com.anontown.AtParamsError
 
 final case class ClientUrl(value: String) extends AnyVal;
 object ClientUrl {
-  implicit val eqImpl: Eq[ClientUrl] = {
+  implicit val implEq: Eq[ClientUrl] = {
     import auto.eq._
     semi.eq
   }

@@ -6,7 +6,7 @@ import cats._, cats.implicits._, cats.derived._
 
 final case class UserRawPass(value: String) extends AnyVal;
 object UserRawPass {
-  implicit val eqImpl: Eq[UserRawPass] = {
+  implicit val implEq: Eq[UserRawPass] = {
     import auto.eq._
     semi.eq
   }

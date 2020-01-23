@@ -6,7 +6,7 @@ import com.anontown.AtParamsError
 
 final case class StorageKey(value: String) extends AnyVal;
 object StorageKey {
-  implicit val eqImpl: Eq[StorageKey] = {
+  implicit val implEq: Eq[StorageKey] = {
     import auto.eq._
     semi.eq
   }

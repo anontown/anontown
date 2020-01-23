@@ -17,7 +17,7 @@ final case class TopicOneAPI(
 ) extends TopicSearchAPI;
 
 object TopicOneAPI {
-  implicit val eqImpl: Eq[TopicOneAPI] = {
+  implicit val implEq: Eq[TopicOneAPI] = {
     import auto.eq._
     semi.eq
   }
@@ -35,7 +35,7 @@ final case class TopicOne(
 );
 
 object TopicOne {
-  implicit val eqImpl: Eq[TopicOne] = {
+  implicit val implEq: Eq[TopicOne] = {
     import auto.eq._
     semi.eq
   }

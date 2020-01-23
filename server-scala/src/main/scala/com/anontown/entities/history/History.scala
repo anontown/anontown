@@ -22,7 +22,7 @@ final case class HistoryAPI(
 );
 
 object HistoryAPI {
-  implicit val eqImpl: Eq[HistoryAPI] = {
+  implicit val implEq: Eq[HistoryAPI] = {
     import auto.eq._
     semi.eq
   }
@@ -53,7 +53,7 @@ final case class History(
 }
 
 object History {
-  implicit val eqImpl: Eq[History] = {
+  implicit val implEq: Eq[History] = {
     import auto.eq._
     semi.eq
   }

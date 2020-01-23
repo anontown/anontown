@@ -22,7 +22,7 @@ final case class ProfileAPI(
 );
 
 object ProfileAPI {
-  implicit val eqImpl: Eq[ProfileAPI] = {
+  implicit val implEq: Eq[ProfileAPI] = {
     import auto.eq._
     semi.eq
   }
@@ -81,7 +81,7 @@ final case class Profile(
 }
 
 object Profile {
-  implicit val eqImpl: Eq[Profile] = {
+  implicit val implEq: Eq[Profile] = {
     import auto.eq._
     semi.eq
   }

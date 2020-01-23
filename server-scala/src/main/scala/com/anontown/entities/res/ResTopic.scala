@@ -27,7 +27,7 @@ final case class ResTopicAPI(
 ) extends ResAPI;
 
 object ResTopicAPI {
-  implicit val eqImpl: Eq[ResTopicAPI] = {
+  implicit val implEq: Eq[ResTopicAPI] = {
     import auto.eq._
     semi.eq
   }

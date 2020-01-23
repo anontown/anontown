@@ -6,7 +6,7 @@ import com.anontown.entities.user.UserId
 final case class Vote(user: UserId, value: Int);
 
 object Vote {
-  implicit val eqImpl: Eq[Vote] = {
+  implicit val implEq: Eq[Vote] = {
     import auto.eq._
     semi.eq
   }

@@ -4,7 +4,7 @@ import cats._, cats.implicits._, cats.derived._
 
 final case class TopicForkId(value: String) extends AnyVal;
 object TopicForkId {
-  implicit val eqImpl: Eq[TopicForkId] = {
+  implicit val implEq: Eq[TopicForkId] = {
     import auto.eq._
     semi.eq
   }

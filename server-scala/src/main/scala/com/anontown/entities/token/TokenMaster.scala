@@ -21,7 +21,7 @@ final case class TokenMasterAPI(id: String, key: String, date: String)
     extends TokenAPI
 
 object TokenMasterAPI {
-  implicit val eqImpl: Eq[TokenMasterAPI] = {
+  implicit val implEq: Eq[TokenMasterAPI] = {
     import auto.eq._
     semi.eq
   }
@@ -43,7 +43,7 @@ final case class TokenMaster(
 }
 
 object TokenMaster {
-  implicit val eqImpl: Eq[TokenMaster] = {
+  implicit val implEq: Eq[TokenMaster] = {
     import auto.eq._
     semi.eq
   }

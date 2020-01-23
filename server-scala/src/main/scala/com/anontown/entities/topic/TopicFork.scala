@@ -16,7 +16,7 @@ final case class TopicForkAPI(
 ) extends TopicAPI;
 
 object TopicForkAPI {
-  implicit val eqImpl: Eq[TopicForkAPI] = {
+  implicit val implEq: Eq[TopicForkAPI] = {
     import auto.eq._
     semi.eq
   }
@@ -47,7 +47,7 @@ object TopicFork {
     override def active(self: Self) = self.lens(_.active);
   }
 
-  implicit val eqImpl: Eq[TopicFork] = {
+  implicit val implEq: Eq[TopicFork] = {
     import auto.eq._
     semi.eq
   }
