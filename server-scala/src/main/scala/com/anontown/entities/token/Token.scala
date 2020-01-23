@@ -24,8 +24,7 @@ trait TokenAPI {
 trait Token[A] extends AnyRef {
   type Self = A;
   type IdType;
-  class IdTypeImpls(implicit val tokenIdImpl: TokenId[IdType]);
-  val idTypeImpls: IdTypeImpls;
+  implicit val implTokenIdForIdType: TokenId[IdType];
 
   type API <: TokenAPI;
   type SelfApplyLens[T] = ApplyLens[A, A, T, T];
@@ -45,12 +44,12 @@ trait Token[A] extends AnyRef {
 
 object Token {
   implicit class TokenService[A](val self: A)(
-      implicit val tokenImpl: Token[A]
+      implicit val implToken: Token[A]
   ) {
     import Token.ops._;
-    import tokenImpl.idTypeImpls._;
+    import implToken.implTokenIdForIdType;
 
-    def toAPI(): tokenImpl.API = {
+    def toAPI(): implToken.API = {
       self.fromBaseAPI(
         Record(
           id = self.id.get.value,

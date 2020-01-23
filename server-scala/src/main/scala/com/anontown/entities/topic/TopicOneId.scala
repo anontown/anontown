@@ -9,7 +9,7 @@ object TopicOneId {
     semi.eq
   }
 
-  implicit val topicIdImpl = new TopicId[TopicOneId]
+  implicit val implTopicId = new TopicId[TopicOneId]
   with TopicSearchId[TopicOneId] with TopicTemporaryId[TopicOneId] {
     def value(self: Self) = self.value
   }

@@ -33,8 +33,7 @@ trait ResAPI {
 trait Res[A] extends AnyRef {
   type Self = A;
   type IdType;
-  class IdTypeImpls(implicit val resIdImpl: ResId[IdType]);
-  val idTypeImpls: IdTypeImpls;
+  implicit val implResIdForIdType: ResId[IdType];
 
   type TopicIdType;
   implicit val implTopicIdForTopicIdType: TopicId[TopicIdType]
@@ -71,12 +70,12 @@ trait Res[A] extends AnyRef {
 
 object Res {
   implicit class ResService[A](val self: A)(
-      implicit val resImpl: Res[A]
+      implicit val implRes: Res[A]
   ) {
-    import resImpl.idTypeImpls._
-    import resImpl.implTopicIdForTopicIdType;
+    import implRes.implResIdForIdType;
+    import implRes.implTopicIdForTopicIdType;
 
-    def toAPI(authToken: Option[AuthToken]): resImpl.API = {
+    def toAPI(authToken: Option[AuthToken]): implRes.API = {
       self.fromBaseAPI(
         authToken,
         Record(

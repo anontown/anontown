@@ -48,10 +48,10 @@ object TokenMaster {
     semi.eq
   }
 
-  implicit val tokenImpl = new Token[TokenMaster] {
+  implicit val implToken = new Token[TokenMaster] {
     type API = TokenMasterAPI;
     type IdType = TokenMasterId;
-    val idTypeImpls = new IdTypeImpls()
+    val implTokenIdForIdType = implicitly
 
     def id(self: Self) = self.lens(_.id);
     def key(self: Self) = self.lens(_.key);

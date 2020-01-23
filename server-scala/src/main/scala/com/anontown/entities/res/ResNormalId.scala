@@ -10,7 +10,7 @@ object ResNormalId {
     semi.eq
   }
 
-  implicit val resIdImpl = new ResId[ResNormalId] {
+  implicit val implResId = new ResId[ResNormalId] {
     def value(self: Self) = self.value;
   }
 }

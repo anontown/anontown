@@ -52,9 +52,9 @@ final case class ResFork(
 );
 
 object ResFork {
-  implicit val resImpl = new Res[ResFork] {
+  implicit val implRes = new Res[ResFork] {
     type IdType = ResForkId;
-    val idTypeImpls = new IdTypeImpls()
+    val implResIdForIdType = implicitly
     type TopicIdType = TopicNormalId;
     val implTopicIdForTopicIdType = implicitly
 

@@ -40,11 +40,11 @@ object TopicOne {
     semi.eq
   }
 
-  implicit val topicImpl = new TopicSearch[TopicOne]
+  implicit val implTopic = new TopicSearch[TopicOne]
   with TopicTemporary[TopicOne] {
     type IdType = TopicOneId;
 
-    val topicIdImplIdType =
+    val implTopicIdForIdType =
       implicitly[TopicSearchId[IdType] with TopicTemporaryId[IdType]]
 
     override def id(self: Self) = self.lens(_.id);

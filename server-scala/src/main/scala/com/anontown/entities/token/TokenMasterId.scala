@@ -10,7 +10,7 @@ object TokenMasterId {
     semi.eq
   }
 
-  implicit val tokenIdImpl = new TokenId[TokenMasterId] {
+  implicit val implTokenId = new TokenId[TokenMasterId] {
     def value(self: Self) = self.value
   }
 }

@@ -9,7 +9,7 @@ object TopicForkId {
     semi.eq
   }
 
-  implicit val topicIdImpl = new TopicTemporaryId[TopicForkId] {
+  implicit val implTopicId = new TopicTemporaryId[TopicForkId] {
     def value(self: Self) = self.value
   }
 }

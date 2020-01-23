@@ -21,7 +21,7 @@ trait TopicAPI {
 trait Topic[A] extends AnyRef {
   type Self = A;
   type IdType;
-  implicit val topicIdImplIdType: TopicId[IdType];
+  implicit val implTopicIdForIdType: TopicId[IdType];
 
   type SelfApplyLens[T] = ApplyLens[A, A, T, T];
 
@@ -36,7 +36,7 @@ trait Topic[A] extends AnyRef {
 
 object Topic {
   implicit class TopicService[A](val self: A)(
-      implicit val topicImpl: Topic[A]
+      implicit val implTopic: Topic[A]
   ) {
     def hash(user: User)(ports: ClockComponent) = { ??? }
 

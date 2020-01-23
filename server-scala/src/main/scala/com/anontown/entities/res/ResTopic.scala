@@ -49,10 +49,10 @@ final case class ResTopic[TopicArg](
 }
 
 object ResTopic {
-  implicit def resImpl[TopicArg: TopicTemporaryId] =
+  implicit def implRes[TopicArg: TopicTemporaryId] =
     new Res[ResTopic[TopicArg]] {
       type IdType = ResTopicId;
-      val idTypeImpls = new IdTypeImpls()
+      val implResIdForIdType = implicitly
 
       type TopicIdType = TopicArg
       val implTopicIdForTopicIdType = implicitly
@@ -87,7 +87,7 @@ object ResTopic {
   ] = {
     assert(user.id === authUser.user);
 
-    import implTopicTemporary.topicIdImplIdType
+    import implTopicTemporary.implTopicIdForIdType
 
     for {
       requestDate <- ZIO.access[ClockComponent](_.clock.requestDate)

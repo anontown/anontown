@@ -9,7 +9,7 @@ trait TopicSearchAPI extends TopicAPI {
 
 @typeclass
 trait TopicSearch[A] extends Topic[A] {
-  val topicIdImplIdType: TopicSearchId[IdType];
+  val implTopicIdForIdType: TopicSearchId[IdType];
   // see: https://github.com/typelevel/simulacrum/issues/55
   type SelfApplyLens0[T] = SelfApplyLens[T]
 

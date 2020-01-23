@@ -33,10 +33,10 @@ final case class TopicFork(
 );
 
 object TopicFork {
-  implicit val topicImpl = new TopicTemporary[TopicFork] {
+  implicit val implTopic = new TopicTemporary[TopicFork] {
     type IdType = TopicForkId;
 
-    val topicIdImplIdType = implicitly
+    val implTopicIdForIdType = implicitly
 
     override def id(self: Self) = self.lens(_.id);
     override def title(self: Self) = self.lens(_.title);

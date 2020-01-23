@@ -106,9 +106,9 @@ object TokenGeneral {
     semi.eq
   }
 
-  implicit val tokenImpl = new Token[TokenGeneral] {
+  implicit val implToken = new Token[TokenGeneral] {
     type IdType = TokenGeneralId;
-    val idTypeImpls = new IdTypeImpls()
+    val implTokenIdForIdType = implicitly
 
     type API = TokenGeneralAPI;
 

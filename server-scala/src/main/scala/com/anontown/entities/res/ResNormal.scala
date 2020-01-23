@@ -116,10 +116,10 @@ final case class ResNormal[+ReplyResId: ResId, TopicIdType](
 }
 
 object ResNormal {
-  implicit def resImpl[ReplyResId: ResId, TopicIdTy: TopicId] =
+  implicit def implResId[ReplyResId: ResId, TopicIdTy: TopicId] =
     new Res[ResNormal[ReplyResId, TopicIdTy]] {
       type IdType = ResNormalId;
-      val idTypeImpls = new IdTypeImpls()
+      val implResIdForIdType = implicitly
 
       type TopicIdType = TopicIdTy;
       val implTopicIdForTopicIdType = implicitly
@@ -175,16 +175,16 @@ object ResNormal {
       reply: Option[ResType],
       profile: Option[Profile],
       age: Boolean
-  )(implicit resImpl: Res[ResType] { type IdType = ResIdType }, topicImpl: Topic[TopicType])
+  )(implicit implRes: Res[ResType] { type IdType = ResIdType }, implTopic: Topic[TopicType])
       : ZIO[
         ObjectIdGeneratorComponent with ClockComponent,
         AtError,
-        (ResNormal[ResIdType, topicImpl.IdType], User, TopicType)
+        (ResNormal[ResIdType, implTopic.IdType], User, TopicType)
       ] = {
     assert(user.id === authUser.user);
 
-    import resImpl.implTopicIdForTopicIdType
-    import topicImpl.topicIdImplIdType
+    import implRes.implTopicIdForTopicIdType
+    import implTopic.implTopicIdForIdType
 
     for {
       (name, text) <- ZIO.fromEither(

@@ -48,9 +48,9 @@ final case class ResHistory(
 );
 
 object ResHistory {
-  implicit val resImpl = new Res[ResHistory] {
+  implicit val implRes = new Res[ResHistory] {
     type IdType = ResHistoryId;
-    val idTypeImpls = new IdTypeImpls()
+    val implResIdForIdType = implicitly
     type TopicIdType = TopicNormalId;
     val implTopicIdForTopicIdType = implicitly
 
