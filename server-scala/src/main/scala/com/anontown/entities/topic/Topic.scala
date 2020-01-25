@@ -38,6 +38,8 @@ object Topic {
   implicit class TopicService[A](val self: A)(
       implicit val implTopic: Topic[A]
   ) {
+    val hashLen: Int = 6;
+
     def hash(user: User)(ports: ClockComponent) = { ??? }
 
     def resUpdate[R: Res](res: R): Either[AtError, A] = { ??? }

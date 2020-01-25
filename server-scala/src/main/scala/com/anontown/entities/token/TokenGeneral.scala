@@ -13,7 +13,6 @@ import com.anontown.AtError
 import com.anontown.AtTokenAuthError
 import com.anontown.ports.ObjectIdGeneratorComponent
 import com.anontown.ports.ClockComponent
-import com.anontown.Constant
 import com.anontown.AuthTokenGeneral
 import com.anontown.AtNotFoundError
 import com.anontown.entities.user.UserId
@@ -93,6 +92,8 @@ object TokenGeneral {
   }
 
   implicit class TokenGeneralService(val self: TokenGeneral) {
+    val reqExpireMinute: Int = 5;
+
     def createReq(): ZIO[
       ClockComponent with ConfigContainerComponent with SafeIdGeneratorComponent,
       AtServerError,
@@ -106,7 +107,7 @@ object TokenGeneral {
         val req = TokenReq(
           key = key,
           expireDate = ofEpochMilli(
-            now.toEpochMilli + 1000 * 60 * Constant.Token.reqExpireMinute
+            now.toEpochMilli + 1000 * 60 * reqExpireMinute
           ),
           active = true
         )

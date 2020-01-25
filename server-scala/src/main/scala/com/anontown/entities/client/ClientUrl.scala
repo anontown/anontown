@@ -1,11 +1,18 @@
 package com.anontown.entities.client
 
 import cats._, cats.implicits._, cats.derived._
-import com.anontown.Constant
+import java.util.regex.Pattern;
+import com.anontown.RegexValidator
 import com.anontown.AtParamsError
 
 final case class ClientUrl(value: String) extends AnyVal;
 object ClientUrl {
+  val urlRegexValidator: RegexValidator =
+    RegexValidator(
+      Pattern.compile("https?:\\/\\/.{1,500}"),
+      "URLが不正です"
+    );
+
   implicit val implEq: Eq[ClientUrl] = {
     import auto.eq._
     semi.eq
@@ -14,6 +21,6 @@ object ClientUrl {
   def fromString(
       value: String
   ): Either[AtParamsError, ClientUrl] = {
-    Constant.Client.urlRegex.apValidate("url", value).map(ClientUrl(_))
+    urlRegexValidator.apValidate("url", value).map(ClientUrl(_))
   }
 }

@@ -2,7 +2,6 @@ package com.anontown.entities.user;
 
 import java.time.OffsetDateTime;
 import com.anontown.utils.Impl._;
-import com.anontown.Constant
 import com.anontown.AtError
 import com.anontown.AuthUser
 import com.anontown.AtUserAuthError
@@ -37,6 +36,17 @@ final case class User(
 );
 
 object User {
+  object Wait {
+    val maxLv: Int = 3;
+    val minSecond: Int = 7;
+    val m10: Int = 10;
+    val m30: Int = 15;
+    val h1: Int = 20;
+    val h6: Int = 30;
+    val h12: Int = 40;
+    val d1: Int = 50;
+  }
+
   implicit val implEq: Eq[User] = {
     import auto.eq._
     semi.eq
@@ -84,6 +94,8 @@ object User {
   }
 
   implicit class UserService(val self: User) {
+    val lvMax: Int = 1000;
+
     def toAPI(): UserAPI = {
       UserAPI(id = self.id.value, sn = self.sn.value);
     }
@@ -141,7 +153,7 @@ object User {
       self.copy(
         lv =
           if (lv < 1) 1
-          else (if (lv > Constant.User.lvMax) Constant.User.lvMax
+          else (if (lv > lvMax) lvMax
                 else lv)
       );
     }
@@ -149,16 +161,16 @@ object User {
     def changeLastRes(lastRes: OffsetDateTime): Either[AtError, User] = {
       // 条件
       // 係数
-      // Constant.user.lvMaxの時、Constant.res.wait.maxLv倍緩和
+      // lvMaxの時、Constant.res.wait.maxLv倍緩和
       val coe =
-        (self.lv.toDouble / Constant.User.lvMax.toDouble) * (Constant.Res.Wait.maxLv.toDouble - 1) + 1;
-      if (self.resWait.count.d1.toDouble < Constant.Res.Wait.d1.toDouble * coe &&
-          self.resWait.count.h12.toDouble < Constant.Res.Wait.h12.toDouble * coe &&
-          self.resWait.count.h6.toDouble < Constant.Res.Wait.h6.toDouble * coe &&
-          self.resWait.count.h1.toDouble < Constant.Res.Wait.h1.toDouble * coe &&
-          self.resWait.count.m30.toDouble < Constant.Res.Wait.m30.toDouble * coe &&
-          self.resWait.count.m10.toDouble < Constant.Res.Wait.m10.toDouble * coe &&
-          self.resWait.last.toEpochMilli + 1000 * Constant.Res.Wait.minSecond <
+        (self.lv.toDouble / lvMax.toDouble) * (Wait.maxLv.toDouble - 1) + 1;
+      if (self.resWait.count.d1.toDouble < Wait.d1.toDouble * coe &&
+          self.resWait.count.h12.toDouble < Wait.h12.toDouble * coe &&
+          self.resWait.count.h6.toDouble < Wait.h6.toDouble * coe &&
+          self.resWait.count.h1.toDouble < Wait.h1.toDouble * coe &&
+          self.resWait.count.m30.toDouble < Wait.m30.toDouble * coe &&
+          self.resWait.count.m10.toDouble < Wait.m10.toDouble * coe &&
+          self.resWait.last.toEpochMilli + 1000 * Wait.minSecond <
             lastRes.toEpochMilli) {
         Right(
           self.copy(
