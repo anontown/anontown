@@ -2,7 +2,7 @@ package com.anontown.entities.topic
 
 import java.time.OffsetDateTime
 import com.anontown.AtError
-import com.anontown.ports.ClockComponent
+import com.anontown.services.ClockComponent
 import com.anontown.entities.res.Res
 import com.anontown.entities.user.User
 import monocle.syntax.ApplyLens
