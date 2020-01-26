@@ -16,6 +16,7 @@ import com.anontown.ports.ClockComponent
 import com.anontown.entities.user.UserId
 import shapeless._
 import monocle.macros.syntax.lens._
+import Token.TokenService
 
 final case class TokenMasterAPI(id: String, key: String, date: String)
     extends TokenAPI
@@ -40,7 +41,10 @@ object TokenMaster {
     semi.eq
   }
 
-  implicit val implToken = new Token[TokenMaster] {
+  implicit val implToken: Token[TokenMaster] {
+    type API = TokenMasterAPI;
+    type IdType = TokenMasterId;
+  } = new Token[TokenMaster] {
     type API = TokenMasterAPI;
     type IdType = TokenMasterId;
     val implTokenIdForIdType = implicitly
@@ -50,11 +54,11 @@ object TokenMaster {
     def user(self: Self) = self.lens(_.user);
     def date(self: Self) = self.lens(_.date);
 
-    def fromBaseAPI(
+    def toAPI(
         self: Self
-    )(base: TokenAPIBaseRecord): TokenMasterAPI = {
+    ): TokenMasterAPI = {
       LabelledGeneric[TokenMasterAPI].from(
-        base
+        self.tokenAPIIntrinsicProperty
       )
     }
   }

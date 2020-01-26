@@ -28,18 +28,13 @@ trait Token[A] extends AnyRef {
 
   type API <: TokenAPI;
   type SelfApplyLens[T] = ApplyLens[A, A, T, T];
-  type TokenAPIBaseRecord =
-    ("id" ->> String) ::
-      ("key" ->> String) ::
-      ("date" ->> String) ::
-      HNil;
 
   def id(self: A): SelfApplyLens[IdType];
   def key(self: A): SelfApplyLens[String];
   def user(self: A): SelfApplyLens[UserId];
   def date(self: A): SelfApplyLens[OffsetDateTime];
 
-  def fromBaseAPI(self: A)(base: TokenAPIBaseRecord): API;
+  def toAPI(self: A): API;
 }
 
 object Token {
@@ -49,13 +44,17 @@ object Token {
     import Token.ops._;
     import implToken.implTokenIdForIdType;
 
-    def toAPI(): implToken.API = {
-      self.fromBaseAPI(
-        Record(
-          id = self.id.get.value,
-          key = self.key.get,
-          date = self.date.get.toString
-        )
+    type TokenAPIIntrinsicProperty =
+      ("id" ->> String) ::
+        ("key" ->> String) ::
+        ("date" ->> String) ::
+        HNil;
+
+    def tokenAPIIntrinsicProperty: TokenAPIIntrinsicProperty = {
+      Record(
+        id = self.id.get.value,
+        key = self.key.get,
+        date = self.date.get.toString
       )
     }
   }

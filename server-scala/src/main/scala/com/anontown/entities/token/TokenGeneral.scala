@@ -20,6 +20,7 @@ import com.anontown.entities.client.{ClientId, Client}
 import shapeless._
 import record._
 import monocle.macros.syntax.lens._
+import Token.TokenService
 
 final case class TokenGeneralAPI(
     id: String,
@@ -50,7 +51,10 @@ object TokenGeneral {
     semi.eq
   }
 
-  implicit val implToken = new Token[TokenGeneral] {
+  implicit val implToken: Token[TokenGeneral] {
+    type IdType = TokenGeneralId;
+    type API = TokenGeneralAPI;
+  } = new Token[TokenGeneral] {
     type IdType = TokenGeneralId;
     val implTokenIdForIdType = implicitly
 
@@ -61,11 +65,13 @@ object TokenGeneral {
     override def user(self: Self) = self.lens(_.user);
     override def date(self: Self) = self.lens(_.date);
 
-    override def fromBaseAPI(
+    override def toAPI(
         self: Self
-    )(base: TokenAPIBaseRecord): TokenGeneralAPI = {
+    ): TokenGeneralAPI = {
       LabelledGeneric[TokenGeneralAPI].from(
-        base.merge(Record(clientID = self.client.value))
+        self.tokenAPIIntrinsicProperty.merge(
+          Record(clientID = self.client.value)
+        )
       )
     }
   }
