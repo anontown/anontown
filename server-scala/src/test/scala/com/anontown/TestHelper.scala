@@ -4,10 +4,10 @@ import zio.internal.PlatformLive
 import zio.Runtime
 import java.time.OffsetDateTime
 import com.anontown.utils.OffsetDateTimeUtils
-import com.anontown.ports.ObjectIdGeneratorComponent
-import com.anontown.ports.ClockComponent
-import com.anontown.ports.SafeIdGeneratorComponent
-import com.anontown.ports.ConfigContainerComponent
+import com.anontown.services.ObjectIdGeneratorComponent
+import com.anontown.services.ClockComponent
+import com.anontown.services.SafeIdGeneratorComponent
+import com.anontown.services.ConfigContainerComponent
 import com.anontown.adapters.DummyObjectIdGeneratorImpl
 import com.anontown.adapters.ClockImpl
 import com.anontown.adapters.DummySafeIdGeneratorImpl

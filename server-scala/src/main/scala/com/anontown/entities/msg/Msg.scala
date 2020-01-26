@@ -5,8 +5,8 @@ import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
 import zio.ZIO
 import com.anontown.AtError
-import com.anontown.ports.ObjectIdGeneratorComponent
-import com.anontown.ports.ClockComponent
+import com.anontown.services.ObjectIdGeneratorComponent
+import com.anontown.services.ClockComponent
 import com.anontown.AtRightError
 import com.anontown.AuthToken
 import com.anontown.entities.user.{UserId, User}

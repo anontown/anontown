@@ -2,10 +2,10 @@ package com.anontown.entities.token
 
 import java.time.OffsetDateTime
 import com.anontown.utils;
-import com.anontown.ports.SafeIdGeneratorComponent
+import com.anontown.services.SafeIdGeneratorComponent
 import zio.ZIO
 import com.anontown.AtServerError
-import com.anontown.ports.ConfigContainerComponent
+import com.anontown.services.ConfigContainerComponent
 import com.anontown.entities.user.UserId
 import monocle.syntax.ApplyLens
 import shapeless._

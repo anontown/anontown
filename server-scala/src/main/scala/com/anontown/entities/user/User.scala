@@ -7,9 +7,9 @@ import com.anontown.AuthUser
 import com.anontown.AtUserAuthError
 import com.anontown.AtPrerequisiteError
 import cats._, cats.implicits._, cats.derived._
-import com.anontown.ports.ObjectIdGeneratorComponent
-import com.anontown.ports.ClockComponent
-import com.anontown.ports.ConfigContainerComponent
+import com.anontown.services.ObjectIdGeneratorComponent
+import com.anontown.services.ClockComponent
+import com.anontown.services.ConfigContainerComponent
 import zio.ZIO
 import com.anontown.utils.OffsetDateTimeUtils._
 

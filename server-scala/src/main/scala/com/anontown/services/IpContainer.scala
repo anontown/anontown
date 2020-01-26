@@ -1,4 +1,4 @@
-package com.anontown.ports;
+package com.anontown.services;
 
 trait IpContainer {
   val requestIp: Option[String];

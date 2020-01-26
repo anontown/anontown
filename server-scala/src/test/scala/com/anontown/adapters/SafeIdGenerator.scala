@@ -1,5 +1,5 @@
 package com.anontown.adapters
-import com.anontown.ports.SafeIdGenerator
+import com.anontown.services.SafeIdGenerator
 import zio.IO
 import com.anontown.AtServerError
 import zio.ZIO
