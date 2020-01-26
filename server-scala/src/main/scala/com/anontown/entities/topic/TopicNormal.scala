@@ -4,6 +4,7 @@ import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
 import java.time.OffsetDateTime
 import monocle.macros.syntax.lens._
+import com.anontown.AuthToken
 
 final case class TopicNormalAPI(
     id: String,
@@ -44,6 +45,12 @@ object TopicNormal {
     type IdType = TopicNormalId;
 
     val implTopicIdForIdType = implicitly
+
+    type API = TopicNormalAPI;
+
+    def toAPI(self: Self)(authToken: Option[AuthToken]): API = {
+      ???
+    }
 
     override def id(self: Self) = self.lens(_.id);
     override def title(self: Self) = self.lens(_.title);

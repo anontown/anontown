@@ -7,6 +7,12 @@ import com.anontown.entities.res.Res
 import com.anontown.entities.user.User
 import monocle.syntax.ApplyLens
 import simulacrum._
+import shapeless._
+import record._
+import com.anontown.utils.Record._
+import com.anontown.AuthToken
+import Topic.ops._
+import TopicId.ops._
 
 trait TopicAPI {
   val id: String;
@@ -23,7 +29,13 @@ trait Topic[A] extends AnyRef {
   type IdType;
   implicit val implTopicIdForIdType: TopicId[IdType];
 
+  type API <: TopicAPI;
+
   type SelfApplyLens[T] = ApplyLens[A, A, T, T];
+
+  def toAPI(self: A)(
+      authToken: Option[AuthToken]
+  ): API;
 
   def id(self: A): SelfApplyLens[IdType];
   def title(self: A): SelfApplyLens[TopicTitle];
@@ -38,7 +50,31 @@ object Topic {
   implicit class TopicService[A](val self: A)(
       implicit val implTopic: Topic[A]
   ) {
+    import implTopic.implTopicIdForIdType
+
     val hashLen: Int = 6;
+
+    type TopicAPIBaseRecord =
+      ("id" ->> String) ::
+        ("title" ->> String) ::
+        ("update" ->> String) ::
+        ("date" ->> String) ::
+        ("resCount" ->> Int) ::
+        ("active" ->> Boolean) ::
+        HNil
+
+    def toTopicAPIBaseRecord(
+        authToken: Option[AuthToken]
+    ): TopicAPIBaseRecord = {
+      Record(
+        id = self.id.get.value,
+        title = self.title.get.value,
+        update = self.update.get.toString,
+        date = self.date.get.toString,
+        resCount = self.resCount.get,
+        active = self.active.get
+      )
+    }
 
     def hash(user: User)(ports: ClockComponent) = { ??? }
 

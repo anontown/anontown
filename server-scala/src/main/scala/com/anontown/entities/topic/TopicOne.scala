@@ -4,6 +4,7 @@ import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
 import java.time.OffsetDateTime
 import monocle.macros.syntax.lens._
+import com.anontown.AuthToken
 
 final case class TopicOneAPI(
     id: String,
@@ -14,7 +15,8 @@ final case class TopicOneAPI(
     active: Boolean,
     tags: List[String],
     text: String
-) extends TopicSearchAPI;
+) extends TopicSearchAPI
+    with TopicTemporaryAPI;
 
 object TopicOneAPI {
   implicit val implEq: Eq[TopicOneAPI] = {
@@ -46,6 +48,12 @@ object TopicOne {
 
     val implTopicIdForIdType =
       implicitly[TopicSearchId[IdType] with TopicTemporaryId[IdType]]
+
+    type API = TopicOneAPI;
+
+    def toAPI(self: Self)(authToken: Option[AuthToken]): API = {
+      ???
+    }
 
     override def id(self: Self) = self.lens(_.id);
     override def title(self: Self) = self.lens(_.title);
