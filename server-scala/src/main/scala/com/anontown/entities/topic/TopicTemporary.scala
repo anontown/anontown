@@ -19,11 +19,11 @@ object TopicTemporary {
   implicit class TopicTemporaryService[A](val self: A)(
       implicit val implTopicTemporary: TopicTemporary[A]
   ) {
-    type TopicTemporaryAPIBaseRecord = HNil
+    type TopicTemporaryAPIIntrinsicProperty = HNil
 
-    def toTopicTemporaryAPIBaseRecord(
+    def topicTemporaryAPIIntrinsicProperty(
         authToken: Option[AuthToken]
-    ): TopicTemporaryAPIBaseRecord = {
+    ): TopicTemporaryAPIIntrinsicProperty = {
       Record()
     }
   }

@@ -54,7 +54,7 @@ object Topic {
 
     val hashLen: Int = 6;
 
-    type TopicAPIBaseRecord =
+    type TopicAPIIntrinsicProperty =
       ("id" ->> String) ::
         ("title" ->> String) ::
         ("update" ->> String) ::
@@ -63,9 +63,9 @@ object Topic {
         ("active" ->> Boolean) ::
         HNil
 
-    def toTopicAPIBaseRecord(
+    def topicAPIIntrinsicProperty(
         authToken: Option[AuthToken]
-    ): TopicAPIBaseRecord = {
+    ): TopicAPIIntrinsicProperty = {
       Record(
         id = self.id.get.value,
         title = self.title.get.value,

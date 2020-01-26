@@ -28,14 +28,14 @@ object TopicSearch {
   implicit class TopicSearchService[A](val self: A)(
       implicit val implTopicSearch: TopicSearch[A]
   ) {
-    type TopicSearchAPIBaseRecord =
+    type TopicSearchAPIIntrinsicProperty =
       ("tags" ->> List[String]) ::
         ("text" ->> String) ::
         HNil
 
-    def toTopicSearchAPIBaseRecord(
+    def topicSearchAPIIntrinsicProperty(
         authToken: Option[AuthToken]
-    ): TopicSearchAPIBaseRecord = {
+    ): TopicSearchAPIIntrinsicProperty = {
       Record(
         tags = self.tags.get.value.map(_.value),
         text = self.text.get.value
