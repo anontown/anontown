@@ -3,6 +3,7 @@ package com.anontown.entities.topic
 import cats._, cats.implicits._, cats.derived._
 import java.util.regex.Pattern;
 import com.anontown.{RegexValidator, StructureValidator, CharType}
+import com.anontown.AtParamsError
 
 final case class TopicTag(value: String) extends AnyVal;
 object TopicTag {
@@ -28,5 +29,12 @@ object TopicTag {
   implicit val implEq: Eq[TopicTag] = {
     import auto.eq._
     semi.eq
+  }
+
+  def fromString(
+      fieldName: String,
+      value: String
+  ): Either[AtParamsError, TopicTag] = {
+    tagRegexValidator.apValidate(fieldName, value).map(TopicTag(_))
   }
 }
