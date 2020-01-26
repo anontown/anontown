@@ -5,6 +5,10 @@ import com.anontown.utils.Impl._;
 import java.time.OffsetDateTime
 import monocle.macros.syntax.lens._
 import com.anontown.AuthToken
+import shapeless._
+import record._
+import Topic.TopicService
+import TopicTemporary.TopicTemporaryService
 
 final case class TopicForkAPI(
     id: String,
@@ -34,25 +38,37 @@ final case class TopicFork(
 );
 
 object TopicFork {
-  implicit val implTopic = new TopicTemporary[TopicFork] {
+  implicit val implTopic: TopicTemporary[TopicFork] {
     type IdType = TopicForkId;
-
-    val implTopicIdForIdType = implicitly
-
     type API = TopicForkAPI;
+  } =
+    new TopicTemporary[TopicFork] {
+      type IdType = TopicForkId;
 
-    def toAPI(self: Self)(authToken: Option[AuthToken]): API = {
-      ???
+      val implTopicIdForIdType = implicitly
+
+      type API = TopicForkAPI;
+
+      def toAPI(self: Self)(authToken: Option[AuthToken]): API = {
+        LabelledGeneric[TopicForkAPI].from(
+          self
+            .topicAPIIntrinsicProperty(authToken)
+            .merge(
+              self
+                .topicTemporaryAPIIntrinsicProperty(authToken)
+            )
+            .merge(Record(parentID = self.parent.value))
+        )
+      }
+
+      override def id(self: Self) = self.lens(_.id);
+      override def title(self: Self) = self.lens(_.title);
+      override def update(self: Self) = self.lens(_.update);
+      override def date(self: Self) = self.lens(_.date);
+      override def resCount(self: Self) = self.lens(_.resCount);
+      override def ageUpdate(self: Self) = self.lens(_.ageUpdate);
+      override def active(self: Self) = self.lens(_.active);
     }
-
-    override def id(self: Self) = self.lens(_.id);
-    override def title(self: Self) = self.lens(_.title);
-    override def update(self: Self) = self.lens(_.update);
-    override def date(self: Self) = self.lens(_.date);
-    override def resCount(self: Self) = self.lens(_.resCount);
-    override def ageUpdate(self: Self) = self.lens(_.ageUpdate);
-    override def active(self: Self) = self.lens(_.active);
-  }
 
   implicit val implEq: Eq[TopicFork] = {
     import auto.eq._

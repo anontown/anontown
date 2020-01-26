@@ -5,6 +5,10 @@ import com.anontown.utils.Impl._;
 import java.time.OffsetDateTime
 import monocle.macros.syntax.lens._
 import com.anontown.AuthToken
+import shapeless._
+import record._
+import Topic.TopicService
+import TopicSearch.TopicSearchService
 
 final case class TopicNormalAPI(
     id: String,
@@ -41,25 +45,36 @@ object TopicNormal {
     semi.eq
   }
 
-  implicit val implTopic = new TopicSearch[TopicNormal] {
+  implicit val implTopic: TopicSearch[TopicNormal] {
     type IdType = TopicNormalId;
-
-    val implTopicIdForIdType = implicitly
-
     type API = TopicNormalAPI;
+  } =
+    new TopicSearch[TopicNormal] {
+      type IdType = TopicNormalId;
 
-    def toAPI(self: Self)(authToken: Option[AuthToken]): API = {
-      ???
+      val implTopicIdForIdType = implicitly
+
+      type API = TopicNormalAPI;
+
+      def toAPI(self: Self)(authToken: Option[AuthToken]): API = {
+        LabelledGeneric[TopicNormalAPI].from(
+          self
+            .topicAPIIntrinsicProperty(authToken)
+            .merge(
+              self
+                .topicSearchAPIIntrinsicProperty(authToken)
+            )
+        )
+      }
+
+      override def id(self: Self) = self.lens(_.id);
+      override def title(self: Self) = self.lens(_.title);
+      override def update(self: Self) = self.lens(_.update);
+      override def date(self: Self) = self.lens(_.date);
+      override def resCount(self: Self) = self.lens(_.resCount);
+      override def ageUpdate(self: Self) = self.lens(_.ageUpdate);
+      override def active(self: Self) = self.lens(_.active);
+      override def tags(self: Self) = self.lens(_.tags);
+      override def text(self: Self) = self.lens(_.text);
     }
-
-    override def id(self: Self) = self.lens(_.id);
-    override def title(self: Self) = self.lens(_.title);
-    override def update(self: Self) = self.lens(_.update);
-    override def date(self: Self) = self.lens(_.date);
-    override def resCount(self: Self) = self.lens(_.resCount);
-    override def ageUpdate(self: Self) = self.lens(_.ageUpdate);
-    override def active(self: Self) = self.lens(_.active);
-    override def tags(self: Self) = self.lens(_.tags);
-    override def text(self: Self) = self.lens(_.text);
-  }
 }
