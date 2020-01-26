@@ -14,6 +14,7 @@ import com.anontown.entities.user.{UserId, User}
 import com.anontown.entities.topic.{TopicNormalId, TopicNormal}
 import com.anontown.entities.history.{HistoryId, History}
 import com.anontown.entities.topic.Topic.TopicService
+import Res.ResService
 
 final case class ResHistoryAPI(
     id: String,
@@ -48,7 +49,11 @@ final case class ResHistory(
 );
 
 object ResHistory {
-  implicit val implRes = new Res[ResHistory] {
+  implicit val implRes: Res[ResHistory] {
+    type IdType = ResHistoryId;
+    type TopicIdType = TopicNormalId;
+    type API = ResHistoryAPI
+  } = new Res[ResHistory] {
     type IdType = ResHistoryId;
     val implResIdForIdType = implicitly
     type TopicIdType = TopicNormalId;
@@ -66,15 +71,17 @@ object ResHistory {
     override def replyCount(self: Self) =
       self.lens(_.replyCount)
 
-    override def fromBaseAPI(
+    override def toAPI(
         self: Self
-    )(authToken: Option[AuthToken], base: ResAPIBaseRecord): API = {
+    )(authToken: Option[AuthToken]): API = {
       LabelledGeneric[ResHistoryAPI].from(
-        base.merge(
-          Record(
-            historyID = self.history.value
+        self
+          .resAPIIntrinsicProperty(authToken)
+          .merge(
+            Record(
+              historyID = self.history.value
+            )
           )
-        )
       )
     }
   }

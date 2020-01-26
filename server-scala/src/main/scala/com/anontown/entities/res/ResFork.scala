@@ -18,6 +18,7 @@ import com.anontown.entities.topic.{
   TopicFork
 }
 import com.anontown.entities.topic.Topic.TopicService
+import Res.ResService
 
 final case class ResForkAPI(
     id: String,
@@ -52,7 +53,11 @@ final case class ResFork(
 );
 
 object ResFork {
-  implicit val implRes = new Res[ResFork] {
+  implicit val implRes: Res[ResFork] {
+    type IdType = ResForkId;
+    type TopicIdType = TopicNormalId;
+    type API = ResForkAPI
+  } = new Res[ResFork] {
     type IdType = ResForkId;
     val implResIdForIdType = implicitly
     type TopicIdType = TopicNormalId;
@@ -70,11 +75,13 @@ object ResFork {
     override def replyCount(self: Self) =
       self.lens(_.replyCount)
 
-    override def fromBaseAPI(
+    override def toAPI(
         self: Self
-    )(authToken: Option[AuthToken], base: ResAPIBaseRecord): API = {
+    )(authToken: Option[AuthToken]): API = {
       LabelledGeneric[ResForkAPI].from(
-        base.merge(Record(forkID = self.fork.value))
+        self
+          .resAPIIntrinsicProperty(authToken)
+          .merge(Record(forkID = self.fork.value))
       )
     }
   }

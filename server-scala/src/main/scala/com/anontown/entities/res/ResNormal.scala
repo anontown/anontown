@@ -20,6 +20,7 @@ import com.anontown.entities.topic.Topic.ops._
 import com.anontown.entities.topic.Topic.TopicService
 import com.anontown.entities.res.ResId.ops._
 import com.anontown.entities.topic.AnyTopicId
+import Res.ResService
 
 sealed trait ResNormalAPI extends ResAPI;
 
@@ -87,7 +88,12 @@ final case class ResNormal[+ReplyResId, TopicIdType](
 );
 
 object ResNormal {
-  implicit def implResId[ReplyResId: ResId, TopicIdTy: TopicId] =
+  implicit def implResId[ReplyResId: ResId, TopicIdTy: TopicId]
+      : Res[ResNormal[ReplyResId, TopicIdTy]] {
+        type IdType = ResNormalId;
+        type TopicIdType = TopicIdTy;
+        type API = ResNormalAPI;
+      } =
     new Res[ResNormal[ReplyResId, TopicIdTy]] {
       type IdType = ResNormalId;
       val implResIdForIdType = implicitly
@@ -107,31 +113,35 @@ object ResNormal {
       override def replyCount(self: Self) =
         self.lens(_.replyCount)
 
-      override def fromBaseAPI(
+      override def toAPI(
           self: Self
-      )(authToken: Option[AuthToken], base: ResAPIBaseRecord): API = {
+      )(authToken: Option[AuthToken]): API = {
         self.deleteFlag match {
           case None =>
             LabelledGeneric[ResNormalActiveAPI].from(
-              base.merge(
-                Record(
-                  name = self.name.map(_.value),
-                  text = self.text.value,
-                  replyID = self.reply.map(_.res.value),
-                  profileID = self.profile.map(_.value),
-                  isReply = authToken.flatMap(
-                    authToken => self.reply.map(authToken.user === _.user)
+              self
+                .resAPIIntrinsicProperty(authToken)
+                .merge(
+                  Record(
+                    name = self.name.map(_.value),
+                    text = self.text.value,
+                    replyID = self.reply.map(_.res.value),
+                    profileID = self.profile.map(_.value),
+                    isReply = authToken.flatMap(
+                      authToken => self.reply.map(authToken.user === _.user)
+                    )
                   )
                 )
-              )
             )
           case Some(deleteFlag) =>
             LabelledGeneric[ResNormalDeleteAPI].from(
-              base.merge(
-                Record(
-                  flag = deleteFlag
+              self
+                .resAPIIntrinsicProperty(authToken)
+                .merge(
+                  Record(
+                    flag = deleteFlag
+                  )
                 )
-              )
             )
         }
       }

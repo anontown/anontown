@@ -13,6 +13,7 @@ import com.anontown.entities.user.{UserId, User}
 import com.anontown.entities.topic.{TopicTemporaryId, TopicTemporary}
 import com.anontown.entities.topic.Topic.TopicService
 import com.anontown.entities.topic.Topic.ops._
+import Res.ResService
 
 final case class ResTopicAPI(
     id: String,
@@ -45,7 +46,11 @@ final case class ResTopic[TopicArg](
 );
 
 object ResTopic {
-  implicit def implRes[TopicArg: TopicTemporaryId] =
+  implicit def implRes[TopicArg: TopicTemporaryId]: Res[ResTopic[TopicArg]] {
+    type IdType = ResTopicId;
+    type TopicIdType = TopicArg
+    type API = ResTopicAPI
+  } =
     new Res[ResTopic[TopicArg]] {
       type IdType = ResTopicId;
       val implResIdForIdType = implicitly
@@ -65,10 +70,13 @@ object ResTopic {
       override def replyCount(self: Self) =
         self.lens(_.replyCount)
 
-      override def fromBaseAPI(
+      override def toAPI(
           self: Self
-      )(authToken: Option[AuthToken], base: ResAPIBaseRecord): API = {
-        LabelledGeneric[ResTopicAPI].from(base)
+      )(authToken: Option[AuthToken]): API = {
+        LabelledGeneric[ResTopicAPI].from(
+          self
+            .resAPIIntrinsicProperty(authToken)
+        )
       }
     }
 

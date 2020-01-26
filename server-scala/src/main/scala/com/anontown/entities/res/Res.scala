@@ -41,21 +41,9 @@ trait Res[A] extends AnyRef {
   type API <: ResAPI;
 
   type SelfApplyLens[T] = ApplyLens[A, A, T, T]
-  type ResAPIBaseRecord =
-    ("id" ->> String) ::
-      ("topicID" ->> String) ::
-      ("date" ->> String) ::
-      ("self" ->> Option[Boolean]) ::
-      ("uv" ->> Int) ::
-      ("dv" ->> Int) ::
-      ("hash" ->> String) ::
-      ("replyCount" ->> Int) ::
-      ("voteFlag" ->> Option[VoteFlag]) ::
-      HNil
 
-  def fromBaseAPI(self: A)(
-      authToken: Option[AuthToken],
-      base: ResAPIBaseRecord
+  def toAPI(self: A)(
+      authToken: Option[AuthToken]
   ): API;
 
   def id(self: A): SelfApplyLens[IdType];
@@ -75,29 +63,40 @@ object Res {
     import implRes.implResIdForIdType;
     import implRes.implTopicIdForTopicIdType;
 
-    def toAPI(authToken: Option[AuthToken]): implRes.API = {
-      self.fromBaseAPI(
-        authToken,
-        Record(
-          id = self.id.get.value,
-          topicID = self.topic.get.value,
-          date = self.date.get.toString,
-          self = authToken.map(_.user === self.user.get),
-          uv = self.votes.get.filter(x => x.value > 0).size,
-          dv = self.votes.get.filter(x => x.value < 0).size,
-          hash = self.hash.get,
-          replyCount = self.replyCount.get,
-          voteFlag = authToken.map(
-            authToken =>
-              self.votes.get
-                .find(authToken.user === _.user)
-                .map(
-                  vote =>
-                    if (vote.value > 0) VoteFlag.Uv()
-                    else VoteFlag.Dv()
-                )
-                .getOrElse(VoteFlag.Not())
-          )
+    type ResAPIIntrinsicProperty =
+      ("id" ->> String) ::
+        ("topicID" ->> String) ::
+        ("date" ->> String) ::
+        ("self" ->> Option[Boolean]) ::
+        ("uv" ->> Int) ::
+        ("dv" ->> Int) ::
+        ("hash" ->> String) ::
+        ("replyCount" ->> Int) ::
+        ("voteFlag" ->> Option[VoteFlag]) ::
+        HNil
+
+    def resAPIIntrinsicProperty(
+        authToken: Option[AuthToken]
+    ): ResAPIIntrinsicProperty = {
+      Record(
+        id = self.id.get.value,
+        topicID = self.topic.get.value,
+        date = self.date.get.toString,
+        self = authToken.map(_.user === self.user.get),
+        uv = self.votes.get.filter(x => x.value > 0).size,
+        dv = self.votes.get.filter(x => x.value < 0).size,
+        hash = self.hash.get,
+        replyCount = self.replyCount.get,
+        voteFlag = authToken.map(
+          authToken =>
+            self.votes.get
+              .find(authToken.user === _.user)
+              .map(
+                vote =>
+                  if (vote.value > 0) VoteFlag.Uv()
+                  else VoteFlag.Dv()
+              )
+              .getOrElse(VoteFlag.Not())
         )
       )
     }
