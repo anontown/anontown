@@ -4,15 +4,15 @@ import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
 import com.anontown.utils.OffsetDateTimeUtils._;
-import com.anontown.services.SafeIdGeneratorComponent
+import com.anontown.services.SafeIdGeneratorAlg
 import zio.ZIO
 import com.anontown.AtServerError
-import com.anontown.services.ConfigContainerComponent
+import com.anontown.services.ConfigContainerAlg
 import com.anontown.AuthTokenMaster
 import com.anontown.AtError
 import com.anontown.AtTokenAuthError
-import com.anontown.services.ObjectIdGeneratorComponent
-import com.anontown.services.ClockComponent
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ClockAlg
 import com.anontown.AuthTokenGeneral
 import com.anontown.AtNotFoundError
 import com.anontown.entities.user.UserId
@@ -77,16 +77,16 @@ object TokenGeneral {
   }
 
   def create(authToken: AuthTokenMaster, client: Client): ZIO[
-    ClockComponent with ObjectIdGeneratorComponent with SafeIdGeneratorComponent with ConfigContainerComponent,
+    ClockAlg with ObjectIdGeneratorAlg with SafeIdGeneratorAlg with ConfigContainerAlg,
     AtServerError,
     TokenGeneral
   ] = {
     for {
-      id <- ZIO.accessM[ObjectIdGeneratorComponent](
+      id <- ZIO.accessM[ObjectIdGeneratorAlg](
         _.objectIdGenerator.generateObjectId()
       )
       key <- Token.createTokenKey()
-      now <- ZIO.access[ClockComponent](_.clock.requestDate)
+      now <- ZIO.access[ClockAlg](_.clock.requestDate)
     } yield TokenGeneral(
       id = TokenGeneralId(id),
       key = key,
@@ -101,12 +101,12 @@ object TokenGeneral {
     val reqExpireMinute: Int = 5;
 
     def createReq(): ZIO[
-      ClockComponent with ConfigContainerComponent with SafeIdGeneratorComponent,
+      ClockAlg with ConfigContainerAlg with SafeIdGeneratorAlg,
       AtServerError,
       (TokenGeneral, TokenReqAPI)
     ] = {
       for {
-        now <- ZIO.access[ClockComponent](_.clock.requestDate)
+        now <- ZIO.access[ClockAlg](_.clock.requestDate)
         val reqFilter = self.req
           .filter(r => r.active && now.toEpochMilli < r.expireDate.toEpochMilli)
         key <- Token.createTokenKey()
@@ -123,11 +123,11 @@ object TokenGeneral {
       )
     }
 
-    def authReq(key: String): ZIO[ClockComponent, AtError, AuthTokenGeneral] = {
+    def authReq(key: String): ZIO[ClockAlg, AtError, AuthTokenGeneral] = {
       val req = self.req.find(_.key === key);
 
       for {
-        now <- ZIO.access[ClockComponent](_.clock.requestDate)
+        now <- ZIO.access[ClockAlg](_.clock.requestDate)
         _ <- req match {
           case Some(req)
               if req.active && req.expireDate.toEpochMilli >= now.toEpochMilli =>

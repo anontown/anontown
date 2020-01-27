@@ -3,16 +3,16 @@ package com.anontown.entities.token
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
-import com.anontown.services.SafeIdGeneratorComponent
+import com.anontown.services.SafeIdGeneratorAlg
 import zio.ZIO
 import com.anontown.AtServerError
-import com.anontown.services.ConfigContainerComponent
+import com.anontown.services.ConfigContainerAlg
 import com.anontown.AuthTokenMaster
 import com.anontown.AtError
 import com.anontown.AtTokenAuthError
 import com.anontown.AuthUser
-import com.anontown.services.ObjectIdGeneratorComponent
-import com.anontown.services.ClockComponent
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ClockAlg
 import com.anontown.entities.user.UserId
 import shapeless._
 import monocle.macros.syntax.lens._
@@ -64,16 +64,16 @@ object TokenMaster {
   }
 
   def create(authUser: AuthUser): ZIO[
-    ObjectIdGeneratorComponent with ClockComponent with SafeIdGeneratorComponent with ConfigContainerComponent,
+    ObjectIdGeneratorAlg with ClockAlg with SafeIdGeneratorAlg with ConfigContainerAlg,
     AtServerError,
     TokenMaster
   ] = {
     for {
-      id <- ZIO.accessM[ObjectIdGeneratorComponent](
+      id <- ZIO.accessM[ObjectIdGeneratorAlg](
         _.objectIdGenerator.generateObjectId()
       )
       key <- Token.createTokenKey()
-      now <- ZIO.access[ClockComponent](_.clock.requestDate)
+      now <- ZIO.access[ClockAlg](_.clock.requestDate)
     } yield TokenMaster(
       id = TokenMasterId(id),
       key = key,

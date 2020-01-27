@@ -6,10 +6,10 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import com.anontown.services.ObjectIdGenerator
 import com.anontown.services.Clock
-import com.anontown.services.ObjectIdGeneratorComponent
-import com.anontown.services.ClockComponent
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ClockAlg
 import com.anontown.adapters.ClockImpl
-import com.anontown.services.ConfigContainerComponent
+import com.anontown.services.ConfigContainerAlg
 import com.anontown.adapters.ConfigContainerImpl
 import com.anontown.ConfigFixtures
 import com.anontown.adapters.DummyObjectIdGeneratorImpl
@@ -21,7 +21,7 @@ import zio.ZIO
 import com.anontown.utils.ZIOUtils._
 import com.anontown.utils.OffsetDateTimeUtils
 import com.anontown.AuthUser
-import com.anontown.services.SafeIdGeneratorComponent
+import com.anontown.services.SafeIdGeneratorAlg
 import com.anontown.services.SafeIdGenerator
 import com.anontown.AuthTokenMaster
 

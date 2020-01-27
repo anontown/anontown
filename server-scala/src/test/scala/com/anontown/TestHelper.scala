@@ -4,10 +4,10 @@ import zio.internal.PlatformLive
 import zio.Runtime
 import java.time.OffsetDateTime
 import com.anontown.utils.OffsetDateTimeUtils
-import com.anontown.services.ObjectIdGeneratorComponent
-import com.anontown.services.ClockComponent
-import com.anontown.services.SafeIdGeneratorComponent
-import com.anontown.services.ConfigContainerComponent
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ClockAlg
+import com.anontown.services.SafeIdGeneratorAlg
+import com.anontown.services.ConfigContainerAlg
 import com.anontown.adapters.DummyObjectIdGeneratorImpl
 import com.anontown.adapters.ClockImpl
 import com.anontown.adapters.DummySafeIdGeneratorImpl
@@ -26,8 +26,8 @@ object TestHelper {
       safeIdIt: Iterator[String] = Iterator.empty,
       objectIdIt: Iterator[String] = Iterator.empty
   ) =
-    new ObjectIdGeneratorComponent with ClockComponent
-    with ConfigContainerComponent with SafeIdGeneratorComponent {
+    new ObjectIdGeneratorAlg with ClockAlg with ConfigContainerAlg
+    with SafeIdGeneratorAlg {
       val objectIdGenerator =
         new DummyObjectIdGeneratorImpl(objectIdIt)
 

@@ -2,10 +2,10 @@ package com.anontown.entities.token
 
 import java.time.OffsetDateTime
 import com.anontown.utils;
-import com.anontown.services.SafeIdGeneratorComponent
+import com.anontown.services.SafeIdGeneratorAlg
 import zio.ZIO
 import com.anontown.AtServerError
-import com.anontown.services.ConfigContainerComponent
+import com.anontown.services.ConfigContainerAlg
 import com.anontown.entities.user.UserId
 import monocle.syntax.ApplyLens
 import shapeless._
@@ -60,16 +60,16 @@ object Token {
   }
 
   def createTokenKey(): ZIO[
-    SafeIdGeneratorComponent with ConfigContainerComponent,
+    SafeIdGeneratorAlg with ConfigContainerAlg,
     AtServerError,
     String
   ] = {
     for {
-      genId <- ZIO.accessM[SafeIdGeneratorComponent](
+      genId <- ZIO.accessM[SafeIdGeneratorAlg](
         _.safeIdGenerator.generateSafeId()
       )
 
-      tokenSalt <- ZIO.access[ConfigContainerComponent](
+      tokenSalt <- ZIO.access[ConfigContainerAlg](
         _.configContainer.config.salt.token
       )
     } yield utils.hash(genId + tokenSalt)

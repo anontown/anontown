@@ -4,8 +4,8 @@ import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
 import zio.ZIO
 import com.anontown.AtError
-import com.anontown.services.ObjectIdGeneratorComponent
-import com.anontown.services.ClockComponent
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ClockAlg
 import com.anontown.AuthToken
 import monocle.macros.syntax.lens._
 import shapeless._
@@ -85,7 +85,7 @@ object ResTopic {
       user: User,
       authUser: AuthToken
   )(implicit implTopicTemporary: TopicTemporary[TopicTemporaryType]): ZIO[
-    ObjectIdGeneratorComponent with ClockComponent,
+    ObjectIdGeneratorAlg with ClockAlg,
     AtError,
     (ResTopic[implTopicTemporary.IdType], TopicTemporaryType)
   ] = {
@@ -94,12 +94,12 @@ object ResTopic {
     import implTopicTemporary.implTopicIdForIdType
 
     for {
-      requestDate <- ZIO.access[ClockComponent](_.clock.requestDate)
-      id <- ZIO.accessM[ObjectIdGeneratorComponent](
+      requestDate <- ZIO.access[ClockAlg](_.clock.requestDate)
+      id <- ZIO.accessM[ObjectIdGeneratorAlg](
         _.objectIdGenerator.generateObjectId()
       )
 
-      hash <- ZIO.access[ClockComponent](topic.hash(user)(_))
+      hash <- ZIO.access[ClockAlg](topic.hash(user)(_))
 
       val result = ResTopic(
         id = ResTopicId(id),

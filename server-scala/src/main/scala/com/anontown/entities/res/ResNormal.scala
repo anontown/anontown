@@ -4,8 +4,8 @@ import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
 import zio.ZIO
 import com.anontown.AtError
-import com.anontown.services.ObjectIdGeneratorComponent
-import com.anontown.services.ClockComponent
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ClockAlg
 import com.anontown.AtRightError
 import com.anontown.AuthToken
 import com.anontown.AtPrerequisiteError
@@ -158,7 +158,7 @@ object ResNormal {
       age: Boolean
   )(implicit implRes: Res[ResType] { type IdType = ResIdType }, implTopic: Topic[TopicType])
       : ZIO[
-        ObjectIdGeneratorComponent with ClockComponent,
+        ObjectIdGeneratorAlg with ClockAlg,
         AtError,
         (ResNormal[ResIdType, implTopic.IdType], User, TopicType)
       ] = {
@@ -200,15 +200,15 @@ object ResNormal {
         )
       )
 
-      requestDate <- ZIO.access[ClockComponent](_.clock.requestDate)
+      requestDate <- ZIO.access[ClockAlg](_.clock.requestDate)
 
       newUser <- ZIO.fromEither(user.changeLastRes(requestDate))
 
-      id <- ZIO.accessM[ObjectIdGeneratorComponent](
+      id <- ZIO.accessM[ObjectIdGeneratorAlg](
         _.objectIdGenerator.generateObjectId()
       )
 
-      hash <- ZIO.access[ClockComponent](topic.hash(newUser)(_))
+      hash <- ZIO.access[ClockAlg](topic.hash(newUser)(_))
 
       val result = ResNormal(
         name = name,
