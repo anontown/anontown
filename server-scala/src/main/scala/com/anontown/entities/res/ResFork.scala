@@ -4,8 +4,8 @@ import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
 import zio.ZIO
 import com.anontown.AtError
-import com.anontown.services.ObjectIdGeneratorComponent
-import com.anontown.services.ClockComponent
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ClockAlg
 import com.anontown.AuthToken
 import monocle.macros.syntax.lens._
 import shapeless._
@@ -19,6 +19,7 @@ import com.anontown.entities.topic.{
 }
 import com.anontown.entities.topic.Topic.TopicService
 import Res.ResService
+import cats.data.EitherT
 
 final case class ResForkAPI(
     id: String,
@@ -86,24 +87,22 @@ object ResFork {
     }
   }
 
-  def create(
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
       topic: TopicNormal,
       user: User,
       authUser: AuthToken,
       fork: TopicFork
-  ): ZIO[
-    ObjectIdGeneratorComponent with ClockComponent,
+  ): EitherT[
+    F,
     AtError,
     (ResFork, TopicNormal)
   ] = {
     assert(user.id === authUser.user);
     for {
-      requestDate <- ZIO.access[ClockComponent](_.clock.requestDate)
-      id <- ZIO.accessM[ObjectIdGeneratorComponent](
-        _.objectIdGenerator.generateObjectId()
-      )
+      requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+      id <- EitherT.right(ObjectIdGeneratorAlg[F].generateObjectId())
 
-      hash <- ZIO.access[ClockComponent](topic.hash(user)(_))
+      hash <- EitherT.right(topic.hash[F](user))
 
       val result = ResFork(
         fork = fork.id,
@@ -116,7 +115,7 @@ object ResFork {
         hash = hash,
         replyCount = 0
       )
-      newTopic <- ZIO.fromEither(topic.resUpdate(result))
+      newTopic <- EitherT.fromEither[F](topic.resUpdate(result))
     } yield (result, newTopic)
   }
 }

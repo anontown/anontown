@@ -3,13 +3,13 @@ package com.anontown.entities.profile
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
-import zio.ZIO
 import com.anontown.AtError
-import com.anontown.services.ObjectIdGeneratorComponent
-import com.anontown.services.ClockComponent
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ClockAlg
 import com.anontown.AtRightError
 import com.anontown.AuthToken
 import com.anontown.entities.user.UserId
+import cats.data.EitherT
 
 final case class ProfileAPI(
     id: String,
@@ -44,13 +44,18 @@ object Profile {
     semi.eq
   }
 
-  def create(authToken: AuthToken, name: String, text: String, sn: String): ZIO[
-    ObjectIdGeneratorComponent with ClockComponent,
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
+      authToken: AuthToken,
+      name: String,
+      text: String,
+      sn: String
+  ): EitherT[
+    F,
     AtError,
     Profile
   ] = {
     for {
-      (name, text, sn) <- ZIO.fromEither(
+      (name, text, sn) <- EitherT.fromEither[F](
         (
           ProfileName.fromString(name).toValidated,
           ProfileText.fromString(text).toValidated,
@@ -58,18 +63,16 @@ object Profile {
         ).mapN((_, _, _)).toEither
       )
 
-      id <- ZIO.accessM[ObjectIdGeneratorComponent](
-        _.objectIdGenerator.generateObjectId()
-      )
+      id <- EitherT.right(ObjectIdGeneratorAlg[F].generateObjectId())
 
-      date <- ZIO.access[ClockComponent](_.clock.requestDate)
+      requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
     } yield Profile(
       id = ProfileId(id),
       user = authToken.user,
       name = name,
       text = text,
-      date = date,
-      update = date,
+      date = requestDate,
+      update = requestDate,
       sn = sn
     )
   }
@@ -87,34 +90,39 @@ object Profile {
       )
     }
 
-    def changeData(
+    def changeData[F[_]: Monad: ClockAlg](
         authToken: AuthToken,
         name: Option[String],
         text: Option[String],
         sn: Option[String]
-    )(ports: ClockComponent): Either[AtError, Profile] = {
+    ): EitherT[F, AtError, Profile] = {
       if (authToken.user =!= self.user) {
-        Left(new AtRightError("人のプロフィール変更は出来ません"))
+        EitherT.leftT(new AtRightError("人のプロフィール変更は出来ません"))
       } else {
         for {
-          (name, text, sn) <- (
-            name
-              .map(ProfileName.fromString(_))
-              .getOrElse(Right(self.name))
-              .toValidated,
-            text
-              .map(ProfileText.fromString(_))
-              .getOrElse(Right(self.text))
-              .toValidated,
-            sn.map(ProfileSn.fromString(_))
-              .getOrElse(Right(self.sn))
-              .toValidated
-          ).mapN((_, _, _)).toEither
+          requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+          (name, text, sn) <- EitherT
+            .fromEither[F](
+              (
+                name
+                  .map(ProfileName.fromString(_))
+                  .getOrElse(Right(self.name))
+                  .toValidated,
+                text
+                  .map(ProfileText.fromString(_))
+                  .getOrElse(Right(self.text))
+                  .toValidated,
+                sn.map(ProfileSn.fromString(_))
+                  .getOrElse(Right(self.sn))
+                  .toValidated
+              ).mapN((_, _, _)).toEither
+            )
+            .leftWiden[AtError]
         } yield self.copy(
           name = name,
           text = text,
           sn = sn,
-          update = ports.clock.requestDate
+          update = requestDate
         );
       }
     }

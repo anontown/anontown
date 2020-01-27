@@ -3,13 +3,13 @@ package com.anontown.entities.msg
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
-import zio.ZIO
 import com.anontown.AtError
-import com.anontown.services.ObjectIdGeneratorComponent
-import com.anontown.services.ClockComponent
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ClockAlg
 import com.anontown.AtRightError
 import com.anontown.AuthToken
 import com.anontown.entities.user.{UserId, User}
+import cats.data.EitherT
 
 final case class MsgAPI(id: String, priv: Boolean, text: String, date: String);
 
@@ -33,20 +33,18 @@ object Msg {
     semi.eq
   }
 
-  def create(
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
       receiver: Option[User],
       text: String
-  ): ZIO[ObjectIdGeneratorComponent with ClockComponent, AtError, Msg] = {
+  ): EitherT[F, AtError, Msg] = {
     for {
-      id <- ZIO.accessM[ObjectIdGeneratorComponent](
-        _.objectIdGenerator.generateObjectId()
-      )
-      date <- ZIO.access[ClockComponent](_.clock.requestDate)
+      id <- EitherT.right(ObjectIdGeneratorAlg[F].generateObjectId())
+      requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
     } yield Msg(
       id = MsgId(id),
       receiver = receiver.map(_.id),
       text = text,
-      date = date
+      date = requestDate
     )
   }
 

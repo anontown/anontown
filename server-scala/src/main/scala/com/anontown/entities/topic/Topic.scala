@@ -1,8 +1,9 @@
 package com.anontown.entities.topic
 
+import cats._, cats.implicits._, cats.derived._
 import java.time.OffsetDateTime
 import com.anontown.AtError
-import com.anontown.services.ClockComponent
+import com.anontown.services.ClockAlg
 import com.anontown.entities.res.Res
 import com.anontown.entities.user.User
 import monocle.syntax.ApplyLens
@@ -76,7 +77,7 @@ object Topic {
       )
     }
 
-    def hash(user: User)(ports: ClockComponent) = { ??? }
+    def hash[F[_]: Monad: ClockAlg](user: User): F[String] = { ??? }
 
     def resUpdate[R: Res](res: R): Either[AtError, A] = { ??? }
   }
