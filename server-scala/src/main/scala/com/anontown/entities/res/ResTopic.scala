@@ -2,7 +2,6 @@ package com.anontown.entities.res
 
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
-import zio.ZIO
 import com.anontown.AtError
 import com.anontown.services.ObjectIdGeneratorAlg
 import com.anontown.services.ClockAlg
@@ -14,6 +13,7 @@ import com.anontown.entities.topic.{TopicTemporaryId, TopicTemporary}
 import com.anontown.entities.topic.Topic.TopicService
 import com.anontown.entities.topic.Topic.ops._
 import Res.ResService
+import cats.data.EitherT
 
 final case class ResTopicAPI(
     id: String,
@@ -80,12 +80,12 @@ object ResTopic {
       }
     }
 
-  def create[TopicTemporaryType](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg, TopicTemporaryType](
       topic: TopicTemporaryType,
       user: User,
       authUser: AuthToken
-  )(implicit implTopicTemporary: TopicTemporary[TopicTemporaryType]): ZIO[
-    ObjectIdGeneratorAlg with ClockAlg,
+  )(implicit implTopicTemporary: TopicTemporary[TopicTemporaryType]): EitherT[
+    F,
     AtError,
     (ResTopic[implTopicTemporary.IdType], TopicTemporaryType)
   ] = {
@@ -94,12 +94,12 @@ object ResTopic {
     import implTopicTemporary.implTopicIdForIdType
 
     for {
-      requestDate <- ZIO.access[ClockAlg](_.clock.requestDate)
-      id <- ZIO.accessM[ObjectIdGeneratorAlg](
-        _.objectIdGenerator.generateObjectId()
+      requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+      id <- EitherT.right(
+        ObjectIdGeneratorAlg[F].generateObjectId()
       )
 
-      hash <- ZIO.access[ClockAlg](topic.hash(user)(_))
+      hash <- EitherT.right(topic.hash[F](user))
 
       val result = ResTopic(
         id = ResTopicId(id),
@@ -111,7 +111,7 @@ object ResTopic {
         hash = hash,
         replyCount = 0
       )
-      newTopic <- ZIO.fromEither(topic.resUpdate(result))
+      newTopic <- EitherT.fromEither[F](topic.resUpdate(result))
     } yield (result, newTopic)
   }
 }

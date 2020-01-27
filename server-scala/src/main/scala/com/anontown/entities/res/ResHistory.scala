@@ -2,7 +2,6 @@ package com.anontown.entities.res
 
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
-import zio.ZIO
 import com.anontown.AtError
 import com.anontown.services.ObjectIdGeneratorAlg
 import com.anontown.services.ClockAlg
@@ -15,6 +14,7 @@ import com.anontown.entities.topic.{TopicNormalId, TopicNormal}
 import com.anontown.entities.history.{HistoryId, History}
 import com.anontown.entities.topic.Topic.TopicService
 import Res.ResService
+import cats.data.EitherT
 
 final case class ResHistoryAPI(
     id: String,
@@ -86,24 +86,24 @@ object ResHistory {
     }
   }
 
-  def create(
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
       topic: TopicNormal,
       user: User,
       authUser: AuthToken,
       history: History
-  ): ZIO[
-    ObjectIdGeneratorAlg with ClockAlg,
+  ): EitherT[
+    F,
     AtError,
     (ResHistory, TopicNormal)
   ] = {
     assert(user.id === authUser.user);
     for {
-      requestDate <- ZIO.access[ClockAlg](_.clock.requestDate)
-      id <- ZIO.accessM[ObjectIdGeneratorAlg](
-        _.objectIdGenerator.generateObjectId()
+      requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+      id <- EitherT.right(
+        ObjectIdGeneratorAlg[F].generateObjectId()
       )
 
-      hash <- ZIO.access[ClockAlg](topic.hash(user)(_))
+      hash <- EitherT.right(topic.hash[F](user))
 
       val result = ResHistory(
         history = history.id,
@@ -116,7 +116,7 @@ object ResHistory {
         hash = hash,
         replyCount = 0
       )
-      newTopic <- ZIO.fromEither(topic.resUpdate(result))
+      newTopic <- EitherT.fromEither[F](topic.resUpdate(result))
     } yield (result, newTopic)
   }
 }

@@ -5,8 +5,6 @@ import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
 import com.anontown.utils.OffsetDateTimeUtils._;
 import com.anontown.services.SafeIdGeneratorAlg
-import zio.ZIO
-import com.anontown.AtServerError
 import com.anontown.services.ConfigContainerAlg
 import com.anontown.AuthTokenMaster
 import com.anontown.AtError
@@ -21,6 +19,7 @@ import shapeless._
 import record._
 import monocle.macros.syntax.lens._
 import Token.TokenService
+import cats.data.EitherT
 
 final case class TokenGeneralAPI(
     id: String,
@@ -76,44 +75,43 @@ object TokenGeneral {
     }
   }
 
-  def create(authToken: AuthTokenMaster, client: Client): ZIO[
-    ClockAlg with ObjectIdGeneratorAlg with SafeIdGeneratorAlg with ConfigContainerAlg,
-    AtServerError,
+  def create[F[_]: Monad: ClockAlg: ObjectIdGeneratorAlg: SafeIdGeneratorAlg: ConfigContainerAlg](
+      authToken: AuthTokenMaster,
+      client: Client
+  ): F[
     TokenGeneral
   ] = {
     for {
-      id <- ZIO.accessM[ObjectIdGeneratorAlg](
-        _.objectIdGenerator.generateObjectId()
-      )
-      key <- Token.createTokenKey()
-      now <- ZIO.access[ClockAlg](_.clock.requestDate)
+      id <- ObjectIdGeneratorAlg[F].generateObjectId()
+      key <- Token.createTokenKey[F]()
+      requestDate <- ClockAlg[F].getRequestDate()
     } yield TokenGeneral(
       id = TokenGeneralId(id),
       key = key,
       client = client.id,
       user = authToken.user,
       req = List(),
-      date = now
+      date = requestDate
     )
   }
 
   implicit class TokenGeneralService(val self: TokenGeneral) {
     val reqExpireMinute: Int = 5;
 
-    def createReq(): ZIO[
-      ClockAlg with ConfigContainerAlg with SafeIdGeneratorAlg,
-      AtServerError,
-      (TokenGeneral, TokenReqAPI)
-    ] = {
+    def createReq[F[_]: Monad: ClockAlg: ConfigContainerAlg: SafeIdGeneratorAlg]()
+        : F[(TokenGeneral, TokenReqAPI)] = {
       for {
-        now <- ZIO.access[ClockAlg](_.clock.requestDate)
+        requestDate <- ClockAlg[F].getRequestDate()
         val reqFilter = self.req
-          .filter(r => r.active && now.toEpochMilli < r.expireDate.toEpochMilli)
-        key <- Token.createTokenKey()
+          .filter(
+            r =>
+              r.active && requestDate.toEpochMilli < r.expireDate.toEpochMilli
+          )
+        key <- Token.createTokenKey[F]()
         val req = TokenReq(
           key = key,
           expireDate = ofEpochMilli(
-            now.toEpochMilli + 1000 * 60 * reqExpireMinute
+            requestDate.toEpochMilli + 1000 * 60 * reqExpireMinute
           ),
           active = true
         )
@@ -123,17 +121,21 @@ object TokenGeneral {
       )
     }
 
-    def authReq(key: String): ZIO[ClockAlg, AtError, AuthTokenGeneral] = {
+    def authReq[F[_]: Monad: ClockAlg](
+        key: String
+    ): EitherT[F, AtError, AuthTokenGeneral] = {
       val req = self.req.find(_.key === key);
 
       for {
-        now <- ZIO.access[ClockAlg](_.clock.requestDate)
-        _ <- req match {
-          case Some(req)
-              if req.active && req.expireDate.toEpochMilli >= now.toEpochMilli =>
-            ZIO.succeed(())
-          case _ => ZIO.fail(new AtNotFoundError("トークンリクエストが見つかりません"))
-        }
+        requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+        _ <- EitherT
+          .fromEither[F](req match {
+            case Some(req)
+                if req.active && req.expireDate.toEpochMilli >= requestDate.toEpochMilli =>
+              Right(())
+            case _ => Left(new AtNotFoundError("トークンリクエストが見つかりません"))
+          })
+          .leftWiden[AtError]
       } yield AuthTokenGeneral(
         id = self.id,
         user = self.user,

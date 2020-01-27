@@ -2,7 +2,6 @@ package com.anontown.entities.res
 
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
-import zio.ZIO
 import com.anontown.AtError
 import com.anontown.services.ObjectIdGeneratorAlg
 import com.anontown.services.ClockAlg

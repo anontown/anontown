@@ -2,7 +2,6 @@ package com.anontown.entities.res
 
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
-import zio.ZIO
 import com.anontown.AtError
 import com.anontown.services.ObjectIdGeneratorAlg
 import com.anontown.services.ClockAlg
@@ -21,6 +20,7 @@ import com.anontown.entities.topic.Topic.TopicService
 import com.anontown.entities.res.ResId.ops._
 import com.anontown.entities.topic.AnyTopicId
 import Res.ResService
+import cats.data.EitherT
 
 sealed trait ResNormalAPI extends ResAPI;
 
@@ -147,7 +147,7 @@ object ResNormal {
       }
     }
 
-  def create[ResIdType: ResId, ResType, TopicType](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg, ResIdType: ResId, ResType, TopicType](
       topic: TopicType,
       user: User,
       authUser: AuthToken,
@@ -157,8 +157,8 @@ object ResNormal {
       profile: Option[Profile],
       age: Boolean
   )(implicit implRes: Res[ResType] { type IdType = ResIdType }, implTopic: Topic[TopicType])
-      : ZIO[
-        ObjectIdGeneratorAlg with ClockAlg,
+      : EitherT[
+        F,
         AtError,
         (ResNormal[ResIdType, implTopic.IdType], User, TopicType)
       ] = {
@@ -168,47 +168,53 @@ object ResNormal {
     import implTopic.implTopicIdForIdType
 
     for {
-      (name, text) <- ZIO.fromEither(
-        (
-          name
-            .map(ResName.fromString(_).map(Some(_)))
-            .getOrElse(Right(None))
-            .toValidated,
-          ResText.fromString(text).toValidated
-        ).mapN((_, _)).toEither
-      )
-
-      _ <- ZIO.fromEither(
-        Either.cond(
-          profile.map(_.user === user.id).getOrElse(true),
-          (),
-          new AtRightError("自分のプロフィールを指定して下さい。")
+      (name, text) <- EitherT
+        .fromEither[F](
+          (
+            name
+              .map(ResName.fromString(_).map(Some(_)))
+              .getOrElse(Right(None))
+              .toValidated,
+            ResText.fromString(text).toValidated
+          ).mapN((_, _)).toEither
         )
-      )
+        .leftWiden[AtError]
+
+      _ <- EitherT
+        .fromEither[F](
+          Either.cond(
+            profile.map(_.user === user.id).getOrElse(true),
+            (),
+            new AtRightError("自分のプロフィールを指定して下さい。")
+          )
+        )
+        .leftWiden[AtError]
 
       // もしリプ先があるかつ、トピックがリプ先と違えばエラー
-      _ <- ZIO.fromEither(
-        Either.cond(
-          // TODO: id.valueしなくても比較できるようにする
-          reply
-            .map(
-              reply => AnyTopicId(reply.topic.get) === AnyTopicId(topic.id.get)
-            )
-            .getOrElse(true),
-          (),
-          new AtPrerequisiteError("他のトピックのレスへのリプは出来ません")
+      _ <- EitherT
+        .fromEither[F](
+          Either.cond(
+            reply
+              .map(
+                reply =>
+                  AnyTopicId(reply.topic.get) === AnyTopicId(topic.id.get)
+              )
+              .getOrElse(true),
+            (),
+            new AtPrerequisiteError("他のトピックのレスへのリプは出来ません")
+          )
         )
+        .leftWiden[AtError]
+
+      requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+
+      newUser <- EitherT.fromEither[F](user.changeLastRes(requestDate))
+
+      id <- EitherT.right(
+        ObjectIdGeneratorAlg[F].generateObjectId()
       )
 
-      requestDate <- ZIO.access[ClockAlg](_.clock.requestDate)
-
-      newUser <- ZIO.fromEither(user.changeLastRes(requestDate))
-
-      id <- ZIO.accessM[ObjectIdGeneratorAlg](
-        _.objectIdGenerator.generateObjectId()
-      )
-
-      hash <- ZIO.access[ClockAlg](topic.hash(newUser)(_))
+      hash <- EitherT.right(topic.hash[F](newUser))
 
       val result = ResNormal(
         name = name,
@@ -227,7 +233,7 @@ object ResNormal {
         hash = hash,
         replyCount = 0
       )
-      newTopic <- ZIO.fromEither(topic.resUpdate(result))
+      newTopic <- EitherT.fromEither[F](topic.resUpdate(result))
     } yield (result, newUser, newTopic)
   }
 

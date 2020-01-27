@@ -3,8 +3,6 @@ package com.anontown.entities.token
 import java.time.OffsetDateTime
 import com.anontown.utils;
 import com.anontown.services.SafeIdGeneratorAlg
-import zio.ZIO
-import com.anontown.AtServerError
 import com.anontown.services.ConfigContainerAlg
 import com.anontown.entities.user.UserId
 import monocle.syntax.ApplyLens
@@ -13,6 +11,7 @@ import record._
 import simulacrum._
 import com.anontown.utils.Record._
 import com.anontown.entities.token.TokenId.ops._
+import cats._, cats.implicits._, cats.derived._
 
 trait TokenAPI {
   val id: String
@@ -59,19 +58,11 @@ object Token {
     }
   }
 
-  def createTokenKey(): ZIO[
-    SafeIdGeneratorAlg with ConfigContainerAlg,
-    AtServerError,
-    String
-  ] = {
+  def createTokenKey[F[_]: Monad: SafeIdGeneratorAlg: ConfigContainerAlg]()
+      : F[String] = {
     for {
-      genId <- ZIO.accessM[SafeIdGeneratorAlg](
-        _.safeIdGenerator.generateSafeId()
-      )
-
-      tokenSalt <- ZIO.access[ConfigContainerAlg](
-        _.configContainer.config.salt.token
-      )
+      genId <- SafeIdGeneratorAlg[F].generateSafeId()
+      tokenSalt <- ConfigContainerAlg[F].getConfig().map(_.salt.token)
     } yield utils.hash(genId + tokenSalt)
   }
 }

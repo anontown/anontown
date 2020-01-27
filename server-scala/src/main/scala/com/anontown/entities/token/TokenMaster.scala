@@ -63,22 +63,20 @@ object TokenMaster {
     }
   }
 
-  def create(authUser: AuthUser): ZIO[
-    ObjectIdGeneratorAlg with ClockAlg with SafeIdGeneratorAlg with ConfigContainerAlg,
-    AtServerError,
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: SafeIdGeneratorAlg: ConfigContainerAlg](
+      authUser: AuthUser
+  ): F[
     TokenMaster
   ] = {
     for {
-      id <- ZIO.accessM[ObjectIdGeneratorAlg](
-        _.objectIdGenerator.generateObjectId()
-      )
-      key <- Token.createTokenKey()
-      now <- ZIO.access[ClockAlg](_.clock.requestDate)
+      id <- ObjectIdGeneratorAlg[F].generateObjectId()
+      key <- Token.createTokenKey[F]()
+      requestDate <- ClockAlg[F].getRequestDate()
     } yield TokenMaster(
       id = TokenMasterId(id),
       key = key,
       user = authUser.id,
-      date = now
+      date = requestDate
     )
   }
 
