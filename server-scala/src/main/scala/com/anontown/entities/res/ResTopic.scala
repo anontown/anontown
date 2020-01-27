@@ -111,7 +111,7 @@ object ResTopic {
         hash = hash,
         replyCount = 0
       )
-      newTopic <- EitherT.fromEither[F](topic.resUpdate(result))
+      newTopic <- EitherT.fromEither[F](topic.resUpdate(result, false))
     } yield (result, newTopic)
   }
 }

@@ -233,7 +233,7 @@ object ResNormal {
         hash = hash,
         replyCount = 0
       )
-      newTopic <- EitherT.fromEither[F](topic.resUpdate(result))
+      newTopic <- EitherT.fromEither[F](topic.resUpdate(result, result.age))
     } yield (result, newUser, newTopic)
   }
 

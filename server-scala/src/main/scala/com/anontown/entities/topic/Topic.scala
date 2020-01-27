@@ -5,6 +5,7 @@ import java.time.OffsetDateTime
 import com.anontown.AtError
 import com.anontown.services.ClockAlg
 import com.anontown.entities.res.Res
+import com.anontown.entities.res.Res.ops._
 import com.anontown.entities.user.User
 import monocle.syntax.ApplyLens
 import simulacrum._
@@ -14,6 +15,7 @@ import com.anontown.utils.Record._
 import com.anontown.AuthToken
 import Topic.ops._
 import TopicId.ops._
+import com.anontown.AtPrerequisiteError
 
 trait TopicAPI {
   val id: String;
@@ -79,6 +81,24 @@ object Topic {
 
     def hash[F[_]: Monad: ClockAlg](user: User): F[String] = { ??? }
 
-    def resUpdate[R: Res](res: R): Either[AtError, A] = { ??? }
+    def resUpdate[R: Res](res: R, isAge: Boolean): Either[AtError, A] = {
+      if (!self.active.get) {
+        Left(new AtPrerequisiteError("トピックが落ちているので書き込めません"))
+      } else {
+        Right(
+          self.update
+            .set(res.date.get)
+            .ageUpdate
+            .modify(
+              prevAgeUpdate =>
+                if (isAge) {
+                  res.date.get
+                } else {
+                  prevAgeUpdate
+                }
+            )
+        )
+      }
+    }
   }
 }
