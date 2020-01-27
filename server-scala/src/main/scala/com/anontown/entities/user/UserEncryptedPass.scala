@@ -2,11 +2,11 @@ package com.anontown.entities.user
 
 import com.anontown.utils;
 import cats._, cats.implicits._, cats.derived._
-import com.anontown.services.ConfigContainerComponent
+import com.anontown.services.ConfigContainerAlg
 
 final case class UserEncryptedPass(value: String) extends AnyVal {
-  def validation(pass: String)(ports: ConfigContainerComponent): Boolean = {
-    this.value === UserEncryptedPass.hash(pass)(ports)
+  def validation[F[_]: Monad: ConfigContainerAlg](pass: String): F[Boolean] = {
+    UserEncryptedPass.hash[F](pass).map(this.value === _)
   }
 }
 
@@ -16,13 +16,15 @@ object UserEncryptedPass {
     semi.eq
   }
 
-  def fromRawPass(
+  def fromRawPass[F[_]: Monad: ConfigContainerAlg](
       pass: UserRawPass
-  )(ports: ConfigContainerComponent): UserEncryptedPass = {
-    UserEncryptedPass(UserEncryptedPass.hash(pass.value)(ports))
+  ): F[UserEncryptedPass] = {
+    UserEncryptedPass.hash[F](pass.value).map(UserEncryptedPass(_))
   }
 
-  def hash(pass: String)(ports: ConfigContainerComponent): String = {
-    utils.hash(pass + ports.configContainer.config.salt.pass)
+  def hash[F[_]: Monad: ConfigContainerAlg](pass: String): F[String] = {
+    ConfigContainerAlg[F]
+      .getConfig()
+      .map(config => utils.hash(pass + config.salt.pass))
   }
 }

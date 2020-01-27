@@ -1,9 +1,8 @@
 package com.anontown.services;
 
-trait IpContainer {
-  val requestIp: Option[String];
-}
+import cats.tagless._
 
-trait IpContainerComponent {
-  val ipContainer: IpContainer;
+@finalAlg
+trait IpContainerAlg[F[_]] {
+  def getRequestIp(): F[Option[String]];
 }

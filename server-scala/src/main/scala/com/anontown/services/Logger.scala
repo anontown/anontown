@@ -1,16 +1,13 @@
 package com.anontown.services;
-import zio.IO
-import com.anontown.AtServerError
 
-trait Logger {
-  def error(msg: String): IO[AtServerError, Unit];
-  def warn(msg: String): IO[AtServerError, Unit];
-  def info(msg: String): IO[AtServerError, Unit];
-  def verbose(msg: String): IO[AtServerError, Unit];
-  def debug(msg: String): IO[AtServerError, Unit];
-  def silly(msg: String): IO[AtServerError, Unit];
-}
+import cats.tagless._
 
-trait LoggerComponent {
-  val logger: Logger;
+@finalAlg
+trait LoggerAlg[F[_]] {
+  def error(msg: String): F[Unit];
+  def warn(msg: String): F[Unit];
+  def info(msg: String): F[Unit];
+  def verbose(msg: String): F[Unit];
+  def debug(msg: String): F[Unit];
+  def silly(msg: String): F[Unit];
 }

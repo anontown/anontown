@@ -1,11 +1,9 @@
 package com.anontown.services
-import zio.IO
 import com.anontown.AtError
+import cats.data.EitherT
+import cats.tagless._
 
-trait RecaptchaClient {
-  def verifyRecaptcha(apiParamRecaptcha: String): IO[AtError, Unit];
-}
-
-trait RecaptchaClientComponent {
-  val recaptchaClient: RecaptchaClient;
+@finalAlg
+trait RecaptchaClientAlg[F[_]] {
+  def verifyRecaptcha(apiParamRecaptcha: String): EitherT[F, AtError, Unit];
 }

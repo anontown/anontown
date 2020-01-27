@@ -1,13 +1,12 @@
 package com.anontown.services
-import zio.IO
+
 import com.anontown.AtError
 import com.anontown.entities.client.{Client, ClientId}
+import cats.tagless._
+import cats.data.EitherT
 
-trait ClientLoader {
-  def load(id: ClientId): IO[AtError, Client];
-  def loadMany(ids: List[ClientId]): IO[AtError, List[Client]];
-}
-
-trait ClientLoaderComponent {
-  val clientLoader: ClientLoader;
+@finalAlg
+trait ClientLoaderAlg[F[_]] {
+  def load(id: ClientId): EitherT[F, AtError, Client];
+  def loadMany(ids: List[ClientId]): EitherT[F, AtError, List[Client]];
 }

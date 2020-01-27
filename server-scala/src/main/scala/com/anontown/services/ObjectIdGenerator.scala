@@ -1,11 +1,8 @@
 package com.anontown.services;
-import zio.IO
-import com.anontown.AtServerError
 
-trait ObjectIdGenerator {
-  def generateObjectId(): IO[AtServerError, String];
-}
+import cats.tagless._
 
-trait ObjectIdGeneratorComponent {
-  val objectIdGenerator: ObjectIdGenerator;
+@finalAlg
+trait ObjectIdGeneratorAlg[F[_]] {
+  def generateObjectId(): F[String];
 }

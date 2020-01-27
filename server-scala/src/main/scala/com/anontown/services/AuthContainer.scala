@@ -1,15 +1,15 @@
 package com.anontown.services;
+
 import com.anontown.AtError;
 import com.anontown.AuthToken;
 import com.anontown.AuthTokenMaster
+import cats.tagless._
+import cats.data.EitherT
 
-trait AuthContainer {
-  def token: Either[AtError, AuthToken];
-  def tokenMaster: Either[AtError, AuthTokenMaster];
-  def optionToken: Option[AuthTokenMaster];
-  def optionMasterToken: Option[AuthTokenMaster];
-}
-
-trait AuthContainerComponent {
-  val authContainer: AuthContainer;
+@finalAlg
+trait AuthContainerAlg[F[_]] {
+  def getToken(): EitherT[F, AtError, AuthToken];
+  def getTokenMaster(): EitherT[F, AtError, AuthTokenMaster];
+  def getOptionToken(): F[Option[AuthTokenMaster]];
+  def getOptionMasterToken(): F[Option[AuthTokenMaster]];
 }

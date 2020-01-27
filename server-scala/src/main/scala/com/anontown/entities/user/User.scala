@@ -7,11 +7,11 @@ import com.anontown.AuthUser
 import com.anontown.AtUserAuthError
 import com.anontown.AtPrerequisiteError
 import cats._, cats.implicits._, cats.derived._
-import com.anontown.services.ObjectIdGeneratorComponent
-import com.anontown.services.ClockComponent
-import com.anontown.services.ConfigContainerComponent
-import zio.ZIO
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ClockAlg
+import com.anontown.services.ConfigContainerAlg
 import com.anontown.utils.OffsetDateTimeUtils._
+import cats.data.EitherT
 
 final case class UserAPI(id: String, sn: String);
 
@@ -52,44 +52,40 @@ object User {
     semi.eq
   }
 
-  def create(
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
       sn: String,
       pass: String
-  ): ZIO[
-    ObjectIdGeneratorComponent with ClockComponent with ConfigContainerComponent,
+  ): EitherT[
+    F,
     AtError,
     User
   ] = {
     for {
-      (sn, pass) <- ZIO.fromEither(
+      (sn, pass) <- EitherT.fromEither[F](
         (
           UserSn.fromString(sn).toValidated,
           UserRawPass.fromString(pass).toValidated
         ).mapN((_, _)).toEither
       )
 
-      date <- ZIO.access[
-        ClockComponent
-      ](_.clock.requestDate)
+      requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
 
-      id <- ZIO.accessM[ObjectIdGeneratorComponent](
-        _.objectIdGenerator.generateObjectId()
-      )
+      id <- EitherT.right(ObjectIdGeneratorAlg[F].generateObjectId())
 
-      pass <- ZIO.fromFunction(UserEncryptedPass.fromRawPass(pass))
+      pass <- EitherT.right(UserEncryptedPass.fromRawPass[F](pass))
     } yield User(
       id = UserId(id),
       sn = sn,
       pass = pass,
       lv = 1,
       resWait = ResWait(
-        last = date,
+        last = requestDate,
         count = ResWaitCount(m10 = 0, m30 = 0, h1 = 0, h6 = 0, h12 = 0, d1 = 0)
       ),
-      lastTopic = date,
-      date = date,
+      lastTopic = requestDate,
+      date = requestDate,
       point = 0,
-      lastOneTopic = date
+      lastOneTopic = requestDate
     )
   }
 
@@ -100,45 +96,64 @@ object User {
       UserAPI(id = self.id.value, sn = self.sn.value);
     }
 
-    def change(
+    def change[F[_]: Monad: ConfigContainerAlg](
         authUser: AuthUser,
         pass: Option[String],
         sn: Option[String]
-    )(ports: ConfigContainerComponent): Either[AtError, User] = {
+    ): EitherT[F, AtError, User] = {
       require(authUser.id === self.id);
 
-      (
-        pass
-          .map(
-            UserRawPass
-              .fromString(_)
-              .map(UserEncryptedPass.fromRawPass(_)(ports))
-          )
-          .getOrElse(Right(self.pass))
-          .toValidated,
-        sn.map(
-            UserSn.fromString(_)
-          )
-          .getOrElse(Right(self.sn))
-          .toValidated
-      ).mapN(
-          (pass, sn) =>
-            self.copy(
-              sn = sn,
-              pass = pass
+      for {
+        newEncryptedPass <- EitherT.right(
+          pass
+            .map(
+              UserRawPass
+                .fromString(_)
+                .map(UserEncryptedPass.fromRawPass[F](_))
+                .sequence
             )
+            .sequence
         )
-        .toEither;
+
+        result <- EitherT.fromEither[F](
+          ((
+            newEncryptedPass
+              .getOrElse(Right(self.pass))
+              .toValidated,
+            sn.map(
+                UserSn.fromString(_)
+              )
+              .getOrElse(Right(self.sn))
+              .toValidated
+          ).mapN(
+              (pass, sn) =>
+                self.copy(
+                  sn = sn,
+                  pass = pass
+                )
+            )
+            .toEither)
+            .leftWiden[AtError]
+        )
+      } yield result
     }
 
-    def auth(pass: String)(
-        ports: ConfigContainerComponent
-    ): Either[AtError, AuthUser] = {
-      if (self.pass.validation(pass)(ports)) {
-        Right(AuthUser(id = self.id))
-      } else {
-        Left(AtUserAuthError())
-      }
+    def auth[F[_]: Monad: ConfigContainerAlg](
+        pass: String
+    ): EitherT[F, AtError, AuthUser] = {
+      EitherT
+        .right(
+          self.pass
+            .validation[F](pass)
+        )
+        .flatMap(
+          isValid =>
+            if (isValid) {
+              EitherT.rightT(AuthUser(id = self.id))
+            } else {
+              EitherT.leftT(AtUserAuthError())
+            }
+        )
     }
 
     def usePoint(value: Int): Either[AtError, User] = {

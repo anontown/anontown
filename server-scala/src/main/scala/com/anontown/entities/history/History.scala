@@ -3,11 +3,9 @@ package com.anontown.entities.history
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
-import zio.ZIO
-import com.anontown.services.ObjectIdGeneratorComponent
-import com.anontown.services.ClockComponent
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ClockAlg
 import com.anontown.AuthToken
-import com.anontown.AtServerError
 import com.anontown.entities.user.{UserId, User}
 
 final case class HistoryAPI(
@@ -45,30 +43,24 @@ object History {
     semi.eq
   }
 
-  def create(
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
       topicId: String,
       title: String,
       tags: List[String],
       text: String,
       hash: String,
       user: User
-  ): ZIO[
-    ObjectIdGeneratorComponent with ClockComponent,
-    AtServerError,
-    History
-  ] = {
+  ): F[History] = {
     for {
-      id <- ZIO.accessM[ObjectIdGeneratorComponent](
-        _.objectIdGenerator.generateObjectId()
-      )
-      date <- ZIO.access[ClockComponent](_.clock.requestDate)
+      id <- ObjectIdGeneratorAlg[F].generateObjectId()
+      requestDate <- ClockAlg[F].getRequestDate()
     } yield History(
       id = HistoryId(id),
       topic = topicId,
       title = title,
       tags = tags,
       text = text,
-      date = date,
+      date = requestDate,
       hash = hash,
       user = user.id
     )

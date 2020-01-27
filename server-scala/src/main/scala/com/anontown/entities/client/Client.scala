@@ -3,13 +3,13 @@ package com.anontown.entities.client
 import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.utils.Impl._;
-import zio.ZIO
 import com.anontown.AuthTokenMaster
 import com.anontown.AtError
-import com.anontown.services.ObjectIdGeneratorComponent
-import com.anontown.services.ClockComponent
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ClockAlg
 import com.anontown.AtRightError
 import com.anontown.entities.user.UserId
+import cats.data.EitherT
 
 final case class ClientAPI(
     id: String,
@@ -42,24 +42,21 @@ object Client {
     semi.eq
   }
 
-  def create(
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
       authToken: AuthTokenMaster,
       name: String,
       url: String
-  ): ZIO[ObjectIdGeneratorComponent with ClockComponent, AtError, Client] = {
+  ): EitherT[F, AtError, Client] = {
     for {
-      id <- ZIO.accessM[ObjectIdGeneratorComponent](
-        _.objectIdGenerator.generateObjectId()
-      )
-
-      (name, url) <- ZIO.fromEither(
+      id <- EitherT.right(ObjectIdGeneratorAlg[F].generateObjectId())
+      (name, url) <- EitherT.fromEither[F](
         (
           ClientName.fromString(name).toValidated,
           ClientUrl.fromString(url).toValidated
         ).mapN((_, _)).toEither
       )
 
-      date <- ZIO.access[ClockComponent](_.clock.requestDate)
+      date <- EitherT.right(ClockAlg[F].getRequestDate())
     } yield Client(
       id = ClientId(id),
       name = name,
@@ -82,29 +79,39 @@ object Client {
       )
     }
 
-    def changeData(
+    def changeData[F[_]: Monad: ClockAlg](
         authToken: AuthTokenMaster,
         name: Option[String],
         url: Option[String]
-    )(ports: ClockComponent): Either[AtError, Client] = {
+    ): EitherT[F, AtError, Client] = {
       if (authToken.user =!= self.user) {
-        Left(new AtRightError("人のクライアント変更は出来ません"));
+        EitherT.leftT(new AtRightError("人のクライアント変更は出来ません"))
       } else {
-        (
-          name
-            .map(ClientName.fromString(_))
-            .getOrElse(Right(self.name))
-            .toValidated,
-          url
-            .map(ClientUrl.fromString(_))
-            .getOrElse(Right(self.url))
-            .toValidated
-        ).mapN(
-            (name, url) =>
-              self
-                .copy(name = name, url = url, update = ports.clock.requestDate)
+        for {
+          requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+          result <- EitherT.fromEither[F](
+            (
+              name
+                .map(ClientName.fromString(_))
+                .getOrElse(Right(self.name))
+                .toValidated,
+              url
+                .map(ClientUrl.fromString(_))
+                .getOrElse(Right(self.url))
+                .toValidated
+            ).mapN(
+                (name, url) =>
+                  self
+                    .copy(
+                      name = name,
+                      url = url,
+                      update = requestDate
+                    )
+              )
+              .toEither
+              .leftWiden[AtError]
           )
-          .toEither
+        } yield result
       }
     }
   }

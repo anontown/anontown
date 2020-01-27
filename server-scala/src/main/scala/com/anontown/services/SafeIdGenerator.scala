@@ -1,11 +1,7 @@
 package com.anontown.services
-import zio.IO
-import com.anontown.AtServerError
+import cats.tagless._
 
-trait SafeIdGenerator {
-  def generateSafeId(): IO[AtServerError, String];
-}
-
-trait SafeIdGeneratorComponent {
-  val safeIdGenerator: SafeIdGenerator;
+@finalAlg
+trait SafeIdGeneratorAlg[F[_]] {
+  def generateSafeId(): F[String];
 }

@@ -1,11 +1,17 @@
 package com.anontown.services
 
 import com.anontown.Config
+import cats.tagless._
+import cats.Monad
 
-trait ConfigContainer {
-  val config: Config;
+@finalAlg
+trait ConfigContainerAlg[F[_]] {
+  def getConfig(): F[Config];
 }
 
-trait ConfigContainerComponent {
-  val configContainer: ConfigContainer;
+class ConfigContainerImpl[F[_]: Monad](val config: Config)
+    extends ConfigContainerAlg[F] {
+  def getConfig(): F[Config] = {
+    Monad[F].pure(config)
+  }
 }
