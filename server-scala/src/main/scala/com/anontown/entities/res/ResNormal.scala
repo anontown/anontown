@@ -21,6 +21,7 @@ import com.anontown.entities.res.ResId.ops._
 import com.anontown.entities.topic.AnyTopicId
 import Res.ResService
 import cats.data.EitherT
+import com.anontown.services.ConfigContainerAlg
 
 sealed trait ResNormalAPI extends ResAPI;
 
@@ -147,7 +148,7 @@ object ResNormal {
       }
     }
 
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg, ResIdType: ResId, ResType, TopicType](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg, ResIdType: ResId, ResType, TopicType](
       topic: TopicType,
       user: User,
       authUser: AuthToken,

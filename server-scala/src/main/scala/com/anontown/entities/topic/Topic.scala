@@ -16,6 +16,8 @@ import com.anontown.AuthToken
 import Topic.ops._
 import TopicId.ops._
 import com.anontown.AtPrerequisiteError
+import com.anontown.services.ConfigContainerAlg
+import com.anontown.utils;
 
 trait TopicAPI {
   val id: String;
@@ -79,7 +81,23 @@ object Topic {
       )
     }
 
-    def hash[F[_]: Monad: ClockAlg](user: User): F[String] = { ??? }
+    def hash[F[_]: Monad: ConfigContainerAlg: ClockAlg](
+        user: User
+    ): F[String] = {
+      for {
+        config <- ConfigContainerAlg[F].getConfig()
+        requestDate <- ClockAlg[F].getRequestDate()
+      } yield {
+        val zonedDate = requestDate.atZoneSameInstant(config.timezone)
+        utils
+          .hash(
+            f"${user.id.value} ${zonedDate.getYear().toString()} ${zonedDate
+              .getMonth()
+              .toString()} ${zonedDate.getDayOfMonth().toString()} ${self.id.get.value} ${config.salt.hash}"
+          )
+          .substring(0, hashLen)
+      }
+    }
 
     def resUpdate[R: Res](res: R, isAge: Boolean): Either[AtError, A] = {
       if (!self.active.get) {

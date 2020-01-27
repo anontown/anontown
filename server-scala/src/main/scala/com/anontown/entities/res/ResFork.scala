@@ -19,6 +19,7 @@ import com.anontown.entities.topic.{
 import com.anontown.entities.topic.Topic.TopicService
 import Res.ResService
 import cats.data.EitherT
+import com.anontown.services.ConfigContainerAlg
 
 final case class ResForkAPI(
     id: String,
@@ -86,7 +87,7 @@ object ResFork {
     }
   }
 
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
       topic: TopicNormal,
       user: User,
       authUser: AuthToken,

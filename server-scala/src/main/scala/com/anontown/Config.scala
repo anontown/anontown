@@ -1,7 +1,9 @@
 package com.anontown;
 
+import java.time.ZoneId
+
 final case class Config(
-    timezone: String,
+    timezone: ZoneId,
     saveDir: String,
     server: ServerConfig,
     mongo: MongoConfig,
@@ -96,7 +98,7 @@ object Config {
       salt <- SaltConfig.fromEnv(env)
       recaptcha <- RecaptchaConfig.fromEnv(env)
     } yield Config(
-      timezone = "Asia/Tokyo",
+      timezone = ZoneId.of("Asia/Tokyo"),
       saveDir = env.get("SAVE_DIR").getOrElse("./"),
       server = server,
       mongo = mongo,

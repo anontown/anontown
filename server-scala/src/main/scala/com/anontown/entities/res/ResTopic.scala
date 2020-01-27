@@ -14,6 +14,7 @@ import com.anontown.entities.topic.Topic.TopicService
 import com.anontown.entities.topic.Topic.ops._
 import Res.ResService
 import cats.data.EitherT
+import com.anontown.services.ConfigContainerAlg
 
 final case class ResTopicAPI(
     id: String,
@@ -80,7 +81,7 @@ object ResTopic {
       }
     }
 
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg, TopicTemporaryType](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg, TopicTemporaryType](
       topic: TopicTemporaryType,
       user: User,
       authUser: AuthToken
