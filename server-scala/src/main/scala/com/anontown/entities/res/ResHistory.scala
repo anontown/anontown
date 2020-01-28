@@ -90,14 +90,14 @@ object ResHistory {
   def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
       topic: TopicNormal,
       user: User,
-      authUser: AuthToken,
+      authToken: AuthToken,
       history: History
   ): EitherT[
     F,
     AtError,
     (ResHistory, TopicNormal)
   ] = {
-    assert(user.id === authUser.user);
+    assert(user.id === authToken.user);
     for {
       requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
       id <- EitherT.right(

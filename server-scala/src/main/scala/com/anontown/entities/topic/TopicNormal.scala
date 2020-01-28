@@ -17,6 +17,7 @@ import com.anontown.services.ObjectIdGeneratorAlg
 import cats.data.EitherT
 import com.anontown.AtError
 import com.anontown.entities.user.User
+import com.anontown.services.ConfigContainerAlg
 
 final case class TopicNormalAPI(
     id: String,
@@ -53,7 +54,7 @@ object TopicNormal {
     semi.eq
   }
 
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
       title: String,
       tags: List[String],
       text: String,
@@ -132,13 +133,59 @@ object TopicNormal {
       override def text(self: Self) = self.lens(_.text);
     }
 
-  implicit class TopicNormalService[A](val self: A) {
-    def changeData[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
+  implicit class TopicNormalService(val self: TopicNormal) {
+    def changeData[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
         user: User,
         authToken: AuthToken,
         title: Option[String],
         tags: Option[List[String]],
         text: Option[String]
-    ): EitherT[F, AtError, (A, ResHistory, History, User)] = { ??? }
+    ): EitherT[F, AtError, (TopicNormal, ResHistory, History, User)] = {
+      for {
+        newUser <- EitherT.fromEither[F](user.usePoint(10))
+        (title, tags, text) <- EitherT
+          .fromEither[F](
+            (
+              title
+                .map(TopicTitle.fromString(_))
+                .getOrElse(Right(self.title))
+                .toValidated,
+              tags
+                .map(TopicTags.fromStringList(_))
+                .getOrElse(Right(self.tags))
+                .toValidated,
+              text
+                .map(TopicText.fromString(_))
+                .getOrElse(Right(self.text))
+                .toValidated
+            ).mapN((_, _, _)).toEither
+          )
+          .leftWiden[AtError]
+
+        val newTopic = self.copy(title = title, tags = tags, text = text)
+
+        hash <- EitherT.right(newTopic.hash[F](user))
+
+        history <- EitherT.right(
+          History
+            .create[F](
+              topicId = newTopic.id,
+              title = newTopic.title,
+              tags = newTopic.tags,
+              text = newTopic.text,
+              hash = hash,
+              user = newUser
+            )
+        )
+
+        (res, newNewTopic) <- ResHistory
+          .create[F](
+            topic = newTopic,
+            user = newUser,
+            authToken = authToken,
+            history = history
+          )
+      } yield (newNewTopic, res, history, newUser)
+    }
   }
 }

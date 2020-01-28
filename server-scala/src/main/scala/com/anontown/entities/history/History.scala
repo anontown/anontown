@@ -7,6 +7,10 @@ import com.anontown.services.ObjectIdGeneratorAlg
 import com.anontown.services.ClockAlg
 import com.anontown.AuthToken
 import com.anontown.entities.user.{UserId, User}
+import com.anontown.entities.topic.TopicNormalId
+import com.anontown.entities.topic.TopicTitle
+import com.anontown.entities.topic.TopicTags
+import com.anontown.entities.topic.TopicText
 
 final case class HistoryAPI(
     id: String,
@@ -28,10 +32,10 @@ object HistoryAPI {
 
 final case class History(
     id: HistoryId,
-    topic: String,
-    title: String,
-    tags: List[String],
-    text: String,
+    topic: TopicNormalId,
+    title: TopicTitle,
+    tags: TopicTags,
+    text: TopicText,
     date: OffsetDateTime,
     hash: String,
     user: UserId
@@ -44,10 +48,10 @@ object History {
   }
 
   def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
-      topicId: String,
-      title: String,
-      tags: List[String],
-      text: String,
+      topicId: TopicNormalId,
+      title: TopicTitle,
+      tags: TopicTags,
+      text: TopicText,
       hash: String,
       user: User
   ): F[History] = {
@@ -70,10 +74,10 @@ object History {
     def toAPI(authToken: Option[AuthToken]): HistoryAPI = {
       HistoryAPI(
         id = self.id.value,
-        topicID = self.topic,
-        title = self.title,
-        tags = self.tags,
-        text = self.text,
+        topicID = self.topic.value,
+        title = self.title.value,
+        tags = self.tags.value.map(_.value),
+        text = self.text.value,
         date = self.date.toString(),
         hash = self.hash,
         self = authToken.map(_.user === self.user)
