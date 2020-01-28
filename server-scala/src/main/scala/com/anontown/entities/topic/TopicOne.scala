@@ -10,6 +10,13 @@ import record._
 import Topic.TopicService
 import TopicTemporary.TopicTemporaryService
 import TopicSearch.TopicSearchService
+import cats.data.EitherT
+import com.anontown.services.ClockAlg
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.entities.user.User
+import com.anontown.entities.res.ResTopic
+import com.anontown.AtError
+
 final case class TopicOneAPI(
     id: String,
     title: String,
@@ -84,4 +91,12 @@ object TopicOne {
       override def tags(self: Self) = self.lens(_.tags);
       override def text(self: Self) = self.lens(_.text);
     }
+
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
+      title: String,
+      tags: List[String],
+      text: String,
+      user: User,
+      authToken: AuthToken
+  ): EitherT[F, AtError, (TopicOne, ResTopic[TopicOneId], User)] = { ??? }
 }

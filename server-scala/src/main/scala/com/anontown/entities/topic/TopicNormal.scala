@@ -9,6 +9,14 @@ import shapeless._
 import record._
 import Topic.TopicService
 import TopicSearch.TopicSearchService
+import com.anontown.entities.history.History
+import com.anontown.entities.res.ResHistory
+import com.anontown.entities.user.User
+import com.anontown.services.ClockAlg
+import com.anontown.services.ObjectIdGeneratorAlg
+import cats.data.EitherT
+import com.anontown.AtError
+import com.anontown.entities.user.User
 
 final case class TopicNormalAPI(
     id: String,
@@ -45,6 +53,14 @@ object TopicNormal {
     semi.eq
   }
 
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
+      title: String,
+      tags: List[String],
+      text: String,
+      user: User,
+      authToken: AuthToken
+  ): EitherT[F, AtError, (TopicNormal, History, ResHistory, User)] = { ??? }
+
   implicit val implTopic: TopicSearch[TopicNormal] {
     type IdType = TopicNormalId;
     type API = TopicNormalAPI;
@@ -77,4 +93,14 @@ object TopicNormal {
       override def tags(self: Self) = self.lens(_.tags);
       override def text(self: Self) = self.lens(_.text);
     }
+
+  implicit class TopicNormalService[A](val self: A) {
+    def changeData[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
+        user: User,
+        authToken: AuthToken,
+        title: Option[String],
+        tags: Option[List[String]],
+        text: Option[String]
+    ): EitherT[F, AtError, (A, ResHistory, History, User)] = { ??? }
+  }
 }

@@ -9,6 +9,12 @@ import shapeless._
 import record._
 import Topic.TopicService
 import TopicTemporary.TopicTemporaryService
+import cats.data.EitherT
+import com.anontown.services.ClockAlg
+import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.entities.user.User
+import com.anontown.AtError
+import com.anontown.entities.res.{ResTopic, ResFork}
 
 final case class TopicForkAPI(
     id: String,
@@ -73,5 +79,18 @@ object TopicFork {
   implicit val implEq: Eq[TopicFork] = {
     import auto.eq._
     semi.eq
+  }
+
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
+      title: String,
+      parent: TopicNormal,
+      user: User,
+      authToken: AuthToken
+  ): EitherT[
+    F,
+    AtError,
+    (TopicFork, ResTopic[TopicForkId], ResFork, User, TopicNormal)
+  ] = {
+    ???
   }
 }
