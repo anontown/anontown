@@ -59,7 +59,45 @@ object TopicNormal {
       text: String,
       user: User,
       authToken: AuthToken
-  ): EitherT[F, AtError, (TopicNormal, History, ResHistory, User)] = { ??? }
+  ): EitherT[F, AtError, (TopicNormal, History, ResHistory, User)] = {
+    for {
+      (title, tags, text) <- EitherT
+        .fromEither[F](
+          (
+            TopicTitle.fromString(title).toValidated,
+            TopicTags.fromStringList(tags).toValidated,
+            TopicText.fromString(text).toValidated
+          ).mapN((_, _, _)).toEither
+        )
+        .leftWiden[AtError]
+
+      id <- EitherT.right(ObjectIdGeneratorAlg[F].generateObjectId())
+
+      requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+
+      val topic = TopicNormal(
+        id = TopicNormalId(id),
+        title = title,
+        update = requestDate,
+        date = requestDate,
+        resCount = 1,
+        ageUpdate = requestDate,
+        active = true,
+        tags = tags,
+        text = text
+      )
+
+      cd <- topic.changeData[F](
+        user = user,
+        authToken = authToken,
+        title = Some(title.value),
+        tags = Some(tags.value.map(_.value)),
+        text = Some(text.value)
+      )
+
+      newUser <- EitherT.fromEither[F](cd._4.changeLastTopic(requestDate))
+    } yield (cd._1, cd._3, cd._2, newUser)
+  }
 
   implicit val implTopic: TopicSearch[TopicNormal] {
     type IdType = TopicNormalId;
