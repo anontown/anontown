@@ -15,6 +15,7 @@ import com.anontown.services.ObjectIdGeneratorAlg
 import com.anontown.entities.user.User
 import com.anontown.AtError
 import com.anontown.entities.res.{ResTopic, ResFork}
+import com.anontown.services.ConfigContainerAlg
 
 final case class TopicForkAPI(
     id: String,
@@ -81,7 +82,7 @@ object TopicFork {
     semi.eq
   }
 
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
       title: String,
       parent: TopicNormal,
       user: User,
@@ -91,6 +92,43 @@ object TopicFork {
     AtError,
     (TopicFork, ResTopic[TopicForkId], ResFork, User, TopicNormal)
   ] = {
-    ???
+    for {
+      title <- EitherT
+        .fromEither[F](TopicTitle.fromString(title))
+        .leftWiden[AtError]
+
+      id <- EitherT.right(
+        ObjectIdGeneratorAlg[F].generateObjectId().map(TopicForkId(_))
+      )
+
+      requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+
+      val topic = TopicFork(
+        id = id,
+        title = title,
+        update = requestDate,
+        date = requestDate,
+        resCount = 1,
+        ageUpdate = requestDate,
+        active = true,
+        parent = parent.id
+      )
+
+      (res, newTopic) <- ResTopic
+        .create[F, TopicFork](
+          topic = topic,
+          user = user,
+          authToken = authToken
+        )
+
+      (resParent, newParent) <- ResFork.create[F](
+        topic = parent,
+        user = user,
+        authToken = authToken,
+        fork = newTopic
+      )
+
+      newUser <- user.changeLastOneTopic[F]()
+    } yield (newTopic, res, resParent, newUser, newParent)
   }
 }

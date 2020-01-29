@@ -173,24 +173,25 @@ object User {
       );
     }
 
-    def changeLastRes(lastRes: OffsetDateTime): Either[AtError, User] = {
-      // 条件
-      // 係数
-      // lvMaxの時、Constant.res.wait.maxLv倍緩和
-      val coe =
-        (self.lv.toDouble / lvMax.toDouble) * (Wait.maxLv.toDouble - 1) + 1;
-      if (self.resWait.count.d1.toDouble < Wait.d1.toDouble * coe &&
-          self.resWait.count.h12.toDouble < Wait.h12.toDouble * coe &&
-          self.resWait.count.h6.toDouble < Wait.h6.toDouble * coe &&
-          self.resWait.count.h1.toDouble < Wait.h1.toDouble * coe &&
-          self.resWait.count.m30.toDouble < Wait.m30.toDouble * coe &&
-          self.resWait.count.m10.toDouble < Wait.m10.toDouble * coe &&
-          self.resWait.last.toEpochMilli + 1000 * Wait.minSecond <
-            lastRes.toEpochMilli) {
-        Right(
+    def changeLastRes[F[_]: Monad: ClockAlg](): EitherT[F, AtError, User] = {
+      for {
+        requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+        // 条件
+        // 係数
+        // lvMaxの時、Constant.res.wait.maxLv倍緩和
+        val coe = (self.lv.toDouble / lvMax.toDouble) * (Wait.maxLv.toDouble - 1) + 1;
+        result <- EitherT.cond[F](
+          self.resWait.count.d1.toDouble < Wait.d1.toDouble * coe &&
+            self.resWait.count.h12.toDouble < Wait.h12.toDouble * coe &&
+            self.resWait.count.h6.toDouble < Wait.h6.toDouble * coe &&
+            self.resWait.count.h1.toDouble < Wait.h1.toDouble * coe &&
+            self.resWait.count.m30.toDouble < Wait.m30.toDouble * coe &&
+            self.resWait.count.m10.toDouble < Wait.m10.toDouble * coe &&
+            self.resWait.last.toEpochMilli + 1000 * Wait.minSecond <
+              requestDate.toEpochMilli,
           self.copy(
             resWait = ResWait(
-              last = lastRes,
+              last = requestDate,
               count = ResWaitCount(
                 d1 = self.resWait.count.d1 + 1,
                 h12 = self.resWait.count.h12 + 1,
@@ -200,29 +201,33 @@ object User {
                 m10 = self.resWait.count.m10 + 1
               )
             )
-          )
-        );
-      } else {
-        Left(AtPrerequisiteError("連続書き込みはできません"));
-      }
+          ),
+          AtPrerequisiteError("連続書き込みはできません"): AtError
+        )
+      } yield result
     }
 
-    def changeLastTopic(lastTopic: OffsetDateTime): Either[AtError, User] = {
-      if (self.lastTopic.toEpochMilli + 1000 * 60 * 30 < lastTopic.toEpochMilli) {
-        Right(self.copy(lastTopic = lastTopic));
-      } else {
-        Left(AtPrerequisiteError("連続書き込みはできません"));
-      }
+    def changeLastTopic[F[_]: Monad: ClockAlg](): EitherT[F, AtError, User] = {
+      for {
+        requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+        result <- EitherT.cond[F](
+          self.lastTopic.toEpochMilli + 1000 * 60 * 30 < requestDate.toEpochMilli,
+          self.copy(lastTopic = requestDate),
+          AtPrerequisiteError("連続書き込みはできません"): AtError
+        )
+      } yield result
     }
 
-    def changeLastOneTopic(
-        lastTopic: OffsetDateTime
-    ): Either[AtError, User] = {
-      if (self.lastOneTopic.toEpochMilli + 1000 * 60 * 10 < lastTopic.toEpochMilli) {
-        Right(self.copy(lastOneTopic = lastTopic));
-      } else {
-        Left(AtPrerequisiteError("連続書き込みはできません"));
-      }
+    def changeLastOneTopic[F[_]: Monad: ClockAlg]()
+        : EitherT[F, AtError, User] = {
+      for {
+        requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+        result <- EitherT.cond[F](
+          self.lastOneTopic.toEpochMilli + 1000 * 60 * 10 < requestDate.toEpochMilli,
+          self.copy(lastOneTopic = requestDate),
+          AtPrerequisiteError("連続書き込みはできません"): AtError
+        )
+      } yield result
     }
   }
 }

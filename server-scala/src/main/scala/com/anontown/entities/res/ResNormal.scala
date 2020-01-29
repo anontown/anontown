@@ -209,7 +209,7 @@ object ResNormal {
 
       requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
 
-      newUser <- EitherT.fromEither[F](user.changeLastRes(requestDate))
+      newUser <- user.changeLastRes[F]()
 
       id <- EitherT.right(
         ObjectIdGeneratorAlg[F].generateObjectId()

@@ -90,14 +90,14 @@ object ResFork {
   def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
       topic: TopicNormal,
       user: User,
-      authUser: AuthToken,
+      authToken: AuthToken,
       fork: TopicFork
   ): EitherT[
     F,
     AtError,
     (ResFork, TopicNormal)
   ] = {
-    assert(user.id === authUser.user);
+    assert(user.id === authToken.user);
     for {
       requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
       id <- EitherT.right(ObjectIdGeneratorAlg[F].generateObjectId())

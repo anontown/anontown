@@ -84,13 +84,13 @@ object ResTopic {
   def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg, TopicTemporaryType](
       topic: TopicTemporaryType,
       user: User,
-      authUser: AuthToken
+      authToken: AuthToken
   )(implicit implTopicTemporary: TopicTemporary[TopicTemporaryType]): EitherT[
     F,
     AtError,
     (ResTopic[implTopicTemporary.IdType], TopicTemporaryType)
   ] = {
-    assert(user.id === authUser.user);
+    assert(user.id === authToken.user);
 
     import implTopicTemporary.implTopicIdForIdType
 

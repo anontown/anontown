@@ -96,7 +96,7 @@ object TopicNormal {
         text = Some(text.value)
       )
 
-      newUser <- EitherT.fromEither[F](cd._4.changeLastTopic(requestDate))
+      newUser <- cd._4.changeLastTopic[F]()
     } yield (cd._1, cd._3, cd._2, newUser)
   }
 
