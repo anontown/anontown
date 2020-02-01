@@ -16,6 +16,7 @@ import com.anontown.entities.user.{UserId, User}
 import com.anontown.entities.topic.TopicId
 import com.anontown.entities.res.ResId.ops._
 import com.anontown.entities.topic.TopicId.ops._
+import cats.Applicative
 
 trait ResAPI {
   val id: String;
@@ -108,29 +109,31 @@ object Res {
         vtype: VoteType,
         authToken: AuthToken
     ): Either[AtError, (A, User)] = {
+      type Result[A] = Either[AtError, A];
+
       assert(resUser.id === self.user.get);
       assert(user.id === authToken.user);
 
-      if (user.id === self.user.get) {
-        Left(new AtRightError("自分に投票は出来ません"));
-      } else if (self.votes.get.find(_.user === user.id).isDefined) {
-        Left(new AtPrerequisiteError("既に投票しています"))
-      } else {
-        val valueAbs = (user.lv.toDouble / 100.0).floor.toInt + 1;
+      for {
+        _ <- Applicative[Result].whenA(user.id === self.user.get)(
+          Left(new AtRightError("自分に投票は出来ません"))
+        )
+        _ <- Applicative[Result].whenA(
+          self.votes.get.find(_.user === user.id).isDefined
+        )(Left(new AtPrerequisiteError("既に投票しています")))
+
+        val valueAbs = (user.lv.toDouble / 100.0).floor.toInt + 1
         val value = vtype match {
           case VoteType.Uv() => valueAbs;
           case VoteType.Dv() => -valueAbs;
         }
-        val newResUser = resUser.changeLv(resUser.lv + value);
-        Right(
-          (
-            self.votes.modify(
-              _.appended(Vote(user = user.id, value = value))
-            ),
-            newResUser
-          )
-        )
-      }
+        val newResUser = resUser.changeLv(resUser.lv + value)
+      } yield (
+        self.votes.modify(
+          _.appended(Vote(user = user.id, value = value))
+        ),
+        newResUser
+      )
     }
 
     def resetAndVote(
