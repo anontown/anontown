@@ -13,6 +13,7 @@ import TopicSearch.TopicSearchService
 import cats.data.EitherT
 import com.anontown.services.ClockAlg
 import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.services.ConfigContainerAlg
 import com.anontown.entities.user.User
 import com.anontown.entities.res.ResTopic
 import com.anontown.AtError
@@ -92,11 +93,42 @@ object TopicOne {
       override def text(self: Self) = self.lens(_.text);
     }
 
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
       title: String,
       tags: List[String],
       text: String,
       user: User,
       authToken: AuthToken
-  ): EitherT[F, AtError, (TopicOne, ResTopic[TopicOneId], User)] = { ??? }
+  ): EitherT[F, AtError, (TopicOne, ResTopic[TopicOneId], User)] = {
+    for {
+      (title, tags, text) <- EitherT
+        .fromEither[F](
+          (
+            TopicTitle.fromString(title).toValidated,
+            TopicTags.fromStringList(tags).toValidated,
+            TopicText.fromString(text).toValidated
+          ).mapN((_, _, _)).toEither
+        )
+        .leftWiden[AtError]
+
+      id <- EitherT.right(ObjectIdGeneratorAlg[F].generateObjectId())
+      requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
+
+      val topic = TopicOne(
+        id = TopicOneId(id),
+        title = title,
+        tags = tags,
+        text = text,
+        date = requestDate,
+        update = requestDate,
+        resCount = 1,
+        ageUpdate = requestDate,
+        active = true
+      )
+
+      (res, newTopic) <- ResTopic.create[F, TopicOne](topic, user, authToken)
+
+      newUser <- user.changeLastOneTopic[F]()
+    } yield (newTopic, res, newUser)
+  }
 }
