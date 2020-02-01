@@ -119,7 +119,7 @@ object Res {
           Left(new AtRightError("自分に投票は出来ません"))
         )
         _ <- Applicative[Result].whenA(
-          self.votes.get.find(_.user === user.id).isDefined
+          self.votes.get.exists(_.user === user.id)
         )(Left(new AtPrerequisiteError("既に投票しています")))
 
         val valueAbs = (user.lv.toDouble / 100.0).floor.toInt + 1
