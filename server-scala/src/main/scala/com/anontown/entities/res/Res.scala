@@ -168,19 +168,15 @@ object Res {
       assert(resUser.id === self.user.get);
       assert(user.id === authToken.user);
 
-      val vote = self.votes.get.find(_.user === user.id);
-      vote match {
-        case Some(vote) => {
-          val newResUser = resUser.changeLv(resUser.lv - vote.value);
-          Right(
-            (
-              self.votes.modify(_.filter(_.user =!= user.id)),
-              newResUser
-            )
-          )
-        }
-        case None => Left(new AtPrerequisiteError("投票していません"))
-      }
+      for {
+        vote <- self.votes.get
+          .find(_.user === user.id)
+          .liftTo(new AtPrerequisiteError("投票していません"))
+        val newResUser = resUser.changeLv(resUser.lv - vote.value)
+      } yield (
+        self.votes.modify(_.filter(_.user =!= user.id)),
+        newResUser
+      )
     }
   }
 }
