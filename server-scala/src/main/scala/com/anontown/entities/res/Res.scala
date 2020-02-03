@@ -145,18 +145,21 @@ object Res {
       assert(resUser.id === self.user.get);
       assert(user.id === authToken.user);
 
-      val voted = self.votes.get.find(_.user === user.id);
       for {
-        data <- voted match {
-          case Some(voted)
-              if ((voted.value > 0 && vtype === VoteType
-                .Uv()) || (voted.value < 0 && vtype === VoteType
-                .Dv())) =>
-            self.cv(resUser, user, authToken)
-          case _ => Right((self, resUser))
-        }
+        (res, resUser) <- self.votes.get
+          .find(_.user === user.id)
+          .filter(
+            voted =>
+              (
+                voted.value > 0 && vtype === VoteType
+                  .Uv()
+              ) || (voted.value < 0 && vtype === VoteType
+                .Dv())
+          )
+          .as(self.cv(resUser, user, authToken))
+          .getOrElse(Right((self, resUser)))
 
-        result <- data._1.vote(data._2, user, vtype, authToken)
+        result <- res.vote(resUser, user, vtype, authToken)
       } yield result
     }
 
