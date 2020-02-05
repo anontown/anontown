@@ -127,12 +127,14 @@ object Res {
           case VoteType.Uv() => valueAbs;
           case VoteType.Dv() => -valueAbs;
         }
-        val newResUser = resUser.changeLv(resUser.lv + value)
+        resUser <- Applicative[Result].pure(
+          resUser.changeLv(resUser.lv + value)
+        )
       } yield (
         self.votes.modify(
           _.appended(Vote(user = user.id, value = value))
         ),
-        newResUser
+        resUser
       )
     }
 
@@ -168,6 +170,8 @@ object Res {
         user: User,
         authToken: AuthToken
     ): Either[AtError, (A, User)] = {
+      type Result[A] = Either[AtError, A];
+
       assert(resUser.id === self.user.get);
       assert(user.id === authToken.user);
 
@@ -175,10 +179,12 @@ object Res {
         vote <- self.votes.get
           .find(_.user === user.id)
           .liftTo(new AtPrerequisiteError("投票していません"))
-        val newResUser = resUser.changeLv(resUser.lv - vote.value)
+        resUser <- Applicative[Result].pure(
+          resUser.changeLv(resUser.lv - vote.value)
+        )
       } yield (
         self.votes.modify(_.filter(_.user =!= user.id)),
-        newResUser
+        resUser
       )
     }
   }

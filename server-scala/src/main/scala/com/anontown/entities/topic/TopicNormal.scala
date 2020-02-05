@@ -96,8 +96,8 @@ object TopicNormal {
         text = Some(text.value)
       )
 
-      newUser <- cd._4.changeLastTopic[F]()
-    } yield (cd._1, cd._3, cd._2, newUser)
+      user <- cd._4.changeLastTopic[F]()
+    } yield (cd._1, cd._3, cd._2, user)
   }
 
   implicit val implTopic: TopicSearch[TopicNormal] {
@@ -141,8 +141,9 @@ object TopicNormal {
         tags: Option[List[String]],
         text: Option[String]
     ): EitherT[F, AtError, (TopicNormal, ResHistory, History, User)] = {
+      type Result[A] = EitherT[F, AtError, A]
       for {
-        newUser <- EitherT.fromEither[F](user.usePoint(10))
+        user <- EitherT.fromEither[F](user.usePoint(10))
         (title, tags, text) <- EitherT
           .fromEither[F](
             (
@@ -162,30 +163,32 @@ object TopicNormal {
           )
           .leftWiden[AtError]
 
-        val newTopic = self.copy(title = title, tags = tags, text = text)
+        topic <- Applicative[Result].pure(
+          self.copy(title = title, tags = tags, text = text)
+        )
 
-        hash <- EitherT.right(newTopic.hash[F](user))
+        hash <- EitherT.right(topic.hash[F](user))
 
         history <- EitherT.right(
           History
             .create[F](
-              topicId = newTopic.id,
-              title = newTopic.title,
-              tags = newTopic.tags,
-              text = newTopic.text,
+              topicId = topic.id,
+              title = topic.title,
+              tags = topic.tags,
+              text = topic.text,
               hash = hash,
-              user = newUser
+              user = user
             )
         )
 
-        (res, newNewTopic) <- ResHistory
+        (res, topic) <- ResHistory
           .create[F](
-            topic = newTopic,
-            user = newUser,
+            topic = topic,
+            user = user,
             authToken = authToken,
             history = history
           )
-      } yield (newNewTopic, res, history, newUser)
+      } yield (topic, res, history, user)
     }
   }
 }

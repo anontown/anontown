@@ -126,9 +126,9 @@ object TopicOne {
         active = true
       )
 
-      (res, newTopic) <- ResTopic.create[F, TopicOne](topic, user, authToken)
+      (res, topic) <- ResTopic.create[F, TopicOne](topic, user, authToken)
 
-      newUser <- user.changeLastOneTopic[F]()
-    } yield (newTopic, res, newUser)
+      user <- user.changeLastOneTopic[F]()
+    } yield (topic, res, user)
   }
 }

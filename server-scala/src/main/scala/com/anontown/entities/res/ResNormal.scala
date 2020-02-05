@@ -209,13 +209,13 @@ object ResNormal {
 
       requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
 
-      newUser <- user.changeLastRes[F]()
+      user <- user.changeLastRes[F]()
 
       id <- EitherT.right(
         ObjectIdGeneratorAlg[F].generateObjectId()
       )
 
-      hash <- EitherT.right(topic.hash[F](newUser))
+      hash <- EitherT.right(topic.hash[F](user))
 
       val result = ResNormal(
         name = name,
@@ -228,14 +228,14 @@ object ResNormal {
         id = ResNormalId(id),
         topic = topic.id.get,
         date = requestDate,
-        user = newUser.id,
+        user = user.id,
         votes = List(),
-        lv = newUser.lv * 5,
+        lv = user.lv * 5,
         hash = hash,
         replyCount = 0
       )
-      newTopic <- EitherT.fromEither[F](topic.resUpdate(result, result.age))
-    } yield (result, newUser, newTopic)
+      topic <- EitherT.fromEither[F](topic.resUpdate(result, result.age))
+    } yield (result, user, topic)
   }
 
   implicit class ResNormalService[ReplyResId: ResId, TopicIdType](
@@ -245,6 +245,8 @@ object ResNormal {
         resUser: User,
         authToken: AuthToken
     ): Either[AtError, (ResNormal[ReplyResId, TopicIdType], User)] = {
+      type Result[A] = Either[AtError, A]
+
       assert(resUser.id === authToken.user);
       for {
         _ <- Either.cond(
@@ -259,13 +261,13 @@ object ResNormal {
           new AtPrerequisiteError("既に削除済みです")
         )
 
-        val newResUser = resUser.changeLv(resUser.lv - 1)
+        resUser <- Applicative[Result].pure(resUser.changeLv(resUser.lv - 1))
       } yield (
         (
           self.copy(
             deleteFlag = Some(ResDeleteReason.Self())
           ),
-          newResUser
+          resUser
         )
       )
     }

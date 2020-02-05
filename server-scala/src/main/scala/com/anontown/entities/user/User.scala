@@ -104,7 +104,7 @@ object User {
       require(authUser.id === self.id);
 
       for {
-        newEncryptedPass <- EitherT.right(
+        encryptedPass <- EitherT.right(
           pass
             .map(
               UserRawPass
@@ -117,7 +117,7 @@ object User {
 
         result <- EitherT.fromEither[F](
           ((
-            newEncryptedPass
+            encryptedPass
               .getOrElse(Right(self.pass))
               .toValidated,
             sn.map(

@@ -114,21 +114,21 @@ object TopicFork {
         parent = parent.id
       )
 
-      (res, newTopic) <- ResTopic
+      (res, topic) <- ResTopic
         .create[F, TopicFork](
           topic = topic,
           user = user,
           authToken = authToken
         )
 
-      (resParent, newParent) <- ResFork.create[F](
+      (resParent, parent) <- ResFork.create[F](
         topic = parent,
         user = user,
         authToken = authToken,
-        fork = newTopic
+        fork = topic
       )
 
-      newUser <- user.changeLastOneTopic[F]()
-    } yield (newTopic, res, resParent, newUser, newParent)
+      user <- user.changeLastOneTopic[F]()
+    } yield (topic, res, resParent, user, parent)
   }
 }
