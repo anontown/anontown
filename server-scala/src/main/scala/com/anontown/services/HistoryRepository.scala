@@ -9,8 +9,6 @@ import com.anontown.entities.topic.{AnyTopicId}
 
 @finalAlg
 trait HistoryRepositoryAlg[F[_]] {
-  def load(id: HistoryId): EitherT[F, AtError, History];
-  def loadMany(ids: List[HistoryId]): EitherT[F, AtError, List[History]];
   def findOne(id: HistoryId): EitherT[F, AtError, History];
   def insert(client: History): EitherT[F, AtError, Unit];
   def update(client: History): EitherT[F, AtError, Unit];

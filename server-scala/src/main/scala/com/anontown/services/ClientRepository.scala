@@ -8,8 +8,6 @@ import com.anontown.AuthTokenMaster
 
 @finalAlg
 trait ClientRepositoryAlg[F[_]] {
-  def load(id: ClientId): EitherT[F, AtError, Client];
-  def loadMany(ids: List[ClientId]): EitherT[F, AtError, List[Client]];
   def findOne(id: ClientId): EitherT[F, AtError, Client];
   def insert(client: Client): EitherT[F, AtError, Unit];
   def update(client: Client): EitherT[F, AtError, Unit];
