@@ -13,10 +13,7 @@ trait ClientRepositoryAlg[F[_]] {
   def update(client: Client): EitherT[F, AtError, Unit];
   def find(
       authToken: Option[AuthTokenMaster],
-      query: ClientRepositoryAlg.Query
+      id: Option[List[ClientId]],
+      self: Option[Boolean]
   ): EitherT[F, AtError, List[Client]];
-}
-
-object ClientRepositoryAlg {
-  final case class Query(id: Option[List[ClientId]], self: Option[Boolean]);
 }

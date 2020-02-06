@@ -14,14 +14,8 @@ trait HistoryRepositoryAlg[F[_]] {
   def update(client: History): EitherT[F, AtError, Unit];
   def find(
       authToken: Option[AuthTokenMaster],
-      query: HistoryRepositoryAlg.Query
-  ): EitherT[F, AtError, List[History]];
-}
-
-object HistoryRepositoryAlg {
-  final case class Query(
       id: Option[List[HistoryId]],
       topic: Option[List[AnyTopicId]],
       date: Option[DateQuery]
-  );
+  ): EitherT[F, AtError, List[History]];
 }
