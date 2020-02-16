@@ -1,11 +1,13 @@
 package com.anontown.entities.res
 
-sealed trait ResADT[+ReplyResIdType, +TopicIdType];
+import com.anontown.entities.topic.AnyTopicId
+
+sealed trait ResADT;
 object ResADT {
-  final case class Fork(value: ResFork) extends ResADT[Nothing, Nothing];
-  final case class History(value: ResHistory) extends ResADT[Nothing, Nothing];
-  final case class Normal[+ReplyResIdType, +TopicIdType](
-      value: ResNormal[ReplyResIdType, TopicIdType]
-  ) extends ResADT[ReplyResIdType, TopicIdType];
-  final case class ResTopic(value: ResFork) extends ResADT[Nothing, Nothing];
+  final case class Fork(value: ResFork) extends ResADT;
+  final case class History(value: ResHistory) extends ResADT;
+  final case class Normal(
+      value: ResNormal[AnyResId, AnyTopicId]
+  ) extends ResADT;
+  final case class ResTopic(value: ResFork) extends ResADT;
 }
