@@ -71,7 +71,7 @@ object ResNormalDeleteAPI {
   }
 }
 
-final case class ResNormal[+ReplyResId, TopicIdType](
+final case class ResNormal[+ReplyResId, +TopicIdType](
     id: ResNormalId,
     topic: TopicIdType,
     date: OffsetDateTime,
