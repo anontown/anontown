@@ -198,7 +198,8 @@ object ResNormal {
             reply
               .map(
                 reply =>
-                  AnyTopicId(reply.topic.get) === AnyTopicId(topic.id.get)
+                  AnyTopicId.fromTopicId(reply.topic.get) === AnyTopicId
+                    .fromTopicId(topic.id.get)
               )
               .getOrElse(true),
             (),

@@ -4,26 +4,13 @@ import cats.Eq
 import cats.implicits._
 import com.anontown.entities.topic.TopicId.ops._
 
-trait AnyTopicId {
-  type TopicIdType;
-
-  val topicId: TopicIdType;
-  val implTopicId: TopicId[TopicIdType];
-}
+final case class AnyTopicId(value: String);
 
 object AnyTopicId {
-  def apply[TopicIdArg: TopicId](
-      x: TopicIdArg
-  ): AnyTopicId = {
-    new AnyTopicId {
-      type TopicIdType = TopicIdArg
-      val topicId = x
-      val implTopicId = implicitly
-    }
-  }
+  def fromTopicId[A: TopicId](x: A): AnyTopicId = AnyTopicId(x.value)
 
   implicit val implTopicId = new TopicId[AnyTopicId] {
-    def value(self: Self) = self.implTopicId.value(self.topicId)
+    def value(self: Self) = self.value
   }
 
   implicit val implEq = new Eq[AnyTopicId] {
