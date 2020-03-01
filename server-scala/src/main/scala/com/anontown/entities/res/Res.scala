@@ -114,8 +114,7 @@ final case class ResNormalActiveAPI(
     replyID: Option[String],
     profileID: Option[String],
     isReply: Option[Boolean]
-) extends ResAPI
-    with ResNormalAPI;
+) extends ResNormalAPI;
 
 object ResNormalActiveAPI {
   implicit val implEq: Eq[ResNormalActiveAPI] = {
@@ -135,8 +134,7 @@ final case class ResNormalDeleteAPI(
     replyCount: Int,
     voteFlag: Option[VoteFlag],
     flag: ResDeleteReason
-) extends ResAPI
-    with ResNormalAPI;
+) extends ResNormalAPI;
 
 object ResNormalDeleteAPI {
   implicit val implEq: Eq[ResNormalDeleteAPI] = {
