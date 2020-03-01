@@ -199,7 +199,7 @@ object Topic {
 
 sealed trait TopicSearch extends Topic {
   type Self <: TopicSearch;
-  type IdType <: TopicSearchId;
+  type IdType <: TaggedTopicSearchId;
 
   type API <: TopicSearchAPI;
 
@@ -229,7 +229,7 @@ object TopicSearch {
 
 sealed trait TopicTemporary extends Topic {
   type Self <: TopicTemporary;
-  type IdType <: TopicTemporaryId;
+  type IdType <: TaggedTopicTemporaryId;
 
   type API <: TopicTemporaryAPI;
 }
