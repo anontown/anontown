@@ -5,7 +5,7 @@ import cats.data.EitherT
 import com.anontown.AtError
 import com.anontown.entities.history.{History, HistoryId}
 import com.anontown.AuthTokenMaster
-import com.anontown.entities.topic.{AnyTopicId}
+import com.anontown.entities.topic.UntaggedTopicId;
 
 @finalAlg
 trait HistoryRepositoryAlg[F[_]] {
@@ -15,7 +15,7 @@ trait HistoryRepositoryAlg[F[_]] {
   def find(
       authToken: Option[AuthTokenMaster],
       id: Option[List[HistoryId]],
-      topic: Option[List[AnyTopicId]],
+      topic: Option[List[UntaggedTopicId]],
       date: Option[DateQuery]
   ): EitherT[F, AtError, List[History]];
 }
