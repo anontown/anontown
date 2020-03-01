@@ -1,13 +1,12 @@
 package com.anontown;
 import com.anontown.entities.user.UserId
-import com.anontown.entities.token.TokenId
 import com.anontown.entities.client.ClientId
 import com.anontown.entities.token.TokenMasterId
 import com.anontown.entities.token.TokenGeneralId
+import com.anontown.entities.token.TaggedTokenId
 
 sealed trait AuthToken {
-  type IdType;
-  implicit val tokenIdImpl: TokenId[IdType];
+  type IdType <: TaggedTokenId;
 
   val id: IdType;
   val user: UserId;
@@ -19,7 +18,6 @@ final case class AuthTokenGeneral(
     client: ClientId
 ) extends AuthToken {
   type IdType = TokenGeneralId;
-  implicit val tokenIdImpl = TokenId[IdType]
 }
 
 final case class AuthTokenMaster(
@@ -27,7 +25,6 @@ final case class AuthTokenMaster(
     user: UserId
 ) extends AuthToken {
   type IdType = TokenMasterId;
-  implicit val tokenIdImpl = TokenId[IdType]
 }
 
 final case class AuthUser(id: UserId);
