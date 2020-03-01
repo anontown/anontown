@@ -523,6 +523,12 @@ final case class ResNormal[ReplyResId <: ResId, TopicIdTypeArg <: TopicId](
         )
     }
   }
+
+  def replyResIdWiden[A >: ReplyResId <: ResId]: ResNormal[A, TopicIdTypeArg] =
+    this.copy()
+
+  def topicIdWiden[A >: TopicIdTypeArg <: TopicId]: ResNormal[ReplyResId, A] =
+    this.copy()
 }
 
 object ResNormal {
