@@ -17,7 +17,7 @@ import com.anontown.services.ConfigContainerAlg
 import com.anontown.utils;
 import cats.data.EitherT
 import com.anontown.services.ObjectIdGeneratorAlg
-import monocle.macros.syntax.lens._
+import monocle.macros.syntax.lens.toGenApplyLensOps
 import com.anontown.utils.Impl._;
 
 sealed trait TopicAPI {

@@ -10,7 +10,7 @@ import shapeless._
 import record._
 import com.anontown.utils.Record._
 import cats._, cats.implicits._, cats.derived._
-import monocle.macros.syntax.lens._
+import monocle.macros.syntax.lens.toGenApplyLensOps
 import com.anontown.AuthUser
 import com.anontown.services.ObjectIdGeneratorAlg
 import com.anontown.services.ClockAlg

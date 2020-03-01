@@ -14,7 +14,7 @@ import com.anontown.entities.user.{UserId, User}
 import com.anontown.entities.topic.TopicId
 import cats.Applicative
 import cats._, cats.implicits._, cats.derived._
-import monocle.macros.syntax.lens._
+import monocle.macros.syntax.lens.toGenApplyLensOps
 import com.anontown.entities.topic.{
   TopicNormalId,
   TopicNormal,
