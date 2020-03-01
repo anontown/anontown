@@ -164,10 +164,10 @@ final case class TokenGeneral(
   override type IdType = TokenGeneralId;
   override type API = TokenGeneralAPI;
 
-  override def id = this.lens(_.id);
-  override def key = this.lens(_.key);
-  override def user = this.lens(_.user);
-  override def date = this.lens(_.date);
+  override def idLens = this.lens(_.id);
+  override def keyLens = this.lens(_.key);
+  override def userLens = this.lens(_.user);
+  override def dateLens = this.lens(_.date);
 
   override def toAPI: TokenGeneralAPI = {
     LabelledGeneric[TokenGeneralAPI].from(
