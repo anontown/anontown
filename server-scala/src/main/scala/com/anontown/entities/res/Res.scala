@@ -20,7 +20,8 @@ import com.anontown.entities.topic.{
   TopicNormal,
   TopicForkId,
   TopicFork,
-  Topic
+  Topic,
+  TopicTemporaryId
 }
 import cats.data.EitherT
 import com.anontown.entities.topic.Topic.TopicService
@@ -460,9 +461,9 @@ object ResHistory {
   }
 }
 
-final case class ResNormal[+ReplyResId <: ResId, +TopicIdType <: TopicId](
+final case class ResNormal[ReplyResId <: ResId, TopicIdTypeArg <: TopicId](
     id: ResNormalId,
-    topic: TopicIdType,
+    topic: TopicIdTypeArg,
     date: OffsetDateTime,
     user: UserId,
     votes: List[Vote],
@@ -476,10 +477,10 @@ final case class ResNormal[+ReplyResId <: ResId, +TopicIdType <: TopicId](
     profile: Option[ProfileId],
     age: Boolean
 ) extends Res {
-  override type Self = ResNormal[ReplyResId, TopicIdType];
+  override type Self = ResNormal[ReplyResId, TopicIdTypeArg];
   override type IdType = ResNormalId;
 
-  override type TopicIdType = TopicIdType;
+  override type TopicIdType = TopicIdTypeArg;
 
   override type API = ResNormalAPI;
 
@@ -651,7 +652,7 @@ object ResNormal {
   }
 }
 
-final case class ResTopic[TopicArg](
+final case class ResTopic[TopicArg <: TopicTemporaryId](
     id: ResTopicId,
     topic: TopicArg,
     date: OffsetDateTime,
