@@ -24,7 +24,6 @@ import com.anontown.entities.topic.{
   TopicTemporaryId
 }
 import cats.data.EitherT
-import com.anontown.entities.topic.Topic.TopicService
 import com.anontown.services.ConfigContainerAlg
 import com.anontown.services.ObjectIdGeneratorAlg
 import com.anontown.services.ClockAlg
