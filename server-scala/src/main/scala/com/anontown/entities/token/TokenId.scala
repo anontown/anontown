@@ -8,12 +8,7 @@ sealed trait TokenId {
   def value: String;
 }
 
-object TokenId {
-  implicit val implEq: Eq[TokenId] = {
-    import auto.eq._
-    semi.eq
-  }
-}
+object TokenId {}
 
 final case class UntaggedTokenId(value: String) extends TokenId {
   override type Self = UntaggedTokenId;
@@ -24,6 +19,9 @@ object UntaggedTokenId {
     import auto.eq._
     semi.eq
   }
+
+  def fromTokenId[A <: TokenId](x: A): UntaggedTokenId =
+    UntaggedTokenId(x.value)
 }
 
 sealed trait TaggedTokenId extends TokenId {
