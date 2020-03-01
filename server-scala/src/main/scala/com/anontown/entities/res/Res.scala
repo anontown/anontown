@@ -325,11 +325,11 @@ final case class ResFork(
     replyCount: Int,
     fork: TopicForkId
 ) extends Res {
-  type Self = ResFork;
-  type IdType = ResForkId;
-  type TopicIdType = TopicNormalId;
+  override type Self = ResFork;
+  override type IdType = ResForkId;
+  override type TopicIdType = TopicNormalId;
 
-  type API = ResForkAPI
+  override type API = ResForkAPI
 
   override def idLens = this.lens(_.id)
   override def topicLens = this.lens(_.topic)
@@ -395,11 +395,11 @@ final case class ResHistory(
     replyCount: Int,
     history: HistoryId
 ) extends Res {
-  type Self = ResHistory;
-  type IdType = ResHistoryId;
-  type TopicIdType = TopicNormalId;
+  override type Self = ResHistory;
+  override type IdType = ResHistoryId;
+  override type TopicIdType = TopicNormalId;
 
-  type API = ResHistoryAPI
+  override type API = ResHistoryAPI
 
   override def idLens = this.lens(_.id)
   override def topicLens = this.lens(_.topic)
@@ -476,12 +476,12 @@ final case class ResNormal[+ReplyResId <: ResId, +TopicIdType <: TopicId](
     profile: Option[ProfileId],
     age: Boolean
 ) extends Res {
-  type Self = ResNormal[ReplyResId, TopicIdType];
-  type IdType = ResNormalId;
+  override type Self = ResNormal[ReplyResId, TopicIdType];
+  override type IdType = ResNormalId;
 
-  type TopicIdType = TopicIdType;
+  override type TopicIdType = TopicIdType;
 
-  type API = ResNormalAPI;
+  override type API = ResNormalAPI;
 
   override def idLens = this.lens(_.id)
   override def topicLens = this.lens(_.topic)
@@ -661,13 +661,13 @@ final case class ResTopic[TopicArg](
     hash: String,
     replyCount: Int
 ) extends Res {
-  type Self = ResTopic[TopicArg]
+  override type Self = ResTopic[TopicArg]
 
-  type IdType = ResTopicId;
+  override type IdType = ResTopicId;
 
-  type TopicIdType = TopicArg
+  override type TopicIdType = TopicArg
 
-  type API = ResTopicAPI
+  override type API = ResTopicAPI
 
   override def idLens = this.lens(_.id)
   override def topicLens = this.lens(_.topic)

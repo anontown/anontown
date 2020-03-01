@@ -11,7 +11,7 @@ sealed trait TopicId {
 object TopicId {}
 
 final case class UntaggedTopicId(value: String) extends TopicId {
-  type Self = UntaggedTopicId;
+  override type Self = UntaggedTopicId;
 }
 
 object UntaggedTopicId {
@@ -25,7 +25,7 @@ object UntaggedTopicId {
 }
 
 sealed trait TaggedTopicId extends TopicId {
-  type Self <: TaggedTopicId;
+  override type Self <: TaggedTopicId;
 }
 
 object TaggedTopicId {
@@ -36,14 +36,14 @@ object TaggedTopicId {
 }
 
 sealed trait TopicTemporaryId extends TopicId {
-  type Self <: TopicTemporaryId;
+  override type Self <: TopicTemporaryId;
 }
 
 object TopicTemporaryId {}
 
 final case class UntaggedTopicTemporaryId(value: String)
     extends TopicTemporaryId {
-  type Self = UntaggedTopicTemporaryId;
+  override type Self = UntaggedTopicTemporaryId;
 }
 
 object UntaggedTopicTemporaryId {
@@ -56,7 +56,7 @@ object UntaggedTopicTemporaryId {
 sealed trait TaggedTopicTemporaryId
     extends TopicTemporaryId
     with TaggedTopicId {
-  type Self <: TaggedTopicTemporaryId;
+  override type Self <: TaggedTopicTemporaryId;
 }
 
 object TaggedTopicTemporaryId {
@@ -67,13 +67,13 @@ object TaggedTopicTemporaryId {
 }
 
 sealed trait TopicSearchId extends TopicId {
-  type Self <: TopicSearchId;
+  override type Self <: TopicSearchId;
 }
 
 object TopicSearchId {}
 
 final case class UntaggedTopicSearchId(value: String) extends TopicSearchId {
-  type Self = UntaggedTopicSearchId;
+  override type Self = UntaggedTopicSearchId;
 }
 
 object UntaggedTopicSearchId {
@@ -84,7 +84,7 @@ object UntaggedTopicSearchId {
 }
 
 sealed trait TaggedTopicSearchId extends TopicSearchId with TaggedTopicId {
-  type Self <: TaggedTopicSearchId;
+  override type Self <: TaggedTopicSearchId;
 }
 
 object TaggedTopicSearchId {
@@ -95,7 +95,7 @@ object TaggedTopicSearchId {
 }
 
 final case class TopicNormalId(value: String) extends TaggedTopicSearchId {
-  type Self = TopicNormalId;
+  override type Self = TopicNormalId;
 }
 
 object TopicNormalId {
@@ -108,7 +108,7 @@ object TopicNormalId {
 final case class TopicOneId(value: String)
     extends TaggedTopicSearchId
     with TaggedTopicTemporaryId {
-  type Self = TopicOneId;
+  override type Self = TopicOneId;
 }
 
 object TopicOneId {
@@ -119,7 +119,7 @@ object TopicOneId {
 }
 
 final case class TopicForkId(value: String) extends TaggedTopicTemporaryId {
-  type Self = TopicForkId;
+  override type Self = TopicForkId;
 }
 
 object TopicForkId {

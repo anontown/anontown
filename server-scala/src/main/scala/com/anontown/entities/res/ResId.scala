@@ -10,7 +10,7 @@ sealed trait ResId {
 object ResId {}
 
 final case class UntaggedResId(value: String) extends ResId {
-  type Self = UntaggedResId;
+  override type Self = UntaggedResId;
 }
 
 object UntaggedResId {
@@ -23,7 +23,7 @@ object UntaggedResId {
 }
 
 sealed trait TaggedResId extends ResId {
-  type Self <: TaggedResId;
+  override type Self <: TaggedResId;
 }
 
 object TaggedResId {
@@ -34,7 +34,7 @@ object TaggedResId {
 }
 
 final case class ResForkId(value: String) extends TaggedResId {
-  type Self = ResForkId;
+  override type Self = ResForkId;
 }
 
 object ResForkId {
@@ -45,7 +45,7 @@ object ResForkId {
 }
 
 final case class ResHistoryId(value: String) extends TaggedResId {
-  type Self = ResHistoryId;
+  override type Self = ResHistoryId;
 }
 
 object ResHistoryId {
@@ -56,7 +56,7 @@ object ResHistoryId {
 }
 
 final case class ResNormalId(value: String) extends TaggedResId {
-  type Self = ResNormalId;
+  override type Self = ResNormalId;
 }
 
 object ResNormalId {
@@ -67,7 +67,7 @@ object ResNormalId {
 }
 
 final case class ResTopicId(value: String) extends TaggedResId {
-  type Self = ResTopicId;
+  override type Self = ResTopicId;
 }
 
 object ResTopicId {

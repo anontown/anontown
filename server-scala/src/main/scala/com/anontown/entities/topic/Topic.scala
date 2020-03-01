@@ -198,10 +198,10 @@ object Topic {
 }
 
 sealed trait TopicSearch extends Topic {
-  type Self <: TopicSearch;
-  type IdType <: TaggedTopicSearchId;
+  override type Self <: TopicSearch;
+  override type IdType <: TaggedTopicSearchId;
 
-  type API <: TopicSearchAPI;
+  override type API <: TopicSearchAPI;
 
   def tagsLens: SelfApplyLens[TopicTags];
   def textLens: SelfApplyLens[TopicText];
@@ -228,10 +228,10 @@ object TopicSearch {
 }
 
 sealed trait TopicTemporary extends Topic {
-  type Self <: TopicTemporary;
-  type IdType <: TaggedTopicTemporaryId;
+  override type Self <: TopicTemporary;
+  override type IdType <: TaggedTopicTemporaryId;
 
-  type API <: TopicTemporaryAPI;
+  override type API <: TopicTemporaryAPI;
 }
 
 object TopicTemporary {
@@ -256,12 +256,12 @@ final case class TopicFork(
     active: Boolean,
     parent: TopicNormalId
 ) extends TopicTemporary {
-  type Self = TopicFork;
-  type IdType = TopicForkId;
+  override type Self = TopicFork;
+  override type IdType = TopicForkId;
 
-  type API = TopicForkAPI;
+  override type API = TopicForkAPI;
 
-  def toAPI(authToken: Option[AuthToken]): API = {
+  override def toAPI(authToken: Option[AuthToken]): API = {
     LabelledGeneric[TopicForkAPI].from(
       this
         .topicAPIIntrinsicProperty(authToken)
@@ -351,12 +351,12 @@ final case class TopicOne(
     text: TopicText
 ) extends TopicSearch
     with TopicTemporary {
-  type Self = TopicOne;
-  type IdType = TopicOneId;
+  override type Self = TopicOne;
+  override type IdType = TopicOneId;
 
-  type API = TopicOneAPI;
+  override type API = TopicOneAPI;
 
-  def toAPI(authToken: Option[AuthToken]): API = {
+  override def toAPI(authToken: Option[AuthToken]): API = {
     LabelledGeneric[TopicOneAPI].from(
       this
         .topicAPIIntrinsicProperty(authToken)
@@ -439,12 +439,12 @@ final case class TopicNormal(
     tags: TopicTags,
     text: TopicText
 ) extends TopicSearch {
-  type Self = TopicNormal;
-  type IdType = TopicNormalId;
+  override type Self = TopicNormal;
+  override type IdType = TopicNormalId;
 
-  type API = TopicNormalAPI;
+  override type API = TopicNormalAPI;
 
-  def toAPI(authToken: Option[AuthToken]): API = {
+  override def toAPI(authToken: Option[AuthToken]): API = {
     LabelledGeneric[TopicNormalAPI].from(
       this
         .topicAPIIntrinsicProperty(authToken)
