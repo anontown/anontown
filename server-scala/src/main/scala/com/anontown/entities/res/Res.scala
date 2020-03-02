@@ -167,6 +167,7 @@ sealed trait Res {
   type IdType <: TaggedResId;
 
   type TopicIdType <: TopicId;
+  type ReplyResIdType <: ResId;
 
   type API <: ResAPI;
 
@@ -328,6 +329,7 @@ final case class ResFork(
   override type Self = ResFork;
   override type IdType = ResForkId;
   override type TopicIdType = TopicNormalId;
+  override type ReplyResIdType = Nothing;
 
   override type API = ResForkAPI
 
@@ -398,6 +400,7 @@ final case class ResHistory(
   override type Self = ResHistory;
   override type IdType = ResHistoryId;
   override type TopicIdType = TopicNormalId;
+  override type ReplyResIdType = Nothing;
 
   override type API = ResHistoryAPI
 
@@ -478,6 +481,7 @@ final case class ResNormal[ReplyResId <: ResId, TopicIdTypeArg <: TopicId](
 ) extends Res {
   override type Self = ResNormal[ReplyResId, TopicIdTypeArg];
   override type IdType = ResNormalId;
+  override type ReplyResIdType = ReplyResId;
 
   override type TopicIdType = TopicIdTypeArg;
 
@@ -672,6 +676,7 @@ final case class ResTopic[TopicArg <: TopicTemporaryId](
   override type IdType = ResTopicId;
 
   override type TopicIdType = TopicArg
+  override type ReplyResIdType = Nothing;
 
   override type API = ResTopicAPI
 
