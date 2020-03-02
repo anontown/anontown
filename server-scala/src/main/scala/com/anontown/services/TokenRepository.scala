@@ -7,7 +7,9 @@ import com.anontown.entities.token.Token
 import com.anontown.AuthTokenMaster
 import com.anontown.entities.client.ClientId
 import com.anontown.AuthUser
+import cats.tagless.finalAlg
 
+@finalAlg
 trait TokenRepositoryAlg[F[_]] {
   def findOne(id: UntaggedTokenId): EitherT[F, AtError, Token];
   def findAll(authToken: AuthTokenMaster): EitherT[F, AtError, List[Token]];
