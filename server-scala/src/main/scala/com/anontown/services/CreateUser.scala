@@ -14,6 +14,7 @@ import com.anontown.ports.{
 import cats.Monad
 import com.anontown.ports.UserRepositoryAlg
 import com.anontown.ports.TokenRepositoryAlg
+import com.anontown.ports.SafeIdGeneratorAlg
 
 @finalAlg
 trait CreateUserAlg[F[_]] {
@@ -24,8 +25,7 @@ trait CreateUserAlg[F[_]] {
   ): EitherT[F, AtError, (User, TokenMaster)];
 }
 
-/*
-case class CreateUser[F[_]: Monad: RecaptchaClientAlg: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: UserRepositoryAlg: TokenRepositoryAlg]()
+class CreateUser[F[_]: Monad: RecaptchaClientAlg: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: UserRepositoryAlg: TokenRepositoryAlg: SafeIdGeneratorAlg]()
     extends CreateUserAlg[F] {
   def run(
       sn: String,
@@ -36,10 +36,9 @@ case class CreateUser[F[_]: Monad: RecaptchaClientAlg: ObjectIdGeneratorAlg: Clo
       _ <- RecaptchaClientAlg[F].verifyRecaptcha(recaptcha)
       user <- User.create[F](sn, pass)
       _ <- UserRepositoryAlg[F].insert(user)
-      token <- TokenMaster.create[F](user.auth(pass)) // この時点じゃログインしてない
+      authUser <- user.auth(pass)
+      token <- EitherT.right(TokenMaster.create[F](authUser))
       _ <- TokenRepositoryAlg[F].insert(token)
-    } yield ()
+    } yield (user, token)
   }
 }
-
- */
