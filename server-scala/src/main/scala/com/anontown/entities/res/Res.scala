@@ -24,9 +24,9 @@ import com.anontown.entities.topic.{
   TopicTemporaryId
 }
 import cats.data.EitherT
-import com.anontown.services.ConfigContainerAlg
-import com.anontown.services.ObjectIdGeneratorAlg
-import com.anontown.services.ClockAlg
+import com.anontown.ports.ConfigContainerAlg
+import com.anontown.ports.ObjectIdGeneratorAlg
+import com.anontown.ports.ClockAlg
 import com.anontown.entities.history.{HistoryId, History}
 import com.anontown.entities.topic.{TopicTemporary, UntaggedTopicId}
 import com.anontown.entities.profile.{ProfileId, Profile}

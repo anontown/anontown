@@ -2,8 +2,8 @@ package com.anontown.entities.token
 
 import java.time.OffsetDateTime
 import com.anontown.utils;
-import com.anontown.services.SafeIdGeneratorAlg
-import com.anontown.services.ConfigContainerAlg
+import com.anontown.ports.SafeIdGeneratorAlg
+import com.anontown.ports.ConfigContainerAlg
 import com.anontown.entities.user.UserId
 import monocle.syntax.ApplyLens
 import shapeless._
@@ -12,8 +12,8 @@ import com.anontown.utils.Record._
 import cats._, cats.implicits._, cats.derived._
 import monocle.macros.syntax.lens.toGenApplyLensOps
 import com.anontown.AuthUser
-import com.anontown.services.ObjectIdGeneratorAlg
-import com.anontown.services.ClockAlg
+import com.anontown.ports.ObjectIdGeneratorAlg
+import com.anontown.ports.ClockAlg
 import com.anontown.AtError
 import com.anontown.AtTokenAuthError
 import com.anontown.AuthTokenMaster

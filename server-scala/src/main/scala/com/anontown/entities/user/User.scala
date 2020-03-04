@@ -7,9 +7,9 @@ import com.anontown.AuthUser
 import com.anontown.AtUserAuthError
 import com.anontown.AtPrerequisiteError
 import cats._, cats.implicits._, cats.derived._
-import com.anontown.services.ObjectIdGeneratorAlg
-import com.anontown.services.ClockAlg
-import com.anontown.services.ConfigContainerAlg
+import com.anontown.ports.ObjectIdGeneratorAlg
+import com.anontown.ports.ClockAlg
+import com.anontown.ports.ConfigContainerAlg
 import com.anontown.utils.OffsetDateTimeUtils._
 import cats.data.EitherT
 

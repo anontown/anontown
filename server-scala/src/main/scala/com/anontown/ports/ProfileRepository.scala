@@ -1,4 +1,4 @@
-package com.anontown.services
+package com.anontown.ports
 
 import cats.tagless.finalAlg
 import com.anontown.entities.profile.ProfileId

@@ -2,7 +2,7 @@ package com.anontown.entities.user
 
 import com.anontown.utils;
 import cats._, cats.implicits._, cats.derived._
-import com.anontown.services.ConfigContainerAlg
+import com.anontown.ports.ConfigContainerAlg
 
 final case class UserEncryptedPass(value: String) extends AnyVal {
   def validation[F[_]: Monad: ConfigContainerAlg](pass: String): F[Boolean] = {

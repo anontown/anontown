@@ -3,7 +3,7 @@ package com.anontown.entities.topic
 import cats._, cats.implicits._, cats.derived._
 import java.time.OffsetDateTime
 import com.anontown.AtError
-import com.anontown.services.ClockAlg
+import com.anontown.ports.ClockAlg
 import com.anontown.entities.res.{Res, ResFork, ResTopic, ResHistory}
 import com.anontown.entities.history.History
 import com.anontown.entities.user.User
@@ -13,10 +13,10 @@ import record._
 import com.anontown.utils.Record._
 import com.anontown.AuthToken
 import com.anontown.AtPrerequisiteError
-import com.anontown.services.ConfigContainerAlg
+import com.anontown.ports.ConfigContainerAlg
 import com.anontown.utils;
 import cats.data.EitherT
-import com.anontown.services.ObjectIdGeneratorAlg
+import com.anontown.ports.ObjectIdGeneratorAlg
 import monocle.macros.syntax.lens.toGenApplyLensOps
 import com.anontown.utils.Impl._;
 

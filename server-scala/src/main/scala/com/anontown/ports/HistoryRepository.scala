@@ -1,4 +1,4 @@
-package com.anontown.services
+package com.anontown.ports
 
 import cats.tagless._
 import cats.data.EitherT

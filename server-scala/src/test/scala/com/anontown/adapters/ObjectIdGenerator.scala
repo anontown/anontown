@@ -1,5 +1,5 @@
 package com.anontown.adapters
-import com.anontown.services.ObjectIdGenerator
+import com.anontown.ports.ObjectIdGenerator
 import zio.IO
 import com.anontown.AtServerError
 
