@@ -15,19 +15,16 @@ trait CreateClientAlg[F[_]] {
   def run(name: String, url: String): EitherT[F, AtError, Client];
 }
 
-class CreateClient[F[_]: Monad: AuthContainerAlg: ObjectIdGeneratorAlg: ClockAlg: ClientRepositoryAlg]
+class CreateClient[F[_]: Monad: AuthContainerAlg: ObjectIdGeneratorAlg: ClockAlg: ClientRepositoryAlg: MutationLoggerAlg]
     extends CreateClientAlg[F] {
   def run(name: String, url: String): EitherT[F, AtError, Client] = {
     for {
       authToken <- AuthContainerAlg[F].getTokenMaster()
       client <- Client.create[F](authToken, name, url)
       _ <- ClientRepositoryAlg[F].insert(client)
-      /*
-      TODO: 呼び出した後ロギング
-      context.ports.logger.info(
-        formatter.mutation(context.ports.ipContainer, "clients", client.id),
-      );
-     */
+      _ <- EitherT.right(
+        MutationLoggerAlg[F].createLog("clients", client.id.value)
+      )
     } yield client
   }
 }
