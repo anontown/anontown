@@ -7,7 +7,7 @@ import com.anontown.AtError
 import com.anontown.entities.profile.Profile
 
 @finalAlg
-trait ProfileRepository[F[_]] {
+trait ProfileRepositoryAlg[F[_]] {
   def findOne(id: ProfileId): EitherT[F, AtError, Profile];
   def find(
       id: Option[List[ProfileId]],
