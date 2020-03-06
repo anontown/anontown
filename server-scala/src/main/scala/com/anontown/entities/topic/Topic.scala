@@ -132,7 +132,7 @@ sealed trait Topic {
 }
 
 object Topic {
-  implicit class TopicService[A <: Topic { type Self = A }](val self: A) {
+  implicit class TopicService[A <: Topic { type Self <: A }](val self: A) {
     val hashLen: Int = 6;
 
     type TopicAPIIntrinsicProperty =

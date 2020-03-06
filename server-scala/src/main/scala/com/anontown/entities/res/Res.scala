@@ -536,7 +536,7 @@ final case class ResNormal[ReplyResId <: ResId, TopicIdTypeArg <: TopicId](
 }
 
 object ResNormal {
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg, ResIdType <: ResId, ResType <: Res { type Self = ResType; type IdType = ResIdType; }, TopicType <: Topic { type Self = TopicType; }](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg, ResIdType <: ResId, ResType <: Res { type Self <: ResType; type IdType <: ResIdType; }, TopicType <: Topic { type Self <: TopicType; }](
       topic: TopicType,
       user: User,
       authUser: AuthToken,
@@ -622,7 +622,7 @@ object ResNormal {
         replyCount = 0
       )
       topic <- EitherT.fromEither[F](topic.resUpdate(result, result.age))
-    } yield (result, user, topic)
+    } yield (result.replyResIdWiden, user, topic)
   }
 
   implicit class ResNormalService[ReplyResId <: ResId, TopicIdType <: TopicId](
