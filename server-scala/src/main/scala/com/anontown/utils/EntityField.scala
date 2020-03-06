@@ -20,4 +20,11 @@ object EntityField {
       def get = applyLens.get
       def set[X2 >: X <: X](x: X2) = applyLens.set(x)
     }
+
+  object implicits {
+    implicit class ToEntityField[A, X](self: ApplyLens[A, A, X, X]) {
+      def toEntityField: Bivariant[A, X] = EntityField.fromApplyLens(self)
+    }
+  }
+
 }

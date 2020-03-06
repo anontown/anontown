@@ -30,6 +30,8 @@ import com.anontown.ports.ClockAlg
 import com.anontown.entities.history.{HistoryId, History}
 import com.anontown.entities.topic.{TopicTemporary, UntaggedTopicId}
 import com.anontown.entities.profile.{ProfileId, Profile}
+import com.anontown.utils.EntityField
+import com.anontown.utils.EntityField.implicits._
 
 sealed trait ResAPI {
   val id: String;
@@ -171,7 +173,7 @@ sealed trait Res {
 
   type API <: ResAPI;
 
-  type SelfApplyLens[T] = ApplyLens[Self, Self, T, T]
+  type SelfApplyLens[T] = EntityField.Bivariant[Self, T]
 
   def toAPI(
       authToken: Option[AuthToken]
@@ -333,15 +335,15 @@ final case class ResFork(
 
   override type API = ResForkAPI
 
-  override def idLens = this.lens(_.id)
-  override def topicLens = this.lens(_.topic)
-  override def dateLens = this.lens(_.date)
-  override def userLens = this.lens(_.user)
-  override def votesLens = this.lens(_.votes)
-  override def lvLens = this.lens(_.lv)
-  override def hashLens = this.lens(_.hash)
+  override def idLens = this.lens(_.id).toEntityField
+  override def topicLens = this.lens(_.topic).toEntityField
+  override def dateLens = this.lens(_.date).toEntityField
+  override def userLens = this.lens(_.user).toEntityField
+  override def votesLens = this.lens(_.votes).toEntityField
+  override def lvLens = this.lens(_.lv).toEntityField
+  override def hashLens = this.lens(_.hash).toEntityField
   override def replyCountLens =
-    this.lens(_.replyCount)
+    this.lens(_.replyCount).toEntityField
 
   override def toAPI(authToken: Option[AuthToken]): API = {
     LabelledGeneric[ResForkAPI].from(
@@ -404,15 +406,15 @@ final case class ResHistory(
 
   override type API = ResHistoryAPI
 
-  override def idLens = this.lens(_.id)
-  override def topicLens = this.lens(_.topic)
-  override def dateLens = this.lens(_.date)
-  override def userLens = this.lens(_.user)
-  override def votesLens = this.lens(_.votes)
-  override def lvLens = this.lens(_.lv)
-  override def hashLens = this.lens(_.hash)
+  override def idLens = this.lens(_.id).toEntityField
+  override def topicLens = this.lens(_.topic).toEntityField
+  override def dateLens = this.lens(_.date).toEntityField
+  override def userLens = this.lens(_.user).toEntityField
+  override def votesLens = this.lens(_.votes).toEntityField
+  override def lvLens = this.lens(_.lv).toEntityField
+  override def hashLens = this.lens(_.hash).toEntityField
   override def replyCountLens =
-    this.lens(_.replyCount)
+    this.lens(_.replyCount).toEntityField
 
   override def toAPI(authToken: Option[AuthToken]): API = {
     LabelledGeneric[ResHistoryAPI].from(
@@ -487,15 +489,15 @@ final case class ResNormal[ReplyResId <: ResId, TopicIdTypeArg <: TopicId](
 
   override type API = ResNormalAPI;
 
-  override def idLens = this.lens(_.id)
-  override def topicLens = this.lens(_.topic)
-  override def dateLens = this.lens(_.date)
-  override def userLens = this.lens(_.user)
-  override def votesLens = this.lens(_.votes)
-  override def lvLens = this.lens(_.lv)
-  override def hashLens = this.lens(_.hash)
+  override def idLens = this.lens(_.id).toEntityField
+  override def topicLens = this.lens(_.topic).toEntityField
+  override def dateLens = this.lens(_.date).toEntityField
+  override def userLens = this.lens(_.user).toEntityField
+  override def votesLens = this.lens(_.votes).toEntityField
+  override def lvLens = this.lens(_.lv).toEntityField
+  override def hashLens = this.lens(_.hash).toEntityField
   override def replyCountLens =
-    this.lens(_.replyCount)
+    this.lens(_.replyCount).toEntityField
 
   override def toAPI(authToken: Option[AuthToken]): API = {
     this.deleteFlag match {
@@ -680,15 +682,15 @@ final case class ResTopic[TopicArg <: TopicTemporaryId](
 
   override type API = ResTopicAPI
 
-  override def idLens = this.lens(_.id)
-  override def topicLens = this.lens(_.topic)
-  override def dateLens = this.lens(_.date)
-  override def userLens = this.lens(_.user)
-  override def votesLens = this.lens(_.votes)
-  override def lvLens = this.lens(_.lv)
-  override def hashLens = this.lens(_.hash)
+  override def idLens = this.lens(_.id).toEntityField
+  override def topicLens = this.lens(_.topic).toEntityField
+  override def dateLens = this.lens(_.date).toEntityField
+  override def userLens = this.lens(_.user).toEntityField
+  override def votesLens = this.lens(_.votes).toEntityField
+  override def lvLens = this.lens(_.lv).toEntityField
+  override def hashLens = this.lens(_.hash).toEntityField
   override def replyCountLens =
-    this.lens(_.replyCount)
+    this.lens(_.replyCount).toEntityField
 
   override def toAPI(authToken: Option[AuthToken]): API = {
     LabelledGeneric[ResTopicAPI].from(
