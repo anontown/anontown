@@ -183,7 +183,7 @@ export const mutation: G.MutationResolvers = {
       await Promise.all([
         context.ports.resRepo.update(newRes),
         context.ports.userRepo.update(newResUser),
-        context.ports.userRepo.update(user),
+        context.ports.userRepo.update(user), // TODO: user更新されてないから保存する必要ない
       ]);
 
       return newRes.toAPI(some(context.ports.authContainer.getToken()));
@@ -208,7 +208,7 @@ export const mutation: G.MutationResolvers = {
       await Promise.all([
         context.ports.resRepo.update(newRes),
         context.ports.userRepo.update(newResUser),
-        context.ports.userRepo.update(user),
+        context.ports.userRepo.update(user), // TODO: user更新されてないから保存する必要ない
       ]);
 
       return newRes.toAPI(some(context.ports.authContainer.getToken()));
