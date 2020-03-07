@@ -193,7 +193,7 @@ object TokenGeneral {
     val reqExpireMinute: Int = 5;
 
     def createReq[F[_]: Monad: ClockAlg: ConfigContainerAlg: SafeIdGeneratorAlg]()
-        : F[(TokenGeneral, TokenReqAPI)] = {
+        : F[(TokenGeneral, TokenReq)] = {
       for {
         requestDate <- ClockAlg[F].getRequestDate()
         val reqFilter = self.req
@@ -211,7 +211,7 @@ object TokenGeneral {
         )
       } yield (
         self.copy(req = reqFilter.appended(req)),
-        TokenReqAPI(self.id.value, key = req.key)
+        req
       )
     }
 
