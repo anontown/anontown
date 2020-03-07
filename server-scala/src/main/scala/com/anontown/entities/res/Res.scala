@@ -451,7 +451,7 @@ object ResHistory {
   }
 }
 
-final case class ResNormal[ReplyResId <: ResId, TopicIdTypeArg <: TopicId](
+final case class ResNormal[TopicIdTypeArg <: TopicId, ReplyResId <: ResId](
     id: ResNormalId,
     topic: TopicIdTypeArg,
     date: OffsetDateTime,
@@ -467,7 +467,7 @@ final case class ResNormal[ReplyResId <: ResId, TopicIdTypeArg <: TopicId](
     profile: Option[ProfileId],
     age: Boolean
 ) extends Res {
-  override type Self = ResNormal[ReplyResId, TopicIdTypeArg];
+  override type Self = ResNormal[TopicIdTypeArg, ReplyResId];
   override type IdType = ResNormalId;
   override type ReplyResIdType = ReplyResId;
 
@@ -510,10 +510,10 @@ final case class ResNormal[ReplyResId <: ResId, TopicIdTypeArg <: TopicId](
     }
   }
 
-  def replyResIdWiden[A >: ReplyResId <: ResId]: ResNormal[A, TopicIdTypeArg] =
+  def replyResIdWiden[A >: ReplyResId <: ResId]: ResNormal[TopicIdTypeArg, A] =
     this.copy()
 
-  def topicIdWiden[A >: TopicIdTypeArg <: TopicId]: ResNormal[ReplyResId, A] =
+  def topicIdWiden[A >: TopicIdTypeArg <: TopicId]: ResNormal[A, ReplyResId] =
     this.copy()
 }
 
@@ -530,7 +530,7 @@ object ResNormal {
   ): EitherT[
     F,
     AtError,
-    (ResNormal[ResIdType, topic.IdType], User, TopicType)
+    (ResNormal[topic.IdType, ResIdType], User, TopicType)
   ] = {
     assert(user.id === authUser.user);
 
@@ -607,13 +607,13 @@ object ResNormal {
     } yield (result.replyResIdWiden, user, topic)
   }
 
-  implicit class ResNormalService[ReplyResId <: ResId, TopicIdType <: TopicId](
-      val self: ResNormal[ReplyResId, TopicIdType]
+  implicit class ResNormalService[TopicIdType <: TopicId, ReplyResId <: ResId](
+      val self: ResNormal[TopicIdType, ReplyResId]
   ) {
     def del(
         resUser: User,
         authToken: AuthToken
-    ): Either[AtError, (ResNormal[ReplyResId, TopicIdType], User)] = {
+    ): Either[AtError, (ResNormal[TopicIdType, ReplyResId], User)] = {
       type Result[A] = Either[AtError, A]
 
       assert(resUser.id === authToken.user);

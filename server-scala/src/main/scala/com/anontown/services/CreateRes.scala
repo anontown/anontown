@@ -31,7 +31,7 @@ trait CreateResAlg[F[_]] {
       reply: Option[String],
       profile: Option[String],
       age: Boolean
-  ): EitherT[F, AtError, ResNormal[TaggedResId, TaggedTopicId]];
+  ): EitherT[F, AtError, ResNormal[TaggedTopicId, TaggedResId]];
 }
 
 class CreateRes[F[_]: Monad: TopicRepositoryAlg: UserRepositoryAlg: AuthContainerAlg: ResRepositoryAlg: ProfileRepositoryAlg: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: MutationLoggerAlg]
@@ -43,7 +43,7 @@ class CreateRes[F[_]: Monad: TopicRepositoryAlg: UserRepositoryAlg: AuthContaine
       reply: Option[String],
       profile: Option[String],
       age: Boolean
-  ): EitherT[F, AtError, ResNormal[TaggedResId, TaggedTopicId]] = {
+  ): EitherT[F, AtError, ResNormal[TaggedTopicId, TaggedResId]] = {
     for {
       topic <- TopicRepositoryAlg[F].findOne(UntaggedTopicId(topic))
       auth <- AuthContainerAlg[F].getToken()
