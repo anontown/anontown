@@ -67,10 +67,10 @@ sealed trait Token {
   type API <: TokenAPI;
   type SelfApplyLens[A] = ApplyLens[Self, Self, A, A];
 
-  def idLens: SelfApplyLens[IdType];
-  def keyLens: SelfApplyLens[String];
-  def userLens: SelfApplyLens[UserId];
-  def dateLens: SelfApplyLens[OffsetDateTime];
+  def id: IdType;
+  def key: String;
+  def user: UserId;
+  def date: OffsetDateTime;
 
   def toAPI: API;
 }
@@ -85,9 +85,9 @@ object Token {
 
     def tokenAPIIntrinsicProperty: TokenAPIIntrinsicProperty = {
       Record(
-        id = self.idLens.get.value,
-        key = self.keyLens.get,
-        date = self.dateLens.get.toString
+        id = self.id.value,
+        key = self.key,
+        date = self.date.toString
       )
     }
   }
@@ -110,11 +110,6 @@ final case class TokenMaster(
   override type Self = TokenMaster;
   override type IdType = TokenMasterId;
   override type API = TokenMasterAPI;
-
-  override def idLens = this.lens(_.id);
-  override def keyLens = this.lens(_.key);
-  override def userLens = this.lens(_.user);
-  override def dateLens = this.lens(_.date);
 
   override def toAPI: TokenMasterAPI = {
     LabelledGeneric[TokenMasterAPI].from(
@@ -163,11 +158,6 @@ final case class TokenGeneral(
   override type Self = TokenGeneral;
   override type IdType = TokenGeneralId;
   override type API = TokenGeneralAPI;
-
-  override def idLens = this.lens(_.id);
-  override def keyLens = this.lens(_.key);
-  override def userLens = this.lens(_.user);
-  override def dateLens = this.lens(_.date);
 
   override def toAPI: TokenGeneralAPI = {
     LabelledGeneric[TokenGeneralAPI].from(
