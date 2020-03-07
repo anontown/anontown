@@ -97,6 +97,7 @@ export abstract class ResBase<T extends ResType, C extends ResBase<T, C>> {
 
   abstract copy(partial: Partial<ResBase<T, C>>): C;
 
+  // TODO: 名前をresetAndVoteに
   v(
     resUser: User,
     user: User,
@@ -112,6 +113,7 @@ export abstract class ResBase<T extends ResType, C extends ResBase<T, C>> {
     return data.res._v(data.resUser, user, type, _authToken);
   }
 
+  // TODO: 名前をvoteに
   _v(
     resUser: User,
     user: User,
