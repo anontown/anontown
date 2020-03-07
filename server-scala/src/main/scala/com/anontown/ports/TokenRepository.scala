@@ -16,7 +16,7 @@ trait TokenRepositoryAlg[F[_]] {
   def insert(token: Token): EitherT[F, AtError, Unit];
   def update(token: Token): EitherT[F, AtError, Unit];
   def delClientToken(
-      token: Token,
+      token: AuthTokenMaster,
       clientID: ClientId
   ): EitherT[F, AtError, Unit];
   def delMasterToken(user: AuthUser): EitherT[F, AtError, Unit];
