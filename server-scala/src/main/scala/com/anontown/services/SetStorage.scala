@@ -18,7 +18,7 @@ class SetStorage[F[_]: Monad: AuthContainerAlg: StorageRepositoryAlg]
   def run(key: String, value: String): EitherT[F, AtError, Storage] = {
     for {
       auth <- AuthContainerAlg[F].getToken()
-      storage <- Storage.create(auth, key, value)
+      storage <- EitherT.fromEither[F](Storage.create(auth, key, value))
       _ <- StorageRepositoryAlg[F].save(storage)
     } yield storage
   }
