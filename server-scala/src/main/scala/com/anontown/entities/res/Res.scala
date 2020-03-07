@@ -566,7 +566,7 @@ object ResNormal {
                 reply =>
                   UntaggedTopicId
                     .fromTopicId(reply.topic) === UntaggedTopicId
-                    .fromTopicId(topic.idLens.get)
+                    .fromTopicId(topic.id)
               )
               .getOrElse(true),
             (),
@@ -595,7 +595,7 @@ object ResNormal {
         profile = profile.map(_.id),
         age = age,
         id = ResNormalId(id),
-        topic = topic.idLens.get,
+        topic = topic.id,
         date = requestDate,
         user = user.id,
         votes = List(),
@@ -696,7 +696,7 @@ object ResTopic {
 
       val result = ResTopic(
         id = ResTopicId(id),
-        topic = topic.idLens.get,
+        topic = topic.id,
         date = requestDate,
         user = user.id,
         votes = List(),

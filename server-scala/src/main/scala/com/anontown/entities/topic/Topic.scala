@@ -122,10 +122,10 @@ sealed trait Topic {
       authToken: Option[AuthToken]
   ): API;
 
-  def idLens: SelfApplyLens[IdType];
+  def id: IdType;
   def titleLens: SelfApplyLens[TopicTitle];
   def updateLens: SelfApplyLens[OffsetDateTime];
-  def dateLens: SelfApplyLens[OffsetDateTime];
+  def date: OffsetDateTime;
   def resCountLens: SelfApplyLens[Int];
   def ageUpdateLens: SelfApplyLens[OffsetDateTime];
   def activeLens: SelfApplyLens[Boolean];
@@ -148,10 +148,10 @@ object Topic {
         authToken: Option[AuthToken]
     ): TopicAPIIntrinsicProperty = {
       Record(
-        id = self.idLens.get.value,
+        id = self.id.value,
         title = self.titleLens.get.value,
         update = self.updateLens.get.toString,
-        date = self.dateLens.get.toString,
+        date = self.date.toString,
         resCount = self.resCountLens.get,
         active = self.activeLens.get
       )
@@ -169,7 +169,7 @@ object Topic {
           .hash(
             f"${user.id.value} ${zonedDate.getYear().toString()} ${zonedDate
               .getMonth()
-              .toString()} ${zonedDate.getDayOfMonth().toString()} ${self.idLens.get.value} ${config.salt.hash}"
+              .toString()} ${zonedDate.getDayOfMonth().toString()} ${self.id.value} ${config.salt.hash}"
           )
           .substring(0, hashLen)
       }
@@ -273,10 +273,8 @@ final case class TopicFork(
     )
   }
 
-  override def idLens = this.lens(_.id);
   override def titleLens = this.lens(_.title);
   override def updateLens = this.lens(_.update);
-  override def dateLens = this.lens(_.date);
   override def resCountLens = this.lens(_.resCount);
   override def ageUpdateLens = this.lens(_.ageUpdate);
   override def activeLens = this.lens(_.active);
@@ -371,10 +369,8 @@ final case class TopicOne(
     )
   }
 
-  override def idLens = this.lens(_.id);
   override def titleLens = this.lens(_.title);
   override def updateLens = this.lens(_.update);
-  override def dateLens = this.lens(_.date);
   override def resCountLens = this.lens(_.resCount);
   override def ageUpdateLens = this.lens(_.ageUpdate);
   override def activeLens = this.lens(_.active);
@@ -455,10 +451,8 @@ final case class TopicNormal(
     )
   }
 
-  override def idLens = this.lens(_.id);
   override def titleLens = this.lens(_.title);
   override def updateLens = this.lens(_.update);
-  override def dateLens = this.lens(_.date);
   override def resCountLens = this.lens(_.resCount);
   override def ageUpdateLens = this.lens(_.ageUpdate);
   override def activeLens = this.lens(_.active);
