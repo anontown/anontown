@@ -188,7 +188,7 @@ sealed trait Res {
 }
 
 object Res {
-  implicit class ResService[A <: Res { type Self = A }](val self: A) {
+  implicit class ResService[A <: Res { type Self <: A }](val self: A) {
     type ResAPIIntrinsicProperty =
       ("id" ->> String) ::
         ("topicID" ->> String) ::
