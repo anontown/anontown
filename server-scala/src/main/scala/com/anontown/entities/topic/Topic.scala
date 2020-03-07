@@ -181,12 +181,12 @@ object Topic {
       } else {
         Right(
           self.updateLens
-            .set(res.dateLens.get)
+            .set(res.date)
             .ageUpdateLens
             .modify(
               prevAgeUpdate =>
                 if (isAge) {
-                  res.dateLens.get
+                  res.date
                 } else {
                   prevAgeUpdate
                 }

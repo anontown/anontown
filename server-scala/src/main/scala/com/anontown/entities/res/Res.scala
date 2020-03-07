@@ -177,13 +177,13 @@ sealed trait Res {
       authToken: Option[AuthToken]
   ): API;
 
-  def idLens: SelfApplyLens[IdType];
-  def topicLens: SelfApplyLens[TopicIdType];
-  def dateLens: SelfApplyLens[OffsetDateTime];
-  def userLens: SelfApplyLens[UserId];
+  def id: IdType;
+  def topic: TopicIdType;
+  def date: OffsetDateTime;
+  def user: UserId;
   def votesLens: SelfApplyLens[List[Vote]];
-  def lvLens: SelfApplyLens[Int];
-  def hashLens: SelfApplyLens[String];
+  def lv: Int;
+  def hash: String;
   def replyCountLens: SelfApplyLens[Int];
 }
 
@@ -205,13 +205,13 @@ object Res {
         authToken: Option[AuthToken]
     ): ResAPIIntrinsicProperty = {
       Record(
-        id = self.idLens.get.value,
-        topicID = self.topicLens.get.value,
-        date = self.dateLens.get.toString,
-        self = authToken.map(_.user === self.userLens.get),
+        id = self.id.value,
+        topicID = self.topic.value,
+        date = self.date.toString,
+        self = authToken.map(_.user === self.user),
         uv = self.votesLens.get.filter(x => x.value > 0).size,
         dv = self.votesLens.get.filter(x => x.value < 0).size,
-        hash = self.hashLens.get,
+        hash = self.hash,
         replyCount = self.replyCountLens.get,
         voteFlag = authToken.map(
           authToken =>
@@ -236,11 +236,11 @@ object Res {
     ): Either[AtError, (A, User)] = {
       type Result[A] = Either[AtError, A];
 
-      assert(resUser.id === self.userLens.get);
+      assert(resUser.id === self.user);
       assert(user.id === authToken.user);
 
       for {
-        _ <- Applicative[Result].whenA(user.id === self.userLens.get)(
+        _ <- Applicative[Result].whenA(user.id === self.user)(
           Left(new AtRightError("自分に投票は出来ません"))
         )
         _ <- Applicative[Result].whenA(
@@ -269,7 +269,7 @@ object Res {
         vtype: VoteType,
         authToken: AuthToken
     ): Either[AtError, (A, User)] = {
-      assert(resUser.id === self.userLens.get);
+      assert(resUser.id === self.user);
       assert(user.id === authToken.user);
 
       for {
@@ -297,7 +297,7 @@ object Res {
     ): Either[AtError, (A, User)] = {
       type Result[A] = Either[AtError, A];
 
-      assert(resUser.id === self.userLens.get);
+      assert(resUser.id === self.user);
       assert(user.id === authToken.user);
 
       for {
@@ -333,13 +333,7 @@ final case class ResFork(
 
   override type API = ResForkAPI
 
-  override def idLens = this.lens(_.id)
-  override def topicLens = this.lens(_.topic)
-  override def dateLens = this.lens(_.date)
-  override def userLens = this.lens(_.user)
   override def votesLens = this.lens(_.votes)
-  override def lvLens = this.lens(_.lv)
-  override def hashLens = this.lens(_.hash)
   override def replyCountLens =
     this.lens(_.replyCount)
 
@@ -404,13 +398,7 @@ final case class ResHistory(
 
   override type API = ResHistoryAPI
 
-  override def idLens = this.lens(_.id)
-  override def topicLens = this.lens(_.topic)
-  override def dateLens = this.lens(_.date)
-  override def userLens = this.lens(_.user)
   override def votesLens = this.lens(_.votes)
-  override def lvLens = this.lens(_.lv)
-  override def hashLens = this.lens(_.hash)
   override def replyCountLens =
     this.lens(_.replyCount)
 
@@ -487,13 +475,7 @@ final case class ResNormal[ReplyResId <: ResId, TopicIdTypeArg <: TopicId](
 
   override type API = ResNormalAPI;
 
-  override def idLens = this.lens(_.id)
-  override def topicLens = this.lens(_.topic)
-  override def dateLens = this.lens(_.date)
-  override def userLens = this.lens(_.user)
   override def votesLens = this.lens(_.votes)
-  override def lvLens = this.lens(_.lv)
-  override def hashLens = this.lens(_.hash)
   override def replyCountLens =
     this.lens(_.replyCount)
 
@@ -583,7 +565,7 @@ object ResNormal {
               .map(
                 reply =>
                   UntaggedTopicId
-                    .fromTopicId(reply.topicLens.get) === UntaggedTopicId
+                    .fromTopicId(reply.topic) === UntaggedTopicId
                     .fromTopicId(topic.idLens.get)
               )
               .getOrElse(true),
@@ -607,7 +589,7 @@ object ResNormal {
         name = name,
         text = text,
         reply = reply.map(
-          reply => Reply(res = reply.idLens.get, user = reply.userLens.get)
+          reply => Reply(res = reply.id, user = reply.user)
         ),
         deleteFlag = None,
         profile = profile.map(_.id),
@@ -680,13 +662,7 @@ final case class ResTopic[TopicArg <: TopicTemporaryId](
 
   override type API = ResTopicAPI
 
-  override def idLens = this.lens(_.id)
-  override def topicLens = this.lens(_.topic)
-  override def dateLens = this.lens(_.date)
-  override def userLens = this.lens(_.user)
   override def votesLens = this.lens(_.votes)
-  override def lvLens = this.lens(_.lv)
-  override def hashLens = this.lens(_.hash)
   override def replyCountLens =
     this.lens(_.replyCount)
 
