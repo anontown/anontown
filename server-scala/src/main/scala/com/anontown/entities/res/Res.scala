@@ -185,6 +185,11 @@ sealed trait Res {
   def lv: Int;
   def hash: String;
   def replyCountLens: SelfApplyLens[Int];
+
+  def asResFork: Option[ResFork] = None;
+  def asResHistory: Option[ResHistory] = None;
+  def asResNormal: Option[ResNormal[TopicIdType, ReplyResIdType]] = None;
+  def asResTopic: Option[ResTopic[TopicIdType with TopicTemporaryId]] = None;
 }
 
 object Res {
@@ -344,6 +349,8 @@ final case class ResFork(
         .merge(Record(forkID = this.fork.value))
     )
   }
+
+  override def asResFork: Option[ResFork] = Some(this)
 }
 
 object ResFork {
@@ -413,6 +420,8 @@ final case class ResHistory(
         )
     )
   }
+
+  override def asResHistory: Option[ResHistory] = Some(this);
 }
 
 object ResHistory {
@@ -515,6 +524,9 @@ final case class ResNormal[TopicIdTypeArg <: TopicId, ReplyResId <: ResId](
 
   def topicIdWiden[A >: TopicIdTypeArg <: TopicId]: ResNormal[A, ReplyResId] =
     this.copy()
+
+  override def asResNormal: Option[ResNormal[TopicIdType, ReplyResIdType]] =
+    Some(this)
 }
 
 object ResNormal {
@@ -672,6 +684,9 @@ final case class ResTopic[TopicArg <: TopicTemporaryId](
         .resAPIIntrinsicProperty(authToken)
     )
   }
+
+  override def asResTopic: Option[ResTopic[TopicIdType with TopicTemporaryId]] =
+    Some(this)
 }
 
 object ResTopic {

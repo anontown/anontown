@@ -28,11 +28,12 @@ class DelRes[F[_]: Monad: ResRepositoryAlg: UserRepositoryAlg: AuthContainerAlg]
     for {
       res <- ResRepositoryAlg[F]
         .findOne(UntaggedResId(res))
-      res <- EitherT.fromEither[F](res match {
-        case x @ ResNormal(_, _, _, _, _, _, _, _, _, _, _, _, _, _) =>
-          Right(x)
-        case _ => Left(new AtNotFoundError("レスが見つかりません"): AtError)
-      })
+      res <- EitherT.fromEither[F](
+        res.asResNormal
+          .map(_.topicIdWiden[TopicId].replyResIdWiden[ResId])
+          .map(Right(_))
+          .getOrElse(Left(new AtNotFoundError("レスが見つかりません"): AtError))
+      )
       // レスを書き込んだユーザー
       resUser <- UserRepositoryAlg[F].findOne(res.user)
 
