@@ -20,10 +20,11 @@ class AuthTokenReq[F[_]: Monad: TokenRepositoryAlg: ClockAlg]
   def run(id: String, key: String): EitherT[F, AtError, TokenGeneral] = {
     for {
       token <- TokenRepositoryAlg[F].findOne(UntaggedTokenId(id))
-      token <- EitherT.fromEither[F](token match {
-        case x @ TokenGeneral(_, _, _, _, _, _) => Right(x)
-        case _                                  => Left(new AtNotFoundError("トークンが見つかりません"): AtError)
-      })
+      token <- EitherT.fromEither[F](
+        token.asTokenGeneral
+          .map(Right(_))
+          .getOrElse(Left(new AtNotFoundError("トークンが見つかりません"): AtError))
+      )
       // TODO: authReqの引数が何かを返してそれを返すようにしたい
       _ <- token.authReq[F](key)
     } yield token

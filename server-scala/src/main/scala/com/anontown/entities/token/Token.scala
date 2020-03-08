@@ -73,6 +73,9 @@ sealed trait Token {
   def date: OffsetDateTime;
 
   def toAPI: API;
+
+  def asTokenGeneral: Option[TokenGeneral] = None;
+  def asTokenMaster: Option[TokenMaster] = None;
 }
 
 object Token {
@@ -116,6 +119,8 @@ final case class TokenMaster(
       this.tokenAPIIntrinsicProperty
     )
   }
+
+  override def asTokenMaster: Option[TokenMaster] = Some(this);
 }
 
 object TokenMaster {
@@ -166,6 +171,8 @@ final case class TokenGeneral(
       )
     )
   }
+
+  override def asTokenGeneral: Option[TokenGeneral] = Some(this);
 }
 
 object TokenGeneral {
