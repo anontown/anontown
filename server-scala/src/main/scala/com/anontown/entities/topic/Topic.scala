@@ -129,6 +129,12 @@ sealed trait Topic {
   def resCountLens: SelfApplyLens[Int];
   def ageUpdateLens: SelfApplyLens[OffsetDateTime];
   def activeLens: SelfApplyLens[Boolean];
+
+  def asTopicSearch: Option[TopicSearch] = None;
+  def asTopicTemporary: Option[TopicTemporary] = None;
+  def asTopicNormal: Option[TopicNormal] = None;
+  def asTopicOne: Option[TopicOne] = None;
+  def asTopicFork: Option[TopicFork] = None;
 }
 
 object Topic {
@@ -205,6 +211,8 @@ sealed trait TopicSearch extends Topic {
 
   def tagsLens: SelfApplyLens[TopicTags];
   def textLens: SelfApplyLens[TopicText];
+
+  override def asTopicSearch: Option[TopicSearch] = Some(this);
 }
 
 object TopicSearch {
@@ -232,6 +240,8 @@ sealed trait TopicTemporary extends Topic {
   override type IdType <: TaggedTopicTemporaryId;
 
   override type API <: TopicTemporaryAPI;
+
+  override def asTopicTemporary: Option[TopicTemporary] = Some(this);
 }
 
 object TopicTemporary {
@@ -278,6 +288,8 @@ final case class TopicFork(
   override def resCountLens = this.lens(_.resCount);
   override def ageUpdateLens = this.lens(_.ageUpdate);
   override def activeLens = this.lens(_.active);
+
+  override def asTopicFork: Option[TopicFork] = Some(this);
 }
 
 object TopicFork {
@@ -376,6 +388,8 @@ final case class TopicOne(
   override def activeLens = this.lens(_.active);
   override def tagsLens = this.lens(_.tags);
   override def textLens = this.lens(_.text);
+
+  override def asTopicOne: Option[TopicOne] = Some(this);
 }
 
 object TopicOne {
@@ -458,6 +472,8 @@ final case class TopicNormal(
   override def activeLens = this.lens(_.active);
   override def tagsLens = this.lens(_.tags);
   override def textLens = this.lens(_.text);
+
+  override def asTopicNormal: Option[TopicNormal] = Some(this);
 }
 
 object TopicNormal {
