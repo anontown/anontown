@@ -1,6 +1,5 @@
 package com.anontown.entities.res
 
-import java.time.OffsetDateTime
 import cats.implicits._
 import com.anontown.AtError
 import com.anontown.AtRightError
@@ -30,6 +29,7 @@ import com.anontown.ports.ClockAlg
 import com.anontown.entities.history.{HistoryId, History}
 import com.anontown.entities.topic.{TopicTemporary, UntaggedTopicId}
 import com.anontown.entities.profile.{ProfileId, Profile}
+import com.anontown.entities.DateTime
 
 sealed trait ResAPI {
   val id: String;
@@ -179,7 +179,7 @@ sealed trait Res {
 
   def id: IdType;
   def topic: TopicIdType;
-  def date: OffsetDateTime;
+  def date: DateTime;
   def user: UserId;
   def votesLens: SelfApplyLens[List[Vote]];
   def lv: Int;
@@ -323,7 +323,7 @@ object Res {
 final case class ResFork(
     id: ResForkId,
     topic: TopicNormalId,
-    date: OffsetDateTime,
+    date: DateTime,
     user: UserId,
     votes: List[Vote],
     lv: Int,
@@ -390,7 +390,7 @@ object ResFork {
 final case class ResHistory(
     id: ResHistoryId,
     topic: TopicNormalId,
-    date: OffsetDateTime,
+    date: DateTime,
     user: UserId,
     votes: List[Vote],
     lv: Int,
@@ -463,7 +463,7 @@ object ResHistory {
 final case class ResNormal[TopicIdTypeArg <: TopicId, ReplyResId <: ResId](
     id: ResNormalId,
     topic: TopicIdTypeArg,
-    date: OffsetDateTime,
+    date: DateTime,
     user: UserId,
     votes: List[Vote],
     lv: Int,
@@ -658,7 +658,7 @@ object ResNormal {
 final case class ResTopic[TopicArg <: TopicTemporaryId](
     id: ResTopicId,
     topic: TopicArg,
-    date: OffsetDateTime,
+    date: DateTime,
     user: UserId,
     votes: List[Vote],
     lv: Int,

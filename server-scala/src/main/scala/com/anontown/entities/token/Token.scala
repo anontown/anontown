@@ -1,6 +1,5 @@
 package com.anontown.entities.token
 
-import java.time.OffsetDateTime
 import com.anontown.utils;
 import com.anontown.ports.SafeIdGeneratorAlg
 import com.anontown.ports.ConfigContainerAlg
@@ -10,7 +9,6 @@ import shapeless._
 import record._
 import com.anontown.utils.Record._
 import cats._, cats.implicits._, cats.derived._
-import monocle.macros.syntax.lens.toGenApplyLensOps
 import com.anontown.AuthUser
 import com.anontown.ports.ObjectIdGeneratorAlg
 import com.anontown.ports.ClockAlg
@@ -20,8 +18,9 @@ import com.anontown.AuthTokenMaster
 import com.anontown.entities.client.{ClientId, Client}
 import com.anontown.AuthTokenGeneral
 import cats.data.EitherT
-import com.anontown.utils.OffsetDateTimeUtils._;
 import com.anontown.AtNotFoundError
+import com.anontown.entities.DateTime
+import com.anontown.entities.Interval
 
 sealed trait TokenAPI {
   val id: String
@@ -70,7 +69,7 @@ sealed trait Token {
   def id: IdType;
   def key: String;
   def user: UserId;
-  def date: OffsetDateTime;
+  def date: DateTime;
 
   def toAPI: API;
 
@@ -108,7 +107,7 @@ final case class TokenMaster(
     id: TokenMasterId,
     key: String,
     user: UserId,
-    date: OffsetDateTime
+    date: DateTime
 ) extends Token {
   override type Self = TokenMaster;
   override type IdType = TokenMasterId;
@@ -158,7 +157,7 @@ final case class TokenGeneral(
     client: ClientId,
     user: UserId,
     req: List[TokenReq],
-    date: OffsetDateTime
+    date: DateTime
 ) extends Token {
   override type Self = TokenGeneral;
   override type IdType = TokenGeneralId;
@@ -205,15 +204,12 @@ object TokenGeneral {
         requestDate <- ClockAlg[F].getRequestDate()
         val reqFilter = self.req
           .filter(
-            r =>
-              r.active && requestDate.toEpochMilli < r.expireDate.toEpochMilli
+            r => r.active && requestDate < r.expireDate
           )
         key <- Token.createTokenKey[F]()
         val req = TokenReq(
           key = key,
-          expireDate = ofEpochMilli(
-            requestDate.toEpochMilli + 1000 * 60 * reqExpireMinute
-          ),
+          expireDate = requestDate + Interval.fromMinutes(reqExpireMinute),
           active = true
         )
       } yield (
@@ -231,8 +227,7 @@ object TokenGeneral {
         requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
         _ <- EitherT
           .fromEither[F](req match {
-            case Some(req)
-                if req.active && req.expireDate.toEpochMilli >= requestDate.toEpochMilli =>
+            case Some(req) if req.active && req.expireDate >= requestDate =>
               Right(())
             case _ => Left(new AtNotFoundError("トークンリクエストが見つかりません"))
           })

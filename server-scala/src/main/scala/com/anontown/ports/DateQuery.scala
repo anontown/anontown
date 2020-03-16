@@ -1,9 +1,9 @@
 package com.anontown.ports
 
-import java.time.OffsetDateTime
 import cats._, cats.derived._
+import com.anontown.entities.DateTime
 
-final case class DateQuery(date: OffsetDateTime, type_ : DateType);
+final case class DateQuery(date: DateTime, type_ : DateType);
 
 sealed trait DateType;
 object DateType {

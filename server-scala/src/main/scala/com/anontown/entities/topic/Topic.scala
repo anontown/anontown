@@ -1,7 +1,6 @@
 package com.anontown.entities.topic
 
 import cats._, cats.implicits._, cats.derived._
-import java.time.OffsetDateTime
 import com.anontown.AtError
 import com.anontown.ports.ClockAlg
 import com.anontown.entities.res.{Res, ResFork, ResTopic, ResHistory}
@@ -18,7 +17,7 @@ import com.anontown.utils;
 import cats.data.EitherT
 import com.anontown.ports.ObjectIdGeneratorAlg
 import monocle.macros.syntax.lens.toGenApplyLensOps
-import com.anontown.utils.Impl._;
+import com.anontown.entities.DateTime
 
 sealed trait TopicAPI {
   val id: String;
@@ -124,10 +123,10 @@ sealed trait Topic {
 
   def id: IdType;
   def titleLens: SelfApplyLens[TopicTitle];
-  def updateLens: SelfApplyLens[OffsetDateTime];
-  def date: OffsetDateTime;
+  def updateLens: SelfApplyLens[DateTime];
+  def date: DateTime;
   def resCountLens: SelfApplyLens[Int];
-  def ageUpdateLens: SelfApplyLens[OffsetDateTime];
+  def ageUpdateLens: SelfApplyLens[DateTime];
   def activeLens: SelfApplyLens[Boolean];
 
   def asTopicSearch: Option[TopicSearch] = None;
@@ -170,7 +169,8 @@ object Topic {
         config <- ConfigContainerAlg[F].getConfig()
         requestDate <- ClockAlg[F].getRequestDate()
       } yield {
-        val zonedDate = requestDate.atZoneSameInstant(config.timezone)
+        val zonedDate =
+          requestDate.toOffsetDateTime().atZoneSameInstant(config.timezone)
         utils
           .hash(
             f"${user.id.value} ${zonedDate.getYear().toString()} ${zonedDate
@@ -259,10 +259,10 @@ object TopicTemporary {
 final case class TopicFork(
     id: TopicForkId,
     title: TopicTitle,
-    update: OffsetDateTime,
-    date: OffsetDateTime,
+    update: DateTime,
+    date: DateTime,
     resCount: Int,
-    ageUpdate: OffsetDateTime,
+    ageUpdate: DateTime,
     active: Boolean,
     parent: TopicNormalId
 ) extends TopicTemporary {
@@ -352,10 +352,10 @@ object TopicFork {
 final case class TopicOne(
     id: TopicOneId,
     title: TopicTitle,
-    update: OffsetDateTime,
-    date: OffsetDateTime,
+    update: DateTime,
+    date: DateTime,
     resCount: Int,
-    ageUpdate: OffsetDateTime,
+    ageUpdate: DateTime,
     active: Boolean,
     tags: TopicTags,
     text: TopicText
@@ -441,10 +441,10 @@ object TopicOne {
 final case class TopicNormal(
     id: TopicNormalId,
     title: TopicTitle,
-    update: OffsetDateTime,
-    date: OffsetDateTime,
+    update: DateTime,
+    date: DateTime,
     resCount: Int,
-    ageUpdate: OffsetDateTime,
+    ageUpdate: DateTime,
     active: Boolean,
     tags: TopicTags,
     text: TopicText

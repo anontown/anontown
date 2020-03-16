@@ -1,8 +1,6 @@
 package com.anontown.entities.client
 
-import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
-import com.anontown.utils.Impl._;
 import com.anontown.AuthTokenMaster
 import com.anontown.AtError
 import com.anontown.ports.ObjectIdGeneratorAlg
@@ -10,6 +8,7 @@ import com.anontown.ports.ClockAlg
 import com.anontown.AtRightError
 import com.anontown.entities.user.UserId
 import cats.data.EitherT
+import com.anontown.entities.DateTime
 
 final case class ClientAPI(
     id: String,
@@ -32,8 +31,8 @@ final case class Client(
     name: ClientName,
     url: ClientUrl,
     user: UserId,
-    date: OffsetDateTime,
-    update: OffsetDateTime
+    date: DateTime,
+    update: DateTime
 );
 
 object Client {

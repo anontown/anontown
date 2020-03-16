@@ -1,10 +1,9 @@
 package com.anontown.entities.user
 
-import java.time.OffsetDateTime;
 import cats._, cats.derived._
-import com.anontown.utils.Impl._;
+import com.anontown.entities.DateTime
 
-final case class ResWait(last: OffsetDateTime, count: ResWaitCount);
+final case class ResWait(last: DateTime, count: ResWaitCount);
 
 object ResWait {
   implicit val implEq: Eq[ResWait] = {

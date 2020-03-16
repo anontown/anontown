@@ -1,8 +1,6 @@
 package com.anontown.entities.history
 
-import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
-import com.anontown.utils.Impl._;
 import com.anontown.ports.ObjectIdGeneratorAlg
 import com.anontown.ports.ClockAlg
 import com.anontown.AuthToken
@@ -11,6 +9,7 @@ import com.anontown.entities.topic.TopicNormalId
 import com.anontown.entities.topic.TopicTitle
 import com.anontown.entities.topic.TopicTags
 import com.anontown.entities.topic.TopicText
+import com.anontown.entities.DateTime
 
 final case class HistoryAPI(
     id: String,
@@ -36,7 +35,7 @@ final case class History(
     title: TopicTitle,
     tags: TopicTags,
     text: TopicText,
-    date: OffsetDateTime,
+    date: DateTime,
     hash: String,
     user: UserId
 );

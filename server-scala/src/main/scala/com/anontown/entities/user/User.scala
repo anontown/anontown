@@ -1,7 +1,5 @@
 package com.anontown.entities.user;
 
-import java.time.OffsetDateTime;
-import com.anontown.utils.Impl._;
 import com.anontown.AtError
 import com.anontown.AuthUser
 import com.anontown.AtUserAuthError
@@ -10,8 +8,9 @@ import cats._, cats.implicits._, cats.derived._
 import com.anontown.ports.ObjectIdGeneratorAlg
 import com.anontown.ports.ClockAlg
 import com.anontown.ports.ConfigContainerAlg
-import com.anontown.utils.OffsetDateTimeUtils._
 import cats.data.EitherT
+import com.anontown.entities.DateTime
+import com.anontown.entities.Interval
 
 final case class UserAPI(id: String, sn: String);
 
@@ -28,11 +27,11 @@ final case class User(
     pass: UserEncryptedPass,
     lv: Int,
     resWait: ResWait,
-    lastTopic: OffsetDateTime,
-    date: OffsetDateTime,
+    lastTopic: DateTime,
+    date: DateTime,
     // 毎日リセットされ、特殊動作をすると増えるポイント
     point: Int,
-    lastOneTopic: OffsetDateTime
+    lastOneTopic: DateTime
 );
 
 object User {
@@ -187,8 +186,8 @@ object User {
             self.resWait.count.h1.toDouble < Wait.h1.toDouble * coe &&
             self.resWait.count.m30.toDouble < Wait.m30.toDouble * coe &&
             self.resWait.count.m10.toDouble < Wait.m10.toDouble * coe &&
-            self.resWait.last.toEpochMilli + 1000 * Wait.minSecond <
-              requestDate.toEpochMilli,
+            self.resWait.last + Interval.fromSeconds(Wait.minSecond) <
+              requestDate,
           self.copy(
             resWait = ResWait(
               last = requestDate,
@@ -211,7 +210,7 @@ object User {
       for {
         requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
         result <- EitherT.cond[F](
-          self.lastTopic.toEpochMilli + 1000 * 60 * 30 < requestDate.toEpochMilli,
+          self.lastTopic + Interval.fromMinutes(30) < requestDate,
           self.copy(lastTopic = requestDate),
           AtPrerequisiteError("連続書き込みはできません"): AtError
         )
@@ -223,7 +222,7 @@ object User {
       for {
         requestDate <- EitherT.right(ClockAlg[F].getRequestDate())
         result <- EitherT.cond[F](
-          self.lastOneTopic.toEpochMilli + 1000 * 60 * 10 < requestDate.toEpochMilli,
+          self.lastOneTopic + Interval.fromMinutes(10) < requestDate,
           self.copy(lastOneTopic = requestDate),
           AtPrerequisiteError("連続書き込みはできません"): AtError
         )

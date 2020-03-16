@@ -1,17 +1,16 @@
 package com.anontown.ports;
 
-import java.time.OffsetDateTime;
 import cats.tagless._
 import cats.Monad
+import com.anontown.entities.DateTime
 
 @finalAlg
 trait ClockAlg[F[_]] {
-  def getRequestDate(): F[OffsetDateTime];
+  def getRequestDate(): F[DateTime];
 }
 
-class ClockImpl[F[_]: Monad](val requestDate: OffsetDateTime)
-    extends ClockAlg[F] {
-  def getRequestDate(): F[OffsetDateTime] = {
+class ClockImpl[F[_]: Monad](val requestDate: DateTime) extends ClockAlg[F] {
+  def getRequestDate(): F[DateTime] = {
     Monad[F].pure(requestDate)
   }
 }

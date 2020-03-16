@@ -1,8 +1,6 @@
 package com.anontown.entities.profile
 
-import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
-import com.anontown.utils.Impl._;
 import com.anontown.AtError
 import com.anontown.ports.ObjectIdGeneratorAlg
 import com.anontown.ports.ClockAlg
@@ -10,6 +8,7 @@ import com.anontown.AtRightError
 import com.anontown.AuthToken
 import com.anontown.entities.user.UserId
 import cats.data.EitherT
+import com.anontown.entities.DateTime
 
 final case class ProfileAPI(
     id: String,
@@ -33,8 +32,8 @@ final case class Profile(
     user: UserId,
     name: ProfileName,
     text: ProfileText,
-    date: OffsetDateTime,
-    update: OffsetDateTime,
+    date: DateTime,
+    update: DateTime,
     sn: ProfileSn
 );
 

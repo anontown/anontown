@@ -1,8 +1,6 @@
 package com.anontown.entities.msg
 
-import java.time.OffsetDateTime
 import cats._, cats.implicits._, cats.derived._
-import com.anontown.utils.Impl._;
 import com.anontown.AtError
 import com.anontown.ports.ObjectIdGeneratorAlg
 import com.anontown.ports.ClockAlg
@@ -10,6 +8,7 @@ import com.anontown.AtRightError
 import com.anontown.AuthToken
 import com.anontown.entities.user.{UserId, User}
 import cats.data.EitherT
+import com.anontown.entities.DateTime
 
 final case class MsgAPI(id: String, priv: Boolean, text: String, date: String);
 
@@ -24,7 +23,7 @@ final case class Msg(
     id: MsgId,
     receiver: Option[UserId],
     text: String,
-    date: OffsetDateTime
+    date: DateTime
 );
 
 object Msg {
