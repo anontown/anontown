@@ -4,5 +4,5 @@ import sangria.macros.derive.GraphQLField
 
 class Query(ctx: Ctx) {
   @GraphQLField
-  def dymmy = ""
+  def dummy = ""
 }

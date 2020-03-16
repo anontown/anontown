@@ -4,5 +4,5 @@ import sangria.macros.derive.GraphQLField
 
 class Mutation(ctx: Ctx) {
   @GraphQLField
-  def dymmy = ""
+  def dummy = ""
 }
