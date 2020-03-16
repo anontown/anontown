@@ -18,6 +18,12 @@ final case class DateTime(epochMilli: Long) {
   def toOffsetDateTime(zoneId: ZoneId = ZoneOffset.UTC): OffsetDateTime =
     OffsetDateTime.ofInstant(this.toInstant, zoneId)
 
+  def +(interval: Interval): DateTime =
+    DateTime(this.epochMilli + interval.milli)
+
+  def -(interval: Interval): DateTime =
+    DateTime(this.epochMilli - interval.milli)
+
   override def toString: String = this.toOffsetDateTime().toString()
 }
 
