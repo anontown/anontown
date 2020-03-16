@@ -62,7 +62,9 @@ lazy val root = (project in file("."))
       "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion,
       "com.chuusai" %% "shapeless" % "2.3.3",
       "org.sangria-graphql" %% "sangria" % "2.0.0-M4",
-      "org.sangria-graphql" %% "sangria-circe" % "1.3.0"
+      "org.sangria-graphql" %% "sangria-circe" % "1.3.0",
+      "co.fs2" %% "fs2-core" % "2.2.1",
+      "co.fs2" %% "fs2-io" % "2.2.1"
     ),
     mainClass in assembly := Some("com.anontown.App"),
     assemblyJarName in assembly := "app.jar"

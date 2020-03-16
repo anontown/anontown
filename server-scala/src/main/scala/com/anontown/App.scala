@@ -1,7 +1,6 @@
 package com.anontown;
 
 import sangria.renderer.SchemaRenderer
-import sangria.ast.SchemaDefinition
 
 object App {
   def main(args: Array[String]): Unit = {
