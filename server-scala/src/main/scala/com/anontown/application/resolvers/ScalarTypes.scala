@@ -26,7 +26,7 @@ object ScalarTypes {
           .parse(s)
           .map(Right(_))
           .getOrElse(Left(DateTimeCoercionViolation))
-      case _ ⇒ Left(DateTimeCoercionViolation)
+      case _ => Left(DateTimeCoercionViolation)
     }
   )
 }
