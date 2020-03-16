@@ -9,7 +9,7 @@ case object DateTimeCoercionViolation
     extends ValueCoercionViolation("DateTime value expected(ISO 8601)")
 
 object ScalarTypes {
-  val DateTimeType = ScalarType[DateTime](
+  implicit val dateTimeType = ScalarType[DateTime](
     "DateTime",
     coerceOutput = (d, _) => d.toString(),
     coerceUserInput = {
