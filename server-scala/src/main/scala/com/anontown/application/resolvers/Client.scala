@@ -10,8 +10,7 @@ import com.anontown.entities.DateTime
 import com.anontown.application.resolvers.ScalarTypes.dateTimeType
 
 final case class Client(
-    @GraphQLOutputType(IDType)
-    id: String,
+    @GraphQLOutputType(IDType) id: String,
     name: String,
     url: String,
     self: Option[Boolean],
