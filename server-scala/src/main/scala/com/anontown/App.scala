@@ -8,8 +8,12 @@ object App {
       case Array() => {}
       case Array("generate-schema") => {
         import com.anontown.application.resolvers.AppSchema;
+        import scala.concurrent.ExecutionContext.Implicits.global
+        import cats.effect.IO.contextShift
 
-        val schema = AppSchema.getSchema();
+        implicit val cs = contextShift(implicitly)
+
+        val schema = AppSchema.createSchema();
 
         println(SchemaRenderer.renderSchema(schema))
 

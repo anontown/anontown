@@ -4,11 +4,16 @@ import sangria.schema._
 import sangria.execution._
 import sangria.macros._
 import sangria.marshalling.circe._
-import scala.concurrent.ExecutionContext.Implicits.global
 import sangria.macros.derive._
+import cats.effect.ContextShift
+import cats.effect.IO
+import scala.concurrent.ExecutionContext
 
 object AppSchema {
-  def getSchema(): Schema[Ctx, Unit] = {
+  def createSchema()(
+      implicit ec: ExecutionContext,
+      ioContextShift: ContextShift[IO]
+  ): Schema[Ctx, Unit] = {
     val queryType =
       deriveContextObjectType[Ctx, Query, Unit](ctx => new Query(ctx))
     val mutationType =
@@ -16,13 +21,7 @@ object AppSchema {
     Schema(
       query = queryType,
       mutation = Some(mutationType),
-      subscription = Some({
-        // TODO: 外から設定できるべき
-        import scala.concurrent.ExecutionContext.Implicits.global
-        import cats.effect.IO.contextShift
-        implicit val cs = contextShift(implicitly)
-        Subscription.subscriptionType
-      })
+      subscription = Some(Subscription.subscriptionType)
     )
 
   }
