@@ -9,22 +9,72 @@ import sangria.macros._
 import sangria.macros.derive._
 import com.anontown.entities.DateTime
 import com.anontown.application.resolvers.ScalarTypes.dateTimeType
+import sangria.schema.InterfaceType
+import sangria.schema.Field
+import sangria.schema.OptionType
+import sangria.schema.BooleanType
+import sangria.schema.IntType
+import sangria.schema.StringType
 
-// TODO: interfaceじゃん
-final case class Res(
-    @GraphQLOutputType(IDType) id: String,
-    @GraphQLExclude topicId: String,
-    date: DateTime,
-    self: Option[Boolean],
-    uv: Int,
-    dv: Int,
-    hash: String,
-    replyCount: Int,
-    voteFlag: Option[VoteFlag]
-) {
-  // TODO: topic: Topic!
+sealed trait Res {
+  val id: String;
+  val topicId: String;
+  val date: DateTime;
+  val self: Option[Boolean]
+  val uv: Int
+  val dv: Int
+  val hash: String
+  val replyCount: Int
+  val voteFlag: Option[VoteFlag]
 }
 
 object Res {
-  implicit val resType = deriveObjectType[Ctx, Res]()
+  implicit val resType: InterfaceType[Ctx, Res] =
+    InterfaceType(
+      "Res",
+      () =>
+        List(
+          Field(
+            "id",
+            IDType,
+            resolve = _.value.id
+          ),
+          Field(
+            "date",
+            dateTimeType,
+            resolve = _.value.date
+          ),
+          Field(
+            "self",
+            OptionType(BooleanType),
+            resolve = _.value.self
+          ),
+          Field(
+            "uv",
+            IntType,
+            resolve = _.value.uv
+          ),
+          Field(
+            "dv",
+            IntType,
+            resolve = _.value.dv
+          ),
+          Field(
+            "hash",
+            StringType,
+            resolve = _.value.hash
+          ),
+          Field(
+            "replyCount",
+            IntType,
+            resolve = _.value.replyCount
+          ),
+          Field(
+            "voteFlag",
+            OptionType(VoteFlag.voteFlagType),
+            resolve = _.value.voteFlag
+          )
+          // TODO: topic: Topic!
+        )
+    )
 }
