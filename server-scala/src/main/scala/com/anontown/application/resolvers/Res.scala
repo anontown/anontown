@@ -10,6 +10,7 @@ import sangria.macros.derive._
 import com.anontown.entities.DateTime
 import com.anontown.application.resolvers.ScalarTypes.dateTimeType
 
+// TODO: interfaceじゃん
 final case class Res(
     @GraphQLOutputType(IDType) id: String,
     @GraphQLExclude topicId: String,
