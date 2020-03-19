@@ -120,7 +120,6 @@ object ResNormal {
           TODO:
           reply: Res
           profile: Profile
-
            */
           Field(
             "isReply",
