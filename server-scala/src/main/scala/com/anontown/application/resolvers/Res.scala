@@ -2,7 +2,6 @@ package com.anontown.application.resolvers
 
 import sangria.macros.derive.GraphQLName
 import sangria.macros.derive.GraphQLDescription
-import sangria.macros.derive.GraphQLOutputType
 import sangria.macros.derive.GraphQLExclude
 import sangria.schema.IDType
 import sangria.macros._
@@ -17,7 +16,7 @@ import sangria.schema.IntType
 import sangria.schema.StringType
 
 sealed trait Res {
-  val id: String;
+  val id: ID;
   val topicId: String;
   val date: DateTime;
   val self: Option[Boolean]
@@ -36,7 +35,7 @@ object Res {
         List(
           Field(
             "id",
-            IDType,
+            ID.idType,
             resolve = _.value.id
           ),
           Field(
