@@ -129,3 +129,109 @@ object ResNormal {
         )
     )
 }
+
+final case class ResHistory(
+    id: ID,
+    topicId: ID,
+    date: DateTime,
+    self: Option[Boolean],
+    uv: Int,
+    dv: Int,
+    hash: String,
+    replyCount: Int,
+    voteFlag: Option[VoteFlag],
+    historyId: ID
+) extends Res;
+
+object ResHistory {
+  implicit val resHistoryType: ObjectType[Ctx, ResHistory] =
+    ObjectType[Ctx, ResHistory](
+      name = "ResHistory",
+      interfaces = interfaces(PossibleInterface[Ctx, ResHistory](Res.resType)),
+      fieldsFn = () =>
+        Res.resResolvers[ResHistory] ++ List[Field[Ctx, ResHistory]](
+          /*
+          TODO:
+          history: History
+         */
+        )
+    )
+}
+
+final case class ResTopic(
+    id: ID,
+    topicId: ID,
+    date: DateTime,
+    self: Option[Boolean],
+    uv: Int,
+    dv: Int,
+    hash: String,
+    replyCount: Int,
+    voteFlag: Option[VoteFlag]
+) extends Res;
+
+object ResTopic {
+  implicit val resTopicType: ObjectType[Ctx, ResTopic] =
+    ObjectType[Ctx, ResTopic](
+      name = "ResTopic",
+      interfaces = interfaces(PossibleInterface[Ctx, ResTopic](Res.resType)),
+      fieldsFn = () => Res.resResolvers[ResTopic]
+    )
+}
+
+final case class ResFork(
+    id: ID,
+    topicId: ID,
+    date: DateTime,
+    self: Option[Boolean],
+    uv: Int,
+    dv: Int,
+    hash: String,
+    replyCount: Int,
+    voteFlag: Option[VoteFlag],
+    forkId: ID
+) extends Res;
+
+object ResFork {
+  implicit val resForkType: ObjectType[Ctx, ResFork] =
+    ObjectType[Ctx, ResFork](
+      name = "ResFork",
+      interfaces = interfaces(PossibleInterface[Ctx, ResFork](Res.resType)),
+      fieldsFn = () =>
+        Res.resResolvers[ResFork] ++ List[Field[Ctx, ResFork]](
+          /*
+          TODO:
+          fork: TopicFork
+         */
+        )
+    )
+}
+
+final case class ResDelete(
+    id: ID,
+    topicId: ID,
+    date: DateTime,
+    self: Option[Boolean],
+    uv: Int,
+    dv: Int,
+    hash: String,
+    replyCount: Int,
+    voteFlag: Option[VoteFlag],
+    flag: ResDeleteFlag
+) extends Res;
+
+object ResDelete {
+  implicit val resDeleteType: ObjectType[Ctx, ResDelete] =
+    ObjectType[Ctx, ResDelete](
+      name = "ResDelete",
+      interfaces = interfaces(PossibleInterface[Ctx, ResDelete](Res.resType)),
+      fieldsFn = () =>
+        Res.resResolvers[ResDelete] ++ List[Field[Ctx, ResDelete]](
+          Field(
+            "flag",
+            ResDeleteFlag.resDeleteFlagType,
+            resolve = _.value.flag
+          )
+        )
+    )
+}
