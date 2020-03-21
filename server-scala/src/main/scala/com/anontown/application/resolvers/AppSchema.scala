@@ -1,9 +1,6 @@
 package com.anontown.application.resolvers
 
 import sangria.schema._
-import sangria.execution._
-import sangria.macros._
-import sangria.marshalling.circe._
 import sangria.macros.derive._
 import cats.effect.ContextShift
 import cats.effect.IO

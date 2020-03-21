@@ -8,11 +8,7 @@ import sangria.schema.Argument
 import shapeless.{HList, ::}
 import simulacrum.typeclass
 import shapeless.HNil
-import sangria.schema.{StringType, IntType}
 import shapeless.Generic
-import sangria.schema.InputType
-import sangria.marshalling.FromInput
-import sangria.schema.WithoutInputTypeTags
 
 @typeclass
 trait ArgTypeHList[L <: HList] {

@@ -1,6 +1,5 @@
 package com.anontown.application.resolvers
 
-import sangria.schema.IDType
 import sangria.macros.derive.GraphQLExclude
 import com.anontown.entities.DateTime
 import sangria.macros.derive._

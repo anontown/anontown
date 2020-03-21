@@ -2,19 +2,10 @@ package com.anontown.application.resolvers
 
 import com.anontown.entities.DateTime
 
-import sangria.macros.derive.GraphQLName
-import sangria.macros.derive.GraphQLDescription
-import sangria.macros.derive.GraphQLExclude
-import sangria.schema.IDType
-import sangria.macros._
-import sangria.macros.derive._
 import com.anontown.entities.DateTime
 import com.anontown.application.resolvers.ScalarTypes.dateTimeType
 import sangria.schema.InterfaceType
 import sangria.schema.Field
-import sangria.schema.OptionType
-import sangria.schema.BooleanType
-import sangria.schema.IntType
 import sangria.schema.StringType
 import sangria.schema.ObjectType
 import sangria.schema.PossibleInterface
