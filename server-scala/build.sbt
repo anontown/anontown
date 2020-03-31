@@ -64,7 +64,8 @@ lazy val root = (project in file("."))
       "org.sangria-graphql" %% "sangria" % "2.0.0-M4",
       "org.sangria-graphql" %% "sangria-circe" % "1.3.0",
       "co.fs2" %% "fs2-core" % "2.2.1",
-      "co.fs2" %% "fs2-io" % "2.2.1"
+      "co.fs2" %% "fs2-io" % "2.2.1",
+      "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0"
     ),
     mainClass in assembly := Some("com.anontown.App"),
     assemblyJarName in assembly := "app.jar"
