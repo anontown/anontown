@@ -1,6 +1,6 @@
 /data/
 .env
 /deploy/
-/.vscode
+.vscode
 .DS_Store
-/.metals/
+.metals/
