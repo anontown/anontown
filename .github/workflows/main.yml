@@ -13,8 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: shared
-        run: ./bin/shared.sh
       - name: install dcdy
         run: |
           mkdir -p ~/.local/bin
@@ -30,8 +28,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: shared
-        run: ./bin/shared.sh
       - name: install dcdy
         run: |
           mkdir -p ~/.local/bin
@@ -47,8 +43,6 @@ jobs:
     needs: [server, client]
     steps:
       - uses: actions/checkout@v1
-      - name: shared
-        run: ./bin/shared.sh
       - name: login
         run: docker login docker.pkg.github.com -u $GITHUB_ACTOR -p $PERSONAL_TOKEN
         env:
@@ -71,8 +65,6 @@ jobs:
     needs: [docker-build-and-push]
     steps:
       - uses: actions/checkout@v1
-      - name: shared
-        run: ./bin/shared.sh
       - uses: actions/setup-node@v1
         with:
           node-version: "10.x"

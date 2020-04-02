@@ -79,6 +79,7 @@
     "loc": "sloc --format cli-table ./src",
     "codegen": "graphql-codegen",
     "codegen:watch": "graphql-codegen -w",
-    "migrate": "node ./dist/jobs/migrate.js"
+    "migrate": "node ./dist/jobs/migrate.js",
+    "render-schema": "node ./dist/render-schema.js"
   }
 }

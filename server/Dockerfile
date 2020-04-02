@@ -16,10 +16,12 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 COPY package.json package-lock.json $APP_HOME/
 RUN npm ci --no-progress
 COPY lerna.json $APP_HOME/
-COPY shared $APP_HOME/shared
+COPY schema.gql $APP_HOME/schema.gql
 COPY packages $APP_HOME/packages
 RUN npx lerna bootstrap --ci --no-progress \
   &&  npx lerna run build --scope @anontown/server
+
+COPY render-schema.sh $APP_HOME/
 
 CMD dockerize -wait tcp://$ES_HOST -wait tcp://$REDIS_HOST -wait tcp://$MONGO_HOST \
   && npx lerna run start --scope @anontown/server --stream

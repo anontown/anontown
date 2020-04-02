@@ -1,4 +1,4 @@
-.PHONY: noop bootstrap migrate shared build.all.server build.all.client build.all up stop rm restart.server restart.client watch.bff build.bff watch.client build.client build.client-icon watch.route build.route watch.server build.server lint.fix test build.doc build.docker
+.PHONY: noop bootstrap migrate build.all.server build.all.client build.all up stop rm restart.server restart.client watch.bff build.bff watch.client build.client build.client-icon watch.route build.route watch.server build.server lint.fix test build.doc build.docker update-schema
 
 noop:
 	echo
@@ -14,17 +14,14 @@ migrate:
 build.docker:
 	DCDY_MODE=dev dcdy build
 
-shared:
-	./bin/shared.sh
-
-build.all.server: shared
+build.all.server:
 	cd server && npx lerna run build:dev --scope=@anontown/server --include-filtered-dependencies --stream
 
-build.all.client: shared
+build.all.client:
 	cd client && npx lerna run build:dev --scope=@anontown/bff --include-filtered-dependencies --stream
 
 
-build.all.doc: shared
+build.all.doc:
 	cd doc && npm run build
 
 build.all: build.all.server build.all.client build.all.doc
@@ -80,3 +77,7 @@ lint.fix:
 
 test:
 	DCDY_MODE=test dcdy run --rm server npx lerna run test:io --scope @anontown/server --stream
+
+update-schema:
+	docker build -t server server
+	docker run --rm server ./render-schema.sh > client/schema.json
