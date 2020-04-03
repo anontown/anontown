@@ -27,3 +27,16 @@ build:
           - "src/*"
     - image: camo
       context: camo
+portForward:
+  - resourceType: deployment
+    resourceName: camo
+    port: 4181
+  - resourceType: deployment
+    resourceName: client
+    port: 3000
+  - resourceType: deployment
+    resourceName: doc
+    port: 4928
+  - resourceType: deployment
+    resourceName: server
+    port: 8080
