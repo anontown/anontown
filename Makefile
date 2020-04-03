@@ -1,4 +1,4 @@
-.PHONY: noop bootstrap migrate build.all.server build.all.client build.all up stop rm restart.server restart.client watch.bff build.bff watch.client build.client build.client-icon watch.route build.route watch.server build.server lint.fix test build.doc build.docker update-schema
+.PHONY: noop bootstrap migrate build.all.server build.all.client build.all up stop rm restart.server restart.client watch.bff build.bff watch.client build.client build.client-icon watch.route build.route watch.server build.server lint.fix test build.doc build.docker update-schema load-env
 
 noop:
 	echo
@@ -81,3 +81,8 @@ test:
 update-schema:
 	docker build -t server server
 	docker run --rm server ./render-schema.sh > client/schema.json
+load-env:
+	kubectl delete secret secret || :
+	kubectl create secret generic secret --from-env-file .secret
+	kubectl delete configmap config || :
+	kubectl create configmap config --from-env-file .config
