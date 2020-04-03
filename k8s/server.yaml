@@ -71,10 +71,10 @@ spec:
                   name: secret
                   key: SALT_PASS
             - name: SALT_HASH
-                valueFrom:
-                  secretKeyRef:
-                    name: secret
-                    key: SALT_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: SALT_HASH
             - name: SALT_TOKEN
               valueFrom:
                 secretKeyRef:
