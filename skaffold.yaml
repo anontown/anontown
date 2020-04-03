@@ -7,21 +7,21 @@ build:
     - image: server
       context: server
       docker:
-        dockerfile: server/dev.Dockerfile
+        dockerfile: dev.Dockerfile
       sync:
         infer:
           - "packages/*"
     - image: client
       context: client
       docker:
-        dockerfile: client/dev.Dockerfile
+        dockerfile: dev.Dockerfile
       sync:
         infer:
           - "packages/*"
     - image: doc
       context: doc
       docker:
-        dockerfile: doc/dev.Dockerfile
+        dockerfile: dev.Dockerfile
       sync:
         infer:
           - "src/*"
