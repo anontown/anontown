@@ -1,0 +1,29 @@
+apiVersion: skaffold/v2beta1
+kind: Config
+build:
+  artifacts:
+    - image: es
+      context: es
+    - image: server
+      context: server
+      docker:
+        dockerfile: server/dev.Dockerfile
+      sync:
+        infer:
+          - "packages/*"
+    - image: client
+      context: client
+      docker:
+        dockerfile: client/dev.Dockerfile
+      sync:
+        infer:
+          - "packages/*"
+    - image: doc
+      context: doc
+      docker:
+        dockerfile: doc/dev.Dockerfile
+      sync:
+        infer:
+          - "src/*"
+    - image: camo
+      context: camo

@@ -2,6 +2,7 @@ FROM node:10.15.3
 
 ENV HOME=/home/app
 ENV APP_HOME=$HOME/.anontown
+ENV SAVE_DIR=../../
 
 WORKDIR $APP_HOME
 

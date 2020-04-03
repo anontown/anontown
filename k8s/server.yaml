@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+spec:
+  ports:
+    - port: 8080
+  selector:
+    app: server
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: server-pv
+  labels:
+    app: server
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /data/anontown/app
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: server-pvc
+selector:
+  matchLabels:
+    app: server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: server
+spec:
+  selector:
+    matchLabels:
+      app: server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+        - image: server
+          name: server
+          env:
+            - name: SERVER_PORT
+              value: "8080"
+            - name: MONGO_HOST
+              value: mongo:27017
+            - name: ES_HOST
+              value: es:9200
+            - name: REDIS_HOST
+              value: redis:6379
+            - name: SALT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: SALT_PASS
+            - name: SALT_HASH
+                valueFrom:
+                  secretKeyRef:
+                    name: secret
+                    key: SALT_HASH
+            - name: SALT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: SALT_TOKEN
+            - name: SALT_TOKEN_REQ
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: SALT_TOKEN_REQ
+            - name: RECAPTCHA_SITE_KET
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: RECAPTCHA_SITE_KET
+            - name: RECAPTCHA_SECRET_KET
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: RECAPTCHA_SECRET_KET
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: server-volume
+              mountPath: /home/app/.anontown/logs
+              subPath: logs
+            - name: server-volume
+              mountPath: /home/app/.anontown/data
+              subPath: data
+      volumes:
+        - name: server-volume
+          persistentVolumeClaim:
+            claimName: server-pvc
