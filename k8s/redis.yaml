@@ -60,7 +60,7 @@ spec:
           ports:
             - containerPort: 6379
           volumeMounts:
-            - name: es-volume
+            - name: redis-volume
               mountPath: /data
       volumes:
         - name: redis-volume
