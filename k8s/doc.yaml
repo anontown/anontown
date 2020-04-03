@@ -10,7 +10,7 @@ spec:
     app: doc
   clusterIP: None
 ---
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: doc
@@ -28,5 +28,5 @@ spec:
       containers:
         - image: doc
           name: doc
-      ports:
-        - containerPort: 80
+          ports:
+            - containerPort: 80

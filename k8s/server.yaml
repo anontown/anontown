@@ -28,17 +28,17 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: server-pvc
-selector:
-  matchLabels:
-    app: server
 spec:
+  selector:
+    matchLabels:
+      app: server
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
 ---
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: server
