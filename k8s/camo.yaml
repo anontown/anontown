@@ -22,7 +22,7 @@ spec:
   template:
     metadata:
       labels:
-        app: 4181
+        app: camo
     spec:
       containers:
         - image: camo
