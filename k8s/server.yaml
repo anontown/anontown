@@ -9,36 +9,6 @@ spec:
     app: server
   clusterIP: None
 ---
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: server-pv
-  labels:
-    app: server
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /data/anontown/app
-    type: DirectoryOrCreate
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: server-pvc
-spec:
-  selector:
-    matchLabels:
-      app: server
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -107,5 +77,6 @@ spec:
               subPath: data
       volumes:
         - name: server-volume
-          persistentVolumeClaim:
-            claimName: server-pvc
+          hostPath:
+            path: /data/anontown/app
+            type: DirectoryOrCreate

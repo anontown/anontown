@@ -9,36 +9,6 @@ spec:
     app: redis
   clusterIP: None
 ---
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: redis-pv
-  labels:
-    app: redis
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /data/anontown/redis
-    type: DirectoryOrCreate
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: redis-pvc
-spec:
-  selector:
-    matchLabels:
-      app: redis
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -65,5 +35,6 @@ spec:
               mountPath: /data
       volumes:
         - name: redis-volume
-          persistentVolumeClaim:
-            claimName: redis-pvc
+          hostPath:
+            path: /data/anontown/redis
+            type: DirectoryOrCreate

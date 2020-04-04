@@ -9,36 +9,6 @@ spec:
     app: es
   clusterIP: None
 ---
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: es-pv
-  labels:
-    app: es
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /data/anontown/db
-    type: DirectoryOrCreate
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: es-pvc
-spec:
-  selector:
-    matchLabels:
-      app: es
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -64,5 +34,6 @@ spec:
               mountPath: /usr/share/elasticsearch/data
       volumes:
         - name: es-volume
-          persistentVolumeClaim:
-            claimName: es-pvc
+          hostPath:
+            path: /data/anontown/db
+            type: DirectoryOrCreate
