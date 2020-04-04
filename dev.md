@@ -26,6 +26,11 @@ $ microk8s stop
 $ microk8s start
 ```
 
+## dns有効化
+```sh
+$ microk8s enable dns
+```
+
 ## 起動
 ```sh
 $ cp .config.sample .config
