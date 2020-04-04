@@ -8,7 +8,7 @@
     "start": "node ./dist/app.js",
     "build": "tsc",
     "start:watch": "wait-on ./dist/app.js && nodemon --delay 5 ./dist/app.js",
-    "build:watch": "tsc -w",
+    "build:watch": "tsc -w --preserveWatchOutput",
     "clean": "rm -rf ./dist"
   },
   "author": "kgtkr",
