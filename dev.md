@@ -37,7 +37,7 @@ $ cp .config.sample .config
 $ cp .secret.sample .secret
 # edit
 $ make load-env
-$ skaffold dev --port-forward
+$ make serve
 # localhost:3000
 ```
 
