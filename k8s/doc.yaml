@@ -5,7 +5,6 @@ metadata:
 spec:
   ports:
     - port: 4928
-      targetPort: 80
   selector:
     app: doc
   clusterIP: None
@@ -29,4 +28,4 @@ spec:
         - image: doc
           name: doc
           ports:
-            - containerPort: 80
+            - containerPort: 4928

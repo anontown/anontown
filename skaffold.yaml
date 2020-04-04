@@ -25,6 +25,8 @@ build:
       sync:
         infer:
           - "src/*"
+          - "README.md"
+          - "SUMMARY.md"
     - image: camo
       context: camo
 portForward:
