@@ -19,4 +19,4 @@ COPY packages ./packages
 RUN npx lerna run build --scope @anontown/client --include-filtered-dependencies \
   && npx lerna run build --scope @anontown/bff --include-filtered-dependencies
 
-CMD cd packages/bff && npm start
+CMD npx lerna run start --scope @anontown/bff --stream
