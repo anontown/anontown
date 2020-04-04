@@ -70,10 +70,10 @@ spec:
             - containerPort: 8080
           volumeMounts:
             - name: server-volume
-              mountPath: /home/app/.anontown/logs
+              mountPath: /home/logs
               subPath: logs
             - name: server-volume
-              mountPath: /home/app/.anontown/data
+              mountPath: /home/data
               subPath: data
       volumes:
         - name: server-volume

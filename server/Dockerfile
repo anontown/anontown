@@ -1,28 +1,34 @@
+FROM alpine:3.11.5 as dockerize
+
+WORKDIR /home
+
+RUN apk add --no-cache openssl
+
+ENV DOCKERIZE_VERSION v0.6.1
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+  && tar -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+  && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
 FROM node:10.15.3
 
-ENV HOME=/home/app
-ENV APP_HOME=$HOME/.anontown
+WORKDIR /home
+
+COPY --from=dockerize /home/dockerize /usr/local/bin/
+
 ENV SAVE_DIR=../../
 
-WORKDIR $APP_HOME
-
-RUN apt update && \
-  apt install -y wget
-
-ENV DOCKERIZE_VERSION=v0.6.1
-RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-  && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-  && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-
-COPY package.json package-lock.json $APP_HOME/
+COPY package.json package-lock.json ./
 RUN npm ci --no-progress
-COPY lerna.json $APP_HOME/
-COPY schema.gql $APP_HOME/schema.gql
-COPY packages $APP_HOME/packages
-RUN npx lerna bootstrap --ci --no-progress \
-  &&  npx lerna run build --scope @anontown/server
 
-COPY render-schema.sh $APP_HOME/
+COPY lerna.json ./
+COPY packages/server/package.json packages/server/package-lock.json ./packages/server/
+RUN npx lerna bootstrap --ci --no-progress
+
+COPY schema.gql ./schema.gql
+COPY packages ./packages
+RUN npx lerna run build --scope @anontown/server
+
+COPY render-schema.sh ./
 
 CMD dockerize -wait tcp://$ES_HOST -wait tcp://$REDIS_HOST -wait tcp://$MONGO_HOST \
   && npx lerna run start --scope @anontown/server --stream
