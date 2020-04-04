@@ -1,5 +1,3 @@
-/data/*
-!/data/.gitkeep
 .env
 /deploy/
 .vscode/

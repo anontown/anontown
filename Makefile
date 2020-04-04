@@ -1,4 +1,4 @@
-.PHONY: noop bootstrap migrate build.all.server build.all.client build.all up stop rm restart.server restart.client watch.bff build.bff watch.client build.client build.client-icon watch.route build.route watch.server build.server lint.fix test build.doc build.docker update-schema load-env mount serve
+.PHONY: noop bootstrap migrate build.all.server build.all.client build.all up stop rm restart.server restart.client watch.bff build.bff watch.client build.client build.client-icon watch.route build.route watch.server build.server lint.fix test build.doc build.docker update-schema load-env serve
 
 noop:
 	echo
@@ -86,7 +86,5 @@ load-env:
 	kubectl create secret generic secret --from-env-file .secret
 	kubectl delete configmap config || :
 	kubectl create configmap config --from-env-file .config
-mount:
-	minikube mount $$PWD/data:/data/anontown
 serve:
 	skaffold dev --port-forward
