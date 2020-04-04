@@ -6,7 +6,6 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "build:dev": "npm run build",
     "build:watch": "tsc -w --preserveWatchOutput",
     "clean": "rm -rf ./dist"
   },

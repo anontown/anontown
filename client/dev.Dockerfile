@@ -17,6 +17,7 @@ RUN npx lerna bootstrap --ci --no-progress
 COPY schema.json ./
 COPY packages ./packages
 
-RUN npx lerna run build --scope @anontown/bff --include-filtered-dependencies
-
-CMD lerna run build:watch --parallel --scope=@anontown/client --include-filtered-dependencies & npx lerna run start --scope @anontown/bff --stream
+CMD npx lerna run build:watch --scope @anontown/bff --include-filtered-dependencies \
+  & npx lerna run codegen:watch --scope=@anontown/client --stream \
+  & npx lerna run build:watch --parallel --scope=@anontown/client --include-filtered-dependencies \
+  & npx lerna run start:watch --scope @anontown/bff --stream

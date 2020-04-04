@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node ./dist/app.js",
     "build": "tsc",
-    "build:dev": "npm run build",
+    "start:watch": "wait-on ./dist/app.js && nodemon --delay 5 ./dist/app.js",
     "build:watch": "tsc -w",
     "clean": "rm -rf ./dist"
   },
@@ -29,6 +29,8 @@
     "@types/koa-route": "^3.2.4",
     "@types/koa-send": "^4.1.2",
     "@types/koa-static": "^4.0.1",
-    "@types/node": "^12.7.12"
+    "@types/node": "^12.7.12",
+    "nodemon": "^2.0.2",
+    "wait-on": "^4.0.1"
   }
 }

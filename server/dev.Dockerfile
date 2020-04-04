@@ -26,9 +26,10 @@ RUN npx lerna bootstrap --ci --no-progress
 
 COPY schema.gql ./schema.gql
 COPY packages ./packages
-RUN npx lerna run build --scope @anontown/server
 
 COPY render-schema.sh ./
 
 CMD dockerize -wait tcp://$ES_HOST -wait tcp://$REDIS_HOST -wait tcp://$MONGO_HOST \
-  && npx lerna run start --scope @anontown/server --stream
+  && npx lerna run codegen:watch --scope @anontown/server --stream \
+  & npx lerna run build:watch --parallel --scope @anontown/server --include-filtered-dependencies \
+  & npx lerna run start:watch --scope @anontown/server --stream
