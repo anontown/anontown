@@ -23,6 +23,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /data/anontown/app
+    type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
