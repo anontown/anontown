@@ -9,24 +9,29 @@ build:
       docker:
         dockerfile: dev.Dockerfile
       sync:
-        infer:
-          - "packages/*"
+        manual:
+          - src: "**/*.ts"
+            dest: "."
     - image: client
       context: client
       docker:
         dockerfile: dev.Dockerfile
       sync:
-        infer:
-          - "packages/*"
+        manual:
+          - src: "**/*.ts"
+            dest: "."
+          - src: "**/*.tsx"
+            dest: "."
+          - src: "**/*.scss"
+            dest: "."
     - image: doc
       context: doc
       docker:
         dockerfile: dev.Dockerfile
       sync:
-        infer:
-          - "src/*"
-          - "README.md"
-          - "SUMMARY.md"
+        manual:
+          - src: "**/*.md"
+            dest: "."
     - image: camo
       context: camo
 portForward:

@@ -37,7 +37,7 @@ app.use(async (ctx, next) => {
   if (ctx.method === "HEAD" || ctx.method === "GET") {
     try {
       await send(ctx, ctx.path, {
-        root: path.resolve(rootDir)
+        root: path.resolve(rootDir),
       });
       done = true;
     } catch (err) {
