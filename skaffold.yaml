@@ -28,15 +28,15 @@ build:
     - image: camo
       context: camo
 portForward:
-  - resourceType: deployment
+  - resourceType: service
     resourceName: camo
     port: 4181
-  - resourceType: deployment
+  - resourceType: service
     resourceName: client
     port: 3000
-  - resourceType: deployment
+  - resourceType: service
     resourceName: doc
     port: 4928
-  - resourceType: deployment
+  - resourceType: service
     resourceName: server
     port: 8080
