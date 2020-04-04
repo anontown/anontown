@@ -5,6 +5,7 @@ WORKDIR $HOME
 
 COPY package.json package-lock.json $HOME/
 RUN npm ci --no-progress
+COPY README.md $HOME/
 COPY src $HOME/src
 RUN npm run build
 
