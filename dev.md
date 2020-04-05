@@ -33,10 +33,8 @@ $ microk8s enable dns
 
 ## 起動
 ```sh
-$ cp .config.sample .config
-$ cp .secret.sample .secret
+$ cp -R env.sample env
 # edit
-$ make load-env
 $ make serve
 # localhost:3000
 ```

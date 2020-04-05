@@ -19,13 +19,6 @@ update-schema:
 	docker build -t server server
 	docker run --rm server ./render-schema.sh > client/schema.json
 
-.PHONY: load-env
-load-env:
-	kubectl delete secret secret || :
-	kubectl create secret generic secret --from-env-file .secret
-	kubectl delete configmap config || :
-	kubectl create configmap config --from-env-file .config
-
 .PHONY: serve
 serve:
 	skaffold dev --port-forward
