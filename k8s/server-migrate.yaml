@@ -8,16 +8,7 @@ spec:
       containers:
         - name: server
           image: server
-          args:
-            [
-              "npx",
-              "lerna",
-              "run",
-              "migrate",
-              "--scope",
-              "@anontown/server",
-              "--stream",
-            ]
+          args: ["./migrate.sh"]
           env:
             - name: SERVER_PORT
               value: "8080"

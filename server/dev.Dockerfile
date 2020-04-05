@@ -27,7 +27,7 @@ COPY packages ./packages
 RUN npx lerna run codegen --scope @anontown/server \
   && npx lerna run build --scope @anontown/server --include-filtered-dependencies
 
-COPY render-schema.sh wait.sh ./
+COPY render-schema.sh wait.sh migrate.sh ./
 
 CMD ./wait.sh \
   && npx lerna run codegen:watch --scope @anontown/server --stream \
