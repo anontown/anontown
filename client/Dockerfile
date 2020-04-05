@@ -1,4 +1,4 @@
-FROM node:10.15.3
+FROM node:10.15.3 as base
 
 WORKDIR /home
 
@@ -20,4 +20,11 @@ RUN npx lerna run codegen --scope @anontown/client \
   && npx lerna run build --scope @anontown/client --include-filtered-dependencies \
   && npx lerna run build --scope @anontown/bff --include-filtered-dependencies
 
+FROM base as dev
+CMD CMD npx lerna run build:watch --parallel --scope @anontown/bff --include-filtered-dependencies \
+  & npx lerna run codegen:watch --scope=@anontown/client --stream \
+  & npx lerna run build:watch --parallel --scope=@anontown/client --include-filtered-dependencies \
+  & npx lerna run start:watch --scope @anontown/bff --stream
+
+FROM base
 CMD npx lerna run start --scope @anontown/bff --stream

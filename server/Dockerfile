@@ -9,7 +9,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
   && tar -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
   && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-FROM node:10.15.3
+FROM node:10.15.3 as base
 
 WORKDIR /home
 
@@ -28,6 +28,15 @@ RUN npx lerna run codegen --scope @anontown/server \
   && npx lerna run build --scope @anontown/server --include-filtered-dependencies
 
 COPY render-schema.sh wait.sh migrate.sh ./
+
+FROM base as dev
+
+CMD ./wait.sh \
+  && npx lerna run codegen:watch --scope @anontown/server --stream \
+  & npx lerna run build:watch --parallel --scope @anontown/server --include-filtered-dependencies \
+  & npx lerna run start:watch --scope @anontown/server --stream
+
+FROM base
 
 CMD ./wait.sh \
   && npx lerna run start --scope @anontown/server --stream

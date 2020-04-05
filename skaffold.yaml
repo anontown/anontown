@@ -27,7 +27,7 @@ profiles:
         - image: server
           context: server
           docker:
-            dockerfile: dev.Dockerfile
+            target: dev
           sync:
             manual:
               - src: "**/*.ts"
@@ -35,7 +35,7 @@ profiles:
         - image: client
           context: client
           docker:
-            dockerfile: dev.Dockerfile
+            target: dev
           sync:
             manual:
               - src: "**/*.ts"
@@ -47,7 +47,7 @@ profiles:
         - image: doc
           context: doc
           docker:
-            dockerfile: dev.Dockerfile
+            target: dev
           sync:
             manual:
               - src: "**/*.md"
