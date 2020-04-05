@@ -1,6 +1,4 @@
-import * as path from "path";
 import * as winston from "winston";
-import { Config } from "./config";
 
 function createFormatter(label: string) {
   return winston.format.combine(
