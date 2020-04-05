@@ -48,7 +48,7 @@ spec:
             - name: CAMO_KEY
               valueFrom:
                 configMapKeyRef:
-                  name: config
+                  name: common
                   key: CAMO_KEY
             - name: API_ORIGIN
               valueFrom:
