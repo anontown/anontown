@@ -30,5 +30,10 @@ spec:
           env:
             - name: PORT
               value: "4181"
+            - name: CAMO_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: common
+                  key: CAMO_KEY
           ports:
             - containerPort: 4181
