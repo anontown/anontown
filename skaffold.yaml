@@ -1,39 +1,5 @@
 apiVersion: skaffold/v2beta1
 kind: Config
-build:
-  artifacts:
-    - image: es
-      context: es
-    - image: server
-      context: server
-      docker:
-        dockerfile: dev.Dockerfile
-      sync:
-        manual:
-          - src: "**/*.ts"
-            dest: "."
-    - image: client
-      context: client
-      docker:
-        dockerfile: dev.Dockerfile
-      sync:
-        manual:
-          - src: "**/*.ts"
-            dest: "."
-          - src: "**/*.tsx"
-            dest: "."
-          - src: "**/*.scss"
-            dest: "."
-    - image: doc
-      context: doc
-      docker:
-        dockerfile: dev.Dockerfile
-      sync:
-        manual:
-          - src: "**/*.md"
-            dest: "."
-    - image: camo
-      context: camo
 deploy:
   kubectl:
     manifests:
@@ -52,3 +18,52 @@ portForward:
   - resourceType: service
     resourceName: server
     port: 8080
+profiles:
+  - name: dev
+    build:
+      artifacts:
+        - image: es
+          context: es
+        - image: server
+          context: server
+          docker:
+            dockerfile: dev.Dockerfile
+          sync:
+            manual:
+              - src: "**/*.ts"
+                dest: "."
+        - image: client
+          context: client
+          docker:
+            dockerfile: dev.Dockerfile
+          sync:
+            manual:
+              - src: "**/*.ts"
+                dest: "."
+              - src: "**/*.tsx"
+                dest: "."
+              - src: "**/*.scss"
+                dest: "."
+        - image: doc
+          context: doc
+          docker:
+            dockerfile: dev.Dockerfile
+          sync:
+            manual:
+              - src: "**/*.md"
+                dest: "."
+        - image: camo
+          context: camo
+  - name: prod
+    build:
+      artifacts:
+        - image: es
+          context: es
+        - image: server
+          context: server
+        - image: client
+          context: client
+        - image: doc
+          context: doc
+        - image: camo
+          context: camo

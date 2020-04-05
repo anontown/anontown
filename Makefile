@@ -21,4 +21,4 @@ update-schema:
 
 .PHONY: serve
 serve:
-	skaffold dev --port-forward
+	skaffold dev --port-forward -p dev

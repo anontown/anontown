@@ -5,7 +5,7 @@
   "description": "",
   "scripts": {
     "build": "gitbook build src dist",
-    "start": "gitbook --port 4928 serve"
+    "start": "gitbook --port 4928 serve src dist"
   },
   "repository": {
     "type": "git",
