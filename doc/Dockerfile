@@ -13,5 +13,5 @@ RUN npm run build
 
 FROM nginx:1.17.4
 
-COPY --from=builder /home/app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx
+COPY --from=builder /home/app/dist /usr/share/nginx/html
