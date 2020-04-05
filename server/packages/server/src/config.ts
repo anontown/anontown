@@ -1,6 +1,5 @@
 export const Config = {
   timezone: "Asia/Tokyo",
-  saveDir: process.env.SAVE_DIR || ("./" as string),
   server: {
     port: Number(process.env.SERVER_PORT),
   },

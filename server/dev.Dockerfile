@@ -15,8 +15,6 @@ WORKDIR /home
 
 COPY --from=dockerize /home/dockerize /usr/local/bin/
 
-ENV SAVE_DIR=../../
-
 COPY package.json package-lock.json ./
 RUN npm ci --no-progress
 
@@ -26,10 +24,12 @@ RUN npx lerna bootstrap --ci --no-progress
 
 COPY schema.gql ./schema.gql
 COPY packages ./packages
+RUN npx lerna run codegen --scope @anontown/server \
+  && npx lerna run build --scope @anontown/server --include-filtered-dependencies
 
-COPY render-schema.sh ./
+COPY render-schema.sh wait.sh ./
 
-CMD dockerize -wait tcp://$ES_HOST -wait tcp://$REDIS_HOST -wait tcp://$MONGO_HOST \
+CMD ./wait.sh \
   && npx lerna run codegen:watch --scope @anontown/server --stream \
   & npx lerna run build:watch --parallel --scope @anontown/server --include-filtered-dependencies \
   & npx lerna run start:watch --scope @anontown/server --stream

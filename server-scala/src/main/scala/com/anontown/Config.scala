@@ -4,7 +4,6 @@ import java.time.ZoneId
 
 final case class Config(
     timezone: ZoneId,
-    saveDir: String,
     server: ServerConfig,
     mongo: MongoConfig,
     es: EsConfig,
@@ -99,7 +98,6 @@ object Config {
       recaptcha <- RecaptchaConfig.fromEnv(env)
     } yield Config(
       timezone = ZoneId.of("Asia/Tokyo"),
-      saveDir = env.get("SAVE_DIR").getOrElse("./"),
       server = server,
       mongo = mongo,
       es = es,

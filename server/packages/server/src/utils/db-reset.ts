@@ -1,7 +1,7 @@
 import { dbDrop } from "../db-drop";
-import { migrate } from "../migrate";
+import { forceRunAllMigrationsAndNotSave } from "../migrate";
 
 export async function dbReset() {
   await dbDrop();
-  await migrate(0);
+  await forceRunAllMigrationsAndNotSave();
 }

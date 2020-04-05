@@ -1,7 +1,7 @@
 import { ESClient, Mongo } from "../db";
 import { mongoUtils } from "../migration-utils";
 
-export async function migrate_1556067440888_init() {
+export async function up() {
   const db = await Mongo();
 
   const clients = await mongoUtils.createCollection(db, "clients");
