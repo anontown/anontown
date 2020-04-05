@@ -34,6 +34,10 @@ build:
             dest: "."
     - image: camo
       context: camo
+deploy:
+  kubectl:
+    manifests:
+      - k8s/*
 portForward:
   - resourceType: service
     resourceName: camo
