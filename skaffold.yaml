@@ -54,6 +54,10 @@ profiles:
                 dest: "."
         - image: camo
           context: camo
+        - image: mongo
+          context: mongo
+        - image: redis
+          context: redis
   - name: prod
     build:
       artifacts:
@@ -67,3 +71,7 @@ profiles:
           context: doc
         - image: camo
           context: camo
+        - image: mongo
+          context: mongo
+        - image: redis
+          context: redis
