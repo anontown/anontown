@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: server
+          image: anontown/server
           args: ["./bin/migrate.sh"]
           env:
             - name: SERVER_PORT

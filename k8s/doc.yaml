@@ -25,7 +25,7 @@ spec:
         app: doc
     spec:
       containers:
-        - image: doc
+        - image: anontown/doc
           name: doc
           ports:
             - containerPort: 4928
