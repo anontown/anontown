@@ -22,8 +22,9 @@ RUN npx lerna run codegen --scope @anontown/client \
 
 COPY bin/ bin/
 
+CMD ./bin/start.sh
+
 FROM base as dev
 COPY bin-dev/ bin/
 
 FROM base
-CMD ./bin/start.sh
