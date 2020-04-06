@@ -17,7 +17,7 @@ test:
 .PHONY: update-schema
 update-schema:
 	docker build -t server server
-	docker run --rm server ./render-schema.sh > client/schema.json
+	docker run --rm server ./bin/render-schema.sh > client/schema.json
 
 .PHONY: serve
 serve:

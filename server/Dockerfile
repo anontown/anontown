@@ -27,16 +27,12 @@ COPY packages ./packages
 RUN npx lerna run codegen --scope @anontown/server \
   && npx lerna run build --scope @anontown/server --include-filtered-dependencies
 
-COPY render-schema.sh wait.sh migrate.sh ./
+COPY bin/ bin/
 
 FROM base as dev
-
-CMD ./wait.sh \
-  && npx lerna run codegen:watch --scope @anontown/server --stream \
-  & npx lerna run build:watch --parallel --scope @anontown/server --include-filtered-dependencies \
-  & npx lerna run start:watch --scope @anontown/server --stream
+COPY bin-dev/ bin/
 
 FROM base
 
-CMD ./wait.sh \
-  && npx lerna run start --scope @anontown/server --stream
+CMD ./bin/start.sh
+

@@ -20,11 +20,10 @@ RUN npx lerna run codegen --scope @anontown/client \
   && npx lerna run build --scope @anontown/client --include-filtered-dependencies \
   && npx lerna run build --scope @anontown/bff --include-filtered-dependencies
 
+COPY bin/ bin/
+
 FROM base as dev
-CMD npx lerna run build:watch --parallel --scope @anontown/bff --include-filtered-dependencies \
-  & npx lerna run codegen:watch --scope=@anontown/client --stream \
-  & npx lerna run build:watch --parallel --scope=@anontown/client --include-filtered-dependencies \
-  & npx lerna run start:watch --scope @anontown/bff --stream
+COPY bin-dev/ bin/
 
 FROM base
-CMD npx lerna run start --scope @anontown/bff --stream
+CMD ./bin/start.sh

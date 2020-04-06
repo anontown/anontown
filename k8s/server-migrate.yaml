@@ -8,7 +8,7 @@ spec:
       containers:
         - name: server
           image: server
-          args: ["./migrate.sh"]
+          args: ["./bin/migrate.sh"]
           env:
             - name: SERVER_PORT
               value: "8080"
