@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: build
-        run: docker-compose build
+        run: docker-compose -f docker-compose-test.yml build
       - name: lint-client
         run: docker-compose -f docker-compose-test.yml run --rm client ./bin/lint.sh
       - name: lint-server
