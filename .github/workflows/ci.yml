@@ -16,11 +16,11 @@ jobs:
       - name: build
         run: docker-compose -f docker-compose-test.yml build
       - name: lint-client
-        run: docker-compose -f docker-compose-test.yml run --rm client ./bin/lint.sh
+        run: make lint.client
       - name: lint-server
-        run: docker-compose -f docker-compose-test.yml run --rm server ./bin/lint.sh
+        run: make lint.server
       - name: test-server
-        run: docker-compose -f docker-compose-test.yml run --rm server ./bin/test.sh
+        run: make test.server
   build-and-push:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/topic/')
     runs-on: ubuntu-latest
