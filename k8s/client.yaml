@@ -25,7 +25,7 @@ spec:
         app: client
     spec:
       containers:
-        - image: anontown/client
+        - image: anontown-client
           name: client
           env:
             - name: PORT

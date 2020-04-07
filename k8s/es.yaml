@@ -25,7 +25,7 @@ spec:
         app: es
     spec:
       containers:
-        - image: anontown/es
+        - image: anontown-es
           name: es
           ports:
             - containerPort: 9200
@@ -35,5 +35,5 @@ spec:
       volumes:
         - name: es-volume
           hostPath:
-            path: /data/anontown/es
+            path: /data/anontown-es
             type: DirectoryOrCreate

@@ -25,7 +25,7 @@ spec:
         app: camo
     spec:
       containers:
-        - image: anontown/camo
+        - image: anontown-camo
           name: camo
           env:
             - name: PORT

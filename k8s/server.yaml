@@ -25,7 +25,7 @@ spec:
         app: server
     spec:
       containers:
-        - image: anontown/server
+        - image: anontown-server
           name: server
           env:
             - name: SERVER_PORT

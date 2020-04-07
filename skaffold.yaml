@@ -22,9 +22,9 @@ profiles:
   - name: dev
     build:
       artifacts:
-        - image: anontown/es
+        - image: anontown-es
           context: es
-        - image: anontown/server
+        - image: anontown-server
           context: server
           docker:
             target: dev
@@ -32,7 +32,7 @@ profiles:
             manual:
               - src: "**/*.ts"
                 dest: "."
-        - image: anontown/client
+        - image: anontown-client
           context: client
           docker:
             target: dev
@@ -44,7 +44,7 @@ profiles:
                 dest: "."
               - src: "**/*.scss"
                 dest: "."
-        - image: anontown/doc
+        - image: anontown-doc
           context: doc
           docker:
             target: dev
@@ -52,26 +52,26 @@ profiles:
             manual:
               - src: "**/*.md"
                 dest: "."
-        - image: anontown/camo
+        - image: anontown-camo
           context: camo
-        - image: anontown/mongo
+        - image: anontown-mongo
           context: mongo
-        - image: anontown/redis
+        - image: anontown-redis
           context: redis
   - name: prod
     build:
       artifacts:
-        - image: anontown/es
+        - image: anontown-es
           context: es
-        - image: anontown/server
+        - image: anontown-server
           context: server
-        - image: anontown/client
+        - image: anontown-client
           context: client
-        - image: anontown/doc
+        - image: anontown-doc
           context: doc
-        - image: anontown/camo
+        - image: anontown-camo
           context: camo
-        - image: anontown/mongo
+        - image: anontown-mongo
           context: mongo
-        - image: anontown/redis
+        - image: anontown-redis
           context: redis

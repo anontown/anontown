@@ -25,7 +25,7 @@ spec:
         app: redis
     spec:
       containers:
-        - image: anontown/redis
+        - image: anontown-redis
           name: redis
           ports:
             - containerPort: 6379
