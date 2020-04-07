@@ -2,12 +2,6 @@ name: ci
 
 on: [push]
 
-env:
-  SERVER_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/server:${{ github.sha }}
-  ES_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/es:${{ github.sha }}
-  CLIENT_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/client:${{ github.sha }}
-  DOC_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/doc:${{ github.sha }}
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
