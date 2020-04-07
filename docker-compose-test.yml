@@ -50,8 +50,8 @@ services:
       SOCKET_ORIGIN: ws://localhost:8080
       IMGUR_CLIENT_ID: "XXXXXX"
       GA: ""
-      ports:
-        - 3000:3000
+    ports:
+      - 3000:3000
   doc:
     build: doc
     ports:
