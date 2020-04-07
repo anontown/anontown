@@ -1,6 +1,6 @@
 #!/bin/sh -eu
 
-npx lerna run build:watch --parallel --scope @anontown/bff --include-filtered-dependencies \
-  & npx lerna run codegen:watch --scope=@anontown/client --stream \
-  & npx lerna run build:watch --parallel --scope=@anontown/client --include-filtered-dependencies \
+./bin/build-watch-bff.sh \
+  & ./bin/codegen-watch.sh \
+  & ./bin/build-watch.sh \
   & npx lerna run start:watch --scope @anontown/bff --stream

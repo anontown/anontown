@@ -2,6 +2,26 @@
 noop:
 	echo
 
+.PHONY: build-watch.server
+build-watch.server:
+	cd server && ./bin/build-watch.sh
+
+.PHONY: build-watch.client
+build-watch.client:
+	cd client && ./bin/build-watch.sh
+
+.PHONY: codegen-watch.server
+codegen-watch.server:
+	cd server && ./bin/codegen-watch.sh
+
+.PHONY: codegen-watch.client
+codegen-watch.client:
+	cd client && ./bin/codegen-watch.sh
+
+.PHONY: build-watch.client-bff
+build-watch.client:
+	cd client && ./bin/build-watch-bff.sh
+
 .PHONY: lint-fix.client
 lint-fix.client:
 	cd client && ./bin/lint-fix.sh
