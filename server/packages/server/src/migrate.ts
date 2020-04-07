@@ -15,7 +15,7 @@ export async function runNotExecutedMigrations(): Promise<MigrationModule[]> {
 // 全てのマイグレーションを実行して保存しない
 // テスト用
 export async function forceRunAllMigrationsAndNotSave(): Promise<void> {
-  const migrations = await getMigrationModules();
+  const migrations = await getMigrationModules(".ts");
   for (const migration of migrations) {
     await migration.up();
   }
@@ -71,13 +71,15 @@ export interface MigrationModule {
   up: () => Promise<void>;
 }
 
-export async function getMigrationModules(): Promise<MigrationModule[]> {
+export async function getMigrationModules(
+  ext: string = ".js",
+): Promise<MigrationModule[]> {
   const dir = path.join(__dirname, "migrations");
   const files = (await fs.readdir(dir))
-    .filter(file => file.endsWith(".js"))
+    .filter(file => file.endsWith(ext))
     .sort();
   return files.map<MigrationModule>(file => ({
-    name: path.basename(file, ".js"),
+    name: path.basename(file, ext),
     up: require(path.join(dir, file)).up,
   }));
 }
