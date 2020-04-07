@@ -36,7 +36,7 @@ codegen-watch.client:
 	cd client && ./bin/codegen-watch.sh
 
 .PHONY: build-watch.client-bff
-build-watch.client:
+build-watch.client-bff:
 	cd client && ./bin/build-watch-bff.sh
 
 .PHONY: lint-fix.client
