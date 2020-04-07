@@ -2,9 +2,13 @@
 noop:
 	echo
 
-.PHONY: lint.fix
-lint.fix:
-	echo unimplemented && exit 1
+.PHONY: lint-fix.client
+lint-fix.client:
+	cd client && ./bin/lint-fix.sh
+
+.PHONY: lint-fix.server
+lint-fix.server:
+	cd server && ./bin/lint-fix.sh
 
 .PHONY: lint.client
 lint.client:
