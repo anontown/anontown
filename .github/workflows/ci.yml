@@ -31,6 +31,6 @@ jobs:
           chmod +x skaffold
           sudo mv skaffold /usr/local/bin
       - name: build-and-push
-        run: skaffold build
+        run: skaffold build -p prod
         env:
           SKAFFOLD_DEFAULT_REPO: docker.pkg.github.com/${{ github.repository }}
