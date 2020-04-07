@@ -4,7 +4,8 @@
   "version": "2.0.0",
   "description": "",
   "scripts": {
-    "build": "gitbook build src dist"
+    "build": "gitbook build src dist",
+    "start": "gitbook --port 4928 serve src dist"
   },
   "repository": {
     "type": "git",

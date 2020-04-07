@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+spec:
+  ports:
+    - port: 8080
+  selector:
+    app: server
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+spec:
+  selector:
+    matchLabels:
+      app: server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+        - image: anontown/server
+          name: server
+          env:
+            - name: SERVER_PORT
+              value: "8080"
+            - name: MONGO_HOST
+              value: mongo:27017
+            - name: ES_HOST
+              value: es:9200
+            - name: REDIS_HOST
+              value: redis:6379
+            - name: SALT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: SALT_PASS
+            - name: SALT_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: SALT_HASH
+            - name: SALT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: SALT_TOKEN
+            - name: SALT_TOKEN_REQ
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: SALT_TOKEN_REQ
+            - name: RECAPTCHA_SITE_KET
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: RECAPTCHA_SITE_KET
+            - name: RECAPTCHA_SECRET_KET
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: RECAPTCHA_SECRET_KET
+          ports:
+            - containerPort: 8080

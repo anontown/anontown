@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: server-migrate
+spec:
+  template:
+    spec:
+      containers:
+        - name: server
+          image: anontown/server
+          args: ["./bin/migrate.sh"]
+          env:
+            - name: SERVER_PORT
+              value: "8080"
+            - name: MONGO_HOST
+              value: mongo:27017
+            - name: ES_HOST
+              value: es:9200
+            - name: REDIS_HOST
+              value: redis:6379
+            - name: SALT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: SALT_PASS
+            - name: SALT_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: SALT_HASH
+            - name: SALT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: SALT_TOKEN
+            - name: SALT_TOKEN_REQ
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: SALT_TOKEN_REQ
+            - name: RECAPTCHA_SITE_KET
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: RECAPTCHA_SITE_KET
+            - name: RECAPTCHA_SECRET_KET
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: RECAPTCHA_SECRET_KET
+      restartPolicy: Never
+  backoffLimit: 2
