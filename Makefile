@@ -3,15 +3,19 @@ noop:
 	echo
 
 .PHONY: install.server
+install.server:
 	cd server && npm i
 
 .PHONY: bootstrap.server
+bootstrap.server:
 	cd server && npx lerna bootstrap
 
 .PHONY: install.client
+install.client:
 	cd client && npm i
 
 .PHONY: bootstrap.client
+bootstrap.client:
 	cd client && npx lerna bootstrap
 
 
