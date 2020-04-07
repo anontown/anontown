@@ -2,6 +2,19 @@
 noop:
 	echo
 
+.PHONY: install.server
+	cd server && npm i
+
+.PHONY: bootstrap.server
+	cd server && npx lerna bootstrap
+
+.PHONY: install.client
+	cd client && npm i
+
+.PHONY: bootstrap.client
+	cd client && npx lerna bootstrap
+
+
 .PHONY: build-watch.server
 build-watch.server:
 	cd server && ./bin/build-watch.sh
