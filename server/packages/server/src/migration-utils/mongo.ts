@@ -1,4 +1,4 @@
-import { Db, Collection } from "mongodb";
+import { Collection, Db } from "mongodb";
 
 export async function createCollection(
   db: Db,

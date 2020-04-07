@@ -1,7 +1,7 @@
-import * as path from "path";
 import * as fs from "fs-promise";
-import { mongoUtils } from "./migration-utils";
+import * as path from "path";
 import { Mongo } from "./db";
+import { mongoUtils } from "./migration-utils";
 
 export async function runNotExecutedMigrations(): Promise<MigrationModule[]> {
   const executedMigrationNames = new Set(

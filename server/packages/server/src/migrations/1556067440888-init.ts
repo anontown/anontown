@@ -1,5 +1,5 @@
 import { ESClient, Mongo } from "../db";
-import { mongoUtils, esUtils } from "../migration-utils";
+import { esUtils, mongoUtils } from "../migration-utils";
 
 export async function up() {
   const db = await Mongo();
@@ -64,7 +64,7 @@ export async function up() {
     },
   });
 
-  await esUtils.createIndex(await ESClient(), {
+  await esUtils.createIndex(ESClient(), {
     index: "reses_1",
     body: {
       mappings: {
@@ -146,7 +146,7 @@ export async function up() {
     },
   });
 
-  await esUtils.createIndex(await ESClient(), {
+  await esUtils.createIndex(ESClient(), {
     index: "histories_1",
     body: {
       mappings: {
@@ -180,7 +180,7 @@ export async function up() {
     },
   });
 
-  await esUtils.createIndex(await ESClient(), {
+  await esUtils.createIndex(ESClient(), {
     index: "msgs_1",
     body: {
       mappings: {
@@ -202,7 +202,7 @@ export async function up() {
     },
   });
 
-  await esUtils.createIndex(await ESClient(), {
+  await esUtils.createIndex(ESClient(), {
     index: "topics_1",
     body: {
       mappings: {

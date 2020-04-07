@@ -1,4 +1,4 @@
-import { IndicesCreateParams, Client } from "elasticsearch";
+import { Client, IndicesCreateParams } from "elasticsearch";
 
 export async function createIndex(
   client: Client,
