@@ -9,74 +9,34 @@ env:
   DOC_IMAGE_TAG: docker.pkg.github.com/${{ github.repository }}/doc:${{ github.sha }}
 
 jobs:
-  server:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: install dcdy
-        run: |
-          mkdir -p ~/.local/bin
-          curl -sSf https://raw.githubusercontent.com/kgtkr/dcdy/master/install.sh | sh
-          echo ::add-path::$HOME/.local/bin
       - name: build
-        run: DCDY_MODE=test dcdy build
-      - name: lint
-        run: DCDY_MODE=test dcdy run --rm server npx lerna run lint --scope @anontown/server --stream
-      - name: test
-        run: DCDY_MODE=test dcdy run --rm server npx lerna run test:io --scope @anontown/server --stream
-  client:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: install dcdy
-        run: |
-          mkdir -p ~/.local/bin
-          curl -sSf https://raw.githubusercontent.com/kgtkr/dcdy/master/install.sh | sh
-          echo ::add-path::$HOME/.local/bin
-      - name: build
-        run: DCDY_MODE=test dcdy build
-      - name: lint
-        run: DCDY_MODE=test dcdy run --rm client npx lerna run lint --scope @anontown/client
-  docker-build-and-push:
+        run: docker-compose build
+      - name: lint-client
+        run: docker-compose -f docker-compose-test.yml run --rm client ./bin/lint.sh
+      - name: lint-server
+        run: docker-compose -f docker-compose-test.yml run --rm server ./bin/lint.sh
+      - name: test-server
+        run: docker-compose -f docker-compose-test.yml run --rm server ./bin/test.sh
+  build-and-push:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/topic/')
     runs-on: ubuntu-latest
-    needs: [server, client]
+    needs: [build-and-test]
     steps:
       - uses: actions/checkout@v1
-      - name: login
+      - name: docker login
         run: docker login docker.pkg.github.com -u $GITHUB_ACTOR -p $PERSONAL_TOKEN
         env:
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-      - name: build
+      - name: install skaffold
         run: |
-          docker build -t $SERVER_IMAGE_TAG server
-          docker build -t $ES_IMAGE_TAG es
-          docker build -t $CLIENT_IMAGE_TAG client
-          docker build -t $DOC_IMAGE_TAG doc
-      - name: push
-        run: |
-          docker push $SERVER_IMAGE_TAG
-          docker push $ES_IMAGE_TAG
-          docker push $CLIENT_IMAGE_TAG
-          docker push $DOC_IMAGE_TAG
-  release-commit:
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    needs: [docker-build-and-push]
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: "10.x"
-      - name: build
-        run: |
-          mkdir release
-          DCDY_MODE=prod DCDY_SERVER_IMAGE=$SERVER_IMAGE_TAG DCDY_ES_IMAGE=$ES_IMAGE_TAG DCDY_CLIENT_IMAGE=$CLIENT_IMAGE_TAG DCDY_DOC_IMAGE=$DOC_IMAGE_TAG ./docker-compose.dy > release/docker-compose.yml
-          cp -R release-static/ release
-          cp .env.sample release
-      - name: deploy
-        uses: peaceiris/actions-gh-pages@v2.4.0
+          curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+          chmod +x skaffold
+          sudo mv skaffold /usr/local/bin
+      - name: build-and-push
+        run: skaffold build
         env:
-          PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-          PUBLISH_BRANCH: release
-          PUBLISH_DIR: ./release
+          SKAFFOLD_DEFAULT_REPO: docker.pkg.github.com/${{ github.repository }}
