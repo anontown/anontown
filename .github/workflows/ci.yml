@@ -14,7 +14,7 @@ jobs:
       - name: lint-server
         run: make lint.server
       - name: test-server
-        run: make test.server
+        run: docker-compose -f docker-compose-test.yml logs es && make test.server
   build-and-push:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/topic/')
     runs-on: ubuntu-latest
