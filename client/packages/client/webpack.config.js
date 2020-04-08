@@ -5,7 +5,7 @@ const CleanWebpackPlugin = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
 
-module.exports = {
+module.exports = (env, argv) => ({
   entry: {
     main: ["./src/main.tsx", "./src/global.scss"],
   },
@@ -23,6 +23,7 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       __BUILD_DATE__: JSON.stringify(Date.now()),
+      __MODE__: JSON.stringify(argv.mode),
     }),
     new OfflinePlugin({
       caches: {
@@ -93,4 +94,4 @@ module.exports = {
       chunks: "initial",
     },
   },
-};
+});

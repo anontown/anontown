@@ -5,7 +5,6 @@
   "description": "",
   "scripts": {
     "build": "node build.js",
-    "build:dev": "npm run build",
     "build:watch": "npm run build",
     "clean": "rm -rf ./dist"
   },

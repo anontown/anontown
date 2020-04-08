@@ -1,6 +1,4 @@
-import * as path from "path";
 import * as winston from "winston";
-import { Config } from "./config";
 
 function createFormatter(label: string) {
   return winston.format.combine(
@@ -15,11 +13,5 @@ function createFormatter(label: string) {
 export const logger = winston.createLogger({
   level: "debug",
   format: createFormatter("app"),
-  transports: [
-    new winston.transports.File({
-      filename: path.join(Config.saveDir, "logs/app.log"),
-      level: "info",
-    }),
-    new winston.transports.Console({ level: "debug" }),
-  ],
+  transports: [new winston.transports.Console({ level: "debug" })],
 });

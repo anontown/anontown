@@ -1,0 +1,77 @@
+apiVersion: skaffold/v2beta1
+kind: Config
+deploy:
+  kubectl:
+    manifests:
+      - k8s/*
+      - env/*
+portForward:
+  - resourceType: service
+    resourceName: camo
+    port: 4181
+  - resourceType: service
+    resourceName: client
+    port: 3000
+  - resourceType: service
+    resourceName: doc
+    port: 4928
+  - resourceType: service
+    resourceName: server
+    port: 8080
+profiles:
+  - name: dev
+    build:
+      artifacts:
+        - image: anontown-es
+          context: es
+        - image: anontown-server
+          context: server
+          docker:
+            target: dev
+          sync:
+            manual:
+              - src: "**/*.ts"
+                dest: "."
+        - image: anontown-client
+          context: client
+          docker:
+            target: dev
+          sync:
+            manual:
+              - src: "**/*.ts"
+                dest: "."
+              - src: "**/*.tsx"
+                dest: "."
+              - src: "**/*.scss"
+                dest: "."
+        - image: anontown-doc
+          context: doc
+          docker:
+            target: dev
+          sync:
+            manual:
+              - src: "**/*.md"
+                dest: "."
+        - image: anontown-camo
+          context: camo
+        - image: anontown-mongo
+          context: mongo
+        - image: anontown-redis
+          context: redis
+  - name: prod
+    build:
+      artifacts:
+        - image: anontown-es
+          context: es
+        - image: anontown-server
+          context: server
+        - image: anontown-client
+          context: client
+        - image: anontown-doc
+          context: doc
+        - image: anontown-camo
+          context: camo
+        - image: anontown-mongo
+          context: mongo
+        - image: anontown-redis
+          context: redis

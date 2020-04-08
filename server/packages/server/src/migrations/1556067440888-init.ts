@@ -1,45 +1,48 @@
 import { ESClient, Mongo } from "../db";
+import { esUtils, mongoUtils } from "../migration-utils";
 
-export async function migrate_1556067440888_init() {
+export async function up() {
   const db = await Mongo();
 
-  const clients = await db.createCollection("clients");
-  await clients.createIndex({ user: 1 });
-  await clients.createIndex({ date: 1 });
-  await clients.createIndex({ update: 1 });
+  const clients = await mongoUtils.createCollection(db, "clients");
+  await clients.createIndex({ user: 1 }, { name: "user_1" });
+  await clients.createIndex({ date: 1 }, { name: "date_1" });
+  await clients.createIndex({ update: 1 }, { name: "update_1" });
 
-  const profiles = await db.createCollection("profiles");
-  await profiles.createIndex({ user: 1 });
-  await profiles.createIndex({ date: 1 });
-  await profiles.createIndex({ update: 1 });
-  await profiles.createIndex({ sn: 1 }, { unique: true });
+  const profiles = await mongoUtils.createCollection(db, "profiles");
+  await profiles.createIndex({ user: 1 }, { name: "user_1" });
+  await profiles.createIndex({ date: 1 }, { name: "date_1" });
+  await profiles.createIndex({ update: 1 }, { name: "update_1" });
+  await profiles.createIndex({ sn: 1 }, { name: "sn_1", unique: true });
 
-  const tokens = await db.createCollection("tokens");
-  await tokens.createIndex({ type: 1 });
-  await tokens.createIndex({ user: 1 });
-  await tokens.createIndex({ date: 1 });
-  await tokens.createIndex({ client: 1 });
+  const tokens = await mongoUtils.createCollection(db, "tokens");
+  await tokens.createIndex({ type: 1 }, { name: "type_1" });
+  await tokens.createIndex({ user: 1 }, { name: "user_1" });
+  await tokens.createIndex({ date: 1 }, { name: "date_1" });
+  await tokens.createIndex({ client: 1 }, { name: "client_1" });
 
-  const users = await db.createCollection("users");
-  await users.createIndex({ sn: 1 }, { unique: true });
-  await users.createIndex({ "resWait.m10": 1 });
-  await users.createIndex({ "resWait.m30": 1 });
-  await users.createIndex({ "resWait.h1": 1 });
-  await users.createIndex({ "resWait.h6": 1 });
-  await users.createIndex({ "resWait.h12": 1 });
-  await users.createIndex({ "resWait.d1": 1 });
-  await users.createIndex({ point: 1 });
-  await users.createIndex({ date: 1 });
+  const users = await mongoUtils.createCollection(db, "users");
+  await users.createIndex({ sn: 1 }, { name: "sn_1", unique: true });
+  await users.createIndex({ "resWait.m10": 1 }, { name: "resWait.m10_1" });
+  await users.createIndex({ "resWait.m30": 1 }, { name: "resWait.m30_1" });
+  await users.createIndex({ "resWait.h1": 1 }, { name: "resWait.h1_1" });
+  await users.createIndex({ "resWait.h6": 1 }, { name: "resWait.h6_1" });
+  await users.createIndex({ "resWait.h12": 1 }, { name: "resWait.h12_1" });
+  await users.createIndex({ "resWait.d1": 1 }, { name: "resWait.d1_1" });
+  await users.createIndex({ point: 1 }, { name: "point_1" });
+  await users.createIndex({ date: 1 }, { name: "date_1" });
 
-  const storages = await db.createCollection("storages");
-  await storages.createIndex({ client: 1, user: 1, key: 1 }, { unique: true });
+  const storages = await mongoUtils.createCollection(db, "storages");
+  await storages.createIndex(
+    { client: 1, user: 1, key: 1 },
+    { name: "client_1_user_1_key_1", unique: true },
+  );
 
-  await ESClient().putTemplate({
-    id: "template",
+  await ESClient().indices.putTemplate({
+    name: "template",
     body: {
       index_patterns: ["*"],
       settings: {
-        "mapping.single_type": true,
         analysis: {
           analyzer: {
             default: {
@@ -60,7 +63,7 @@ export async function migrate_1556067440888_init() {
     },
   });
 
-  await ESClient().indices.create({
+  await esUtils.createIndex(ESClient(), {
     index: "reses_1",
     body: {
       mappings: {
@@ -142,7 +145,7 @@ export async function migrate_1556067440888_init() {
     },
   });
 
-  await ESClient().indices.create({
+  await esUtils.createIndex(ESClient(), {
     index: "histories_1",
     body: {
       mappings: {
@@ -176,7 +179,7 @@ export async function migrate_1556067440888_init() {
     },
   });
 
-  await ESClient().indices.create({
+  await esUtils.createIndex(ESClient(), {
     index: "msgs_1",
     body: {
       mappings: {
@@ -198,7 +201,7 @@ export async function migrate_1556067440888_init() {
     },
   });
 
-  await ESClient().indices.create({
+  await esUtils.createIndex(ESClient(), {
     index: "topics_1",
     body: {
       mappings: {

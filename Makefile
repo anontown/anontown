@@ -1,82 +1,69 @@
-.PHONY: noop bootstrap migrate shared build.all.server build.all.client build.all up stop rm restart.server restart.client watch.bff build.bff watch.client build.client build.client-icon watch.route build.route watch.server build.server lint.fix test build.doc build.docker
-
+.PHONY: noop
 noop:
 	echo
 
-bootstrap:
-	cd server && npm ci && npx lerna bootstrap --ci
-	cd client && npm ci && npx lerna bootstrap --ci
-	cd doc && npm ci
+.PHONY: install.server
+install.server:
+	cd server && npm i
 
-migrate:
-	cd server && DCDY_MODE=dev dcdy run --rm app npx lerna run migrate --scope @anontown/server
+.PHONY: bootstrap.server
+bootstrap.server:
+	cd server && npx lerna bootstrap
 
-build.docker:
-	DCDY_MODE=dev dcdy build
+.PHONY: install.client
+install.client:
+	cd client && npm i
 
-shared:
-	./bin/shared.sh
-
-build.all.server: shared
-	cd server && npx lerna run build:dev --scope=@anontown/server --include-filtered-dependencies --stream
-
-build.all.client: shared
-	cd client && npx lerna run build:dev --scope=@anontown/bff --include-filtered-dependencies --stream
+.PHONY: bootstrap.client
+bootstrap.client:
+	cd client && npx lerna bootstrap
 
 
-build.all.doc: shared
-	cd doc && npm run build
+.PHONY: build-watch.server
+build-watch.server:
+	cd server && ./bin/build-watch.sh
 
-build.all: build.all.server build.all.client build.all.doc
+.PHONY: build-watch.client
+build-watch.client:
+	cd client && ./bin/build-watch.sh
 
-up:
-	DCDY_MODE=dev dcdy up
+.PHONY: codegen-watch.server
+codegen-watch.server:
+	cd server && ./bin/codegen-watch.sh
 
-stop:
-	DCDY_MODE=dev dcdy stop
+.PHONY: codegen-watch.client
+codegen-watch.client:
+	cd client && ./bin/codegen-watch.sh
 
-rm:
-	DCDY_MODE=dev dcdy rm -f
+.PHONY: build-watch.client-bff
+build-watch.client-bff:
+	cd client && ./bin/build-watch-bff.sh
 
-restart.server:
-	DCDY_MODE=dev dcdy restart server
+.PHONY: lint-fix.client
+lint-fix.client:
+	cd client && ./bin/lint-fix.sh
 
-restart.client:
-	DCDY_MODE=dev dcdy restart client
+.PHONY: lint-fix.server
+lint-fix.server:
+	cd server && ./bin/lint-fix.sh
 
-watch.bff:
-	cd client && npx lerna run build:watch --scope=@anontown/bff --stream
+.PHONY: lint.client
+lint.client:
+	docker-compose -f docker-compose-test.yml run --rm client ./bin/lint.sh
 
-build.bff:
-	cd client && npx lerna run build:dev --scope=@anontown/bff --stream
+.PHONY: lint.server
+lint.server:
+	docker-compose -f docker-compose-test.yml run --rm server ./bin/lint.sh
 
-watch.client:
-	cd client && npx lerna run build:watch --scope=@anontown/client --stream
+.PHONY: test.server
+test.server:
+	docker-compose -f docker-compose-test.yml run --rm server ./bin/test.sh
 
-build.client:
-	cd client && npx lerna run build:dev --scope=@anontown/client --stream
+.PHONY: update-schema
+update-schema:
+	docker build -t server server
+	docker run --rm server ./bin/render-schema.sh > client/schema.json
 
-build.client-icon:
-	cd client && npx lerna run build:dev --scope=@anontown/client --stream
-
-watch.route:
-	cd client && npx lerna run build:watch --scope=@anontown/route --stream
-
-build.route:
-	cd client && npx lerna run build:dev --scope=@anontown/route --stream
-
-watch.server:
-	cd server && npx lerna run build:watch --scope=@anontown/server --stream
-
-build.server:
-	cd server && npx lerna run build:dev --scope=@anontown/server --stream
-
-build.doc:
-	cd doc && npm run build
-
-lint.fix:
-	cd server && npx lerna run lint:fix
-	cd client && npx lerna run lint:fix
-
-test:
-	DCDY_MODE=test dcdy run --rm server npx lerna run test:io --scope @anontown/server --stream
+.PHONY: serve
+serve:
+	skaffold dev --port-forward -p dev

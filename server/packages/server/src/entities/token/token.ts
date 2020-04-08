@@ -160,18 +160,13 @@ export class TokenGeneral extends Copyable<TokenGeneral>
       r => r.active && nowNum < r.expireDate.getTime(),
     );
 
-    // キーの被り防止
-    // TODO: uuidにして被らないようにしてこのコード消す
-    let req: ITokenReq;
-    do {
-      req = {
-        key: TokenBase.createTokenKey(randomGenerator),
-        expireDate: new Date(
-          nowNum + 1000 * 60 * Constant.user.token.req.expireMinute,
-        ),
-        active: true,
-      };
-    } while (reqFilter.find(x => x.key === req.key) !== undefined);
+    const req: ITokenReq = {
+      key: TokenBase.createTokenKey(randomGenerator),
+      expireDate: new Date(
+        nowNum + 1000 * 60 * Constant.token.req.expireMinute,
+      ),
+      active: true,
+    };
 
     return {
       token: this.copy({

@@ -31,14 +31,14 @@ export class Client extends Copyable<Client> {
       {
         field: "name",
         val: name,
-        regex: Constant.user.client.name.regex,
-        message: Constant.user.client.name.msg,
+        regex: Constant.client.name.regex,
+        message: Constant.client.name.msg,
       },
       {
         field: "url",
         val: url,
-        regex: Constant.user.client.url.regex,
-        message: Constant.user.client.url.msg,
+        regex: Constant.client.url.regex,
+        message: Constant.client.url.msg,
       },
     ]);
 
@@ -91,14 +91,14 @@ export class Client extends Copyable<Client> {
       {
         field: "name",
         val: name,
-        regex: Constant.user.client.name.regex,
-        message: Constant.user.client.name.msg,
+        regex: Constant.client.name.regex,
+        message: Constant.client.name.msg,
       },
       {
         field: "url",
         val: url,
-        regex: Constant.user.client.url.regex,
-        message: Constant.user.client.url.msg,
+        regex: Constant.client.url.regex,
+        message: Constant.client.url.msg,
       },
     ]);
 

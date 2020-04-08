@@ -17,14 +17,14 @@ export class Storage extends Copyable<Storage> {
       {
         field: "key",
         val: key,
-        regex: Constant.user.storage.key.regex,
-        message: Constant.user.storage.key.msg,
+        regex: Constant.storage.key.regex,
+        message: Constant.storage.key.msg,
       },
       {
         field: "value",
         val: value,
-        regex: Constant.user.storage.value.regex,
-        message: Constant.user.storage.value.msg,
+        regex: Constant.storage.value.regex,
+        message: Constant.storage.value.msg,
       },
     ]);
 
