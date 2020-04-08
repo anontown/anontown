@@ -43,7 +43,6 @@ export async function up() {
     body: {
       index_patterns: ["*"],
       settings: {
-        "mapping.single_type": true,
         analysis: {
           analyzer: {
             default: {
