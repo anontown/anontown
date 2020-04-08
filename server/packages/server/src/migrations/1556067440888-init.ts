@@ -41,7 +41,7 @@ export async function up() {
   await ESClient().indices.putTemplate({
     name: "template",
     body: {
-      template: ["*"],
+      index_patterns: ["*"],
       settings: {
         "mapping.single_type": true,
         analysis: {
