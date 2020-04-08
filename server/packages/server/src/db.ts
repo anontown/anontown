@@ -17,7 +17,12 @@ export const Mongo = lazy(async () => {
 });
 
 export const ESClient = lazy(
-  () => new es.Client({ host: `http://${Config.es.host}`, log: "error" }),
+  () =>
+    new es.Client({
+      host: `http://${Config.es.host}`,
+      log: "error",
+      apiVersion: "6.8",
+    }),
 );
 
 export function createRedisClient() {

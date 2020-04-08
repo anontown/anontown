@@ -13,6 +13,9 @@ jobs:
         run: make lint.client
       - name: lint-server
         run: make lint.server
+      - name: run sysctl
+        run: |
+          sudo sysctl -w vm.max_map_count=262144
       - name: test-server
         run: make test.server
   build-and-push:
