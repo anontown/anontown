@@ -38,10 +38,10 @@ export async function up() {
     { name: "client_1_user_1_key_1", unique: true },
   );
 
-  await ESClient().putTemplate({
-    id: "template",
+  await ESClient().indices.putTemplate({
+    name: "template",
     body: {
-      index_patterns: ["*"],
+      template: ["*"],
       settings: {
         "mapping.single_type": true,
         analysis: {
