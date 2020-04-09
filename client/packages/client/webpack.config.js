@@ -4,13 +4,14 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
+const CompressionPlugin = require("compression-webpack-plugin");
 
 module.exports = (env, argv) => ({
   entry: {
     main: ["./src/main.tsx", "./src/global.scss"],
   },
   output: {
-    filename: "[name].[chunkhash].js",
+    filename: "[name].[chunkhash].immutable.js",
     path: __dirname + "/dist",
     publicPath: "/",
   },
@@ -55,6 +56,9 @@ module.exports = (env, argv) => ({
       },
     ]),
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
+    ...(argv.mode === "production"
+      ? [new CompressionPlugin({ minRatio: Number.MAX_SAFE_INTEGER })]
+      : []),
   ],
   module: {
     rules: [
@@ -87,7 +91,7 @@ module.exports = (env, argv) => ({
       },
     ],
   },
-  devtool: "source-map",
+  devtool: argv.mode === "development" ? "source-map" : false,
   optimization: {
     splitChunks: {
       name: "vendor",
