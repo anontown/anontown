@@ -10,7 +10,7 @@ module.exports = (env, argv) => ({
     main: ["./src/main.tsx", "./src/global.scss"],
   },
   output: {
-    filename: "[name].[chunkhash].js",
+    filename: "[name].[chunkhash].immutable.js",
     path: __dirname + "/dist",
     publicPath: "/",
   },

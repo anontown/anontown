@@ -36,8 +36,12 @@ app.use(async (ctx, next) => {
 
   if (ctx.method === "HEAD" || ctx.method === "GET") {
     try {
+      const isImmutable = ctx.path.endsWith(".immutable.js");
+
       await send(ctx, ctx.path, {
         root: path.resolve(rootDir),
+        immutable: isImmutable,
+        maxage: isImmutable ? 1000 * 60 * 60 * 24 * 30 : 0,
       });
       done = true;
     } catch (err) {
