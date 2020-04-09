@@ -28,10 +28,6 @@
       <script>
         window.__ENV__ =  <%= '\u{3c}%= escapedEnvJson %\u{3e}' %>;
       </script>
-    <% } else {%>
-      <script>
-        window.__ENV__ =  <%= escapedEnvJson %>;
-      </script>
     <% } %>
     <script src="https://www.google.com/recaptcha/api.js"></script>
     <%= htmlWebpackPlugin.tags.bodyTags %>

@@ -5,10 +5,6 @@ const CleanWebpackPlugin = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
 const CompressionPlugin = require("compression-webpack-plugin");
-const { loadEnv } = require("@anontown/common/dist/env");
-const {
-  outputJsValueToHtml,
-} = require("@anontown/common/dist/output-js-value-to-html");
 
 function match(x, map) {
   return map[x]();
@@ -41,6 +37,9 @@ module.exports = (env, argv) => {
         __BUILD_DATE__: JSON.stringify(Date.now()),
         __MODE__: JSON.stringify(argv.mode),
         __ENABLE_BFF__: JSON.stringify(enableBff),
+        __ENV__: !enableBff
+          ? `env.loadEnv${JSON.stringify(process.env)}`
+          : undefined,
       }),
       new OfflinePlugin({
         caches: {
@@ -63,7 +62,6 @@ module.exports = (env, argv) => {
             }
           : {
               enableBff: false,
-              escapedEnvJson: outputJsValueToHtml(loadEnv(process.env)),
             },
       }),
       new CopyWebpackPlugin([
