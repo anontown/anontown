@@ -24,8 +24,6 @@ RUN npx lerna bootstrap --ci --no-progress
 
 COPY schema.gql ./schema.gql
 COPY packages ./packages
-RUN npx lerna run codegen --scope @anontown/server \
-  && npx lerna run build --scope @anontown/server --include-filtered-dependencies
 
 COPY bin/ bin/
 
@@ -34,5 +32,8 @@ FROM base as dev
 CMD ./bin/start-watch.sh
 
 FROM base
+
+RUN npx lerna run codegen --scope @anontown/server \
+  && npx lerna run build --scope @anontown/server --include-filtered-dependencies
 
 CMD ./bin/start.sh
