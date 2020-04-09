@@ -43,7 +43,7 @@ module.exports = (env, argv) => ({
     }),
     new HtmlWebpackPlugin({
       inject: true,
-      template: "index.html",
+      template: "index.ejs",
       filename: ".index.template.html",
     }),
     new CopyWebpackPlugin([
