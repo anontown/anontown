@@ -6,6 +6,7 @@ import { RouteData, routeArray } from "@anontown/common/dist/route";
 import kr = require("koa-route");
 import * as fse from "fs-extra";
 import * as lodash from "lodash";
+import { outputJsValueToHtml } from "@anontown/common/dist/output-js-value-to-html";
 
 const app = new Koa();
 
@@ -19,7 +20,9 @@ function addRoute<P extends string, Q extends object>(route: RouteData<P, Q>) {
         path.join(rootDir, "index.ejs"),
         "utf8"
       );
-      ctx.body = lodash.template(template)({ env: JSON.stringify(env.jsEnv) });
+      ctx.body = lodash.template(template)({
+        escapedEnvJson: outputJsValueToHtml(env.jsEnv),
+      });
     })
   );
 }

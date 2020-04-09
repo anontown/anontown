@@ -26,11 +26,11 @@
     <div id="root"></div>
     <% if (enableBff) { %>
       <script>
-        window.__ENV__ =  <%= '\u{3c}%- env %\u{3e}' %>;
+        window.__ENV__ =  <%= '\u{3c}%= escapedEnvJson %\u{3e}' %>;
       </script>
     <% } else {%>
       <script>
-        window.__ENV__ =  <%- env %>;
+        window.__ENV__ =  <%= escapedEnvJson %>;
       </script>
     <% } %>
     <script src="https://www.google.com/recaptcha/api.js"></script>

@@ -6,6 +6,9 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
 const CompressionPlugin = require("compression-webpack-plugin");
 const { loadEnv } = require("@anontown/common/dist/env");
+const {
+  outputJsValueToHtml,
+} = require("@anontown/common/dist/output-js-value-to-html");
 
 function match(x, map) {
   return map[x]();
@@ -59,7 +62,7 @@ module.exports = (env, argv) => {
             }
           : {
               enableBff: false,
-              env: JSON.stringify(loadEnv(process.env)),
+              escapedEnvJson: outputJsValueToHtml(loadEnv(process.env)),
             },
       }),
       new CopyWebpackPlugin([
