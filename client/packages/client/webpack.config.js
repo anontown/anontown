@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
+const CompressionPlugin = require("compression-webpack-plugin");
 
 module.exports = (env, argv) => ({
   entry: {
@@ -55,6 +56,9 @@ module.exports = (env, argv) => ({
       },
     ]),
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
+    ...(argv.mode === "production"
+      ? [new CompressionPlugin({ minRatio: Number.MAX_SAFE_INTEGER })]
+      : []),
   ],
   module: {
     rules: [
