@@ -18,14 +18,14 @@ COPY packages ./packages
 
 COPY bin/ bin/
 
+RUN npx lerna run codegen --scope @anontown/client \
+  && npx lerna run build --scope @anontown/client --include-filtered-dependencies \
+  && npx lerna run build --scope @anontown/bff --include-filtered-dependencies
+
 FROM base as dev
 
 CMD ./bin/start-watch.sh
 
 FROM base
-
-RUN npx lerna run codegen --scope @anontown/client \
-  && npx lerna run build --scope @anontown/client --include-filtered-dependencies \
-  && npx lerna run build --scope @anontown/bff --include-filtered-dependencies
 
 CMD ./bin/start.sh
