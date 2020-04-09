@@ -6,6 +6,10 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
 const CompressionPlugin = require("compression-webpack-plugin");
 
+function match(x, map) {
+  return map[x]();
+}
+
 module.exports = (env, argv) => ({
   entry: {
     main: ["./src/main.tsx", "./src/global.scss"],
@@ -56,9 +60,12 @@ module.exports = (env, argv) => ({
       },
     ]),
     new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
-    ...(argv.mode === "production"
-      ? [new CompressionPlugin({ minRatio: Number.MAX_SAFE_INTEGER })]
-      : []),
+    ...match(argv.mode, {
+      production: () => [
+        new CompressionPlugin({ minRatio: Number.MAX_SAFE_INTEGER }),
+      ],
+      development: () => [],
+    }),
   ],
   module: {
     rules: [
@@ -91,7 +98,10 @@ module.exports = (env, argv) => ({
       },
     ],
   },
-  devtool: argv.mode === "development" ? "source-map" : false,
+  devtool: match(argv.mode, {
+    production: () => false,
+    development: () => "source-map",
+  }),
   optimization: {
     splitChunks: {
       name: "vendor",
