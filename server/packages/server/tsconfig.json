@@ -23,6 +23,7 @@
     "noUnusedParameters": true,
     "noUnusedLocals": true,
     "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "noEmitOnError": true,
   }
 }
