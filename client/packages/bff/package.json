@@ -21,6 +21,7 @@
     "koa": "^2.10.0",
     "koa-route": "^3.2.0",
     "koa-send": "^5.0.0",
+    "lodash": "^4.17.15",
     "typescript": "^3.6.4"
   },
   "devDependencies": {
@@ -29,6 +30,7 @@
     "@types/koa-route": "^3.2.4",
     "@types/koa-send": "^4.1.2",
     "@types/koa-static": "^4.0.1",
+    "@types/lodash": "^4.14.149",
     "@types/node": "^12.7.12",
     "nodemon": "^2.0.2",
     "wait-on": "^4.0.1"
