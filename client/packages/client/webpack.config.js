@@ -127,5 +127,11 @@ module.exports = (env, argv) => {
         chunks: "initial",
       },
     },
+    devServer: !enableBff
+      ? {
+          contentBase: path.join(__dirname, "public"),
+          port: 3000,
+        }
+      : undefined,
   };
 };

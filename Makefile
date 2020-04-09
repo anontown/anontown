@@ -67,3 +67,7 @@ update-schema:
 .PHONY: serve
 serve:
 	skaffold dev --port-forward -p dev
+
+.PHONY: serve-bff-less
+serve-bff-less:
+	skaffold dev --port-forward -p dev -p dev-bff-less

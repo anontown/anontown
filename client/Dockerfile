@@ -26,6 +26,10 @@ FROM base as dev
 
 CMD ./bin/start-watch.sh
 
+FROM base as dev-bff-less
+
+CMD ./bin/start-watch-bff-less.sh
+
 FROM base
 
 CMD ./bin/start.sh
