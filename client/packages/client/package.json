@@ -12,8 +12,7 @@
     "codegen:watch": "graphql-codegen -w",
     "clean": "rm -rf ./dist && rm -rf ./src/generated",
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts{,x}'",
-    "lint:fix": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts{,x}' --fix",
-    "loc": "sloc --format cli-table ./src"
+    "lint:fix": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts{,x}' --fix"
   },
   "author": "",
   "license": "ISC",
@@ -55,7 +54,6 @@
     "node-sass": "^4.11.0",
     "prettier": "^1.18.2",
     "sass-loader": "^7.1.0",
-    "sloc": "^0.2.1",
     "source-map-loader": "^0.2.4",
     "style-loader": "^0.23.1",
     "ts-loader": "^5.3.3",

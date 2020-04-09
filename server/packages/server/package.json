@@ -60,7 +60,6 @@
     "jest": "^24.5.0",
     "nodemon": "^2.0.2",
     "prettier": "^1.18.2",
-    "sloc": "^0.2.1",
     "ts-jest": "^24.0.0",
     "tslint": "^5.14.0",
     "tslint-config-prettier": "^1.18.0",
@@ -79,7 +78,6 @@
     "test": "jest --runInBand --forceExit",
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts'",
     "lint:fix": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts' --fix",
-    "loc": "sloc --format cli-table ./src",
     "migrate": "node ./dist/jobs/migrate.js",
     "render-schema": "node ./dist/render-schema.js"
   }
