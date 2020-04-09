@@ -51,7 +51,7 @@ module.exports = (env, argv) => {
       new HtmlWebpackPlugin({
         inject: true,
         template: "index.ejs",
-        filename: ".index.template.html",
+        filename: enableBff ? "index.ejs" : "index.html",
         templateParameters: {
           script: "aaa<>aaa",
         },
