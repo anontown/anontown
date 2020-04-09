@@ -7,7 +7,7 @@
   "scripts": {
     "build": "webpack -p --mode production --env.enable-bff",
     "codegen": "graphql-codegen",
-    "build:watch": "webpack --mode development -w",
+    "build:watch": "webpack --mode development -w --env.enable-bff",
     "codegen:watch": "graphql-codegen -w",
     "clean": "rm -rf ./dist && rm -rf ./src/generated",
     "lint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts{,x}'",
