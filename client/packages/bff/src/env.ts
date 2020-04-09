@@ -1,4 +1,4 @@
-import { Env as JSEnv } from "@anontown/common/dist/env";
+import { Env as JSEnv, loadEnv } from "@anontown/common/dist/env";
 
 export interface Env {
   jsEnv: JSEnv;
@@ -6,29 +6,6 @@ export interface Env {
 }
 
 export const env: Env = {
-  jsEnv: {
-    client: {
-      origin: process.env["CLIENT_ORIGIN"]!,
-    },
-    camo: {
-      origin: process.env["CAMO_ORIGIN"]!,
-      key: process.env["CAMO_KEY"]!,
-    },
-    api: {
-      origin: process.env["API_ORIGIN"]!,
-    },
-    socket: {
-      origin: process.env["SOCKET_ORIGIN"]!,
-    },
-    recaptcha: {
-      siteKey: process.env["RECAPTCHA_SITE_KET"]!,
-    },
-    imgur: {
-      clientID: process.env["IMGUR_CLIENT_ID"]!,
-    },
-    ga: process.env["IMGUR_CLIENT_ID"]
-      ? { id: process.env["IMGUR_CLIENT_ID"] }
-      : null,
-  },
+  jsEnv: loadEnv(process.env),
   port: Number(process.env["PORT"]),
 };
