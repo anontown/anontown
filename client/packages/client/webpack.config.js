@@ -64,7 +64,7 @@ module.exports = (env, argv) => {
             },
       }),
       new FaviconsWebpackPlugin({
-        logo: "../icon/icon.svg",
+        logo: "./icon.svg",
         cache: true,
         prefix: "assets/",
         inject: true,

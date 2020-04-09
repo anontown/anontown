@@ -69,7 +69,6 @@
     "webpack-dev-server": "^3.10.3"
   },
   "dependencies": {
-    "@anontown/client-icon": "^2.0.0",
     "@anontown/common": "^2.0.0",
     "@apollo/react-common": "^3.1.0-beta.0",
     "@apollo/react-components": "^3.1.0-beta.0",

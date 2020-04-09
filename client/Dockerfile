@@ -8,8 +8,6 @@ RUN npm ci --no-progress
 COPY lerna.json ./
 COPY packages/bff/package.json packages/bff/package-lock.json ./packages/bff/
 COPY packages/client/package.json packages/client/package-lock.json ./packages/client/
-COPY packages/client-icon/package.json packages/client-icon/package-lock.json ./packages/client-icon/
-COPY packages/icon/package.json ./packages/icon/
 COPY packages/common/package.json packages/common/package-lock.json ./packages/common/
 RUN npx lerna bootstrap --ci --no-progress
 
