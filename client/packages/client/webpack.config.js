@@ -5,6 +5,7 @@ const CleanWebpackPlugin = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
 const CompressionPlugin = require("compression-webpack-plugin");
+const FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 
 function match(x, map) {
   return map[x]();
@@ -62,16 +63,24 @@ module.exports = (env, argv) => {
               enableBff: false,
             },
       }),
+      new FaviconsWebpackPlugin({
+        logo: "../icon/icon.svg",
+        cache: true,
+        prefix: "assets/",
+        inject: true,
+        mode: "webapp",
+        devMode: "webapp",
+        favicons: {
+          appName: "Anontown",
+          appDescription: "高機能匿名掲示板Anontown",
+          background: "#006400",
+          theme_color: "#00ff00",
+          icons: {},
+        },
+      }),
       new CopyWebpackPlugin([
         {
           from: "public",
-          to: "",
-        },
-        {
-          from: path.join(
-            path.dirname(require.resolve("@anontown/client-icon/package.json")),
-            "dist",
-          ),
           to: "",
         },
       ]),
