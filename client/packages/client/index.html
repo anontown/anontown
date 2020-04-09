@@ -24,6 +24,12 @@
 
 <body>
     <div id="root"></div>
+    <script>
+    // 関数定義だとbffから置換されるのでこう書いている
+    window.anontown_dummy_replaced_by_bff = function () {
+      console.log("bff less mode");
+    };
+    </script>
     <script>anontown_dummy_replaced_by_bff()</script>
     <script src="https://www.google.com/recaptcha/api.js"></script>
 </body>
