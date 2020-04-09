@@ -109,8 +109,9 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
         stroke-width="${p.width}"
         stroke="${toColorString(p.color)}"
         fill="${p.fill ? toColorString(p.color) : "none"}">
-        <path d="${`M ${p.m.x} ${p.m.y} ` +
-          p.lines.map(l => `L ${l.x} ${l.y}`).join(" ")}"/>
+        <path d="${
+          `M ${p.m.x} ${p.m.y} ` + p.lines.map(l => `L ${l.x} ${l.y}`).join(" ")
+        }"/>
       </g>`,
     )
     .join("\n")}

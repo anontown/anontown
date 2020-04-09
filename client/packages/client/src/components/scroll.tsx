@@ -569,10 +569,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   const onSubscriptionDataRef = useValueRef((newData: T) => {
     props.onChangeExistUnread(true);
     setData(
-      pipe(
-        data,
-        x => oset.unsafePushFirstOrdAndUniqueArray(x, [newData]),
-      ),
+      pipe(data, x => oset.unsafePushFirstOrdAndUniqueArray(x, [newData])),
     );
   });
   props.useStream(x => onSubscriptionDataRef.current(x));

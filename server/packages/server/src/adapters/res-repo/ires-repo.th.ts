@@ -178,7 +178,10 @@ export function run(repoGene: () => IResRepo, isReset: boolean) {
       expect(await repo.resCount(["topic2"])).toEqual(new Map([["topic2", 1]]));
       expect(await repo.resCount(["topic3"])).toEqual(new Map());
       expect(await repo.resCount(["topic1", "topic2"])).toEqual(
-        new Map([["topic1", 100], ["topic2", 1]]),
+        new Map([
+          ["topic1", 100],
+          ["topic2", 1],
+        ]),
       );
     });
   });

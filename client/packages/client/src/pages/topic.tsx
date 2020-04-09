@@ -10,7 +10,7 @@ import {
   Slider,
   Toggle,
 } from "material-ui";
-import * as moment from "moment";
+import moment from "moment";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { useTitle } from "react-use";
@@ -161,9 +161,7 @@ export const TopicPage = (_props: {}) => {
       sidebar={
         user.value !== null ? (
           <TopicFavo detail={false} userData={user.value} />
-        ) : (
-          undefined
-        )
+        ) : undefined
       }
     >
       {topic !== null ? (

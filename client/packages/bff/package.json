@@ -20,8 +20,7 @@
     "koa": "^2.10.0",
     "koa-route": "^3.2.0",
     "koa-send": "^5.0.0",
-    "lodash": "^4.17.15",
-    "typescript": "^3.6.4"
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.0.0",
@@ -32,6 +31,7 @@
     "@types/lodash": "^4.14.149",
     "@types/node": "^12.7.12",
     "nodemon": "^2.0.2",
+    "typescript": "^3.8.3",
     "wait-on": "^4.0.1"
   }
 }

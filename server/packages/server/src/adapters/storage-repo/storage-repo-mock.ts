@@ -43,10 +43,7 @@ export class StorageRepoMock implements IStorageRepo {
       x =>
         x.user.toHexString() === storage.user &&
         (x.client !== null ? x.client.toHexString() : null) ===
-          pipe(
-            storage.client,
-            option.toNullable,
-          ) &&
+          pipe(storage.client, option.toNullable) &&
         x.key === storage.key,
     );
     if (index === -1) {
@@ -60,10 +57,7 @@ export class StorageRepoMock implements IStorageRepo {
       x =>
         x.user.toHexString() === storage.user &&
         (x.client !== null ? x.client.toHexString() : null) ===
-          pipe(
-            storage.client,
-            option.toNullable,
-          ) &&
+          pipe(storage.client, option.toNullable) &&
         x.key === storage.key,
     );
     this.storages.splice(index, 1);

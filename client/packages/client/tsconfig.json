@@ -4,20 +4,20 @@
     "module": "commonjs",
     "jsx": "react",
     "sourceMap": true,
-    "outDir": "./dist",
     "lib": [
-      "esnext",
-      "dom"
+      "ESNext",
+      "DOM"
     ],
+    "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
-    "baseUrl": "./",
-    "skipLibCheck": true,
-    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "noEmitOnError": true,
+    "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true
   }
 }

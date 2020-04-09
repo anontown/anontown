@@ -1,5 +1,5 @@
 import * as es from "elasticsearch";
-import * as Redis from "ioredis";
+import Redis from "ioredis";
 import lazy = require("lazy-value");
 import { MongoClient } from "mongodb";
 import { Config } from "./config";

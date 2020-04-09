@@ -56,8 +56,9 @@ export const LoginPage = (_props: LoginPageProps) => {
                     });
                     if (token.data !== undefined) {
                       userContext.update(
-                        await createUserData(token.data
-                          .createTokenMaster as G.TokenMasterFragment),
+                        await createUserData(
+                          token.data.createTokenMaster as G.TokenMasterFragment,
+                        ),
                       );
                     }
                   } catch {

@@ -2,7 +2,10 @@ import * as Im from "immutable";
 
 export class Command<T> {
   static fromValue<T>(val: T) {
-    return new Command(Im.List<T>([val]), 0);
+    return new Command(
+      Im.List<T>([val]),
+      0,
+    );
   }
 
   constructor(

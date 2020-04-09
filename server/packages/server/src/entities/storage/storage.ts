@@ -49,10 +49,7 @@ export class Storage extends Copyable<Storage> {
     if (
       authToken.user !== this.user ||
       (authToken.type === "master" ? null : authToken.client) !==
-        pipe(
-          this.client,
-          option.toNullable,
-        )
+        pipe(this.client, option.toNullable)
     ) {
       throw new AtRightError("権限がありません");
     }

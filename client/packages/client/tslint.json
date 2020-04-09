@@ -42,7 +42,8 @@
     "strict-type-predicates": true,
     // 一時的に無効
     "jsx-no-lambda": false,
-    "prettier": true
+    "prettier": true,
+    "jsx-key": false
   },
   "linterOptions": {
     "exclude": [

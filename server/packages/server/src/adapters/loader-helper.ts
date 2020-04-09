@@ -1,10 +1,12 @@
-import * as DataLoader from "dataloader";
+import DataLoader from "dataloader";
 
 function sort<T extends { id: string }>(
   ids: string[],
   data: T[],
 ): (T | Error)[] {
-  const map = new Map(data.map<[string, T]>(x => [x.id, x]));
+  const map = new Map(
+    data.map<[string, T]>(x => [x.id, x]),
+  );
   return ids.map(x => map.get(x) || new Error());
 }
 

@@ -23,14 +23,16 @@ export type StorageJSON8 = t.TypeOf<typeof storageJSON8>;
 export async function convert7To8(val: StorageJSON7): Promise<StorageJSON8> {
   const topicRead: StorageJSON8["topicRead"] = {};
   const dates = new Map(
-    (await gqlClient.query<G.FindResesQuery, G.FindResesQueryVariables>({
-      query: G.FindResesDocument,
-      variables: {
-        query: {
-          id: Object.entries(val.topicRead).map(([_l, { res }]) => res),
+    (
+      await gqlClient.query<G.FindResesQuery, G.FindResesQueryVariables>({
+        query: G.FindResesDocument,
+        variables: {
+          query: {
+            id: Object.entries(val.topicRead).map(([_l, { res }]) => res),
+          },
         },
-      },
-    })).data.reses.map<[string, string]>(x => [x.id, x.date]),
+      })
+    ).data.reses.map<[string, string]>(x => [x.id, x.date]),
   );
   for (const topic of Object.keys(val.topicRead)) {
     const data = val.topicRead[topic];

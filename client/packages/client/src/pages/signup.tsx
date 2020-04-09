@@ -82,8 +82,9 @@ export const SignupPage = class extends React.Component<{}, SignupPageState> {
                     }}
                     onCompleted={async x => {
                       user.update(
-                        await createUserData(x.createUser
-                          .token as G.TokenMasterFragment),
+                        await createUserData(
+                          x.createUser.token as G.TokenMasterFragment,
+                        ),
                       );
                     }}
                     variables={{

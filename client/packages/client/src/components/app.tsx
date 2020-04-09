@@ -22,7 +22,7 @@ import {
   withRouter,
 } from "react-router-dom";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
-import { UserData } from "src/models";
+import { UserData } from "../models";
 import { BUILD_DATE, Env } from "../env";
 import * as G from "../generated/graphql";
 import { UserContextType } from "../hooks";
@@ -105,8 +105,9 @@ export const App = withRouter(
           throw Error();
         }
         this.setState({
-          initUserData: await createUserData(res.data
-            .token as G.TokenMasterFragment),
+          initUserData: await createUserData(
+            res.data.token as G.TokenMasterFragment,
+          ),
         });
       } catch {
         this.setState({ initUserData: null });

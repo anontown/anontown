@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2015",
     "module": "commonjs",
     "lib": [
-      "es2015"
+      "ES2015"
     ],
     "outDir": "./dist",
     "rootDir": "./src",
@@ -14,5 +14,6 @@
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "noEmitOnError": true,
+    "forceConsistentCasingInFileNames": true
   }
 }

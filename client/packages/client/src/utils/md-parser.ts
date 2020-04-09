@@ -3,10 +3,7 @@ import * as markdown from "remark-parse";
 import * as unified from "unified";
 
 export function parse(text: string): Root {
-  return unified()
-    .use(markdown)
-    .use(breaks)
-    .parse(text);
+  return unified().use(markdown).use(breaks).parse(text);
 }
 
 export type MdNode =
@@ -78,7 +75,7 @@ export interface ListItem extends ParentBase {
 
 export interface Table extends ParentBase {
   type: "table";
-  align: Array<"left" | "right" | "center" | null>;
+  align: ("left" | "right" | "center" | null)[];
 }
 
 export interface TableRow extends ParentBase {

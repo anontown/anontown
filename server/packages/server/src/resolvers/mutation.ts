@@ -132,7 +132,7 @@ export const mutation: G.MutationResolvers = {
       !isNullish(args.profile)
         ? context.ports.profileRepo.findOne(args.profile)
         : Promise.resolve(null),
-    ]);
+    ] as const);
 
     const { res, user: newUser, topic: newTopic } = ResNormal.create(
       context.ports.objectIdGenerator,

@@ -35,7 +35,7 @@ export const initStorage: StorageJSONLatest = {
   topicWrite: {},
   ng: [],
 };
-export const verArray: Array<StorageJSON["ver"]> = [
+export const verArray: StorageJSON["ver"][] = [
   "9",
   "8",
   "7",

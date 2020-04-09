@@ -22,7 +22,7 @@ export class ResRepo implements IResRepo {
 
   constructor(private refresh?: boolean) {
     this.subRedis.subscribe("res/add");
-    this.subRedis.on("message", (_channel, message) => {
+    this.subRedis.on("message", (_channel: any, message: any) => {
       const data: ResPubSub = JSON.parse(message);
       this.insertEvent.next({
         res: toRes(data.res, data.replyCount),
@@ -106,7 +106,9 @@ export class ResRepo implements IResRepo {
 
     const countArr: { key: string; doc_count: number }[] =
       data.aggregations.res_count.buckets;
-    return new Map(countArr.map<[string, number]>(x => [x.key, x.doc_count]));
+    return new Map(
+      countArr.map<[string, number]>(x => [x.key, x.doc_count]),
+    );
   }
 
   async replyCount(resIDs: string[]): Promise<Map<string, number>> {
@@ -147,7 +149,9 @@ export class ResRepo implements IResRepo {
 
     const countArr: { key: string; doc_count: number }[] =
       data.aggregations.reply_count.reply_count.buckets;
-    return new Map(countArr.map<[string, number]>(x => [x.key, x.doc_count]));
+    return new Map(
+      countArr.map<[string, number]>(x => [x.key, x.doc_count]),
+    );
   }
 
   async find(

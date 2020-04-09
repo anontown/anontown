@@ -20,9 +20,9 @@ export class TopicRepo implements ITopicRepo {
     } catch {
       throw new AtNotFoundError("トピックが存在しません");
     }
-    return (await this.aggregate([
-      { id: topic._id, body: topic._source } as ITopicDB,
-    ]))[0];
+    return (
+      await this.aggregate([{ id: topic._id, body: topic._source } as ITopicDB])
+    )[0];
   }
 
   async findTags(limit: number): Promise<ITagsAPI[]> {
