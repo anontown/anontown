@@ -24,14 +24,17 @@
 
 <body>
     <div id="root"></div>
-    <script>
-    // 関数定義だとbffから置換されるのでこう書いている
-    window.anontown_dummy_replaced_by_bff = function () {
-      console.log("bff less mode");
-    };
-    </script>
-    <script>anontown_dummy_replaced_by_bff()</script>
+    <% if (enableBff) { %>
+      <script>
+        window.__ENV__ =  <%= '\u{3c}%- env %\u{3e}' %>;
+      </script>
+    <% } else {%>
+      <script>
+        window.__ENV__ =  <%- env %>;
+      </script>
+    <% } %>
     <script src="https://www.google.com/recaptcha/api.js"></script>
+    <%= htmlWebpackPlugin.tags.bodyTags %>
 </body>
 
 </html>

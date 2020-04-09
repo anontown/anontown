@@ -49,12 +49,17 @@ module.exports = (env, argv) => {
         },
       }),
       new HtmlWebpackPlugin({
-        inject: true,
+        inject: false,
         template: "index.ejs",
         filename: enableBff ? "index.ejs" : "index.html",
-        templateParameters: {
-          script: "aaa<>aaa",
-        },
+        templateParameters: enableBff
+          ? {
+              enableBff: true,
+            }
+          : {
+              enableBff: false,
+              env: {},
+            },
       }),
       new CopyWebpackPlugin([
         {
