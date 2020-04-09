@@ -1,4 +1,4 @@
-import { Env, EnableBff } from "../env";
+import { EnableBff, Env } from "../env";
 
 export async function getServerStatus() {
   const server = await fetch(Env.api.origin + "/ping", {
