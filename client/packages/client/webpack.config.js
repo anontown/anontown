@@ -40,6 +40,7 @@ module.exports = (env, argv) => {
       new webpack.DefinePlugin({
         __BUILD_DATE__: JSON.stringify(Date.now()),
         __MODE__: JSON.stringify(argv.mode),
+        __ENABLE_BFF__: JSON.stringify(enableBff),
       }),
       new OfflinePlugin({
         caches: {

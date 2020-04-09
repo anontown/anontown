@@ -31,6 +31,12 @@ for (const r of routeArray) {
   addRoute(r);
 }
 
+app.use(
+  kr.get("/ping", async (ctx) => {
+    ctx.body = "OK";
+  })
+);
+
 app.use(async (ctx, next) => {
   let done = false;
 
