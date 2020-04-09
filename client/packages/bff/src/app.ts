@@ -5,6 +5,7 @@ import * as path from "path";
 import { RouteData, routeArray } from "@anontown/common/dist/route";
 import kr = require("koa-route");
 import * as fse from "fs-extra";
+import * as lodash from "lodash";
 
 const app = new Koa();
 
@@ -15,14 +16,10 @@ function addRoute<P extends string, Q extends object>(route: RouteData<P, Q>) {
     kr.get(route.matcher(), async (ctx, ..._pathData) => {
       // const parsedData = route.parsePathData(pathData);
       const template = await fse.readFile(
-        path.join(rootDir, ".index.template.html"),
+        path.join(rootDir, "index.ejs"),
         "utf8"
       );
-      const initScript = `window.__ENV__=${JSON.stringify(env.jsEnv)};`;
-      ctx.body = template.replace(
-        "anontown_dummy_replaced_by_bff()",
-        initScript.replace(/</g, "\\u003c")
-      );
+      ctx.body = lodash.template(template)({ env: JSON.stringify(env.jsEnv) });
     })
   );
 }
