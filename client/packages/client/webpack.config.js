@@ -87,7 +87,7 @@ module.exports = (env, argv) => ({
       },
     ],
   },
-  devtool: "source-map",
+  devtool: argv.mode === "development" ? "source-map" : false,
   optimization: {
     splitChunks: {
       name: "vendor",
