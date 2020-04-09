@@ -38,7 +38,7 @@ module.exports = (env, argv) => {
         __MODE__: JSON.stringify(argv.mode),
         __ENABLE_BFF__: JSON.stringify(enableBff),
         ...(!enableBff
-          ? { __ENV__: `env.loadEnv${JSON.stringify(process.env)}` }
+          ? { __ENV__: `env.loadEnv(${JSON.stringify(process.env)})` }
           : {}),
       }),
       new OfflinePlugin({
