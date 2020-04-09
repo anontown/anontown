@@ -17,7 +17,7 @@ function addRoute<P extends string, Q extends object>(route: RouteData<P, Q>) {
     kr.get(route.matcher(), async (ctx, ..._pathData) => {
       // const parsedData = route.parsePathData(pathData);
       const template = await fse.readFile(
-        path.join(rootDir, "index.ejs"),
+        path.join(rootDir, ".index.ejs"),
         "utf8"
       );
       ctx.body = lodash.template(template)({
