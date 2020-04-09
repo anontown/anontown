@@ -11,9 +11,9 @@ function match(x, map) {
 }
 
 module.exports = (env, argv) => {
-  const bff = Boolean(env.bff);
+  const enableBff = Boolean(env["enable-bff"]);
 
-  if (!bff && argv.mode === "production") {
+  if (!enableBff && argv.mode === "production") {
     throw new Error("bff must be enabled for production builds.");
   }
 
