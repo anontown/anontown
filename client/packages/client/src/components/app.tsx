@@ -1,4 +1,4 @@
-import { routes } from "@anontown/route";
+import { routes } from "@anontown/common/dist/route";
 import * as t from "io-ts";
 import {
   FontIcon,

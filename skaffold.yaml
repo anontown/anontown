@@ -58,6 +58,10 @@ profiles:
           context: mongo
         - image: anontown-redis
           context: redis
+  - name: dev-bff-less
+    patches:
+      - path: /build/artifacts/2/docker/target
+        value: dev-bff-less
   - name: prod
     build:
       artifacts:

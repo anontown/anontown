@@ -10,8 +10,7 @@ COPY packages/bff/package.json packages/bff/package-lock.json ./packages/bff/
 COPY packages/client/package.json packages/client/package-lock.json ./packages/client/
 COPY packages/client-icon/package.json packages/client-icon/package-lock.json ./packages/client-icon/
 COPY packages/icon/package.json ./packages/icon/
-COPY packages/route/package.json packages/route/package-lock.json ./packages/route/
-COPY packages/types/package.json ./packages/types/
+COPY packages/common/package.json packages/common/package-lock.json ./packages/common/
 RUN npx lerna bootstrap --ci --no-progress
 
 COPY schema.json ./
@@ -25,6 +24,10 @@ COPY bin/ bin/
 FROM base as dev
 
 CMD ./bin/start-watch.sh
+
+FROM base as dev-bff-less
+
+CMD ./bin/start-watch-bff-less.sh
 
 FROM base
 

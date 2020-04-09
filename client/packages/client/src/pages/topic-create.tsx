@@ -1,4 +1,4 @@
-import { routes } from "@anontown/route";
+import { routes } from "@anontown/common/dist/route";
 import { Mutation } from "@apollo/react-components";
 import * as Im from "immutable";
 import {

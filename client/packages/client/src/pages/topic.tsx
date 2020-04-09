@@ -1,4 +1,4 @@
-import { routes } from "@anontown/route";
+import { routes } from "@anontown/common/dist/route";
 import { useApolloClient } from "@apollo/react-hooks";
 import { arrayFirst } from "@kgtkr/utils";
 import {
