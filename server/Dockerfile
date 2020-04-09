@@ -24,8 +24,8 @@ RUN npx lerna bootstrap --ci --no-progress
 
 COPY schema.gql ./schema.gql
 COPY packages ./packages
-RUN npx lerna run codegen --scope @anontown/server \
-  && npx lerna run build --scope @anontown/server --include-filtered-dependencies
+RUN npx lerna run codegen --scope @anontown/server --include-filtered-dependencies \
+  && npx lerna run build --scope @anontown/server
 
 COPY bin/ bin/
 

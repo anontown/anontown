@@ -26,7 +26,8 @@ CMD ./bin/start-watch-bff-less.sh
 
 FROM base
 
-RUN npx lerna run codegen --scope @anontown/client \
-  && npx lerna run build --scope @anontown/client --scope @anontown/bff --include-filtered-dependencies
+RUN npx lerna run codegen --scope @anontown/client --include-filtered-dependencies \
+  && npx lerna run build --scope @anontown/bff \
+  && npx lerna run build --scope @anontown/client
 
 CMD ./bin/start.sh

@@ -15,5 +15,10 @@
     "esModuleInterop": true,
     // "noEmitOnError": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  "references": [
+    {
+      "path": "../common"
+    },
+  ]
 }

@@ -19,5 +19,10 @@
     // "noEmitOnError": true,
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true
-  }
+  },
+  "references": [
+    {
+      "path": "../common"
+    },
+  ]
 }

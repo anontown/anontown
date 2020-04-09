@@ -102,6 +102,9 @@ module.exports = (env, argv) => {
         {
           test: /\.tsx?$/,
           loader: "ts-loader",
+          options: {
+            projectReferences: true,
+          },
         },
         {
           test: /\.html?$/,

@@ -6,9 +6,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./dist/app.js",
-    "build": "tsc",
+    "build": "tsc -b .",
     "start:watch": "wait-on ./dist/app.js && nodemon --delay 5 ./dist/app.js",
-    "build:watch": "tsc -w --preserveWatchOutput",
+    "build:watch": "tsc -b . -w --preserveWatchOutput",
     "clean": "rm -rf ./dist"
   },
   "author": "kgtkr",

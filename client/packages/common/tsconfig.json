@@ -15,6 +15,7 @@
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     // "noEmitOnError": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "composite": true
   }
 }
