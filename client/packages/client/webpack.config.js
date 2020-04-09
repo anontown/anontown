@@ -37,9 +37,9 @@ module.exports = (env, argv) => {
         __BUILD_DATE__: JSON.stringify(Date.now()),
         __MODE__: JSON.stringify(argv.mode),
         __ENABLE_BFF__: JSON.stringify(enableBff),
-        __ENV__: !enableBff
-          ? `env.loadEnv${JSON.stringify(process.env)}`
-          : undefined,
+        ...(!enableBff
+          ? { __ENV__: `env.loadEnv${JSON.stringify(process.env)}` }
+          : {}),
       }),
       new OfflinePlugin({
         caches: {
