@@ -18,14 +18,14 @@ function pathDataToString<T extends string>(
   variableNameToString: (x: T) => string
 ): string {
   return pathData
-    .map(x => {
+    .map((x) => {
       if (x.type === "const") {
         return x.value;
       } else {
         return variableNameToString(x.name);
       }
     })
-    .map(x => `/${x}`)
+    .map((x) => `/${x}`)
     .join("");
 }
 
@@ -33,11 +33,11 @@ function pathDataToPath<T extends string>(
   pathData: PathData<T>,
   params: Record<T, string>
 ): string {
-  return pathDataToString(pathData, name => encodeURIComponent(params[name]));
+  return pathDataToString(pathData, (name) => encodeURIComponent(params[name]));
 }
 
 function pathDataToMatcher<T extends string>(pathData: PathData<T>): string {
-  return pathDataToString(pathData, name => `:${name}`);
+  return pathDataToString(pathData, (name) => `:${name}`);
 }
 
 export class PathDataBuilder<T extends string> {
@@ -54,7 +54,7 @@ export class PathDataBuilder<T extends string> {
   variable<P extends string>(name: P): PathDataBuilder<T | P> {
     return new PathDataBuilder<T | P>([
       ...this.value,
-      { type: "variable", name }
+      { type: "variable", name },
     ]);
   }
 }
@@ -99,7 +99,11 @@ export class RouteData<P extends string, Q extends object> {
   static create<P extends string>(
     pathDataBuilder: PathDataBuilder<P>
   ): RouteData<P, {}> {
-    return new RouteData(pathDataBuilder.value, () => ({}), () => ({}));
+    return new RouteData(
+      pathDataBuilder.value,
+      () => ({}),
+      () => ({})
+    );
   }
 
   static createWithQuery<P extends string, Q extends object>(
@@ -118,7 +122,7 @@ export class RouteData<P extends string, Q extends object> {
     params: Record<P, string>,
     {
       query,
-      state
+      state,
     }: {
       query?: Partial<Q>;
       state?: any;
@@ -128,7 +132,7 @@ export class RouteData<P extends string, Q extends object> {
       pathname: pathDataToPath(this.pathData, params),
       search:
         query !== undefined ? qs.stringify(this.decodeQuery(query)) : undefined,
-      state: state
+      state: state,
     };
   }
 

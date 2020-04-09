@@ -2,9 +2,11 @@ import Koa from "koa";
 import { env } from "./env";
 import send = require("koa-send");
 import * as path from "path";
-import { RouteData, routeArray } from "@anontown/route";
+import { RouteData, routeArray } from "@anontown/common/dist/route";
 import kr = require("koa-route");
 import * as fse from "fs-extra";
+import * as lodash from "lodash";
+import { outputJsValueToHtml } from "@anontown/common/dist/output-js-value-to-html";
 
 const app = new Koa();
 
@@ -15,14 +17,12 @@ function addRoute<P extends string, Q extends object>(route: RouteData<P, Q>) {
     kr.get(route.matcher(), async (ctx, ..._pathData) => {
       // const parsedData = route.parsePathData(pathData);
       const template = await fse.readFile(
-        path.join(rootDir, ".index.template.html"),
+        path.join(rootDir, ".index.ejs"),
         "utf8"
       );
-      const initScript = `window.__ENV__=${JSON.stringify(env.jsEnv)};`;
-      ctx.body = template.replace(
-        "init_script()",
-        initScript.replace(/</g, "\\u003c")
-      );
+      ctx.body = lodash.template(template)({
+        escapedEnvJson: outputJsValueToHtml(env.jsEnv),
+      });
     })
   );
 }
@@ -30,6 +30,12 @@ function addRoute<P extends string, Q extends object>(route: RouteData<P, Q>) {
 for (const r of routeArray) {
   addRoute(r);
 }
+
+app.use(
+  kr.get("/ping", async (ctx) => {
+    ctx.body = "OK";
+  })
+);
 
 app.use(async (ctx, next) => {
   let done = false;

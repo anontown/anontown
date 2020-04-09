@@ -1,4 +1,4 @@
-import { routes } from "@anontown/route";
+import { routes } from "@anontown/common/dist/route";
 import { RaisedButton } from "material-ui";
 import * as React from "react";
 import { useTitle } from "react-use";
