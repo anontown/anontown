@@ -1,4 +1,4 @@
-import { routes } from "@anontown/route";
+import { routes } from "@anontown/common/dist/route";
 import { Paper, RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import Recaptcha from "react-google-recaptcha";

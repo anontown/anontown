@@ -15,8 +15,7 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "@anontown/client": "^2.0.0",
-    "@anontown/client-types": "^2.0.0",
-    "@anontown/route": "^2.0.0",
+    "@anontown/common": "^2.0.0",
     "fs-extra": "^8.1.0",
     "koa": "^2.10.0",
     "koa-route": "^3.2.0",

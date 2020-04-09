@@ -1,4 +1,4 @@
-import { Env as EnvType } from "@anontown/client-types";
+import { Env as EnvType } from "@anontown/common/dist/env";
 
 declare const __ENV__: EnvType;
 declare const __BUILD_DATE__: number;

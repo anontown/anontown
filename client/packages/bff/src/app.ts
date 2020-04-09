@@ -2,7 +2,7 @@ import Koa from "koa";
 import { env } from "./env";
 import send = require("koa-send");
 import * as path from "path";
-import { RouteData, routeArray } from "@anontown/route";
+import { RouteData, routeArray } from "@anontown/common/dist/route";
 import kr = require("koa-route");
 import * as fse from "fs-extra";
 
