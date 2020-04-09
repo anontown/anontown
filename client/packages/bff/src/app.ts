@@ -20,7 +20,7 @@ function addRoute<P extends string, Q extends object>(route: RouteData<P, Q>) {
       );
       const initScript = `window.__ENV__=${JSON.stringify(env.jsEnv)};`;
       ctx.body = template.replace(
-        "init_script()",
+        "anontown_dummy_replaced_by_bff()",
         initScript.replace(/</g, "\\u003c")
       );
     })
