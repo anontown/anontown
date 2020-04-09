@@ -16,11 +16,11 @@ RUN npx lerna bootstrap --ci --no-progress
 COPY schema.json ./
 COPY packages ./packages
 
-COPY bin/ bin/
-
 RUN npx lerna run codegen --scope @anontown/client \
   && npx lerna run build --scope @anontown/client --include-filtered-dependencies \
   && npx lerna run build --scope @anontown/bff --include-filtered-dependencies
+
+COPY bin/ bin/
 
 FROM base as dev
 
