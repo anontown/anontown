@@ -30,7 +30,7 @@ export interface ITopicBaseDB<T extends TopicType, Body> {
 export type ITopicSearchBaseDB<T extends TopicSearchType> = ITopicBaseDB<
   T,
   {
-    readonly tags: string[];
+    readonly tags: Array<string>;
     readonly text: string;
   }
 >;

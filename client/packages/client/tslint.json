@@ -43,7 +43,11 @@
     // 一時的に無効
     "jsx-no-lambda": false,
     "prettier": true,
-    "jsx-key": false
+    "jsx-key": false,
+    "array-type": [
+      true,
+      "generic"
+    ]
   },
   "linterOptions": {
     "exclude": [

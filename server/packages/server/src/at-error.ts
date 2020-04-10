@@ -43,7 +43,7 @@ export interface IParamErrorData {
 }
 
 export class AtParamsError extends AtError {
-  constructor(data: IParamErrorData[]) {
+  constructor(data: Array<IParamErrorData>) {
     super({
       code: "params",
       message: "パラメーターが不正です",
@@ -61,8 +61,8 @@ export type paramsErrorMakerData =
       message: string;
     };
 
-export function paramsErrorMaker(fs: paramsErrorMakerData[]) {
-  const errors: IParamErrorData[] = [];
+export function paramsErrorMaker(fs: Array<paramsErrorMakerData>) {
+  const errors: Array<IParamErrorData> = [];
   fs.forEach(f => {
     if (typeof f === "function") {
       const error = f();

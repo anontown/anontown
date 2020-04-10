@@ -31,7 +31,7 @@ export interface IResBaseDB<T extends ResType, Body> {
     readonly topic: string;
     readonly date: string;
     readonly user: string;
-    readonly votes: IVote[];
+    readonly votes: Array<IVote>;
     readonly lv: number;
     readonly hash: string;
   } & Body;

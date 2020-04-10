@@ -23,7 +23,7 @@ export interface ITokenMasterDB extends ITokenBaseDB<"master"> {}
 
 export interface ITokenGeneralDB extends ITokenBaseDB<"general"> {
   readonly client: ObjectID;
-  readonly req: ITokenReq[];
+  readonly req: Array<ITokenReq>;
 }
 
 export function fromTokenBase<T extends TokenType>() {

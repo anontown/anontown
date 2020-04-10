@@ -25,7 +25,7 @@ export class TopicRepo implements ITopicRepo {
     )[0];
   }
 
-  async findTags(limit: number): Promise<ITagsAPI[]> {
+  async findTags(limit: number): Promise<Array<ITagsAPI>> {
     if (limit === 0) {
       return [];
     }
@@ -45,7 +45,7 @@ export class TopicRepo implements ITopicRepo {
       },
     });
 
-    const tags: { key: string; doc_count: number }[] =
+    const tags: Array<{ key: string; doc_count: number }> =
       data.aggregations.tags_count.buckets;
 
     return tags.map(x => ({ name: x.key, count: x.doc_count }));
@@ -55,8 +55,8 @@ export class TopicRepo implements ITopicRepo {
     query: G.TopicQuery,
     skip: number,
     limit: number,
-  ): Promise<Topic[]> {
-    const filter: any[] = [];
+  ): Promise<Array<Topic>> {
+    const filter: Array<any> = [];
     if (!isNullish(query.id)) {
       filter.push({
         terms: {
@@ -178,7 +178,7 @@ export class TopicRepo implements ITopicRepo {
     });
   }
 
-  private async aggregate(topics: ITopicDB[]): Promise<Topic[]> {
+  private async aggregate(topics: Array<ITopicDB>): Promise<Array<Topic>> {
     const count = await this.resRepo.resCount(topics.map(x => x.id));
 
     return topics.map(x => toTopic(x, count.get(x.id) || 0));

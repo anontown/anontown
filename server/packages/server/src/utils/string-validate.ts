@@ -22,7 +22,7 @@ export type CharType =
   | "han";
 
 export interface ValidateData {
-  char: CharType[] | null;
+  char: Array<CharType> | null;
   min: number | null;
   max: number | null;
 }
@@ -58,7 +58,7 @@ export function checkString(
 }
 
 export function validateData(
-  char: CharType[] | null,
+  char: Array<CharType> | null,
   min: number | null,
   max: number | null,
 ): ValidateDataCache {

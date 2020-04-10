@@ -20,7 +20,7 @@ export const history = createBrowserHistory();
 export function configureStore(): Store<RootState, RootAction> & {
   dispatch: unknown;
 } {
-  const middlewares: Middleware[] = [];
+  const middlewares: Array<Middleware> = [];
   const epicMiddleware = createEpicMiddleware<
     RootAction,
     RootAction,

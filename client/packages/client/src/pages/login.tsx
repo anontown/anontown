@@ -13,7 +13,9 @@ interface LoginPageProps {}
 export const LoginPage = (_props: LoginPageProps) => {
   const [sn, setSn] = React.useState("");
   const [pass, setPass] = React.useState("");
-  const [errors, setErrors] = React.useState<string[] | undefined>(undefined);
+  const [errors, setErrors] = React.useState<Array<string> | undefined>(
+    undefined,
+  );
   const userContext = useUserContext();
   const [submit] = G.useCreateTokenMasterMutation();
 

@@ -32,7 +32,7 @@ export interface ITopicBaseAPI<T extends TopicType> {
 
 export interface ITopicSearchBaseAPI<T extends TopicSearchType>
   extends ITopicBaseAPI<T> {
-  readonly tags: string[];
+  readonly tags: Array<string>;
   readonly text: string;
 }
 
@@ -59,7 +59,7 @@ export abstract class TopicBase<
     text,
   }: {
     title?: string;
-    tags?: string[];
+    tags?: Array<string>;
     text?: string;
   }) {
     paramsErrorMaker([
@@ -185,7 +185,7 @@ export class TopicNormal extends Copyable<TopicNormal>
   static create(
     objidGenerator: IObjectIdGenerator,
     title: string,
-    tags: string[],
+    tags: Array<string>,
     text: string,
     user: User,
     authToken: IAuthToken,
@@ -243,7 +243,7 @@ export class TopicNormal extends Copyable<TopicNormal>
     user: User,
     authToken: IAuthToken,
     title: string | undefined,
-    tags: string[] | undefined,
+    tags: Array<string> | undefined,
     text: string | undefined,
     now: Date,
   ) {
@@ -285,7 +285,7 @@ export class TopicOne extends Copyable<TopicOne>
   static create(
     objidGenerator: IObjectIdGenerator,
     title: string,
-    tags: string[],
+    tags: Array<string>,
     text: string,
     user: User,
     authToken: IAuthToken,

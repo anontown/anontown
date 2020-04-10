@@ -14,7 +14,7 @@ interface ProfileEditorProps {
 }
 
 export const ProfileEditor = (props: ProfileEditorProps) => {
-  const [errors, setErrors] = React.useState<string[]>([]);
+  const [errors, setErrors] = React.useState<Array<string>>([]);
   const [sn, setSn] = React.useState(props.profile.sn);
   const [name, setName] = React.useState(props.profile.name);
   const [text, setText] = React.useState(props.profile.text);

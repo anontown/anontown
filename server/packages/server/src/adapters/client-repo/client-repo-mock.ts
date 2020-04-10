@@ -8,7 +8,7 @@ import { IClientRepo } from "../../ports";
 import { fromClient, IClientDB, toClient } from "./iclient-db";
 
 export class ClientRepoMock implements IClientRepo {
-  private clients: IClientDB[] = [];
+  private clients: Array<IClientDB> = [];
 
   async findOne(id: string): Promise<Client> {
     const client = this.clients.find(c => c._id.toHexString() === id);
@@ -32,7 +32,7 @@ export class ClientRepoMock implements IClientRepo {
   async find(
     authToken: Option<IAuthTokenMaster>,
     query: G.ClientQuery,
-  ): Promise<Client[]> {
+  ): Promise<Array<Client>> {
     if (query.self && isNone(authToken)) {
       throw new AtAuthError("認証が必要です");
     }

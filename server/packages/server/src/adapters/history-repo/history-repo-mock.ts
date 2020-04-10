@@ -6,7 +6,7 @@ import { IHistoryRepo } from "../../ports";
 import { fromHistory, IHistoryDB, toHistory } from "./ihistory-db";
 
 export class HistoryRepoMock implements IHistoryRepo {
-  private histories: IHistoryDB[] = [];
+  private histories: Array<IHistoryDB> = [];
 
   async insert(history: History): Promise<void> {
     this.histories.push(fromHistory(history));
@@ -28,7 +28,7 @@ export class HistoryRepoMock implements IHistoryRepo {
     return toHistory(history);
   }
 
-  async find(query: G.HistoryQuery, limit: number): Promise<History[]> {
+  async find(query: G.HistoryQuery, limit: number): Promise<Array<History>> {
     const histories = this.histories
       .filter(x => isNullish(query.id) || query.id.includes(x.id))
       .filter(x => isNullish(query.topic) || query.topic.includes(x.body.topic))

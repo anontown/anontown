@@ -23,8 +23,8 @@ export interface MdEditorProps {
 }
 
 interface MdEditorState {
-  oekakiErrors?: string[];
-  imageErrors?: string[];
+  oekakiErrors?: Array<string>;
+  imageErrors?: Array<string>;
   slowOekaki: boolean;
   slowImage: boolean;
   showPreview: boolean;
@@ -42,7 +42,7 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
     };
   }
 
-  upload(datas: FormData[]) {
+  upload(datas: Array<FormData>) {
     rx.of(...datas)
       .pipe(
         op.mergeMap(form => imgur.upload(form)),

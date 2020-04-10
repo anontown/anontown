@@ -9,9 +9,12 @@ import { IStorageRepo } from "../../ports";
 import { fromStorage, IStorageDB, toStorage } from "./isotrage-db";
 
 export class StorageRepoMock implements IStorageRepo {
-  private storages: IStorageDB[] = [];
+  private storages: Array<IStorageDB> = [];
 
-  async find(token: IAuthToken, query: G.StorageQuery): Promise<Storage[]> {
+  async find(
+    token: IAuthToken,
+    query: G.StorageQuery,
+  ): Promise<Array<Storage>> {
     const storages = this.storages
       .filter(
         x =>

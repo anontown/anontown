@@ -42,7 +42,7 @@ export function useValueRef<T>(val: T) {
   return ref;
 }
 
-export function useFunctionRef<T extends any[], R>(
+export function useFunctionRef<T extends Array<any>, R>(
   f: (...args: T) => R,
 ): (...args: T) => R {
   const ref = useValueRef(f);

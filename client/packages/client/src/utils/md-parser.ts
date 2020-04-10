@@ -27,7 +27,7 @@ export type MdNode =
   | Text;
 
 interface ParentBase {
-  children: MdNode[];
+  children: Array<MdNode>;
 }
 
 interface TextBase {
@@ -75,7 +75,7 @@ export interface ListItem extends ParentBase {
 
 export interface Table extends ParentBase {
   type: "table";
-  align: ("left" | "right" | "center" | null)[];
+  align: Array<"left" | "right" | "center" | null>;
 }
 
 export interface TableRow extends ParentBase {

@@ -21,7 +21,10 @@ export class ProfileRepo implements IProfileRepo {
     return toProfile(profile);
   }
 
-  async find(auth: IAuthContainer, query: G.ProfileQuery): Promise<Profile[]> {
+  async find(
+    auth: IAuthContainer,
+    query: G.ProfileQuery,
+  ): Promise<Array<Profile>> {
     const q: any = {};
     if (query.self) {
       q.user = new ObjectID(auth.getToken().user);
@@ -30,7 +33,7 @@ export class ProfileRepo implements IProfileRepo {
       q._id = { $in: query.id.map(x => new ObjectID(x)) };
     }
     const db = await Mongo();
-    const profiles: IProfileDB[] = await db
+    const profiles: Array<IProfileDB> = await db
       .collection("profiles")
       .find(q)
       .sort({ date: -1 })

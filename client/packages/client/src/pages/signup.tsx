@@ -13,7 +13,7 @@ import { createUserData } from "../utils";
 interface SignupPageState {
   sn: string;
   pass: string;
-  errors?: string[];
+  errors?: Array<string>;
   recaptcha: string | null;
 }
 

@@ -3,7 +3,7 @@ import * as style from "./select.scss";
 
 interface SelectProps {
   value: string;
-  options: { value: string; text: string }[];
+  options: Array<{ value: string; text: string }>;
   style?: React.CSSProperties;
   onChange: (v: string) => void;
   onFocus?: () => void;

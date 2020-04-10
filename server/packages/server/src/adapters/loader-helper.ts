@@ -1,9 +1,9 @@
 import DataLoader from "dataloader";
 
 function sort<T extends { id: string }>(
-  ids: string[],
-  data: T[],
-): (T | Error)[] {
+  ids: Array<string>,
+  data: Array<T>,
+): Array<T | Error> {
   const map = new Map(
     data.map<[string, T]>(x => [x.id, x]),
   );
@@ -11,7 +11,7 @@ function sort<T extends { id: string }>(
 }
 
 export function loader<T extends { id: string }>(
-  f: (ids: string[]) => Promise<T[]>,
+  f: (ids: Array<string>) => Promise<Array<T>>,
 ): DataLoader<string, T> {
   return new DataLoader<string, T>(async ids => {
     const data = await f(ids);

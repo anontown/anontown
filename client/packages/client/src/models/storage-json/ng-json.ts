@@ -24,7 +24,7 @@ export const ngNodeAndJson: t.Type<NGNodeAndJson> = t.recursion(
 
 export interface NGNodeAndJson {
   readonly type: "and";
-  readonly children: NGNodeJson[];
+  readonly children: Array<NGNodeJson>;
 }
 
 export const ngNodeOrJson: t.Type<NGNodeOrJson> = t.recursion(
@@ -38,7 +38,7 @@ export const ngNodeOrJson: t.Type<NGNodeOrJson> = t.recursion(
 
 export interface NGNodeOrJson {
   readonly type: "or";
-  readonly children: NGNodeJson[];
+  readonly children: Array<NGNodeJson>;
 }
 
 export const ngNodeProfileJson = t.strict({
