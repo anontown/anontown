@@ -6,9 +6,16 @@ import { RGBColor } from "react-color";
 import { toColorString } from "../utils";
 import { ColorPicker } from "./color-picker";
 import { HistoryStack, HS } from "../containers";
-import { pipe, O, identity, Endomorphism } from "../prelude";
+import {
+  pipe,
+  O,
+  identity,
+  Endomorphism,
+  RNEA,
+  ReadonlyNonEmptyArray,
+} from "../prelude";
 
-export interface Dot {
+export interface Vector2d {
   x: number;
   y: number;
 }
@@ -17,23 +24,22 @@ export interface Line {
   color: RGBColor;
   fill: boolean;
   width: number;
-  m: Dot;
-  dots: Im.List<Dot>;
+  dots: ReadonlyNonEmptyArray<Vector2d>;
 }
 
-export type Value = HistoryStack<Im.List<Line>>;
+export type Picture = Im.List<Line>;
 
 export interface OekakiProps {
   onSubmit: (data: FormData) => void;
-  size: Dot;
+  size: Vector2d;
 }
 
 interface OekakiState {
-  value: Value;
+  pictureStack: HistoryStack<Picture>;
+  drawingLine: Line | null;
   color: RGBColor;
   fill: boolean;
   width: number;
-  line: Line | null;
 }
 
 export class Oekaki extends React.Component<OekakiProps, OekakiState> {
@@ -43,11 +49,11 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
   constructor(props: OekakiProps) {
     super(props);
     this.state = {
-      value: HS.of(Im.List()),
+      pictureStack: HS.of(Im.List()),
       color: { r: 0, g: 0, b: 0 },
       fill: false,
       width: 1,
-      line: null,
+      drawingLine: null,
     };
   }
 
@@ -58,39 +64,40 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
 
   penDown(cx: number, cy: number) {
     const [x, y] = this.getPoint(cx, cy);
-    if (this.state.line === null) {
+    if (this.state.drawingLine === null) {
       this.setState({
-        line: {
+        drawingLine: {
           color: this.state.color,
           fill: this.state.fill,
           width: this.state.width,
-          m: { x, y },
-          dots: Im.List(),
+          dots: RNEA.of({ x, y }),
         },
       });
     }
   }
 
   penUp() {
-    if (this.state.line !== null) {
-      const line = this.state.line;
+    if (this.state.drawingLine !== null) {
+      const line = this.state.drawingLine;
       this.setState({
-        value: pipe(
-          this.state.value,
+        pictureStack: pipe(
+          this.state.pictureStack,
           HS.modifyPush(value => value.push(line)),
         ),
-        line: null,
+        drawingLine: null,
       });
     }
   }
 
   penMove(cx: number, cy: number) {
     const [x, y] = this.getPoint(cx, cy);
-    if (this.state.line !== null) {
+    if (this.state.drawingLine !== null) {
       this.setState({
-        line: {
-          ...this.state.line,
-          dots: this.state.line.dots.push({ x, y }),
+        drawingLine: {
+          ...this.state.drawingLine,
+          dots: pipe(this.state.drawingLine.dots, xs =>
+            RNEA.snoc(xs, { x, y }),
+          ),
         },
       });
     }
@@ -98,11 +105,11 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
 
   get svg(): string {
     const val = pipe(
-      this.state.line,
+      this.state.drawingLine,
       O.fromNullable,
       O.map(line => (value: Im.List<Line>) => value.push(line)),
       O.getOrElse<Endomorphism<Im.List<Line>>>(() => identity),
-      updater => pipe(this.state.value, HS.currentValue, updater),
+      updater => pipe(this.state.pictureStack, HS.currentValue, updater),
     );
 
     return `
@@ -116,9 +123,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
         stroke-width="${p.width}"
         stroke="${toColorString(p.color)}"
         fill="${p.fill ? toColorString(p.color) : "none"}">
-        <path d="${
-          `M ${p.m.x} ${p.m.y} ` + p.dots.map(l => `L ${l.x} ${l.y}`).join(" ")
-        }"/>
+        <path d="M ${p.dots.map(l => `L ${l.x} ${l.y}`).join(" ")}"/>
       </g>`,
     )
     .join("\n")}
@@ -149,14 +154,18 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
           />
           <IconButton
             onClick={() =>
-              this.setState({ value: HS.uncheckedUndo(this.state.value) })
+              this.setState({
+                pictureStack: HS.uncheckedUndo(this.state.pictureStack),
+              })
             }
           >
             <FontIcon className="material-icons">undo</FontIcon>
           </IconButton>
           <IconButton
             onClick={() =>
-              this.setState({ value: HS.uncheckedRedo(this.state.value) })
+              this.setState({
+                pictureStack: HS.uncheckedRedo(this.state.pictureStack),
+              })
             }
           >
             <FontIcon className="material-icons">redo</FontIcon>
