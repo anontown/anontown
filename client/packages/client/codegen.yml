@@ -9,7 +9,6 @@ generates:
       - "typescript-react-apollo"
       - "typescript-operations":
           nonOptionalTypename: true
-          avoidOptionals: true
   src/generated/graphql.d.ts:
     plugins:
       - "typescript-graphql-files-modules"
