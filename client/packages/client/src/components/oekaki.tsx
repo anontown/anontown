@@ -3,8 +3,10 @@ import * as Im from "immutable";
 import { Checkbox, FontIcon, IconButton, Slider } from "material-ui";
 import * as React from "react";
 import { RGBColor } from "react-color";
-import { Command, toColorString } from "../utils";
+import { toColorString } from "../utils";
 import { ColorPicker } from "./color-picker";
+import { HistoryStack, HS } from "../containers";
+import { pipe, O, identity, Endomorphism } from "../prelude";
 
 export interface Vec2d {
   x: number;
@@ -19,7 +21,7 @@ export interface Line {
   lines: Im.List<Vec2d>;
 }
 
-export type Value = Command<Im.List<Line>>;
+export type Value = HistoryStack<Im.List<Line>>;
 
 export interface OekakiProps {
   onSubmit: (data: FormData) => void;
@@ -41,7 +43,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
   constructor(props: OekakiProps) {
     super(props);
     this.state = {
-      value: Command.fromValue(Im.List()),
+      value: HS.of(Im.List()),
       color: { r: 0, g: 0, b: 0 },
       fill: false,
       width: 1,
@@ -71,9 +73,11 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
 
   penUp() {
     if (this.state.line !== null) {
+      const line = this.state.line;
       this.setState({
-        value: this.state.value.change(
-          this.state.value.value.push(this.state.line),
+        value: pipe(
+          this.state.value,
+          HS.modifyPush(value => value.push(line)),
         ),
         line: null,
       });
@@ -93,10 +97,13 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
   }
 
   get svg(): string {
-    const val =
-      this.state.line !== null
-        ? this.state.value.value.push(this.state.line)
-        : this.state.value.value;
+    const val = pipe(
+      this.state.line,
+      O.fromNullable,
+      O.map(line => (value: Im.List<Line>) => value.push(line)),
+      O.getOrElse<Endomorphism<Im.List<Line>>>(() => identity),
+      updater => pipe(this.state.value, HS.currentValue, updater),
+    );
 
     return `
 <svg width="${this.props.size.x}px"
@@ -141,12 +148,16 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
             onCheck={(_e, v) => this.setState({ fill: v })}
           />
           <IconButton
-            onClick={() => this.setState({ value: this.state.value.undo() })}
+            onClick={() =>
+              this.setState({ value: HS.uncheckedUndo(this.state.value) })
+            }
           >
             <FontIcon className="material-icons">undo</FontIcon>
           </IconButton>
           <IconButton
-            onClick={() => this.setState({ value: this.state.value.redo() })}
+            onClick={() =>
+              this.setState({ value: HS.uncheckedRedo(this.state.value) })
+            }
           >
             <FontIcon className="material-icons">redo</FontIcon>
           </IconButton>

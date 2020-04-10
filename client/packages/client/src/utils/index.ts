@@ -8,7 +8,6 @@ export * from "./props-type";
 export * from "./user-switch";
 export * from "./user";
 
-export { Command } from "./command";
 export { createUserData } from "./create-user-data";
 export { safeURL } from "./safe-url";
 export { toColorString } from "./to-color-string";
