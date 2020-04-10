@@ -1,5 +1,4 @@
 import { nullUnwrap } from "@kgtkr/utils";
-import * as Im from "immutable";
 import { Checkbox, FontIcon, IconButton, Slider } from "material-ui";
 import * as React from "react";
 import { RGBColor } from "react-color";
@@ -13,6 +12,7 @@ import {
   Endomorphism,
   RNEA,
   ReadonlyNonEmptyArray,
+  RA,
 } from "../prelude";
 
 export interface Vector2d {
@@ -27,7 +27,7 @@ export interface Line {
   dots: ReadonlyNonEmptyArray<Vector2d>;
 }
 
-export type Picture = Im.List<Line>;
+export type Picture = ReadonlyArray<Line>;
 
 export interface OekakiProps {
   onSubmit: (data: FormData) => void;
@@ -49,7 +49,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
   constructor(props: OekakiProps) {
     super(props);
     this.state = {
-      pictureStack: HS.of(Im.List()),
+      pictureStack: HS.of([]),
       color: { r: 0, g: 0, b: 0 },
       fill: false,
       width: 1,
@@ -82,7 +82,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
       this.setState({
         pictureStack: pipe(
           this.state.pictureStack,
-          HS.modifyPush(value => value.push(line)),
+          HS.modifyPush(picture => RA.snoc(picture, line)),
         ),
         drawingLine: null,
       });
@@ -107,7 +107,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
     const val = pipe(
       this.state.drawingLine,
       O.fromNullable,
-      O.map(line => (value: Picture) => value.push(line)),
+      O.map(line => (picture: Picture) => RA.snoc(picture, line)),
       O.getOrElse<Endomorphism<Picture>>(() => identity),
       updater => pipe(this.state.pictureStack, HS.currentValue, updater),
     );
