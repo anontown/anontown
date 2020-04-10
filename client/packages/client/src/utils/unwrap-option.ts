@@ -1,7 +1,7 @@
-import * as FTO from "fp-ts/lib/Option";
+import { Option, O } from "../prelude";
 
-export function unwrapOption<A>(x: FTO.Option<A>): A {
-  if (FTO.isSome(x)) {
+export function unwrapOption<A>(x: Option<A>): A {
+  if (O.isSome(x)) {
     return x.value;
   } else {
     throw new Error();
