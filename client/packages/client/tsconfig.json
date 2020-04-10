@@ -16,7 +16,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
-    // "noEmitOnError": true,
+    "noEmitOnError": true,
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true
   },
