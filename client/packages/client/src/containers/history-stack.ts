@@ -27,6 +27,12 @@ export function push<A>(x: A): (hs: HistoryStack<A>) => HistoryStack<A> {
   }));
 }
 
+export function modifyPush<A>(
+  f: (x: A) => A,
+): (hs: HistoryStack<A>) => HistoryStack<A> {
+  return hs => push(f(currentValue(hs)))(hs);
+}
+
 export function undo<A>(hs: HistoryStack<A>): Option<HistoryStack<A>> {
   const { prev, currentValue, post } = isoHistoryStack<A>().unwrap(hs);
   return pipe(
