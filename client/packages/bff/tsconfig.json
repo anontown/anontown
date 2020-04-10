@@ -1,7 +1,5 @@
 {
-  "exclude": [
-    "../tsconfig.base.json"
-  ],
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2015",
     "module": "commonjs",
