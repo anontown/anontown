@@ -7,7 +7,8 @@ generates:
       - "typescript":
           nonOptionalTypename: true
       - "typescript-react-apollo"
-      - "typescript-operations"
+      - "typescript-operations":
+          nonOptionalTypename: true
   src/generated/graphql.d.ts:
     plugins:
       - "typescript-graphql-files-modules"
@@ -15,8 +16,8 @@ generates:
     plugins:
       - "fragment-matcher"
 config:
-    scalars:
-      DateTime: string
-    withHooks: true
-    withHOC: false
-    enumsAsTypes: true
+  scalars:
+    DateTime: string
+  withHooks: true
+  withHOC: false
+  enumsAsTypes: true
