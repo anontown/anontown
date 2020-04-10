@@ -1,4 +1,4 @@
-import { routes } from "@anontown/common/dist/route";
+import { routes } from "@anontown/common/lib/route";
 import * as Im from "immutable";
 import {
   Checkbox,

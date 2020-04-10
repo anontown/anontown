@@ -9,7 +9,7 @@
       "ES2015"
     ],
     "declaration": true,
-    "outDir": "./dist",
+    "outDir": "./lib",
     "rootDir": "./src",
     "esModuleInterop": true,
     "noEmitOnError": true,

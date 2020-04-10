@@ -1,4 +1,4 @@
-import { routes } from "@anontown/common/dist/route";
+import { routes } from "@anontown/common/lib/route";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as G from "../generated/graphql";

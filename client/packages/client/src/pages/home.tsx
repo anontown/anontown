@@ -1,4 +1,4 @@
-import { routes } from "@anontown/common/dist/route";
+import { routes } from "@anontown/common/lib/route";
 import { Tab, Tabs } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
