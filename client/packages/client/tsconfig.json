@@ -18,7 +18,8 @@
     "esModuleInterop": true,
     "noEmitOnError": true,
     "forceConsistentCasingInFileNames": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "incremental": true
   },
   "references": [
     {

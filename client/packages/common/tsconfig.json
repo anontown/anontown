@@ -16,6 +16,7 @@
     "esModuleInterop": true,
     "noEmitOnError": true,
     "forceConsistentCasingInFileNames": true,
-    "composite": true
+    "composite": true,
+    "incremental": true
   }
 }
