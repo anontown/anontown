@@ -1,4 +1,4 @@
-import * as range from "array-range";
+import range from "array-range";
 import { none, some } from "fp-ts/lib/Option";
 import * as Im from "immutable";
 import {
