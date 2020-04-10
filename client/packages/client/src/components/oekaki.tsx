@@ -27,7 +27,9 @@ export interface Line {
   dots: ReadonlyNonEmptyArray<Vector2d>;
 }
 
-export type Picture = ReadonlyArray<Line>;
+export type Picture = {
+  lines: ReadonlyArray<Line>;
+};
 
 export interface OekakiProps {
   onSubmit: (data: FormData) => void;
@@ -49,7 +51,9 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
   constructor(props: OekakiProps) {
     super(props);
     this.state = {
-      pictureStack: HS.of([]),
+      pictureStack: HS.of({
+        lines: [],
+      }),
       color: { r: 0, g: 0, b: 0 },
       fill: false,
       width: 1,
@@ -82,7 +86,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
       this.setState({
         pictureStack: pipe(
           this.state.pictureStack,
-          HS.modifyPush(picture => RA.snoc(picture, line)),
+          HS.modifyPush(picture => ({ lines: RA.snoc(picture.lines, line) })),
         ),
         drawingLine: null,
       });
@@ -107,7 +111,9 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
     const val = pipe(
       this.state.drawingLine,
       O.fromNullable,
-      O.map(line => (picture: Picture) => RA.snoc(picture, line)),
+      O.map(line => (picture: Picture) => ({
+        lines: RA.snoc(picture.lines, line),
+      })),
       O.getOrElse<Endomorphism<Picture>>(() => identity),
       updater => pipe(this.state.pictureStack, HS.currentValue, updater),
     );
@@ -116,7 +122,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
 <svg width="${this.props.size.x}px"
   height="${this.props.size.y}px"
   xmlns="http://www.w3.org/2000/svg">
-  ${val
+  ${val.lines
     .map(
       p => `
       <g stroke-linecap="round"
