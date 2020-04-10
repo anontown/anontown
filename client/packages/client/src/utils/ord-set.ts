@@ -50,6 +50,6 @@ function normilize<T, U>(set: OrdSet<T, U>): OrdSet<T, U> {
     .values();
   return {
     ...set,
-    array: [...unique].sort(set.compare),
+    array: Array.from(unique).sort(set.compare),
   };
 }

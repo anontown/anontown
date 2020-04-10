@@ -30,7 +30,7 @@ function useIdElMap<T extends ListItemData>(data: oset.OrdSet<T, string>) {
   const idElMap = React.useMemo(() => new Map<string, HTMLDivElement>(), []);
   React.useEffect(() => {
     const items = new Set(oset.toArray(data).map(x => x.id));
-    for (const id of idElMap.keys()) {
+    for (const id of Array.from(idElMap.keys())) {
       if (!items.has(id)) {
         idElMap.delete(id);
       }
