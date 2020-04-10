@@ -27,6 +27,10 @@ build-watch.server:
 build-watch.client:
 	cd client && ./bin/build-watch.sh
 
+.PHONY: build-watch.client-bff
+build-watch.client-bff:
+	cd client && ./bin/build-watch-bff.sh
+
 .PHONY: codegen-watch.server
 codegen-watch.server:
 	cd server && ./bin/codegen-watch.sh
