@@ -1,4 +1,7 @@
 {
+  "exclude": [
+    "../tsconfig.base.json"
+  ],
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
@@ -10,14 +13,8 @@
     ],
     "outDir": "./dist",
     "rootDir": "./src",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "noEmitOnError": true,
-    "forceConsistentCasingInFileNames": true,
     "incremental": true
   },
   "references": [
