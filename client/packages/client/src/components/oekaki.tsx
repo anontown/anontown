@@ -8,7 +8,7 @@ import { ColorPicker } from "./color-picker";
 import { HistoryStack, HS } from "../containers";
 import { pipe, O, identity, Endomorphism } from "../prelude";
 
-export interface Vec2d {
+export interface Dot {
   x: number;
   y: number;
 }
@@ -17,15 +17,15 @@ export interface Line {
   color: RGBColor;
   fill: boolean;
   width: number;
-  m: Vec2d;
-  lines: Im.List<Vec2d>;
+  m: Dot;
+  dots: Im.List<Dot>;
 }
 
 export type Value = HistoryStack<Im.List<Line>>;
 
 export interface OekakiProps {
   onSubmit: (data: FormData) => void;
-  size: Vec2d;
+  size: Dot;
 }
 
 interface OekakiState {
@@ -65,7 +65,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
           fill: this.state.fill,
           width: this.state.width,
           m: { x, y },
-          lines: Im.List(),
+          dots: Im.List(),
         },
       });
     }
@@ -90,7 +90,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
       this.setState({
         line: {
           ...this.state.line,
-          lines: this.state.line.lines.push({ x, y }),
+          dots: this.state.line.dots.push({ x, y }),
         },
       });
     }
@@ -117,7 +117,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
         stroke="${toColorString(p.color)}"
         fill="${p.fill ? toColorString(p.color) : "none"}">
         <path d="${
-          `M ${p.m.x} ${p.m.y} ` + p.lines.map(l => `L ${l.x} ${l.y}`).join(" ")
+          `M ${p.m.x} ${p.m.y} ` + p.dots.map(l => `L ${l.x} ${l.y}`).join(" ")
         }"/>
       </g>`,
     )
