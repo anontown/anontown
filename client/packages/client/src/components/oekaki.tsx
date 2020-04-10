@@ -107,8 +107,8 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
     const val = pipe(
       this.state.drawingLine,
       O.fromNullable,
-      O.map(line => (value: Im.List<Line>) => value.push(line)),
-      O.getOrElse<Endomorphism<Im.List<Line>>>(() => identity),
+      O.map(line => (value: Picture) => value.push(line)),
+      O.getOrElse<Endomorphism<Picture>>(() => identity),
       updater => pipe(this.state.pictureStack, HS.currentValue, updater),
     );
 
