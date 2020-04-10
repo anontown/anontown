@@ -86,3 +86,11 @@ export function uncheckedRedo<A>(hs: HistoryStack<A>): HistoryStack<A> {
     O.getOrElse(() => hs),
   );
 }
+
+export function of<A>(x: A): HistoryStack<A> {
+  return isoHistoryStack<A>().wrap({
+    prev: [],
+    currentValue: x,
+    post: [],
+  });
+}
