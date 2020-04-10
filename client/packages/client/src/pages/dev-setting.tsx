@@ -5,6 +5,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { ClientAdd, ClientEditor, Errors, Page } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
+import { isNullish } from "@kgtkr/utils";
 
 type DevSettingPageProps = RouteComponentProps<{}> & UserSwitchProps;
 
@@ -27,12 +28,13 @@ export const DevSettingPage = userSwitch((props: DevSettingPageProps) => {
               query: G.FindClientsDocument,
               variables,
             });
-            if (cs !== null && data.data !== undefined) {
+            if (cs !== null && !isNullish(data.data)) {
               cache.writeQuery<G.FindClientsQuery, G.FindClientsQueryVariables>(
                 {
                   query: G.FindClientsDocument,
                   variables,
                   data: {
+                    __typename: "Query",
                     clients: cs.clients.concat([data.data.createClient]),
                   },
                 },

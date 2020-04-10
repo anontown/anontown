@@ -57,7 +57,7 @@ function isNodeNG(node: NGNode, res: G.ResFragment): boolean | null {
     case "profile":
       return (
         res.__typename === "ResNormal" &&
-        res.profile !== null &&
+        !isNullish(res.profile) &&
         node.profile === res.profile.id
       );
     case "hash":
