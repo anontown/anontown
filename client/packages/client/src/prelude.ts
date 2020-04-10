@@ -13,6 +13,7 @@ export * as E from "fp-ts/lib/Either";
 export { Either } from "fp-ts/lib/Either";
 export { unwrapOption } from "./utils";
 export { pipe } from "fp-ts/lib/pipeable";
+export { flow } from "fp-ts/lib/function";
 
 import * as RS from "fp-ts/lib/ReadonlySet";
 import { eqString, Eq } from "fp-ts/lib/Eq";
