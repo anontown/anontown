@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node ./dist/app.js",
     "build": "tsc -b .",
-    "build-and-start:watch": "ts-node-dev ./src/app.ts",
+    "start:watch": "wait-on ./dist/app.js && nodemon --delay 5 ./dist/app.js",
     "build:watch": "tsc -b . -w --preserveWatchOutput",
     "clean": "rm -rf ./dist"
   },
@@ -30,7 +30,8 @@
     "@types/koa-static": "^4.0.1",
     "@types/lodash": "^4.14.149",
     "@types/node": "^12.7.12",
-    "ts-node-dev": "^1.0.0-pre.44",
-    "typescript": "^3.8.3"
+    "nodemon": "^2.0.2",
+    "typescript": "^3.8.3",
+    "wait-on": "^4.0.1"
   }
 }
