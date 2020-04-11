@@ -49,7 +49,7 @@ const requestLink = new ApolloLink(
       Promise.resolve(operation)
         .then(oper => request(oper))
         .then(() => {
-          handle = forward!(operation).subscribe({
+          handle = forward(operation).subscribe({
             next: observer.next.bind(observer),
             error: observer.error.bind(observer),
             complete: observer.complete.bind(observer),

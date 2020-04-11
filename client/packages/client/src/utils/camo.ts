@@ -3,7 +3,7 @@ import { Env } from "../env";
 
 export function getCamoUrl(url: string): string {
   // 既にHTTPSなら
-  if (url.indexOf("https://") === 0) {
+  if (url.startsWith("https://")) {
     return url;
   }
 

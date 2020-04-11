@@ -81,14 +81,14 @@ function urlEnum(url: string): URLType {
     return { type: "youtube", videoID: reg[2] };
   }
 
-  if (url.indexOf("http://") !== 0 && url.indexOf("https://") !== 0) {
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
     return {
       type: "router",
       path: url,
     };
   }
 
-  if (url.indexOf(Env.client.origin) === 0) {
+  if (url.startsWith(Env.client.origin)) {
     return {
       type: "router",
       path: url.substring(Env.client.origin.length),
