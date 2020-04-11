@@ -8,7 +8,6 @@ export interface UserContextType {
 
 export const UserContext = React.createContext<UserContextType>({
   value: null,
-  // tslint:disable-next-line:no-empty
   update: () => {},
 });
 
