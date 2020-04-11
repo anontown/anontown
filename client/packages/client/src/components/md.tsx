@@ -76,7 +76,7 @@ function MdYouTube(props: MdYouTubeProps) {
 }
 
 function urlEnum(url: string): URLType {
-  const reg = url.match(/(youtube\.com\/watch\?v=|youtu\.be\/)([a-z0-9_]+)/i);
+  const reg = /(youtube\.com\/watch\?v=|youtu\.be\/)([a-z0-9_]+)/i.exec(url);
   if (reg) {
     return { type: "youtube", videoID: reg[2] };
   }
@@ -95,7 +95,7 @@ function urlEnum(url: string): URLType {
     };
   }
 
-  if (url.match(/\.(jpg|jpeg|png|gif|bmp|tif|tiff|svg)$/i)) {
+  if (/\.(jpg|jpeg|png|gif|bmp|tif|tiff|svg)$/i.test(url)) {
     return { type: "image", url };
   }
 
