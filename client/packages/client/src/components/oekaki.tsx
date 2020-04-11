@@ -4,7 +4,6 @@ import * as React from "react";
 import { RGBColor } from "react-color";
 import { toColorString } from "../utils";
 import { ColorPicker } from "./color-picker";
-import { HistoryStack, HS } from "../containers";
 import {
   pipe,
   O,
@@ -13,6 +12,8 @@ import {
   RNEA,
   ReadonlyNonEmptyArray,
   RA,
+  HistoryStack,
+  HS,
 } from "../prelude";
 
 export interface Vector2d {

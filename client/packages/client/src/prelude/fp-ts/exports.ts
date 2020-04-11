@@ -15,7 +15,6 @@ export * as O from "fp-ts/lib/Option";
 export { Option } from "fp-ts/lib/Option";
 export * as E from "fp-ts/lib/Either";
 export { Either } from "fp-ts/lib/Either";
-export { unwrapOption } from "../utils";
 export { pipe } from "fp-ts/lib/pipeable";
 export {
   flow,

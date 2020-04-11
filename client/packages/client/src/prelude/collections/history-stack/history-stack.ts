@@ -1,5 +1,5 @@
 import { Newtype, iso } from "newtype-ts";
-import { RA, Option, O, pipe } from "../prelude";
+import { RA, Option, O, pipe } from "../../fp-ts";
 
 // [...prev, currentValue, ...post] という履歴になる
 interface HistoryStackA<A> {
