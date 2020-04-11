@@ -105,7 +105,6 @@ module.exports = (env, argv) => {
             {
               loader: "ts-loader",
               options: {
-                configFile: path.join(__dirname, "../tsconfig.json"),
                 projectReferences: true,
               },
             },
