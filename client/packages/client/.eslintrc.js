@@ -80,6 +80,7 @@ module.exports = {
         functions: false,
       },
     ],
+    "@typescript-eslint/require-await": "warn",
   },
   settings: {
     react: {
