@@ -62,6 +62,12 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": "error",
     // unused-importがほしい: https://github.com/typescript-eslint/typescript-eslint/issues/371
     "react/display-name": "warn",
+    "@typescript-eslint/no-use-before-define": [
+      "error",
+      {
+        functions: false,
+      },
+    ],
   },
   settings: {
     react: {
