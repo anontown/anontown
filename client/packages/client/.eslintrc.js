@@ -61,6 +61,7 @@ module.exports = {
     "react/jsx-boolean-value": ["error", "always"],
     "@typescript-eslint/no-unused-vars": "error",
     // unused-importがほしい: https://github.com/typescript-eslint/typescript-eslint/issues/371
+    "react/display-name": "warn",
   },
   settings: {
     react: {
