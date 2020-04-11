@@ -115,7 +115,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
         lines: RA.snoc(picture.lines, line),
       })),
       O.getOrElse<Endomorphism<Picture>>(() => identity),
-      updater => pipe(this.state.pictureStack, HS.currentValue, updater),
+      updater => pipe(this.state.pictureStack, HS.getCurrentValue, updater),
     );
 
     return `
