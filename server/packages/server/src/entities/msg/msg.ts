@@ -54,10 +54,7 @@ export class Msg extends Copyable<Msg> {
 
     return {
       id: this.id,
-      priv: pipe(
-        this.receiver,
-        option.isSome,
-      ),
+      priv: pipe(this.receiver, option.isSome),
       text: this.text,
       date: this.date.toISOString(),
     };

@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
-import { UserData } from "src/models";
+import { UserData } from "../models";
 import * as G from "../generated/graphql";
 import {
   useEffectRef,

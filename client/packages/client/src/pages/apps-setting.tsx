@@ -71,6 +71,7 @@ export const AppsSettingPage = userSwitch((_props: AppsSettingPageProps) => {
                               query: G.FindClientsDocument,
                               variables,
                               data: {
+                                __typename: "Query",
                                 clients: cs.clients.filter(x => x.id !== c.id),
                               },
                             });

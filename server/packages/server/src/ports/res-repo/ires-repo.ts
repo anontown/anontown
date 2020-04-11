@@ -12,11 +12,15 @@ export interface IResRepo {
 
   update(res: Res): Promise<void>;
 
-  resCount(topicIDs: string[]): Promise<Map<string, number>>;
+  resCount(topicIDs: Array<string>): Promise<Map<string, number>>;
 
-  replyCount(resIDs: string[]): Promise<Map<string, number>>;
+  replyCount(resIDs: Array<string>): Promise<Map<string, number>>;
 
-  find(auth: IAuthContainer, query: G.ResQuery, limit: number): Promise<Res[]>;
+  find(
+    auth: IAuthContainer,
+    query: G.ResQuery,
+    limit: number,
+  ): Promise<Array<Res>>;
 
   dispose(): void;
 }

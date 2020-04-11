@@ -34,7 +34,7 @@ const wsLink = new WebSocketLink({
   },
 });
 
-const request = async (opt: Operation) => {
+const request = (opt: Operation) => {
   if (auth !== null) {
     opt.setContext({
       headers: createHeaders(auth.id, auth.key),
@@ -46,10 +46,9 @@ const requestLink = new ApolloLink(
   (operation, forward) =>
     new zen.Observable(observer => {
       let handle: zen.ZenObservable.Subscription | undefined;
-      Promise.resolve(operation)
-        .then(oper => request(oper))
+      Promise.resolve(request(operation))
         .then(() => {
-          handle = forward!(operation).subscribe({
+          handle = forward(operation).subscribe({
             next: observer.next.bind(observer),
             error: observer.error.bind(observer),
             complete: observer.complete.bind(observer),

@@ -7,7 +7,7 @@ import { IMsgRepo } from "../../ports";
 import { fromMsg, IMsgDB, toMsg } from "./imsg-db";
 
 export class MsgRepoMock implements IMsgRepo {
-  private msgs: IMsgDB[] = [];
+  private msgs: Array<IMsgDB> = [];
 
   async findOne(id: string): Promise<Msg> {
     const msg = this.msgs.find(x => x.id === id);
@@ -23,7 +23,7 @@ export class MsgRepoMock implements IMsgRepo {
     authToken: IAuthToken,
     query: G.MsgQuery,
     limit: number,
-  ): Promise<Msg[]> {
+  ): Promise<Array<Msg>> {
     const msgs = this.msgs
       .filter(
         x => x.body.receiver === null || x.body.receiver === authToken.user,

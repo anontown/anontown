@@ -10,5 +10,5 @@ export interface IClientRepo {
   find(
     authToken: Option<IAuthTokenMaster>,
     query: G.ClientQuery,
-  ): Promise<Client[]>;
+  ): Promise<Array<Client>>;
 }

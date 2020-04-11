@@ -4,7 +4,7 @@ import { Token } from "../../entities";
 export interface ITokenRepo {
   findOne(id: string): Promise<Token>;
 
-  findAll(authToken: IAuthTokenMaster): Promise<Token[]>;
+  findAll(authToken: IAuthTokenMaster): Promise<Array<Token>>;
 
   insert(token: Token): Promise<void>;
 

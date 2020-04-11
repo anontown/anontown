@@ -1,4 +1,4 @@
-import { routes } from "@anontown/common/dist/route";
+import { routes } from "@anontown/common/lib/route";
 import { useApolloClient } from "@apollo/react-hooks";
 import { arrayFirst } from "@kgtkr/utils";
 import {
@@ -10,7 +10,7 @@ import {
   Slider,
   Toggle,
 } from "material-ui";
-import * as moment from "moment";
+import moment from "moment";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { useTitle } from "react-use";
@@ -52,7 +52,7 @@ function makeUseStream(
 function makeUseFetch(id: string) {
   return () => {
     const apolloClient = useApolloClient();
-    return async (date: G.DateQuery): Promise<G.ResFragment[]> => {
+    return async (date: G.DateQuery): Promise<Array<G.ResFragment>> => {
       const result = await apolloClient.query<
         G.FindResesQuery,
         G.FindResesQueryVariables
@@ -81,7 +81,7 @@ export const TopicPage = (_props: {}) => {
   const [autoScrollSpeed, setAutoScrollSpeed] = React.useState(15);
   const [isAutoScroll, setIsAutoScroll] = React.useState(false);
   const scrollNewItem = React.useRef(new rx.ReplaySubject<string>(1));
-  const items = React.useRef<G.ResFragment[]>([]);
+  const items = React.useRef<Array<G.ResFragment>>([]);
   const initDate = React.useMemo(() => {
     if (user.value !== null) {
       const topicRead = user.value.storage.topicRead.get(match.params.id);
@@ -161,9 +161,7 @@ export const TopicPage = (_props: {}) => {
       sidebar={
         user.value !== null ? (
           <TopicFavo detail={false} userData={user.value} />
-        ) : (
-          undefined
-        )
+        ) : undefined
       }
     >
       {topic !== null ? (

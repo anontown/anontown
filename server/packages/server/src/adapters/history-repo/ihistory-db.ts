@@ -6,7 +6,7 @@ export interface IHistoryDB {
   readonly body: {
     readonly topic: string;
     readonly title: string;
-    readonly tags: string[];
+    readonly tags: Array<string>;
     readonly text: string;
     readonly date: string;
     readonly hash: string;

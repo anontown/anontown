@@ -1,4 +1,4 @@
-import { routes } from "@anontown/common/dist/route";
+import { routes } from "@anontown/common/lib/route";
 import { FontIcon, IconButton, MenuItem, Paper } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
@@ -21,6 +21,7 @@ import { Md } from "./md";
 import { PopupMenu } from "./popup-menu";
 import { ResWrite } from "./res-write";
 import { Snack } from "./snack";
+import { isNullish } from "@kgtkr/utils";
 
 interface ResProps {
   res: G.ResFragment;
@@ -154,7 +155,7 @@ export const Res = (props: ResProps) => {
             ) : null}
             {props.res.__typename === "ResDelete" ? <span>削除</span> : null}
             {props.res.__typename === "ResNormal" &&
-            props.res.profile !== null ? (
+            !isNullish(props.res.profile) ? (
               <Link
                 to={routes.profile.to(
                   { id: props.res.profile.id },
@@ -262,7 +263,7 @@ export const Res = (props: ResProps) => {
                       if (
                         user.value !== null &&
                         props.res.__typename === "ResNormal" &&
-                        props.res.profile !== null
+                        !isNullish(props.res.profile)
                       ) {
                         user.update({
                           ...user.value,
@@ -294,7 +295,7 @@ export const Res = (props: ResProps) => {
           <CardContent>
             <span>
               {props.res.__typename === "ResNormal" &&
-              props.res.reply !== null ? (
+              !isNullish(props.res.reply) ? (
                 <IconButton
                   containerElement={
                     <Link

@@ -1,10 +1,12 @@
+// TODO: collectionsに移動。IDと時刻は不変
+
 export interface OrdSet<T, U> {
-  array: T[];
+  array: Array<T>;
   compare: (x: T, y: T) => number;
   uniqueBy: (x: T) => U;
 }
 
-export function toArray<T, U>(set: OrdSet<T, U>): T[] {
+export function toArray<T, U>(set: OrdSet<T, U>): Array<T> {
   return set.array;
 }
 
@@ -21,26 +23,29 @@ export function clear<T, U>(set: OrdSet<T, U>) {
 
 export function unsafePushOrdAndUniqueArray<T, U>(
   set: OrdSet<T, U>,
-  array: T[],
+  array: Array<T>,
 ): OrdSet<T, U> {
   return pushArray(set, array);
 }
 
 export function unsafePushFirstOrdAndUniqueArray<T, U>(
   set: OrdSet<T, U>,
-  array: T[],
+  array: Array<T>,
 ): OrdSet<T, U> {
   return pushArray(set, array);
 }
 
 export function unsafePushLastOrdAndUniqueArray<T, U>(
   set: OrdSet<T, U>,
-  array: T[],
+  array: Array<T>,
 ): OrdSet<T, U> {
   return pushArray(set, array);
 }
 
-export function pushArray<T, U>(set: OrdSet<T, U>, array: T[]): OrdSet<T, U> {
+export function pushArray<T, U>(
+  set: OrdSet<T, U>,
+  array: Array<T>,
+): OrdSet<T, U> {
   return normilize({ ...set, array: [...set.array, ...array] });
 }
 
@@ -50,6 +55,6 @@ function normilize<T, U>(set: OrdSet<T, U>): OrdSet<T, U> {
     .values();
   return {
     ...set,
-    array: [...unique].sort(set.compare),
+    array: Array.from(unique).sort(set.compare),
   };
 }

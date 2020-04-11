@@ -1,4 +1,4 @@
-import { routes } from "@anontown/common/dist/route";
+import { routes } from "@anontown/common/lib/route";
 import * as t from "io-ts";
 import {
   FontIcon,
@@ -22,7 +22,7 @@ import {
   withRouter,
 } from "react-router-dom";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
-import { UserData } from "src/models";
+import { UserData } from "../models";
 import { BUILD_DATE, Env } from "../env";
 import * as G from "../generated/graphql";
 import { UserContextType } from "../hooks";
@@ -74,6 +74,7 @@ export const App = withRouter(
       const path = prop.location.pathname;
       if (Env.ga !== null) {
         gtag("config", Env.ga.id, {
+          // eslint-disable-next-line @typescript-eslint/camelcase
           page_path: path,
         });
       }
@@ -105,8 +106,9 @@ export const App = withRouter(
           throw Error();
         }
         this.setState({
-          initUserData: await createUserData(res.data
-            .token as G.TokenMasterFragment),
+          initUserData: await createUserData(
+            res.data.token as G.TokenMasterFragment,
+          ),
         });
       } catch {
         this.setState({ initUserData: null });

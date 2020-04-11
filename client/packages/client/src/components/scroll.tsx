@@ -1,5 +1,4 @@
 import { array, option } from "fp-ts";
-import { pipe } from "fp-ts/lib/pipeable";
 import * as React from "react";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
@@ -7,6 +6,7 @@ import { setTimeout } from "timers";
 import * as G from "../generated/graphql";
 import { useEffectRef, useLock, useValueRef } from "../hooks";
 import * as oset from "../utils/ord-set";
+import { pipe } from "../prelude";
 
 function useToTop(el: HTMLDivElement | null) {
   const elRef = useValueRef(el);
@@ -30,7 +30,7 @@ function useIdElMap<T extends ListItemData>(data: oset.OrdSet<T, string>) {
   const idElMap = React.useMemo(() => new Map<string, HTMLDivElement>(), []);
   React.useEffect(() => {
     const items = new Set(oset.toArray(data).map(x => x.id));
-    for (const id of idElMap.keys()) {
+    for (const id of Array.from(idElMap.keys())) {
       if (!items.has(id)) {
         idElMap.delete(id);
       }
@@ -161,8 +161,6 @@ function useScrollLock<T extends ListItemData>(
       );
       try {
         await f();
-      } catch (e) {
-        throw e;
       } finally {
         if (option.isSome(elData)) {
           await sleep(0);
@@ -261,7 +259,7 @@ function useOnBottomScroll(
 }
 
 function useFetchUtils<T extends ListItemData>(
-  useFetch: () => (date: G.DateQuery) => Promise<T[]>,
+  useFetch: () => (date: G.DateQuery) => Promise<Array<T>>,
   rootEl: HTMLDivElement | null,
   data: oset.OrdSet<T, string>,
   idElMap: Map<string, HTMLDivElement>,
@@ -408,8 +406,8 @@ interface ItemElPair<T extends ListItemData> {
 
 export interface ScrollProps<T extends ListItemData> {
   newItemOrder: "top" | "bottom";
-  fetchKey: unknown[];
-  useFetch: () => (date: G.DateQuery) => Promise<T[]>;
+  fetchKey: Array<unknown>;
+  useFetch: () => (date: G.DateQuery) => Promise<Array<T>>;
   useStream: (f: (item: T) => void) => void;
   width: number;
   debounceTime: number;
@@ -423,7 +421,7 @@ export interface ScrollProps<T extends ListItemData> {
   dataToEl: (data: T) => JSX.Element;
   style?: React.CSSProperties;
   className?: string;
-  changeItems: (items: T[]) => void;
+  changeItems: (items: Array<T>) => void;
   existUnread: boolean;
   onChangeExistUnread: (existUnread: boolean) => void;
 }
@@ -464,6 +462,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   );
 
   React.useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     runCmd({ type: "reset", date: props.initDate });
   }, [props.initDate.valueOf(), ...props.fetchKey]);
 
@@ -569,10 +568,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   const onSubscriptionDataRef = useValueRef((newData: T) => {
     props.onChangeExistUnread(true);
     setData(
-      pipe(
-        data,
-        x => oset.unsafePushFirstOrdAndUniqueArray(x, [newData]),
-      ),
+      pipe(data, x => oset.unsafePushFirstOrdAndUniqueArray(x, [newData])),
     );
   });
   props.useStream(x => onSubscriptionDataRef.current(x));

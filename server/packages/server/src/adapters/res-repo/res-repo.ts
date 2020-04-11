@@ -22,7 +22,7 @@ export class ResRepo implements IResRepo {
 
   constructor(private refresh?: boolean) {
     this.subRedis.subscribe("res/add");
-    this.subRedis.on("message", (_channel, message) => {
+    this.subRedis.on("message", (_channel: any, message: any) => {
       const data: ResPubSub = JSON.parse(message);
       this.insertEvent.next({
         res: toRes(data.res, data.replyCount),
@@ -79,7 +79,7 @@ export class ResRepo implements IResRepo {
     });
   }
 
-  async resCount(topicIDs: string[]): Promise<Map<string, number>> {
+  async resCount(topicIDs: Array<string>): Promise<Map<string, number>> {
     if (topicIDs.length === 0) {
       return new Map();
     }
@@ -104,12 +104,14 @@ export class ResRepo implements IResRepo {
       },
     });
 
-    const countArr: { key: string; doc_count: number }[] =
+    const countArr: Array<{ key: string; doc_count: number }> =
       data.aggregations.res_count.buckets;
-    return new Map(countArr.map<[string, number]>(x => [x.key, x.doc_count]));
+    return new Map(
+      countArr.map<[string, number]>(x => [x.key, x.doc_count]),
+    );
   }
 
-  async replyCount(resIDs: string[]): Promise<Map<string, number>> {
+  async replyCount(resIDs: Array<string>): Promise<Map<string, number>> {
     if (resIDs.length === 0) {
       return new Map();
     }
@@ -145,17 +147,19 @@ export class ResRepo implements IResRepo {
       },
     });
 
-    const countArr: { key: string; doc_count: number }[] =
+    const countArr: Array<{ key: string; doc_count: number }> =
       data.aggregations.reply_count.reply_count.buckets;
-    return new Map(countArr.map<[string, number]>(x => [x.key, x.doc_count]));
+    return new Map(
+      countArr.map<[string, number]>(x => [x.key, x.doc_count]),
+    );
   }
 
   async find(
     auth: IAuthContainer,
     query: G.ResQuery,
     limit: number,
-  ): Promise<Res[]> {
-    const filter: object[] = [];
+  ): Promise<Array<Res>> {
+    const filter: Array<object> = [];
 
     if (!isNullish(query.date)) {
       filter.push({
@@ -282,7 +286,7 @@ export class ResRepo implements IResRepo {
     this.subRedis.disconnect();
   }
 
-  private async aggregate(reses: IResDB[]): Promise<Res[]> {
+  private async aggregate(reses: Array<IResDB>): Promise<Array<Res>> {
     const count = await this.replyCount(reses.map(x => x.id));
     return reses.map(r => toRes(r, count.get(r.id) || 0));
   }

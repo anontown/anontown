@@ -313,20 +313,14 @@ export class ResNormal extends Copyable<ResNormal>
     if (this.deleteFlag === "active") {
       return {
         ...this.toBaseAPI(authToken),
-        name: pipe(
-          this.name,
-          option.toNullable,
-        ),
+        name: pipe(this.name, option.toNullable),
         text: this.text,
         replyID: pipe(
           this.reply,
           option.map(x => x.res),
           option.toNullable,
         ),
-        profileID: pipe(
-          this.profile,
-          option.toNullable,
-        ),
+        profileID: pipe(this.profile, option.toNullable),
         isReply: pipe(
           authToken,
           option.chain(authToken =>

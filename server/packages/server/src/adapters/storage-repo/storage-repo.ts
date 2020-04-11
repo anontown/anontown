@@ -11,7 +11,10 @@ import { IStorageRepo } from "../../ports";
 import { fromStorage, IStorageDB, toStorage } from "./isotrage-db";
 
 export class StorageRepo implements IStorageRepo {
-  async find(token: IAuthToken, query: G.StorageQuery): Promise<Storage[]> {
+  async find(
+    token: IAuthToken,
+    query: G.StorageQuery,
+  ): Promise<Array<Storage>> {
     const db = await Mongo();
     const q: any = {
       user: new ObjectID(token.user),
@@ -20,7 +23,7 @@ export class StorageRepo implements IStorageRepo {
     if (!isNullish(query.key)) {
       q.key = { $in: query.key };
     }
-    const storages: IStorageDB[] = await db
+    const storages: Array<IStorageDB> = await db
       .collection("storages")
       .find(q)
       .toArray();

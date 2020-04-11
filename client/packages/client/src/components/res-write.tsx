@@ -39,7 +39,7 @@ export const ResWrite = (props: ResWriteProps) => {
 
   const data = props.userData.storage.topicWrite.get(props.topic, formDefualt);
 
-  const [errors, setErrors] = React.useState<string[]>([]);
+  const [errors, setErrors] = React.useState<Array<string>>([]);
   const [textCache, setTextCache] = useInputCache(
     props.reply === null ? data.text : data.replyText.get(props.reply, ""),
     value => {

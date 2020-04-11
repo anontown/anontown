@@ -4,7 +4,7 @@ import { IUserRepo } from "../../ports";
 import { fromUser, IUserDB, toUser } from "./iuser-db";
 
 export class UserRepoMock implements IUserRepo {
-  private users: IUserDB[] = [];
+  private users: Array<IUserDB> = [];
 
   async findOne(id: string): Promise<User> {
     const user = this.users.find(x => x._id.toHexString() === id);

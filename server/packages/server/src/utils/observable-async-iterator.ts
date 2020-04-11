@@ -4,11 +4,11 @@ import { Observable, Subscription } from "rxjs";
 export function observableAsyncIterator<T>(
   obs: Observable<T>,
 ): AsyncIterator<T> {
-  const pullQueue: ((
+  const pullQueue: Array<(
     value?: IteratorResult<T> | PromiseLike<IteratorResult<T>> | undefined,
-  ) => void)[] = [];
-  const pushQueue: T[] = [];
-  let subs: Subscription[] = [];
+  ) => void> = [];
+  const pushQueue: Array<T> = [];
+  let subs: Array<Subscription> = [];
   let listening = true;
   let addedListeners = false;
 

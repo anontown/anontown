@@ -4,7 +4,7 @@ import "core-js";
 import * as OfflinePluginRuntime from "offline-plugin/runtime";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import * as Modal from "react-modal";
+import Modal from "react-modal";
 import { Provider } from "react-redux";
 import { App } from "./components/app";
 import { configureStore, history } from "./domain";

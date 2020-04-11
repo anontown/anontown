@@ -12,7 +12,7 @@ import {
 } from "./itopic-db";
 
 export class TopicRepoMock implements ITopicRepo {
-  private topics: ITopicDB[] = [];
+  private topics: Array<ITopicDB> = [];
 
   constructor(public resRepo: IResRepo) {}
 
@@ -26,7 +26,9 @@ export class TopicRepoMock implements ITopicRepo {
     return (await this.aggregate([topic]))[0];
   }
 
-  async findTags(limit: number): Promise<{ name: string; count: number }[]> {
+  async findTags(
+    limit: number,
+  ): Promise<Array<{ name: string; count: number }>> {
     return Array.from(
       this.topics
         .map(x => (x.body.type !== "fork" ? x.body.tags : []))
@@ -45,7 +47,7 @@ export class TopicRepoMock implements ITopicRepo {
     query: G.TopicQuery,
     skip: number,
     limit: number,
-  ): Promise<Topic[]> {
+  ): Promise<Array<Topic>> {
     const titles = !isNullish(query.title)
       ? query.title.split(/\s/).filter(x => x.length !== 0)
       : null;
@@ -104,7 +106,7 @@ export class TopicRepoMock implements ITopicRepo {
     );
   }
 
-  private async aggregate(topics: ITopicDB[]): Promise<Topic[]> {
+  private async aggregate(topics: Array<ITopicDB>): Promise<Array<Topic>> {
     const count = await this.resRepo.resCount(topics.map(x => x.id));
 
     return topics.map(t => toTopic(t, count.get(t.id) || 0));

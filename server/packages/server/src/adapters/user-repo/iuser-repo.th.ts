@@ -148,14 +148,9 @@ export function run(repoGene: () => IUserRepo, isReset: boolean) {
   });
 
   describe("cronCountReset", () => {
-    for (const t of [
-      "m10",
-      "m30",
-      "h1",
-      "h6",
-      "h12",
-      "d1",
-    ] as ResWaitCountKey[]) {
+    for (const t of ["m10", "m30", "h1", "h6", "h12", "d1"] as Array<
+      ResWaitCountKey
+    >) {
       it("正常に更新出来るか:" + t, async () => {
         const repo = repoGene();
 
