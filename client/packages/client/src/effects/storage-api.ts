@@ -7,7 +7,7 @@ import {
   toStorage,
   verArray,
 } from "../domains/entities";
-import { createHeaders, gqlClient } from "../utils";
+import { createHeaders, gqlClient } from "../effects";
 
 export async function load(token: G.TokenMasterFragment) {
   const storages = await gqlClient.query<

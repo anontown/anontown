@@ -3,7 +3,9 @@ import * as React from "react";
 import { Rnd } from "react-rnd";
 import { Link } from "react-router-dom";
 import { Env } from "../env";
-import { camo, mdParser, safeURL } from "../utils";
+import { mdParser, safeURL } from "../utils";
+import { camo } from "../effects";
+
 import * as style from "./md.scss";
 import { Modal } from "./modal";
 

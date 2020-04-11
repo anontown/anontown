@@ -8,7 +8,7 @@ import { Errors, Page } from "../components";
 import { Env } from "../env";
 import * as G from "../generated/graphql";
 import { UserContext } from "../hooks";
-import { createUserData } from "../utils";
+import { createUserData } from "../effects";
 
 interface SignupPageState {
   sn: string;

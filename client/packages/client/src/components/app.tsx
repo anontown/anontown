@@ -30,11 +30,10 @@ import * as pages from "../pages";
 import {
   createHeaders,
   createUserData,
-  dateFormat,
   getServerStatus,
   gqlClient,
-  User,
-} from "../utils";
+} from "../effects";
+import { dateFormat, User } from "../utils";
 import * as style from "./app.scss";
 import { PopupMenu } from "./popup-menu";
 

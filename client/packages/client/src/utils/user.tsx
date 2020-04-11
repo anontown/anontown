@@ -9,7 +9,7 @@ import {
   UserContext,
   UserContextType,
 } from "../hooks";
-import { useSave } from "./storage-api";
+import { useSave } from "../effects/storage-api";
 
 // TODO: 最悪な実装なのであとで何とかする
 export let auth: G.TokenMasterFragment | null = null;

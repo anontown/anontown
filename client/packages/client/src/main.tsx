@@ -8,7 +8,7 @@ import Modal from "react-modal";
 import { Provider } from "react-redux";
 import { App } from "./components/app";
 import { configureStore, history } from "./domains";
-import { gqlClient } from "./utils";
+import { gqlClient } from "./effects";
 
 Modal.setAppElement("#root");
 
