@@ -43,38 +43,46 @@ export function isNG(ng: NG, res: G.ResFragment) {
 
 function isNodeNG(node: NGNode, res: G.ResFragment): boolean | null {
   switch (node.type) {
-    case "not":
+    case "not": {
       const b = isNodeNG(node.child, res);
       return b !== null ? !b : null;
-    case "and":
+    }
+    case "and": {
       return node.children.size === 0
         ? null
         : node.children.every(x => !!isNodeNG(x, res));
-    case "or":
+    }
+    case "or": {
       return node.children.size === 0
         ? null
         : node.children.some(x => !!isNodeNG(x, res));
-    case "profile":
+    }
+    case "profile": {
       return (
         res.__typename === "ResNormal" &&
         !isNullish(res.profile) &&
         node.profile === res.profile.id
       );
-    case "hash":
+    }
+    case "hash": {
       return res.hash === node.hash;
-    case "text":
+    }
+    case "text": {
       return (
         res.__typename === "ResNormal" &&
         textMatcherTest(node.matcher, res.text)
       );
-    case "name":
+    }
+    case "name": {
       return (
         res.__typename === "ResNormal" &&
         !isNullish(res.name) &&
         textMatcherTest(node.matcher, res.name)
       );
-    case "vote":
+    }
+    case "vote": {
       return res.uv - res.dv < node.value;
+    }
   }
 }
 

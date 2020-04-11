@@ -10,8 +10,6 @@ export function useLock() {
     isLock.current = true;
     try {
       await call();
-    } catch (e) {
-      throw e;
     } finally {
       isLock.current = false;
     }
