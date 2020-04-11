@@ -28,7 +28,7 @@ module.exports = {
       },
     ],
     "@typescript-eslint/await-thenable": "error",
-    "@typescript-eslint/return-await": ["error", "always"],
+    // "@typescript-eslint/return-await": ["error", "always"], // なんかasync関数じゃないのにfixしたらawaitつけてくる…
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-floating-promises": "warn", // そのうちエラーにしたい(Reactのコールバック的に今は無理)
