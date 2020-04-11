@@ -112,6 +112,7 @@ function MdLink(props: { node: mdParser.Link }) {
           href: safeURL(props.node.url),
           target: "_blank",
           title: props.node.title || undefined,
+          rel: "noopener noreferrer",
         },
         // tslint:disable-next-line:jsx-key
         ...props.node.children.map(c => <MdNode node={c} />),

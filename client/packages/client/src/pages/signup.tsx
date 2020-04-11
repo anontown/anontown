@@ -65,6 +65,7 @@ export const SignupPage = class extends React.Component<{}, SignupPageState> {
                     <a
                       target="_blank"
                       href="https://document.anontown.com/terms.html"
+                      rel="noopener noreferrer"
                     >
                       利用規約(10行くらいしかないから読んでね)
                     </a>
