@@ -64,7 +64,7 @@ module.exports = {
     "prefer-const": "error",
     // strict-type-predicates入れたい: https://github.com/typescript-eslint/typescript-eslint/pull/738
     "react/jsx-boolean-value": ["error", "always"],
-    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     // unused-importがほしい: https://github.com/typescript-eslint/typescript-eslint/issues/371
     "react/display-name": "warn",
     "@typescript-eslint/no-use-before-define": [
