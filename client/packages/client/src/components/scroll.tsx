@@ -1,12 +1,10 @@
-import { array, option } from "fp-ts";
 import * as React from "react";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
 import { setTimeout } from "timers";
 import * as G from "../generated/graphql";
 import { useEffectRef, useLock, useValueRef } from "../hooks";
-import * as oset from "../utils/ord-set";
-import { pipe } from "../prelude";
+import { pipe, Ord, OrdT, O, RA, ArrayUtils } from "../prelude";
 
 function useToTop(el: HTMLDivElement | null) {
   const elRef = useValueRef(el);
@@ -26,10 +24,10 @@ function useToBottom(el: HTMLDivElement | null) {
   }, []);
 }
 
-function useIdElMap<T extends ListItemData>(data: oset.OrdSet<T, string>) {
+function useIdElMap<T extends ListItemData>(data: ReadonlyArray<T>) {
   const idElMap = React.useMemo(() => new Map<string, HTMLDivElement>(), []);
   React.useEffect(() => {
-    const items = new Set(oset.toArray(data).map(x => x.id));
+    const items = new Set(data.map(x => x.id));
     for (const id of Array.from(idElMap.keys())) {
       if (!items.has(id)) {
         idElMap.delete(id);
@@ -51,15 +49,14 @@ function useIdElMap<T extends ListItemData>(data: oset.OrdSet<T, string>) {
 
 // 上端に一番近いアイテム
 function useGetTopElement<T extends ListItemData>(
-  data: oset.OrdSet<T, string>,
+  data: ReadonlyArray<T>,
   idElMap: Map<string, HTMLDivElement>,
 ) {
   return React.useCallback(async () => {
     await sleep(0);
 
     // 最短距離のアイテム
-    const minItem = oset
-      .toArray(data)
+    const minItem = data
       .map(item => {
         const el = idElMap.get(item.id);
         if (el !== undefined) {
@@ -98,15 +95,14 @@ function useGetTopElement<T extends ListItemData>(
 
 // 下端に一番近いアイテム
 function useGetBottomElement<T extends ListItemData>(
-  data: oset.OrdSet<T, string>,
+  data: ReadonlyArray<T>,
   idElMap: Map<string, HTMLDivElement>,
 ) {
   return React.useCallback(async () => {
     await sleep(0);
 
     // 最短距離のアイテム
-    const minItem = oset
-      .toArray(data)
+    const minItem = data
       .map(item => {
         const el = idElMap.get(item.id);
         if (el !== undefined) {
@@ -146,7 +142,7 @@ function useGetBottomElement<T extends ListItemData>(
 }
 
 function useScrollLock<T extends ListItemData>(
-  data: oset.OrdSet<T, string>,
+  data: ReadonlyArray<T>,
   idElMap: Map<string, HTMLDivElement>,
   rootEl: HTMLDivElement | null,
 ) {
@@ -154,15 +150,15 @@ function useScrollLock<T extends ListItemData>(
     async (f: () => Promise<void>) => {
       await sleep(0);
       const elData = pipe(
-        oset.toArray(data),
-        array.head,
-        option.chain(x => option.fromNullable(idElMap.get(x.id))),
-        option.map(x => ({ el: x, y: elY(x) })),
+        data,
+        RA.head,
+        O.chain(x => O.fromNullable(idElMap.get(x.id))),
+        O.map(x => ({ el: x, y: elY(x) })),
       );
       try {
         await f();
       } finally {
-        if (option.isSome(elData)) {
+        if (O.isSome(elData)) {
           await sleep(0);
           if (rootEl !== null) {
             rootEl.scrollTop += elY(elData.value.el) - elData.value.y;
@@ -261,9 +257,9 @@ function useOnBottomScroll(
 function useFetchUtils<T extends ListItemData>(
   useFetch: () => (date: G.DateQuery) => Promise<Array<T>>,
   rootEl: HTMLDivElement | null,
-  data: oset.OrdSet<T, string>,
+  data: ReadonlyArray<T>,
   idElMap: Map<string, HTMLDivElement>,
-  setData: (x: oset.OrdSet<T, string>) => void,
+  setData: (x: ReadonlyArray<T>) => void,
   newItemOrder: "top" | "bottom",
 ) {
   const fetch = useFetch();
@@ -274,16 +270,21 @@ function useFetchUtils<T extends ListItemData>(
   const scrollLock = useScrollLock(data, idElMap, rootEl);
 
   const findAfterWithData = React.useCallback(
-    async (os: oset.OrdSet<T, string>) => {
-      const first = array.head(oset.toArray(os));
-      if (option.isSome(first)) {
+    async (os: ReadonlyArray<T>) => {
+      const first = RA.head(os);
+      if (O.isSome(first)) {
         await scrollLock(async () => {
           const result = await fetch({
             date: first.value.date,
             type: "gt",
           });
 
-          setData(oset.unsafePushFirstOrdAndUniqueArray(os, result));
+          setData(
+            ArrayUtils.mergeAndUniqSortedArray(ordListItemKey)(
+              getKeyFromListItemData,
+              result,
+            )(os),
+          );
         });
       }
     },
@@ -291,16 +292,21 @@ function useFetchUtils<T extends ListItemData>(
   );
 
   const findBeforeWithData = React.useCallback(
-    async (os: oset.OrdSet<T, string>) => {
-      const old = array.last(oset.toArray(os));
-      if (option.isSome(old)) {
+    async (os: ReadonlyArray<T>) => {
+      const old = RA.last(os);
+      if (O.isSome(old)) {
         await scrollLock(async () => {
           const result = await fetch({
             date: old.value.date,
             type: "lt",
           });
 
-          setData(oset.unsafePushLastOrdAndUniqueArray(os, result));
+          setData(
+            ArrayUtils.mergeAndUniqSortedArray(ordListItemKey)(
+              getKeyFromListItemData,
+              result,
+            )(os),
+          );
         });
       }
     },
@@ -314,11 +320,7 @@ function useFetchUtils<T extends ListItemData>(
         type: "lte",
       });
 
-      const resetedData = oset.unsafePushFirstOrdAndUniqueArray(
-        oset.clear(data),
-        result,
-      );
-      setData(resetedData);
+      setData(result);
 
       switch (newItemOrder) {
         case "bottom":
@@ -328,13 +330,13 @@ function useFetchUtils<T extends ListItemData>(
           await toTop();
           break;
       }
-      await findAfterWithData(resetedData);
+      await findAfterWithData(result);
     },
     [data, setData, fetch, newItemOrder, toBottom, toTop, findAfterWithData],
   );
 
   const findBefore = React.useCallback(async () => {
-    if (oset.toArray(data).length === 0) {
+    if (data.length === 0) {
       await resetDate(new Date().toISOString());
     } else {
       await findBeforeWithData(data);
@@ -342,7 +344,7 @@ function useFetchUtils<T extends ListItemData>(
   }, [data, resetDate, findBeforeWithData]);
 
   const findAfter = React.useCallback(async () => {
-    if (oset.toArray(data).length === 0) {
+    if (data.length === 0) {
       await resetDate(new Date().toISOString());
     } else {
       await findAfterWithData(data);
@@ -354,7 +356,7 @@ function useFetchUtils<T extends ListItemData>(
 
 function useOnChangeCurrentItem<T extends ListItemData>(
   f: (item: T) => void,
-  data: oset.OrdSet<T, string>,
+  data: ReadonlyArray<T>,
   idElMap: Map<string, HTMLDivElement>,
   rootEl: HTMLDivElement | null,
   debounceTime: number,
@@ -394,6 +396,16 @@ function useOnChangeCurrentItem<T extends ListItemData>(
   }, [rootEl, debounceTime, getTopElement, useGetBottomElement]);
 }
 
+type ListItemKey = [number, string];
+const ordListItemKey: Ord<ListItemKey> = OrdT.getTupleOrd(
+  OrdT.ordNumber,
+  OrdT.ordString,
+);
+
+function getKeyFromListItemData<T extends ListItemData>(x: T): ListItemKey {
+  return [new Date(x.date).valueOf(), x.id];
+}
+
 interface ListItemData {
   id: string;
   date: string;
@@ -421,7 +433,7 @@ export interface ScrollProps<T extends ListItemData> {
   dataToEl: (data: T) => JSX.Element;
   style?: React.CSSProperties;
   className?: string;
-  changeItems: (items: Array<T>) => void;
+  changeItems: (items: ReadonlyArray<T>) => void;
   existUnread: boolean;
   onChangeExistUnread: (existUnread: boolean) => void;
 }
@@ -454,12 +466,7 @@ type Cmd =
 export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   const rootEl = React.useRef<HTMLDivElement | null>(null);
 
-  const [data, setData] = React.useState(
-    oset.make<T, string>(
-      (a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf(),
-      x => x.id,
-    ),
-  );
+  const [data, setData] = React.useState<ReadonlyArray<T>>([]);
 
   React.useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -467,8 +474,8 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   }, [props.initDate.valueOf(), ...props.fetchKey]);
 
   React.useEffect(() => {
-    props.changeItems(oset.toArray(data));
-  }, [oset.toArray(data)]);
+    props.changeItems(data);
+  }, [data]);
 
   const { idElMap, addFunction } = useIdElMap<T>(data);
   const { resetDate, findBefore, findAfter } = useFetchUtils(
@@ -568,17 +575,20 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   const onSubscriptionDataRef = useValueRef((newData: T) => {
     props.onChangeExistUnread(true);
     setData(
-      pipe(data, x => oset.unsafePushFirstOrdAndUniqueArray(x, [newData])),
+      pipe(
+        data,
+        ArrayUtils.mergeAndUniqSortedArray(ordListItemKey)(
+          item => getKeyFromListItemData(item),
+          [newData],
+        ),
+      ),
     );
   });
   props.useStream(x => onSubscriptionDataRef.current(x));
 
   return (
     <div className={props.className} style={props.style} ref={rootEl}>
-      {(props.newItemOrder === "bottom"
-        ? [...oset.toArray(data)].reverse()
-        : oset.toArray(data)
-      ).map(item => (
+      {(props.newItemOrder === "bottom" ? RA.reverse(data) : data).map(item => (
         <div key={item.id} ref={el => addFunction(item.id, el)}>
           {props.dataToEl(item)}
         </div>

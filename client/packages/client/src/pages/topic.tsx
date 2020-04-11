@@ -81,7 +81,7 @@ export const TopicPage = (_props: {}) => {
   const [autoScrollSpeed, setAutoScrollSpeed] = React.useState(15);
   const [isAutoScroll, setIsAutoScroll] = React.useState(false);
   const scrollNewItem = React.useRef(new rx.ReplaySubject<string>(1));
-  const items = React.useRef<Array<G.ResFragment>>([]);
+  const items = React.useRef<ReadonlyArray<G.ResFragment>>([]);
   const initDate = React.useMemo(() => {
     if (user.value !== null) {
       const topicRead = user.value.storage.topicRead.get(match.params.id);
