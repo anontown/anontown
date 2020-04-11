@@ -1,3 +1,5 @@
+// TODO: collectionsに移動。IDと時刻は不変
+
 export interface OrdSet<T, U> {
   array: Array<T>;
   compare: (x: T, y: T) => number;
