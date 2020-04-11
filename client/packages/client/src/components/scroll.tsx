@@ -301,6 +301,12 @@ function useFetchUtils<T extends ListItemData>(
             type: "lt",
           });
 
+          console.log(
+            ArrayUtils.mergeAndUniqSortedArray(ordListItemKey)(
+              getKeyFromListItemData,
+              result,
+            )(os),
+          );
           setData(
             ArrayUtils.mergeAndUniqSortedArray(ordListItemKey)(
               getKeyFromListItemData,
@@ -403,7 +409,7 @@ const ordListItemKey: Ord<ListItemKey> = OrdT.getTupleOrd(
 );
 
 function getKeyFromListItemData<T extends ListItemData>(x: T): ListItemKey {
-  return [new Date(x.date).valueOf(), x.id];
+  return [-new Date(x.date).valueOf(), x.id];
 }
 
 interface ListItemData {
