@@ -10,7 +10,7 @@ import { outputJsValueToHtml } from "@anontown/common/lib/output-js-value-to-htm
 
 const app = new Koa();
 
-const rootDir = "./node_modules/@anontown/client/dist";
+const rootDir = "./node_modules/@anontown/client/public-dist";
 
 function addRoute<P extends string, Q extends object>(route: RouteData<P, Q>) {
   app.use(

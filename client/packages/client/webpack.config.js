@@ -24,7 +24,7 @@ module.exports = (env, argv) => {
     },
     output: {
       filename: "[name].[chunkhash].immutable.js",
-      path: __dirname + "/dist",
+      path: __dirname + "/public-dist",
       publicPath: "/",
     },
     resolve: {
@@ -105,6 +105,7 @@ module.exports = (env, argv) => {
             {
               loader: "ts-loader",
               options: {
+                configFile: path.join(__dirname, "../tsconfig.json"),
                 projectReferences: true,
               },
             },
