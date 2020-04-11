@@ -56,7 +56,6 @@ module.exports = {
     "no-unsafe-finally": "error",
     "no-unused-expressions": "error",
     "no-var": "error",
-    "prefer-arrow": "error",
     "prefer-const": "error",
     // strict-type-predicates入れたい: https://github.com/typescript-eslint/typescript-eslint/pull/738
     "react/jsx-boolean-value": ["error", "always"],
