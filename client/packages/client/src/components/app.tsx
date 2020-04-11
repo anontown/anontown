@@ -106,7 +106,7 @@ export const App = withRouter(
         }
         this.setState({
           initUserData: await createUserData(
-            res.data.token as G.TokenMasterFragment,
+            res.data.token as G.TokenMasterFragment, // TODO: ここのキャストおかしい
           ),
         });
       } catch {
