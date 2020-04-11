@@ -1,5 +1,5 @@
 import * as Im from "immutable";
-import * as ng from "./ng";
+import * as ng from "../ng";
 import { StorageJSONLatest } from "./storage-json";
 export * from "./storage-json";
 
