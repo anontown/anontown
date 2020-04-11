@@ -1,6 +1,6 @@
 import { ListItem, TextField } from "material-ui";
 import * as React from "react";
-import { ng } from "../../models";
+import { ng } from "../../domains/entities";
 import { Modal } from "../modal";
 
 export interface NGProfileNodeEditorProps {

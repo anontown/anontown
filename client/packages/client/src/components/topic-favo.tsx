@@ -3,7 +3,7 @@ import { FontIcon, IconButton, Paper } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as G from "../generated/graphql";
-import { UserData } from "../models";
+import { UserData } from "../domains/entities";
 import { Snack } from "./snack";
 import { TopicListItem } from "./topic-list-item";
 

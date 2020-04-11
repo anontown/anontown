@@ -22,7 +22,7 @@ import {
   withRouter,
 } from "react-router-dom";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
-import { UserData } from "../models";
+import { UserData } from "../domains/entities";
 import { BUILD_DATE, Env } from "../env";
 import * as G from "../generated/graphql";
 import { UserContextType } from "../hooks";

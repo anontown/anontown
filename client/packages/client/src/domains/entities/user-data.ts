@@ -1,4 +1,4 @@
-import * as G from "../generated/graphql";
+import * as G from "../../generated/graphql";
 import { Storage } from "./storage";
 
 export interface UserData {

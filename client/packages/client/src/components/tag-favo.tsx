@@ -1,7 +1,7 @@
 import { routes } from "@anontown/common/lib/route";
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { UserData } from "../models";
+import { UserData } from "../domains/entities";
 import { Card } from "../styled/card";
 import { TextTitle } from "../styled/text";
 import { TagsLink } from "./tags-link";

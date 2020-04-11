@@ -5,7 +5,7 @@ import * as React from "react";
 import { useCounter } from "react-use";
 import * as G from "../generated/graphql";
 import { useInputCache } from "../hooks";
-import { Storage, UserData } from "../models";
+import { Storage, UserData } from "../domains/entities";
 import { queryResultConvert } from "../utils";
 import { CheckBox } from "./check-box";
 import { Errors } from "./errors";

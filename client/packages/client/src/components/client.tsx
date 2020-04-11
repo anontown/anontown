@@ -2,7 +2,7 @@ import { FontIcon, IconButton } from "material-ui";
 import * as React from "react";
 import { useToggle } from "react-use";
 import * as G from "../generated/graphql";
-import { UserData } from "../models";
+import { UserData } from "../domains/entities";
 import { ClientEditor } from "./client-editor";
 
 interface ClientProps {

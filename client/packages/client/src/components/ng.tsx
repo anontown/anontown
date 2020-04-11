@@ -1,6 +1,6 @@
 import { FontIcon, IconButton, List, ListItem } from "material-ui";
 import * as React from "react";
-import { ng, Storage, UserData } from "../models";
+import { ng, Storage, UserData } from "../domains/entities";
 import { list } from "../utils";
 import { Modal } from "./modal";
 import { NGEditor } from "./ng-editor";

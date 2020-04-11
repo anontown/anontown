@@ -7,7 +7,7 @@ import {
   SelectField,
 } from "material-ui";
 import * as React from "react";
-import { ng } from "../../models";
+import { ng } from "../../domains/entities";
 import { list } from "../../utils";
 import { Modal } from "../modal";
 import { NGHashNodeEditor } from "./ng-hash-node-editor";

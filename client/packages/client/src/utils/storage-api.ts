@@ -6,7 +6,7 @@ import {
   toJSON,
   toStorage,
   verArray,
-} from "../models";
+} from "../domains/entities";
 import { createHeaders, gqlClient } from "../utils";
 
 export async function load(token: G.TokenMasterFragment) {
