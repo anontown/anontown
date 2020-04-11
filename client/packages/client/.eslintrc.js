@@ -34,7 +34,6 @@ module.exports = {
     "@typescript-eslint/no-floating-promises": "warn", // そのうちエラーにしたい(Reactのコールバック的に今は無理)
     "@typescript-eslint/prefer-for-of": "error",
     "@typescript-eslint/prefer-function-type": "error",
-    camelcase: "error",
     complexity: "warn", // 便利そう
     "dot-notation": "error",
     eqeqeq: ["error"],
