@@ -19,7 +19,7 @@ module.exports = {
     project: "tsconfig.json",
     sourceType: "module",
   },
-  plugins: ["@typescript-eslint", "@typescript-eslint/tslint"],
+  plugins: ["@typescript-eslint"],
   rules: {
     "@typescript-eslint/array-type": [
       "error",
@@ -62,5 +62,12 @@ module.exports = {
     "react/jsx-boolean-value": ["error", "always"],
     "@typescript-eslint/no-unused-vars": "error",
     // unused-importがほしい: https://github.com/typescript-eslint/typescript-eslint/issues/371
+  },
+  settings: {
+    react: {
+      createClass: "createReactClass",
+      pragma: "React",
+      version: "detect",
+    },
   },
 };
