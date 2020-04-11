@@ -11,7 +11,7 @@ import { getMainDefinition } from "apollo-utilities";
 import * as zen from "zen-observable-ts";
 import { Env } from "../env";
 import introspectionResult from "../generated/introspection-result";
-import { auth } from "../utils";
+import { getAuth } from "../utils";
 
 export function createHeaders(id: string, key: string): {} {
   return {
@@ -29,12 +29,15 @@ const wsLink = new WebSocketLink({
   options: {
     reconnect: true,
     lazy: true,
-    connectionParams: () =>
-      auth !== null ? createHeaders(auth.id, auth.key) : {},
+    connectionParams: () => {
+      const auth = getAuth();
+      return auth !== null ? createHeaders(auth.id, auth.key) : {};
+    },
   },
 });
 
 const request = (opt: Operation) => {
+  const auth = getAuth();
   if (auth !== null) {
     opt.setContext({
       headers: createHeaders(auth.id, auth.key),
