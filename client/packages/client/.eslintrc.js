@@ -55,7 +55,7 @@ module.exports = {
     "no-underscore-dangle": [
       "error",
       {
-        allow: ["__typename'"],
+        allow: ["__typename"],
       },
     ],
     "no-unsafe-finally": "error",
