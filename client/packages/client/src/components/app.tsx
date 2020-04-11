@@ -101,7 +101,7 @@ export const App = withRouter(
             headers: createHeaders(token.id, token.key),
           },
         });
-        if ((res.data.token.__typename as string) === "TokenGeneral") {
+        if (res.data.token.__typename === "TokenGeneral") {
           throw Error();
         }
         this.setState({
