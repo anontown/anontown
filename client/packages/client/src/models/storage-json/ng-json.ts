@@ -5,6 +5,7 @@ export const ngNodeNotJson: t.Type<NGNodeNotJson> = t.recursion(
   () =>
     t.strict({
       type: t.literal("not"),
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       child: ngNodeJson,
     }),
 );
@@ -18,6 +19,7 @@ export const ngNodeAndJson: t.Type<NGNodeAndJson> = t.recursion(
   () =>
     t.strict({
       type: t.literal("and"),
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       children: t.array(ngNodeJson),
     }),
 );
@@ -32,6 +34,7 @@ export const ngNodeOrJson: t.Type<NGNodeOrJson> = t.recursion(
   () =>
     t.strict({
       type: t.literal("or"),
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       children: t.array(ngNodeJson),
     }),
 );

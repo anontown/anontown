@@ -27,7 +27,7 @@ export function Md(props: MdProps) {
       },
       className: style.md,
     },
-    // tslint:disable-next-line:jsx-key
+    // eslint-disable-next-line react/jsx-key
     ...node.children.map(c => <MdNode node={c} />),
   );
 }
@@ -114,7 +114,7 @@ function MdLink(props: { node: mdParser.Link }) {
           title: props.node.title || undefined,
           rel: "noopener noreferrer",
         },
-        // tslint:disable-next-line:jsx-key
+        // eslint-disable-next-line react/jsx-key
         ...props.node.children.map(c => <MdNode node={c} />),
       );
     case "image":
@@ -137,7 +137,7 @@ function MdLink(props: { node: mdParser.Link }) {
         {
           to: link.path,
         },
-        // tslint:disable-next-line:jsx-key
+        // eslint-disable-next-line react/jsx-key
         ...props.node.children.map(c => <MdNode node={c} />),
       );
   }
@@ -147,7 +147,7 @@ function MdHeading(props: { node: mdParser.Heading }) {
   return React.createElement(
     `h${props.node.depth}`,
     {},
-    // tslint:disable-next-line:jsx-key
+    // eslint-disable-next-line react/jsx-key
     ...props.node.children.map(c => <MdNode node={c} />),
   );
 }
@@ -171,7 +171,7 @@ function MdTable(props: { node: mdParser.Table }) {
                     },
                   },
                   ...(cell.type === "tableCell"
-                    ? // tslint:disable-next-line:jsx-key
+                    ? // eslint-disable-next-line react/jsx-key
                       cell.children.map(c => <MdNode node={c} />)
                     : []),
                 ),
@@ -198,7 +198,7 @@ function MdTable(props: { node: mdParser.Table }) {
                               textAlign: props.node.align[index],
                             },
                           },
-                          // tslint:disable-next-line:jsx-key
+                          // eslint-disable-next-line react/jsx-key
                           ...cell.children.map(c => <MdNode node={c} />),
                         )
                       : [],
@@ -217,14 +217,14 @@ function MdNode(props: { node: mdParser.MdNode }): JSX.Element {
       return React.createElement(
         "p",
         {},
-        // tslint:disable-next-line:jsx-key
+        // eslint-disable-next-line react/jsx-key
         ...props.node.children.map(c => <MdNode node={c} />),
       );
     case "blockquote":
       return React.createElement(
         "blockquote",
         {},
-        // tslint:disable-next-line:jsx-key
+        // eslint-disable-next-line react/jsx-key
         ...props.node.children.map(c => <MdNode node={c} />),
       );
     case "heading":
@@ -242,14 +242,14 @@ function MdNode(props: { node: mdParser.MdNode }): JSX.Element {
         return React.createElement(
           "ol",
           {},
-          // tslint:disable-next-line:jsx-key
+          // eslint-disable-next-line react/jsx-key
           ...props.node.children.map(c => <MdNode node={c} />),
         );
       } else {
         return React.createElement(
           "ul",
           {},
-          // tslint:disable-next-line:jsx-key
+          // eslint-disable-next-line react/jsx-key
           ...props.node.children.map(c => <MdNode node={c} />),
         );
       }
@@ -257,7 +257,7 @@ function MdNode(props: { node: mdParser.MdNode }): JSX.Element {
       return React.createElement(
         "li",
         {},
-        // tslint:disable-next-line:jsx-key
+        // eslint-disable-next-line react/jsx-key
         ...props.node.children.map(c => <MdNode node={c} />),
       );
     case "table":
@@ -270,21 +270,21 @@ function MdNode(props: { node: mdParser.MdNode }): JSX.Element {
       return React.createElement(
         "em",
         {},
-        // tslint:disable-next-line:jsx-key
+        // eslint-disable-next-line react/jsx-key
         ...props.node.children.map(c => <MdNode node={c} />),
       );
     case "strong":
       return React.createElement(
         "strong",
         {},
-        // tslint:disable-next-line:jsx-key
+        // eslint-disable-next-line react/jsx-key
         ...props.node.children.map(c => <MdNode node={c} />),
       );
     case "delete":
       return React.createElement(
         "del",
         {},
-        // tslint:disable-next-line:jsx-key
+        // eslint-disable-next-line react/jsx-key
         ...props.node.children.map(c => <MdNode node={c} />),
       );
     case "link":

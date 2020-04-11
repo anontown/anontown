@@ -40,7 +40,7 @@ function ProfileBase(props: ProfileBaseProps) {
             profilesResult.data.profiles,
             array.head,
             option.map(p => (
-              <Paper zDepth={props.zDepth}>
+              <Paper zDepth={props.zDepth} key={p.id}>
                 <Profile profile={p} />
               </Paper>
             )),

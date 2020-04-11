@@ -74,6 +74,7 @@ export const App = withRouter(
       const path = prop.location.pathname;
       if (Env.ga !== null) {
         gtag("config", Env.ga.id, {
+          // eslint-disable-next-line @typescript-eslint/camelcase
           page_path: path,
         });
       }
