@@ -4,13 +4,10 @@ import { RA, Ord, O } from "./fp-ts";
  * 配列xsに配列ysをマージし、配列を返す。引数も還り値もキーで昇順にソート済みでキーの重複がない。
  * キーが重複した要素はysの要素で置換される
  */
-export function mergeAndUniqSortedArray<A, K>(
-  ord: Ord<K>,
-): (
-  f: (a: A) => K,
-  ys: ReadonlyArray<A>,
-) => (xs: ReadonlyArray<A>) => ReadonlyArray<A> {
-  return (f, ys) => xs => {
+export function mergeAndUniqSortedArray<K>(ord: Ord<K>) {
+  return <A>(f: (a: A) => K, ys: ReadonlyArray<A>) => (
+    xs: ReadonlyArray<A>,
+  ): ReadonlyArray<A> => {
     let ix = 0;
     let iy = 0;
     let result: Array<A> = [];
