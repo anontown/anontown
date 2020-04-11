@@ -2,20 +2,20 @@ import { Newtype, iso } from "newtype-ts";
 import { RA, Option, O, pipe } from "../prelude";
 
 // [...prev, currentValue, ...post] という履歴になる
-interface _HistoryStack<A> {
+interface HistoryStackA<A> {
   readonly prev: ReadonlyArray<A>;
   readonly currentValue: A;
   readonly post: ReadonlyArray<A>;
 }
 
 export interface HistoryStack<A>
-  extends Newtype<{ readonly HistoryStack: unique symbol }, _HistoryStack<A>> {}
+  extends Newtype<{ readonly HistoryStack: unique symbol }, HistoryStackA<A>> {}
 
 function isoHistoryStack<A>() {
   return iso<HistoryStack<A>>();
 }
 
-export function currentValue<A>(hs: HistoryStack<A>): A {
+export function getCurrentValue<A>(hs: HistoryStack<A>): A {
   return isoHistoryStack<A>().unwrap(hs).currentValue;
 }
 
@@ -30,7 +30,7 @@ export function push<A>(x: A): (hs: HistoryStack<A>) => HistoryStack<A> {
 export function modifyPush<A>(
   f: (x: A) => A,
 ): (hs: HistoryStack<A>) => HistoryStack<A> {
-  return hs => push(f(currentValue(hs)))(hs);
+  return hs => push(f(getCurrentValue(hs)))(hs);
 }
 
 export function undo<A>(hs: HistoryStack<A>): Option<HistoryStack<A>> {
