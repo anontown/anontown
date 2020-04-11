@@ -52,7 +52,12 @@ module.exports = {
         hoist: "all",
       },
     ],
-    "no-underscore-dangle": "error",
+    "no-underscore-dangle": [
+      "error",
+      {
+        allow: ["__typename'"],
+      },
+    ],
     "no-unsafe-finally": "error",
     "no-unused-expressions": "error",
     "no-var": "error",
