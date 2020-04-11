@@ -12,6 +12,9 @@
     "noEmitOnError": true,
     "incremental": true
   },
+  "include": [
+    "src/**/*.ts"
+  ],
   "references": [
     {
       "path": "../common"

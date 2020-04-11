@@ -13,5 +13,8 @@
     "noEmitOnError": true,
     "incremental": true,
     "composite": true
-  }
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
 }
