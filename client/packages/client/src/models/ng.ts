@@ -96,9 +96,9 @@ function textMatcherTest(
       }
     case "text":
       if (matcher.i) {
-        return text.toLowerCase().indexOf(matcher.source.toLowerCase()) !== -1;
+        return text.toLowerCase().includes(matcher.source.toLowerCase());
       } else {
-        return text.indexOf(matcher.source) !== -1;
+        return text.includes(matcher.source);
       }
   }
 }
