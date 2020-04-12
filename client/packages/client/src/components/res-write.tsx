@@ -32,9 +32,9 @@ export const ResWrite = (props: ResWriteProps) => {
 
   const [errors, setErrors] = React.useState<Array<string>>([]);
   const [textCache, setTextCache] = useInputCache(
-    Sto.topicWriteGetText(props.reply)(data),
+    Sto.getTopicWriteTextLens(props.reply).get(data),
     value => {
-      updateTopicWrite(Sto.topicWriteSetText(props.reply, value));
+      updateTopicWrite(Sto.getTopicWriteTextLens(props.reply).set(value));
     },
   );
 
@@ -50,13 +50,13 @@ export const ResWrite = (props: ResWriteProps) => {
   const [mutation] = G.useCreateResMutation({
     variables: {
       topic: props.topic,
-      name: pipe(data, Sto.topicWriteGetName, name =>
+      name: pipe(data, Sto.topicWriteNameLens.get, name =>
         name.length !== 0 ? name : null,
       ),
       text: textCache,
       reply: props.reply,
-      profile: Sto.topicWriteGetProfile(data),
-      age: Sto.topicWriteGetAge(data),
+      profile: Sto.topicWriteProfileLens.get(data),
+      age: Sto.topicWriteAgeLens.get(data),
     },
   });
 
@@ -98,8 +98,8 @@ export const ResWrite = (props: ResWriteProps) => {
               marginRight: "3px",
             }}
             placeholder="名前"
-            value={Sto.topicWriteGetName(data)}
-            onChange={v => updateTopicWrite(Sto.topicWriteSetName(v))}
+            value={Sto.topicWriteNameLens.get(data)}
+            onChange={v => updateTopicWrite(Sto.topicWriteNameLens.set(v))}
           />
           {profiles.data !== undefined ? (
             <Select
@@ -107,9 +107,9 @@ export const ResWrite = (props: ResWriteProps) => {
                 marginRight: "3px",
                 backgroundColor: "#fff",
               }}
-              value={pipe(Sto.topicWriteGetProfile(data), x => x ?? "")}
+              value={pipe(Sto.topicWriteProfileLens.get(data), x => x ?? "")}
               onChange={v => {
-                updateTopicWrite(Sto.topicWriteSetProfile(v));
+                updateTopicWrite(Sto.topicWriteProfileLens.set(v));
               }}
               options={[
                 { value: "", text: "(プロフなし)" },
@@ -121,8 +121,8 @@ export const ResWrite = (props: ResWriteProps) => {
             />
           ) : null}
           <CheckBox
-            value={Sto.topicWriteGetAge(data)}
-            onChange={v => updateTopicWrite(Sto.topicWriteSetAge(v))}
+            value={Sto.topicWriteAgeLens.get(data)}
+            onChange={v => updateTopicWrite(Sto.topicWriteAgeLens.set(v))}
             label="Age"
           />
         </>

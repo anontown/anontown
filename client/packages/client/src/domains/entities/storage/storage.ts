@@ -29,55 +29,64 @@ const initTopicWrite = isoTopicWrite.wrap({
   age: true,
 });
 
-export function topicWriteSetText(reply: string | null, text: string) {
-  return isoTopicWrite.modify(topicWrite => {
-    if (reply === null) {
-      return {
-        ...topicWrite,
-        text,
-      };
-    } else {
-      return {
-        ...topicWrite,
-        replyText: topicWrite.replyText.set(reply, text),
-      };
-    }
-  });
+export function getTopicWriteTextLens(
+  reply: string | null,
+): Lens<TopicWrite, string> {
+  return isoTopicWrite.asLens().compose<string>(
+    new Lens(
+      ({ text, replyText }) => {
+        if (reply === null) {
+          return text;
+        } else {
+          return replyText.get(reply, "");
+        }
+      },
+      text => topicWrite => {
+        if (reply === null) {
+          return {
+            ...topicWrite,
+            text,
+          };
+        } else {
+          return {
+            ...topicWrite,
+            replyText: topicWrite.replyText.set(reply, text),
+          };
+        }
+      },
+    ),
+  );
 }
 
-export function topicWriteGetText(reply: string | null) {
-  return (topicWrite: TopicWrite): string => {
-    if (reply === null) {
-      return isoTopicWrite.unwrap(topicWrite).text;
-    } else {
-      return isoTopicWrite.unwrap(topicWrite).replyText.get(reply, "");
-    }
-  };
-}
+export const topicWriteNameLens: Lens<
+  TopicWrite,
+  string
+> = isoTopicWrite.asLens().compose<string>(
+  new Lens(
+    ({ name }) => name,
+    name => topicWrite => ({ ...topicWrite, name }),
+  ),
+);
 
-export function topicWriteSetName(name: string) {
-  return isoTopicWrite.modify(topicWrite => ({ ...topicWrite, name }));
-}
+export const topicWriteProfileLens: Lens<
+  TopicWrite,
+  string | null
+> = isoTopicWrite.asLens().compose<string | null>(
+  new Lens(
+    ({ profile }) => profile,
+    profile => topicWrite => ({ ...topicWrite, profile }),
+  ),
+);
 
-export function topicWriteGetName(topicWrite: TopicWrite): string {
-  return isoTopicWrite.get(topicWrite).name;
-}
-
-export function topicWriteSetProfile(profile: string | null) {
-  return isoTopicWrite.modify(topicWrite => ({ ...topicWrite, profile }));
-}
-
-export function topicWriteGetProfile(topicWrite: TopicWrite): string | null {
-  return isoTopicWrite.get(topicWrite).profile;
-}
-
-export function topicWriteSetAge(age: boolean) {
-  return isoTopicWrite.modify(topicWrite => ({ ...topicWrite, age }));
-}
-
-export function topicWriteGetAge(topicWrite: TopicWrite): boolean {
-  return isoTopicWrite.get(topicWrite).age;
-}
+export const topicWriteAgeLens: Lens<
+  TopicWrite,
+  boolean
+> = isoTopicWrite.asLens().compose<boolean>(
+  new Lens(
+    ({ age }) => age,
+    age => topicWrite => ({ ...topicWrite, age }),
+  ),
+);
 
 interface TopicReadA {
   date: string;
