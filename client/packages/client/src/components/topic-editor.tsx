@@ -1,4 +1,3 @@
-import * as Im from "immutable";
 import { RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import * as G from "../generated/graphql";
@@ -6,6 +5,7 @@ import { UserData } from "../domains/entities";
 import { Errors } from "./errors";
 import { MdEditor } from "./md-editor";
 import { TagsInput } from "./tags-input";
+import { RA } from "../prelude";
 
 interface TopicEditorProps {
   topic: G.TopicNormalFragment;
@@ -15,7 +15,7 @@ interface TopicEditorProps {
 
 interface TopicEditorState {
   title: string;
-  tags: Im.Set<string>;
+  tags: ReadonlyArray<string>;
   text: string;
 }
 
@@ -27,7 +27,7 @@ export class TopicEditor extends React.Component<
     super(props);
     this.state = {
       title: this.props.topic.title,
-      tags: Im.Set(this.props.topic.tags),
+      tags: this.props.topic.tags,
       text: this.props.topic.text,
     };
   }
@@ -39,7 +39,7 @@ export class TopicEditor extends React.Component<
           id: this.props.topic.id,
           title: this.state.title,
           text: this.state.text,
-          tags: this.state.tags.toArray(),
+          tags: RA.toArray(this.state.tags), // TODO: コピーしない
         }}
         onCompleted={data => {
           if (this.props.onUpdate) {

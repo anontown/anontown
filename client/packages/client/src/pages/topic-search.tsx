@@ -1,5 +1,4 @@
 import { routes } from "@anontown/common/lib/route";
-import * as Im from "immutable";
 import {
   Checkbox,
   FontIcon,
@@ -19,6 +18,7 @@ import { useEffectRef, useUserContext } from "../hooks";
 import { Card } from "../styled/card";
 import { queryResultConvert } from "../utils";
 import { Sto } from "../domains/entities";
+import { RA } from "../prelude";
 
 export const TopicSearchPage = (_props: {}) => {
   const { location, history } = useRouter();
@@ -26,11 +26,13 @@ export const TopicSearchPage = (_props: {}) => {
   const formChange = React.useRef(new rx.Subject<void>());
   const [formTitle, setFormTitle] = React.useState(query.title);
   const [formDead, setFormDead] = React.useState(query.dead);
-  const [formTags, setFormTags] = React.useState(Im.Set(query.tags));
+  const [formTags, setFormTags] = React.useState<ReadonlyArray<string>>(
+    query.tags,
+  );
   React.useEffect(() => {
     setFormTitle(query.title);
     setFormDead(query.dead);
-    setFormTags(Im.Set(query.tags));
+    setFormTags(query.tags);
   }, [location.search]);
   const user = useUserContext();
   const limit = 100;
@@ -66,7 +68,7 @@ export const TopicSearchPage = (_props: {}) => {
             query: {
               title: formTitle,
               dead: formDead,
-              tags: formTags.toArray(),
+              tags: RA.toArray(formTags), // TODO: cloneしない
             },
           },
         ),

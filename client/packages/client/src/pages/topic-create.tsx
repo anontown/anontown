@@ -1,6 +1,5 @@
 import { routes } from "@anontown/common/lib/route";
 import { Mutation } from "@apollo/react-components";
-import * as Im from "immutable";
 import {
   MenuItem,
   Paper,
@@ -14,12 +13,13 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Errors, MdEditor, Modal, Page, TagsInput } from "../components";
 import * as G from "../generated/graphql";
 import { userSwitch, UserSwitchProps } from "../utils";
+import { RA } from "../prelude";
 
 type TopicCreatePageProps = RouteComponentProps<{}> & UserSwitchProps;
 
 export interface TopicCreatePageState {
   title: string;
-  tags: Im.Set<string>;
+  tags: ReadonlyArray<string>;
   text: string;
   type: "TopicNormal" | "TopicOne";
   openDialog: boolean;
@@ -32,7 +32,7 @@ export const TopicCreatePage = userSwitch(
         super(props);
         this.state = {
           title: "",
-          tags: Im.Set(),
+          tags: [],
           text: "",
           type: "TopicOne",
           openDialog: false,
@@ -56,7 +56,7 @@ export const TopicCreatePage = userSwitch(
                 }
                 variables={{
                   title: this.state.title,
-                  tags: this.state.tags.toArray(),
+                  tags: RA.toArray(this.state.tags), // TODO: cloneしない
                   text: this.state.text,
                 }}
                 onCompleted={x => {
