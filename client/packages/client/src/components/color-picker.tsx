@@ -54,9 +54,7 @@ export function ColorPicker(props: ColorPickerProps) {
           <SketchPicker
             color={props.color}
             onChange={color => {
-              if (props.onChange) {
-                props.onChange(color.rgb);
-              }
+              props.onChange?.(color.rgb);
             }}
           />
         </div>

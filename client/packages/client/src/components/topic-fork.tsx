@@ -24,9 +24,7 @@ export const TopicFork = (props: TopicForkProps) => {
             parent: props.topic.id,
           }}
           onCompleted={data => {
-            if (props.onCreate) {
-              props.onCreate(data.createTopicFork);
-            }
+            props.onCreate?.(data.createTopicFork);
           }}
         >
           {(submit, { error }) => {

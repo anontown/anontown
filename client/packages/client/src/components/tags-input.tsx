@@ -27,9 +27,7 @@ export class TagsInput extends React.Component<TagsInputProps, TagsInputState> {
 
   addTag() {
     if (this.state.inputValue.length !== 0) {
-      if (this.props.onChange !== undefined) {
-        this.props.onChange(RA.snoc(this.props.value, this.state.inputValue));
-      }
+      this.props.onChange?.(RA.snoc(this.props.value, this.state.inputValue));
       this.setState({ inputValue: "" });
     }
   }
@@ -43,9 +41,7 @@ export class TagsInput extends React.Component<TagsInputProps, TagsInputState> {
               <span
                 className={style.tagButton}
                 onClick={() => {
-                  if (this.props.onChange !== undefined) {
-                    this.props.onChange(this.props.value.filter(x => x !== t));
-                  }
+                  this.props.onChange?.(this.props.value.filter(x => x !== t));
                 }}
               >
                 ×
