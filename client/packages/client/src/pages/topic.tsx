@@ -54,7 +54,7 @@ function makeUseStream(
 function makeUseFetch(id: string) {
   return () => {
     const apolloClient = useApolloClient();
-    return async (date: G.DateQuery): Promise<Array<G.ResFragment>> => {
+    return async (date: G.DateQuery): Promise<ReadonlyArray<G.ResFragment>> => {
       const result = await apolloClient.query<
         G.FindResesQuery,
         G.FindResesQueryVariables

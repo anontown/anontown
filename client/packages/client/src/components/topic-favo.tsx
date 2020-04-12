@@ -6,7 +6,7 @@ import * as G from "../generated/graphql";
 import { UserData, Sto } from "../domains/entities";
 import { Snack } from "./snack";
 import { TopicListItem } from "./topic-list-item";
-import { RA } from "../prelude";
+import { RA, pipe, OrdT } from "../prelude";
 
 interface TopicFavoProps {
   userData: UserData;
@@ -46,8 +46,14 @@ export class TopicFavo extends React.Component<TopicFavoProps, TopicFavoState> {
                     return <Snack msg="トピック取得に失敗しました" />;
                   }
 
-                  const topics = data.topics.sort((a, b) =>
-                    a.update > b.update ? -1 : a.update < b.update ? 1 : 0,
+                  const topics = pipe(
+                    data.topics,
+                    RA.sortBy([
+                      OrdT.contramap((x: G.TopicFragment) =>
+                        new Date(x.update).valueOf(),
+                      )(OrdT.ordNumber),
+                    ]),
+                    RA.reverse,
                   );
 
                   return (

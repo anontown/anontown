@@ -270,7 +270,7 @@ function useOnBottomScroll(
 }
 
 function useFetchUtils<T extends ListItemData>(
-  useFetch: () => (date: G.DateQuery) => Promise<Array<T>>,
+  useFetch: () => (date: G.DateQuery) => Promise<ReadonlyArray<T>>,
   rootEl: HTMLDivElement | null,
   data: ReadonlyArray<T>,
   idElMap: Map<string, HTMLDivElement>,
@@ -424,7 +424,7 @@ interface ItemElPair<T extends ListItemData> {
 export interface ScrollProps<T extends ListItemData> {
   newItemOrder: "top" | "bottom";
   fetchKey: Array<unknown>;
-  useFetch: () => (date: G.DateQuery) => Promise<Array<T>>;
+  useFetch: () => (date: G.DateQuery) => Promise<ReadonlyArray<T>>;
   useStream: (f: (item: T) => void) => void;
   width: number;
   debounceTime: number;
