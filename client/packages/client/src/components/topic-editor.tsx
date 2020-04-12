@@ -39,7 +39,7 @@ export class TopicEditor extends React.Component<
           id: this.props.topic.id,
           title: this.state.title,
           text: this.state.text,
-          tags: RA.toArray(this.state.tags), // TODO: コピーしない
+          tags: this.state.tags,
         }}
         onCompleted={data => {
           this.props.onUpdate?.(data.updateTopic);

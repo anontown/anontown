@@ -5,7 +5,7 @@ import { UserData, Sto } from "../domains/entities";
 import { Card } from "../styled/card";
 import { TextTitle } from "../styled/text";
 import { TagsLink } from "./tags-link";
-import { RA } from "../prelude";
+import { RA, OrdT } from "../prelude";
 
 interface TagFavoProps {
   userData: UserData;
@@ -22,8 +22,7 @@ export class TagFavo extends React.Component<TagFavoProps, TagFavoState> {
     const tagsFavo = Sto.getTagsFavo(this.props.userData.storage);
     return tagsFavo.length !== 0 ? (
       tagsFavo.map(tags => {
-        // TODO: readonlyのまま扱う
-        const sortedTags = RA.toArray(tags).sort();
+        const sortedTags = RA.sort(OrdT.ordString)(tags);
         return (
           <Card key={sortedTags.join(",")}>
             <TextTitle>

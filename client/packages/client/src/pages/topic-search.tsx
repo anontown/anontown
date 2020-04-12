@@ -68,7 +68,7 @@ export const TopicSearchPage = (_props: {}) => {
             query: {
               title: formTitle,
               dead: formDead,
-              tags: RA.toArray(formTags), // TODO: cloneしない
+              tags: formTags,
             },
           },
         ),

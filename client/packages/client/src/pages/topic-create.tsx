@@ -56,7 +56,7 @@ export const TopicCreatePage = userSwitch(
                 }
                 variables={{
                   title: this.state.title,
-                  tags: RA.toArray(this.state.tags), // TODO: cloneしない
+                  tags: this.state.tags,
                   text: this.state.text,
                 }}
                 onCompleted={x => {

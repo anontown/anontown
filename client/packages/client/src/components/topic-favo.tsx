@@ -27,8 +27,7 @@ export class TopicFavo extends React.Component<TopicFavoProps, TopicFavoState> {
         <G.FindTopicsComponent
           variables={{
             query: {
-              // TODO: readonlyにしたらコピー消す
-              id: RA.toArray(Sto.getTopicFavo(this.props.userData.storage)),
+              id: Sto.getTopicFavo(this.props.userData.storage),
             },
           }}
         >
