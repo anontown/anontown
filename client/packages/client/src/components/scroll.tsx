@@ -6,6 +6,21 @@ import * as G from "../generated/graphql";
 import { useEffectRef, useLock, useValueRef } from "../hooks";
 import { pipe, Ord, OrdT, O, RA, ArrayUtils } from "../prelude";
 
+interface ListItemData {
+  id: string;
+  date: string;
+}
+
+function getKeyFromListItemData<T extends ListItemData>(x: T): ListItemKey {
+  return [-new Date(x.date).valueOf(), x.id];
+}
+
+type ListItemKey = [number, string];
+const ordListItemKey: Ord<ListItemKey> = OrdT.getTupleOrd(
+  OrdT.ordNumber,
+  OrdT.ordString,
+);
+
 function useToTop(el: HTMLDivElement | null) {
   const elRef = useValueRef(el);
   return React.useCallback(async () => {
@@ -401,22 +416,6 @@ function useOnChangeCurrentItem<T extends ListItemData>(
     };
   }, [rootEl, debounceTime, getTopElement, useGetBottomElement]);
 }
-
-type ListItemKey = [number, string];
-const ordListItemKey: Ord<ListItemKey> = OrdT.getTupleOrd(
-  OrdT.ordNumber,
-  OrdT.ordString,
-);
-
-function getKeyFromListItemData<T extends ListItemData>(x: T): ListItemKey {
-  return [-new Date(x.date).valueOf(), x.id];
-}
-
-interface ListItemData {
-  id: string;
-  date: string;
-}
-
 interface ItemElPair<T extends ListItemData> {
   item: T;
   el: HTMLDivElement;

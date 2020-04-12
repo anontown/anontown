@@ -10,7 +10,7 @@ export function mergeAndUniqSortedArray<K>(ord: Ord<K>) {
   ): ReadonlyArray<A> => {
     let ix = 0;
     let iy = 0;
-    let result: Array<A> = [];
+    const result: Array<A> = [];
     while (true) {
       const ox = RA.lookup(ix, xs);
       const oy = RA.lookup(iy, ys);
