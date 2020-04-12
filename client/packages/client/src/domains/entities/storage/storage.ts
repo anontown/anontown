@@ -89,14 +89,24 @@ export interface TopicRead
 
 const isoTopicRead = iso<TopicRead>();
 
-export const topicReadDateLens: Lens<TopicRead, string> = new Lens(
-  topicRead => isoTopicRead.unwrap(topicRead).date,
-  date => isoTopicRead.modify(topicRead => ({ ...topicRead, date })),
+export const topicReadDateLens: Lens<
+  TopicRead,
+  string
+> = isoTopicRead.asLens().compose<string>(
+  new Lens(
+    ({ date }) => date,
+    date => topicRead => ({ ...topicRead, date }),
+  ),
 );
 
-export const topicReadCountLens: Lens<TopicRead, number> = new Lens(
-  topicRead => isoTopicRead.unwrap(topicRead).count,
-  count => isoTopicRead.modify(topicRead => ({ ...topicRead, count })),
+export const topicReadCountLens: Lens<
+  TopicRead,
+  number
+> = isoTopicRead.asLens().compose<number>(
+  new Lens(
+    ({ count }) => count,
+    count => topicRead => ({ ...topicRead, count }),
+  ),
 );
 
 interface StorageA {
