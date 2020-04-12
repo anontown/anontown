@@ -18,7 +18,6 @@ import { useEffectRef, useUserContext } from "../hooks";
 import { Card } from "../styled/card";
 import { queryResultConvert } from "../utils";
 import { Sto } from "../domains/entities";
-import { RA } from "../prelude";
 
 export const TopicSearchPage = (_props: {}) => {
   const { location, history } = useRouter();

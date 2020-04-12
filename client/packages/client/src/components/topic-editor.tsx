@@ -5,7 +5,6 @@ import { UserData } from "../domains/entities";
 import { Errors } from "./errors";
 import { MdEditor } from "./md-editor";
 import { TagsInput } from "./tags-input";
-import { RA } from "../prelude";
 
 interface TopicEditorProps {
   topic: G.TopicNormalFragment;

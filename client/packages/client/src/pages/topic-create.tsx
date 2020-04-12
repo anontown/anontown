@@ -13,7 +13,6 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Errors, MdEditor, Modal, Page, TagsInput } from "../components";
 import * as G from "../generated/graphql";
 import { userSwitch, UserSwitchProps } from "../utils";
-import { RA } from "../prelude";
 
 type TopicCreatePageProps = RouteComponentProps<{}> & UserSwitchProps;
 
