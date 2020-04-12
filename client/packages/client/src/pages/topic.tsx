@@ -30,6 +30,8 @@ import * as G from "../generated/graphql";
 import { useFunctionRef, useUserContext } from "../hooks";
 import { queryResultConvert } from "../utils";
 import * as style from "./topic.scss";
+import { pipe, O } from "../prelude";
+import { Sto } from "../domains/entities";
 // TODO:NGのtransparent
 
 function makeUseStream(
@@ -67,6 +69,7 @@ function makeUseFetch(id: string) {
 
 export const TopicPage = (_props: {}) => {
   const { match } = useRouter<{ id: string }>();
+  // TODO: useMemoで副作用を起こさない
   const now = React.useMemo(() => new Date().toISOString(), []);
   const [existUnread, setExistUnread] = React.useState(false);
   const [isJumpDialog, setIsJumpDialog] = React.useState(false);
@@ -82,22 +85,22 @@ export const TopicPage = (_props: {}) => {
   const [isAutoScroll, setIsAutoScroll] = React.useState(false);
   const scrollNewItem = React.useRef(new rx.ReplaySubject<string>(1));
   const items = React.useRef<ReadonlyArray<G.ResFragment>>([]);
-  const initDate = React.useMemo(() => {
-    if (user.value !== null) {
-      const topicRead = user.value.storage.topicRead.get(match.params.id);
-      if (topicRead !== undefined) {
-        return topicRead.date;
-      } else {
-        return now;
-      }
-    } else {
-      return now;
-    }
-  }, []);
+  const initDate = React.useMemo(
+    () =>
+      pipe(
+        O.fromNullable(user.value),
+        O.chain(userData =>
+          Sto.getTopicRead(match.params.id)(userData.storage),
+        ),
+        O.map(Sto.topicReadDateLens.get),
+        O.getOrElse(() => now),
+      ),
+    [],
+  );
   const [jumpValue, setJumpValue] = React.useState(new Date(now).valueOf());
 
   const isFavo =
-    user.value !== null && user.value.storage.topicFavo.has(match.params.id);
+    user.value !== null && Sto.isTopicFavo(match.params.id)(user.value.storage);
 
   const onSubs = useFunctionRef((x: G.ResAddedSubscription) => {
     topics.updateQuery(ts => ({
@@ -124,9 +127,9 @@ export const TopicPage = (_props: {}) => {
     }
     const storage = user.value.storage;
     if (date === null) {
-      const storageRes = storage.topicRead.get(match.params.id);
-      if (storageRes !== undefined) {
-        date = storageRes.date;
+      const storageRes = Sto.getTopicRead(match.params.id)(storage);
+      if (O.isSome(storageRes)) {
+        date = Sto.topicReadDateLens.get(storageRes.value);
       } else {
         const first = arrayFirst(items.current);
         if (first === undefined) {
@@ -138,14 +141,13 @@ export const TopicPage = (_props: {}) => {
     const dateNonNull = date;
     user.update({
       ...user.value,
-      storage: {
-        ...storage,
-        topicRead: storage.topicRead.update(topic.id, x => ({
-          ...x,
+      storage: Sto.setTopicRead(
+        topic.id,
+        Sto.makeTopicRead({
           date: dateNonNull,
           count: topic.resCount,
-        })),
-      },
+        }),
+      )(storage),
     });
   }
 
@@ -242,15 +244,11 @@ export const TopicPage = (_props: {}) => {
                         return;
                       }
                       const storage = user.value.storage;
-                      const tf = storage.topicFavo;
                       user.update({
                         ...user.value,
-                        storage: {
-                          ...storage,
-                          topicFavo: isFavo
-                            ? tf.delete(match.params.id)
-                            : tf.add(match.params.id),
-                        },
+                        storage: (isFavo ? Sto.unfavoTopic : Sto.favoTopic)(
+                          match.params.id,
+                        )(storage),
                       });
                     }}
                   >

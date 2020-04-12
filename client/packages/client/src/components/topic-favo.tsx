@@ -3,9 +3,10 @@ import { FontIcon, IconButton, Paper } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as G from "../generated/graphql";
-import { UserData } from "../domains/entities";
+import { UserData, Sto } from "../domains/entities";
 import { Snack } from "./snack";
 import { TopicListItem } from "./topic-list-item";
+import { RA } from "../prelude";
 
 interface TopicFavoProps {
   userData: UserData;
@@ -25,7 +26,10 @@ export class TopicFavo extends React.Component<TopicFavoProps, TopicFavoState> {
       <div>
         <G.FindTopicsComponent
           variables={{
-            query: { id: this.props.userData.storage.topicFavo.toArray() },
+            query: {
+              // TODO: readonlyにしたらコピー消す
+              id: RA.toArray(Sto.getTopicFavo(this.props.userData.storage)),
+            },
           }}
         >
           {({ loading, error, data, refetch }) => {

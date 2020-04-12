@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import * as uuid from "uuid";
 import * as G from "../generated/graphql";
 import { useUserContext } from "../hooks";
-import { ng } from "../domains/entities";
+import { ng, Sto } from "../domains/entities";
 import {
   Card,
   CardContent,
@@ -47,7 +47,7 @@ export const Res = (props: ResProps) => {
   return user.value !== null &&
     !props.res.self &&
     !disableNG &&
-    user.value.storage.ng.some(x => ng.isNG(x, props.res)) ? (
+    Sto.getNG(user.value.storage).some(x => ng.isNG(x, props.res)) ? (
     <Card>
       あぼーん<a onClick={() => setDisableNG(true)}>[見る]</a>
     </Card>
@@ -234,23 +234,20 @@ export const Res = (props: ResProps) => {
                     if (user.value !== null) {
                       user.update({
                         ...user.value,
-                        storage: {
-                          ...user.value.storage,
-                          ng: user.value.storage.ng.insert(0, {
+                        storage: Sto.addNG({
+                          id: uuid.v4(),
+                          name: `HASH:${props.res.hash}`,
+                          topic: props.res.topic.id,
+                          date: new Date(),
+                          expirationDate: null,
+                          chain: 1,
+                          transparent: false,
+                          node: {
+                            type: "hash",
                             id: uuid.v4(),
-                            name: `HASH:${props.res.hash}`,
-                            topic: props.res.topic.id,
-                            date: new Date(),
-                            expirationDate: null,
-                            chain: 1,
-                            transparent: false,
-                            node: {
-                              type: "hash",
-                              id: uuid.v4(),
-                              hash: props.res.hash,
-                            },
-                          }),
-                        },
+                            hash: props.res.hash,
+                          },
+                        })(user.value.storage),
                       });
                     }
                   }}
@@ -267,23 +264,20 @@ export const Res = (props: ResProps) => {
                       ) {
                         user.update({
                           ...user.value,
-                          storage: {
-                            ...user.value.storage,
-                            ng: user.value.storage.ng.insert(0, {
+                          storage: Sto.addNG({
+                            id: uuid.v4(),
+                            name: `Profile:${props.res.profile.id}`,
+                            topic: null,
+                            date: new Date(),
+                            expirationDate: null,
+                            chain: 1,
+                            transparent: false,
+                            node: {
+                              type: "profile",
                               id: uuid.v4(),
-                              name: `Profile:${props.res.profile.id}`,
-                              topic: null,
-                              date: new Date(),
-                              expirationDate: null,
-                              chain: 1,
-                              transparent: false,
-                              node: {
-                                type: "profile",
-                                id: uuid.v4(),
-                                profile: props.res.profile.id,
-                              },
-                            }),
-                          },
+                              profile: props.res.profile.id,
+                            },
+                          })(user.value.storage),
                         });
                       }
                     }}

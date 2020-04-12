@@ -18,6 +18,7 @@ import * as G from "../generated/graphql";
 import { useEffectRef, useUserContext } from "../hooks";
 import { Card } from "../styled/card";
 import { queryResultConvert } from "../utils";
+import { Sto } from "../domains/entities";
 
 export const TopicSearchPage = (_props: {}) => {
   const { location, history } = useRouter();
@@ -85,18 +86,15 @@ export const TopicSearchPage = (_props: {}) => {
                 return;
               }
               const storage = user.value.storage;
-              const tf = storage.tagsFavo;
-              const tags = Im.Set(query.tags);
               user.update({
                 ...user.value,
-                storage: {
-                  ...storage,
-                  tagsFavo: tf.has(tags) ? tf.delete(tags) : tf.add(tags),
-                },
+                storage: (Sto.isTagsFavo(query.tags)(storage)
+                  ? Sto.unfavoTags
+                  : Sto.favoTags)(query.tags)(storage),
               });
             }}
           >
-            {user.value.storage.tagsFavo.has(Im.Set(query.tags)) ? (
+            {Sto.isTagsFavo(query.tags)(user.value.storage) ? (
               <FontIcon className="material-icons">star</FontIcon>
             ) : (
               <FontIcon className="material-icons">star_border</FontIcon>

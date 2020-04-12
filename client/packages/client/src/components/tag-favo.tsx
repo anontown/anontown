@@ -1,10 +1,11 @@
 import { routes } from "@anontown/common/lib/route";
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { UserData } from "../domains/entities";
+import { UserData, Sto } from "../domains/entities";
 import { Card } from "../styled/card";
 import { TextTitle } from "../styled/text";
 import { TagsLink } from "./tags-link";
+import { RA } from "../prelude";
 
 interface TagFavoProps {
   userData: UserData;
@@ -18,16 +19,19 @@ export class TagFavo extends React.Component<TagFavoProps, TagFavoState> {
   }
 
   render() {
-    return this.props.userData.storage.tagsFavo.size !== 0 ? (
-      this.props.userData.storage.tagsFavo
-        .map(tags => (
-          <Card key={tags.sort().join(",")}>
+    const tagsFavo = Sto.getTagsFavo(this.props.userData.storage);
+    return tagsFavo.length !== 0 ? (
+      tagsFavo.map(tags => {
+        // TODO: readonlyのまま扱う
+        const sortedTags = RA.toArray(tags).sort();
+        return (
+          <Card key={sortedTags.join(",")}>
             <TextTitle>
-              <TagsLink tags={tags.toArray()} />
+              <TagsLink tags={sortedTags} />
             </TextTitle>
           </Card>
-        ))
-        .toArray()
+        );
+      })
     ) : (
       <Card>
         お気に入りタグがありません。
