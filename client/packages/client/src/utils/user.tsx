@@ -26,7 +26,7 @@ export interface UserProps {
   initUserData: UserData | null;
 }
 
-export const User = (props: UserProps) => {
+export const User = (props: UserProps): JSX.Element => {
   const [userData, setUserData] = React.useState(props.initUserData);
   setAuth(props.initUserData !== null ? props.initUserData.token : null);
   const subjectRef = React.useRef(new rx.Subject<UserData | null>());
