@@ -71,3 +71,12 @@ serve:
 .PHONY: serve-bff-less
 serve-bff-less:
 	skaffold dev --port-forward -p dev -p dev-bff-less
+
+
+.PHONY: restart.client
+restart.client:
+	touch client/restart-dummy/`date +%s%3N`
+
+.PHONY: restart.server
+restart.server:
+	touch server/restart-dummy/`date +%s%3N`
