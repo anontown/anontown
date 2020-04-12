@@ -6,7 +6,7 @@ import { Link, Redirect } from "react-router-dom";
 import { Errors, Page } from "../components";
 import * as G from "../generated/graphql";
 import { useUserContext } from "../hooks";
-import { createUserData } from "../utils";
+import { createUserData } from "../effects";
 
 interface LoginPageProps {}
 

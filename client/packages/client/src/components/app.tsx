@@ -22,7 +22,7 @@ import {
   withRouter,
 } from "react-router-dom";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
-import { UserData } from "../models";
+import { UserData } from "../domains/entities";
 import { BUILD_DATE, Env } from "../env";
 import * as G from "../generated/graphql";
 import { UserContextType } from "../hooks";
@@ -30,11 +30,10 @@ import * as pages from "../pages";
 import {
   createHeaders,
   createUserData,
-  dateFormat,
   getServerStatus,
   gqlClient,
-  User,
-} from "../utils";
+} from "../effects";
+import { dateFormat, User } from "../utils";
 import * as style from "./app.scss";
 import { PopupMenu } from "./popup-menu";
 
@@ -102,12 +101,12 @@ export const App = withRouter(
             headers: createHeaders(token.id, token.key),
           },
         });
-        if ((res.data.token.__typename as string) === "TokenGeneral") {
+        if (res.data.token.__typename === "TokenGeneral") {
           throw Error();
         }
         this.setState({
           initUserData: await createUserData(
-            res.data.token as G.TokenMasterFragment,
+            res.data.token as G.TokenMasterFragment, // TODO: ここのキャストおかしい
           ),
         });
       } catch {

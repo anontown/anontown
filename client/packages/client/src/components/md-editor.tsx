@@ -2,7 +2,7 @@ import { FontIcon, IconButton, MenuItem } from "material-ui";
 import * as React from "react";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
-import { imgur } from "../utils";
+import { imgur } from "../effects";
 import { Errors } from "./errors";
 import { Md } from "./md";
 import { Modal } from "./modal";

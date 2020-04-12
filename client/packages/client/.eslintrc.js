@@ -51,17 +51,10 @@ module.exports = {
         hoist: "all",
       },
     ],
-    "no-underscore-dangle": [
+    "no-constant-condition": [
       "error",
       {
-        allow: [
-          "__typename",
-          "__ENV__",
-          "__RAW_ENV__",
-          "__BUILD_DATE__",
-          "__MODE__",
-          "__ENABLE_BFF__",
-        ],
+        checkLoops: false,
       },
     ],
     "no-unsafe-finally": "error",

@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import * as uuid from "uuid";
 import * as G from "../generated/graphql";
 import { useUserContext } from "../hooks";
-import { ng } from "../models";
+import { ng } from "../domains/entities";
 import {
   Card,
   CardContent,

@@ -6,8 +6,8 @@ import {
   toJSON,
   toStorage,
   verArray,
-} from "../models";
-import { createHeaders, gqlClient } from "../utils";
+} from "../domains/entities";
+import { createHeaders, gqlClient } from "../effects";
 
 export async function load(token: G.TokenMasterFragment) {
   const storages = await gqlClient.query<

@@ -1,5 +1,7 @@
-export { eqString, eqNumber, eqBoolean, Eq } from "fp-ts/lib/Eq";
-export { ordBoolean, ordString, ordNumber, Ord } from "fp-ts/lib/Ord";
+export { Eq } from "fp-ts/lib/Eq";
+export * as EqT from "fp-ts/lib/Eq";
+export { Ord } from "fp-ts/lib/Ord";
+export * as OrdT from "fp-ts/lib/Ord";
 export * as RA from "fp-ts/lib/ReadonlyArray";
 export * as RM from "fp-ts/lib/ReadonlyMap";
 export * as RS from "fp-ts/lib/ReadonlySet";
