@@ -51,19 +51,6 @@ module.exports = {
         hoist: "all",
       },
     ],
-    "no-underscore-dangle": [
-      "error",
-      {
-        allow: [
-          "__typename",
-          "__ENV__",
-          "__RAW_ENV__",
-          "__BUILD_DATE__",
-          "__MODE__",
-          "__ENABLE_BFF__",
-        ],
-      },
-    ],
     "no-unsafe-finally": "error",
     "no-unused-expressions": "error",
     "no-var": "error",
