@@ -51,6 +51,12 @@ module.exports = {
         hoist: "all",
       },
     ],
+    "no-constant-condition": [
+      "error",
+      {
+        checkLoops: false,
+      },
+    ],
     "no-unsafe-finally": "error",
     "no-unused-expressions": "error",
     "no-var": "error",
