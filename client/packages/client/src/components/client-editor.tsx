@@ -37,8 +37,8 @@ export function ClientEditor(props: ClientEditorProps) {
               url,
             },
           });
-          if (props.onUpdate !== undefined && result.data !== undefined) {
-            props.onUpdate(result.data.updateClient);
+          if (result.data !== undefined) {
+            props.onUpdate?.(result.data.updateClient);
           }
         }}
         label="OK"

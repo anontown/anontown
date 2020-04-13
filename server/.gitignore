@@ -2,3 +2,5 @@
 /packages/*/node_modules/
 .tsbuildinfo
 *.tsbuildinfo
+/restart-dummy/*
+!/restart-dummy/.gitkeep

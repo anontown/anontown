@@ -1,4 +1,4 @@
-import { array, option } from "fp-ts";
+import { option } from "fp-ts";
 import { Paper } from "material-ui";
 import * as React from "react";
 import { useTitle } from "react-use";
@@ -6,7 +6,7 @@ import useRouter from "use-react-router";
 import { Page, Profile, Snack } from "../components";
 import * as G from "../generated/graphql";
 import { withModal } from "../utils";
-import { pipe } from "../prelude";
+import { pipe, RA } from "../prelude";
 
 interface ProfileBaseProps {
   zDepth?: number;
@@ -23,7 +23,7 @@ function ProfileBase(props: ProfileBaseProps) {
       profilesResult.data,
       option.fromNullable,
       option.map(x => x.profiles),
-      option.chain(array.head),
+      option.chain(RA.head),
       option.map(x => `@${x.sn}`),
       option.getOrElse(() => "プロフィール"),
     ),
@@ -38,7 +38,7 @@ function ProfileBase(props: ProfileBaseProps) {
       {profilesResult.data !== undefined
         ? pipe(
             profilesResult.data.profiles,
-            array.head,
+            RA.head,
             option.map(p => (
               <Paper zDepth={props.zDepth} key={p.id}>
                 <Profile profile={p} />

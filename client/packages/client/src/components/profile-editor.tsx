@@ -48,9 +48,7 @@ export const ProfileEditor = (props: ProfileEditorProps) => {
           onClick={() =>
             submit()
               .then(data => {
-                if (props.onUpdate) {
-                  props.onUpdate(data.data!.updateProfile);
-                }
+                props.onUpdate?.(data.data!.updateProfile);
                 setErrors([]);
               })
               .catch(_e => {

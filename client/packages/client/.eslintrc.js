@@ -58,7 +58,8 @@ module.exports = {
       },
     ],
     "no-unsafe-finally": "error",
-    "no-unused-expressions": "error",
+    "no-unused-expressions": "off",
+    "@typescript-eslint/no-unused-expressions": "error",
     "no-var": "error",
     "prefer-const": "error",
     // strict-type-predicates入れたい: https://github.com/typescript-eslint/typescript-eslint/pull/738
@@ -73,6 +74,13 @@ module.exports = {
       },
     ],
     "@typescript-eslint/require-await": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": [
+      "warn", // そのうちerrorに
+      {
+        allowHigherOrderFunctions: true,
+      },
+    ],
   },
   settings: {
     react: {

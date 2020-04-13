@@ -1,12 +1,5 @@
 import * as G from "../generated/graphql";
-import {
-  convert,
-  initStorage,
-  Storage,
-  toJSON,
-  toStorage,
-  verArray,
-} from "../domains/entities";
+import { Storage, Sto } from "../domains/entities";
 import { createHeaders, gqlClient } from "../effects";
 
 export async function load(token: G.TokenMasterFragment) {
@@ -20,19 +13,21 @@ export async function load(token: G.TokenMasterFragment) {
       headers: createHeaders(token.id, token.key),
     },
   });
-  const key = [...verArray, "main"].find(
+  const key = [...Sto.verArray, "main"].find(
     ver => storages.data.storages.findIndex(x => x.key === ver) !== -1,
   );
   const sto = storages.data.storages.find(x => x.key === key);
-  return toStorage(
-    await convert(sto !== undefined ? JSON.parse(sto.value) : initStorage),
+  return Sto.toStorage(
+    await Sto.convert(
+      sto !== undefined ? JSON.parse(sto.value) : Sto.initStorage,
+    ),
   );
 }
 
 export function useSave() {
   const [submit] = G.useSetStorageMutation();
   return (storage: Storage) => {
-    const json = toJSON(storage);
+    const json = Sto.toJSON(storage);
     return submit({
       variables: {
         key: json.ver,

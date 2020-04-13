@@ -18,10 +18,12 @@ COPY bin/ bin/
 
 FROM base as dev
 
+COPY restart-dummy ./restart-dummy
 CMD ./bin/start-watch.sh
 
 FROM base as dev-bff-less
 
+COPY restart-dummy ./restart-dummy
 CMD ./bin/start-watch-bff-less.sh
 
 FROM base

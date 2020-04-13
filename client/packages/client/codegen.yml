@@ -4,11 +4,9 @@ documents: "./src/**/*.gql"
 generates:
   src/generated/graphql.tsx:
     plugins:
-      - "typescript":
-          nonOptionalTypename: true
+      - "typescript"
       - "typescript-react-apollo"
-      - "typescript-operations":
-          nonOptionalTypename: true
+      - "typescript-operations"
   src/generated/graphql.d.ts:
     plugins:
       - "typescript-graphql-files-modules"
@@ -16,6 +14,8 @@ generates:
     plugins:
       - "fragment-matcher"
 config:
+  immutableTypes: true
+  nonOptionalTypename: true
   scalars:
     DateTime: string
   withHooks: true

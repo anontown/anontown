@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import * as style from "./tags-link.scss";
 
 export interface TagsLinkProps {
-  tags: Array<string>;
+  tags: ReadonlyArray<string>;
   mini?: boolean;
 }
 

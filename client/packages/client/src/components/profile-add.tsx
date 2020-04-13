@@ -41,8 +41,8 @@ export function ProfileAdd(props: ProfileAddProps) {
             const result = await submit({
               variables: { name, text, sn },
             });
-            if (result.data !== undefined && props.onAdd !== undefined) {
-              props.onAdd(result.data.createProfile);
+            if (result.data !== undefined) {
+              props.onAdd?.(result.data.createProfile);
             }
           }}
           label="OK"

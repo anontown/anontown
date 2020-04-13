@@ -1,5 +1,7 @@
 import * as qs from "query-string";
 import { LocationDescriptorObject } from "history";
+import * as RA from "fp-ts/lib/ReadonlyRecord";
+import { ReadonlyRecord } from "fp-ts/lib/ReadonlyRecord";
 
 export type PathDataElementConst = { type: "const"; value: string };
 export type PathDataElementVariable<T extends string> = {
@@ -11,7 +13,7 @@ export type PathDataElement<T extends string> =
   | PathDataElementConst
   | PathDataElementVariable<T>;
 
-export type PathData<T extends string> = PathDataElement<T>[];
+export type PathData<T extends string> = readonly PathDataElement<T>[];
 
 function pathDataToString<T extends string>(
   pathData: PathData<T>,
@@ -31,7 +33,7 @@ function pathDataToString<T extends string>(
 
 function pathDataToPath<T extends string>(
   pathData: PathData<T>,
-  params: Record<T, string>
+  params: ReadonlyRecord<T, string>
 ): string {
   return pathDataToString(pathData, (name) => encodeURIComponent(params[name]));
 }
@@ -59,11 +61,14 @@ export class PathDataBuilder<T extends string> {
   }
 }
 
-export type ParsedQueryValue = string | string[] | null | undefined;
+export type ParsedQueryValue = string | readonly string[] | null | undefined;
 
 type RouteDataToParamNames<T> = T extends RouteData<infer P, any> ? P : never;
 
-export type RouteDataToParams<T> = Record<RouteDataToParamNames<T>, string>;
+export type RouteDataToParams<T> = ReadonlyRecord<
+  RouteDataToParamNames<T>,
+  string
+>;
 
 export class RouteData<P extends string, Q extends object> {
   static encodeOne = (x: ParsedQueryValue): string | undefined => {
@@ -78,7 +83,7 @@ export class RouteData<P extends string, Q extends object> {
     return x[0];
   };
 
-  static encodeArray = (x: ParsedQueryValue): string[] => {
+  static encodeArray = (x: ParsedQueryValue): readonly string[] => {
     if (x === null || x === undefined) {
       return [];
     }
@@ -92,8 +97,12 @@ export class RouteData<P extends string, Q extends object> {
 
   constructor(
     public pathData: PathData<P>,
-    public encodeQuery: (query: qs.ParsedQuery) => Q,
-    public decodeQuery: (query: Partial<Q>) => qs.ParsedQuery
+    public encodeQuery: (
+      query: ReadonlyRecord<string, string | readonly string[]>
+    ) => Q,
+    public decodeQuery: (
+      query: Partial<Q>
+    ) => ReadonlyRecord<string, string | readonly string[]>
   ) {}
 
   static create<P extends string>(
@@ -108,8 +117,12 @@ export class RouteData<P extends string, Q extends object> {
 
   static createWithQuery<P extends string, Q extends object>(
     pathDataBuilder: PathDataBuilder<P>,
-    encodeQuery: (query: qs.ParsedQuery) => Q,
-    decodeQuery: (query: Partial<Q>) => qs.ParsedQuery
+    encodeQuery: (
+      query: ReadonlyRecord<string, string | readonly string[]>
+    ) => Q,
+    decodeQuery: (
+      query: Partial<Q>
+    ) => ReadonlyRecord<string, string | readonly string[]>
   ): RouteData<P, Q> {
     return new RouteData(pathDataBuilder.value, encodeQuery, decodeQuery);
   }
@@ -119,7 +132,7 @@ export class RouteData<P extends string, Q extends object> {
   }
 
   to(
-    params: Record<P, string>,
+    params: ReadonlyRecord<P, string>,
     {
       query,
       state,
@@ -137,10 +150,15 @@ export class RouteData<P extends string, Q extends object> {
   }
 
   parseQuery(query: string): Q {
-    return this.encodeQuery(qs.parse(query));
+    return this.encodeQuery(
+      RA.filter(
+        (x): x is ReadonlyArray<string> | string =>
+          Array.isArray(x) || typeof x === "string"
+      )(qs.parse(query))
+    );
   }
 
-  parsePathData(data: string[]): Record<P, string> {
+  parsePathData(data: readonly string[]): ReadonlyRecord<P, string> {
     return this.pathData
       .filter((x): x is PathDataElementVariable<any> => x.type === "variable")
       .reduce<any>((result, x, i) => {

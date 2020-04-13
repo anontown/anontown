@@ -13,7 +13,6 @@
     "rootDir": "./src",
     "esModuleInterop": true,
     "noEmitOnError": true,
-    "incremental": true
   },
   "include": [
     "src/**/*.ts",

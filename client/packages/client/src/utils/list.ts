@@ -1,7 +1,10 @@
 import { arrayImSet } from "@kgtkr/utils";
 import * as Im from "immutable";
 
-export function update<T extends { id: string }>(list: Array<T>, item: T) {
+export function update<T extends { id: string }>(
+  list: Array<T>,
+  item: T,
+): Array<T> {
   const index = list.findIndex(x => x.id === item.id);
   if (index !== -1) {
     return arrayImSet(index, item)(list);
@@ -10,7 +13,10 @@ export function update<T extends { id: string }>(list: Array<T>, item: T) {
   }
 }
 
-export function updateIm<T extends { id: string }>(list: Im.List<T>, item: T) {
+export function updateIm<T extends { id: string }>(
+  list: Im.List<T>,
+  item: T,
+): Im.List<T> {
   const index = list.findIndex(x => x.id === item.id);
   if (index !== -1) {
     return list.set(index, item);

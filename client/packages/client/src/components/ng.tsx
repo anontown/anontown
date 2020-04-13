@@ -1,7 +1,6 @@
 import { FontIcon, IconButton, List, ListItem } from "material-ui";
 import * as React from "react";
-import { ng, Storage, UserData } from "../domains/entities";
-import { list } from "../utils";
+import { ng, Storage, UserData, Sto } from "../domains/entities";
 import { Modal } from "./modal";
 import { NGEditor } from "./ng-editor";
 
@@ -27,29 +26,22 @@ export class NG extends React.Component<NGProps, NGState> {
       <div>
         <IconButton
           onClick={() =>
-            this.props.onChangeStorage({
-              ...this.props.userData.storage,
-              ng: this.props.userData.storage.ng.insert(
-                0,
-                ng.createDefaultNG(),
-              ),
-            })
+            this.props.onChangeStorage(
+              Sto.addNG(ng.createDefaultNG())(this.props.userData.storage),
+            )
           }
         >
           <FontIcon className="material-icons">add_circle</FontIcon>
         </IconButton>
         <List>
-          {this.props.userData.storage.ng.map(node => (
+          {Sto.getNG(this.props.userData.storage).map(node => (
             <ListItem
               rightIconButton={
                 <IconButton
                   onClick={() =>
-                    this.props.onChangeStorage({
-                      ...this.props.userData.storage,
-                      ng: this.props.userData.storage.ng.filter(
-                        x => x.id !== node.id,
-                      ),
-                    })
+                    this.props.onChangeStorage(
+                      Sto.removeNG(node.id)(this.props.userData.storage),
+                    )
                   }
                 >
                   <FontIcon className="material-icons">close</FontIcon>
@@ -67,10 +59,9 @@ export class NG extends React.Component<NGProps, NGState> {
                 <NGEditor
                   ng={node}
                   onUpdate={v =>
-                    this.props.onChangeStorage({
-                      ...this.props.userData.storage,
-                      ng: list.updateIm(this.props.userData.storage.ng, v),
-                    })
+                    this.props.onChangeStorage(
+                      Sto.updateNG(v)(this.props.userData.storage),
+                    )
                   }
                 />
               </Modal>

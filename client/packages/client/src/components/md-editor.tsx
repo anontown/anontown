@@ -52,9 +52,7 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
       .subscribe(
         tags => {
           this.setState({ slowImage: false, oekakiErrors: undefined });
-          if (this.props.onChange) {
-            this.props.onChange(this.props.value + tags);
-          }
+          this.props.onChange?.(this.props.value + tags);
         },
         () => {
           this.setState({ imageErrors: ["アップロードに失敗しました"] });

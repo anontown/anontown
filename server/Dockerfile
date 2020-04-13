@@ -31,6 +31,7 @@ COPY bin/ bin/
 
 FROM base as dev
 
+COPY restart-dummy ./restart-dummy
 CMD ./bin/start-watch.sh
 
 FROM base
