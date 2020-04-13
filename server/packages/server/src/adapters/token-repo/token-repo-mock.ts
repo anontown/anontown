@@ -5,7 +5,7 @@ import { ITokenRepo } from "../../ports";
 import { fromToken, ITokenDB, toToken } from "./itoken-db";
 
 export class TokenRepoMock implements ITokenRepo {
-  private tokens: ITokenDB[] = [];
+  private tokens: Array<ITokenDB> = [];
 
   async findOne(id: string): Promise<Token> {
     const token = this.tokens.find(x => x._id.toHexString() === id);
@@ -16,7 +16,7 @@ export class TokenRepoMock implements ITokenRepo {
     return toToken(token);
   }
 
-  async findAll(authToken: IAuthTokenMaster): Promise<Token[]> {
+  async findAll(authToken: IAuthTokenMaster): Promise<Array<Token>> {
     const tokens = this.tokens
       .filter(x => x.user.toHexString() === authToken.user)
       .sort((a, b) => b.date.valueOf() - a.date.valueOf());

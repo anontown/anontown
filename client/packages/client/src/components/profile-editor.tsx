@@ -1,7 +1,7 @@
 import { RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import * as G from "../generated/graphql";
-import { UserData } from "../models";
+import { UserData } from "../domains/entities";
 import { Card } from "../styled/card";
 import { Errors } from "./errors";
 import { MdEditor } from "./md-editor";
@@ -14,7 +14,7 @@ interface ProfileEditorProps {
 }
 
 export const ProfileEditor = (props: ProfileEditorProps) => {
-  const [errors, setErrors] = React.useState<string[]>([]);
+  const [errors, setErrors] = React.useState<Array<string>>([]);
   const [sn, setSn] = React.useState(props.profile.sn);
   const [name, setName] = React.useState(props.profile.name);
   const [text, setText] = React.useState(props.profile.text);
@@ -48,9 +48,7 @@ export const ProfileEditor = (props: ProfileEditorProps) => {
           onClick={() =>
             submit()
               .then(data => {
-                if (props.onUpdate) {
-                  props.onUpdate(data.data!.updateProfile);
-                }
+                props.onUpdate?.(data.data!.updateProfile);
                 setErrors([]);
               })
               .catch(_e => {

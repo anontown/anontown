@@ -2,7 +2,7 @@ import { FontIcon, IconButton, MenuItem } from "material-ui";
 import * as React from "react";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
-import { imgur } from "../utils";
+import { imgur } from "../effects";
 import { Errors } from "./errors";
 import { Md } from "./md";
 import { Modal } from "./modal";
@@ -23,8 +23,8 @@ export interface MdEditorProps {
 }
 
 interface MdEditorState {
-  oekakiErrors?: string[];
-  imageErrors?: string[];
+  oekakiErrors?: Array<string>;
+  imageErrors?: Array<string>;
   slowOekaki: boolean;
   slowImage: boolean;
   showPreview: boolean;
@@ -42,7 +42,7 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
     };
   }
 
-  upload(datas: FormData[]) {
+  upload(datas: Array<FormData>) {
     rx.of(...datas)
       .pipe(
         op.mergeMap(form => imgur.upload(form)),
@@ -52,9 +52,7 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
       .subscribe(
         tags => {
           this.setState({ slowImage: false, oekakiErrors: undefined });
-          if (this.props.onChange) {
-            this.props.onChange(this.props.value + tags);
-          }
+          this.props.onChange?.(this.props.value + tags);
         },
         () => {
           this.setState({ imageErrors: ["アップロードに失敗しました"] });
@@ -68,7 +66,7 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
         onPaste={e => {
           const items = e.clipboardData.items;
           const datas = Array.from(items)
-            .filter(x => x.type.indexOf("image") !== -1)
+            .filter(x => x.type.includes("image"))
             .map(x => x.getAsFile())
             .filter<File>((x): x is File => x !== null)
             .map(x => {

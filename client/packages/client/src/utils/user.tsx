@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as rx from "rxjs";
 import * as op from "rxjs/operators";
-import { UserData } from "src/models";
+import { UserData } from "../domains/entities";
 import * as G from "../generated/graphql";
 import {
   useEffectRef,
@@ -9,19 +9,26 @@ import {
   UserContext,
   UserContextType,
 } from "../hooks";
-import { useSave } from "./storage-api";
+import { useSave } from "../effects/storage-api";
 
 // TODO: 最悪な実装なのであとで何とかする
-export let auth: G.TokenMasterFragment | null = null;
+let _auth: G.TokenMasterFragment | null = null;
+function setAuth(auth: G.TokenMasterFragment | null) {
+  _auth = auth;
+}
+
+export function getAuth(): G.TokenMasterFragment | null {
+  return _auth;
+}
 
 export interface UserProps {
   children: (user: UserContextType) => React.ReactNode;
   initUserData: UserData | null;
 }
 
-export const User = (props: UserProps) => {
+export const User = (props: UserProps): JSX.Element => {
   const [userData, setUserData] = React.useState(props.initUserData);
-  auth = props.initUserData !== null ? props.initUserData.token : null;
+  setAuth(props.initUserData !== null ? props.initUserData.token : null);
   const subjectRef = React.useRef(new rx.Subject<UserData | null>());
   useEffectSkipN(() => {
     subjectRef.current.next(userData);
@@ -69,7 +76,7 @@ export const User = (props: UserProps) => {
     value: userData,
     update: x => {
       setUserData(x);
-      auth = x !== null ? x.token : null;
+      setAuth(x !== null ? x.token : null);
     },
   };
 

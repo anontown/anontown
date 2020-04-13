@@ -1,28 +1,23 @@
 {
   "compilerOptions": {
+    "target": "ES2015",
     "module": "commonjs",
-    "sourceMap": true,
-    "target": "es6",
     "lib": [
       "es2015",
       "es2016",
       "esnext.asynciterable"
     ],
+    "declaration": true,
     "outDir": "./dist",
-    "rootDirs": [
-      "./src"
-    ],
-    "skipLibCheck": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "rootDir": "./src",
     "strict": true,
-    "noImplicitAny": true,
-    "moduleResolution": "node",
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noUnusedParameters": true,
-    "noUnusedLocals": true,
     "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true
+    "esModuleInterop": true,
+    "noEmitOnError": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
   }
 }

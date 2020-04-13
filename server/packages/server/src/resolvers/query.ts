@@ -8,9 +8,11 @@ export const query: G.QueryResolvers = {
     return (await context.ports.userRepo.findOne(args.id)).sn;
   },
   user: async (_obj, _args, context, _info) => {
-    return (await context.ports.userRepo.findOne(
-      context.ports.authContainer.getToken().user,
-    )).toAPI();
+    return (
+      await context.ports.userRepo.findOne(
+        context.ports.authContainer.getToken().user,
+      )
+    ).toAPI();
   },
   clients: async (_obj, args, context, _info) => {
     const clients = await context.ports.clientRepo.find(

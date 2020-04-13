@@ -14,7 +14,7 @@ export interface IHistoryAPI {
   readonly id: string;
   readonly topicID: string;
   readonly title: string;
-  readonly tags: string[];
+  readonly tags: Array<string>;
   readonly text: string;
   readonly date: string;
   readonly hash: string;
@@ -26,7 +26,7 @@ export class History extends Copyable<History> {
     objidGenerator: IObjectIdGenerator,
     topicID: string,
     title: string,
-    tags: string[],
+    tags: Array<string>,
     text: string,
     date: Date,
     hash: string,

@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "bff"
+    },
+    {
+      "path": "client"
+    },
+    {
+      "path": "common"
+    }
+  ]
+}

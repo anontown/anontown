@@ -1,4 +1,4 @@
-import { routes } from "@anontown/common/dist/route";
+import { routes } from "@anontown/common/lib/route";
 import { Paper, RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
@@ -6,14 +6,16 @@ import { Link, Redirect } from "react-router-dom";
 import { Errors, Page } from "../components";
 import * as G from "../generated/graphql";
 import { useUserContext } from "../hooks";
-import { createUserData } from "../utils";
+import { createUserData } from "../effects";
 
 interface LoginPageProps {}
 
 export const LoginPage = (_props: LoginPageProps) => {
   const [sn, setSn] = React.useState("");
   const [pass, setPass] = React.useState("");
-  const [errors, setErrors] = React.useState<string[] | undefined>(undefined);
+  const [errors, setErrors] = React.useState<Array<string> | undefined>(
+    undefined,
+  );
   const userContext = useUserContext();
   const [submit] = G.useCreateTokenMasterMutation();
 
@@ -56,8 +58,9 @@ export const LoginPage = (_props: LoginPageProps) => {
                     });
                     if (token.data !== undefined) {
                       userContext.update(
-                        await createUserData(token.data
-                          .createTokenMaster as G.TokenMasterFragment),
+                        await createUserData(
+                          token.data.createTokenMaster as G.TokenMasterFragment,
+                        ),
                       );
                     }
                   } catch {

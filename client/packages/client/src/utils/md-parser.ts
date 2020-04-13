@@ -1,12 +1,9 @@
-import * as breaks from "remark-breaks";
-import * as markdown from "remark-parse";
-import * as unified from "unified";
+import breaks from "remark-breaks";
+import markdown from "remark-parse";
+import unified from "unified";
 
 export function parse(text: string): Root {
-  return unified()
-    .use(markdown)
-    .use(breaks)
-    .parse(text);
+  return unified().use(markdown).use(breaks).parse(text);
 }
 
 export type MdNode =
@@ -30,7 +27,7 @@ export type MdNode =
   | Text;
 
 interface ParentBase {
-  children: MdNode[];
+  children: Array<MdNode>;
 }
 
 interface TextBase {

@@ -1,4 +1,4 @@
-import { routes } from "@anontown/common/dist/route";
+import { routes } from "@anontown/common/lib/route";
 import { Paper, RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import Recaptcha from "react-google-recaptcha";
@@ -8,12 +8,12 @@ import { Errors, Page } from "../components";
 import { Env } from "../env";
 import * as G from "../generated/graphql";
 import { UserContext } from "../hooks";
-import { createUserData } from "../utils";
+import { createUserData } from "../effects";
 
 interface SignupPageState {
   sn: string;
   pass: string;
-  errors?: string[];
+  errors?: Array<string>;
   recaptcha: string | null;
 }
 
@@ -65,6 +65,7 @@ export const SignupPage = class extends React.Component<{}, SignupPageState> {
                     <a
                       target="_blank"
                       href="https://document.anontown.com/terms.html"
+                      rel="noopener noreferrer"
                     >
                       利用規約(10行くらいしかないから読んでね)
                     </a>
@@ -82,8 +83,9 @@ export const SignupPage = class extends React.Component<{}, SignupPageState> {
                     }}
                     onCompleted={async x => {
                       user.update(
-                        await createUserData(x.createUser
-                          .token as G.TokenMasterFragment),
+                        await createUserData(
+                          x.createUser.token as G.TokenMasterFragment,
+                        ),
                       );
                     }}
                     variables={{

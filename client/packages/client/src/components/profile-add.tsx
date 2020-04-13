@@ -1,7 +1,7 @@
 import { RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import * as G from "../generated/graphql";
-import { UserData } from "../models";
+import { UserData } from "../domains/entities";
 import { Card } from "../styled/card";
 import { Errors } from "./errors";
 import { MdEditor } from "./md-editor";
@@ -41,8 +41,8 @@ export function ProfileAdd(props: ProfileAddProps) {
             const result = await submit({
               variables: { name, text, sn },
             });
-            if (result.data !== undefined && props.onAdd !== undefined) {
-              props.onAdd(result.data.createProfile);
+            if (result.data !== undefined) {
+              props.onAdd?.(result.data.createProfile);
             }
           }}
           label="OK"

@@ -4,7 +4,7 @@ import { IAuthContainer } from "../auth-container/index";
 
 export interface IProfileRepo {
   findOne(id: string): Promise<Profile>;
-  find(auth: IAuthContainer, query: G.ProfileQuery): Promise<Profile[]>;
+  find(auth: IAuthContainer, query: G.ProfileQuery): Promise<Array<Profile>>;
   insert(profile: Profile): Promise<void>;
   update(profile: Profile): Promise<void>;
 }

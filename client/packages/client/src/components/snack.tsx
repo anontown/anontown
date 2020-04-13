@@ -9,9 +9,7 @@ export function Snack(props: { msg: string | null; onHide?: () => void }) {
       message={nullUnwrapOr("")(props.msg)}
       autoHideDuration={5000}
       onRequestClose={() => {
-        if (props.onHide) {
-          props.onHide();
-        }
+        props.onHide?.();
       }}
     />
   );

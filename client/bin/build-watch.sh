@@ -1,3 +1,3 @@
 #!/bin/sh -eu
 
-npx lerna run build:watch --parallel --scope=@anontown/client --include-filtered-dependencies
+npx lerna run build:watch --stream --scope=@anontown/client

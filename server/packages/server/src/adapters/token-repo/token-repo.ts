@@ -19,9 +19,9 @@ export class TokenRepo implements ITokenRepo {
     return toToken(token);
   }
 
-  async findAll(authToken: IAuthTokenMaster): Promise<Token[]> {
+  async findAll(authToken: IAuthTokenMaster): Promise<Array<Token>> {
     const db = await Mongo();
-    const tokens: ITokenDB[] = await db
+    const tokens: Array<ITokenDB> = await db
       .collection("tokens")
       .find({ user: new ObjectID(authToken.user) })
       .sort({ date: -1 })

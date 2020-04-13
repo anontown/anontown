@@ -1,4 +1,4 @@
-import { routes } from "@anontown/common/dist/route";
+import { routes } from "@anontown/common/lib/route";
 import * as t from "io-ts";
 import {
   FontIcon,
@@ -22,7 +22,7 @@ import {
   withRouter,
 } from "react-router-dom";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
-import { UserData } from "src/models";
+import { UserData } from "../domains/entities";
 import { BUILD_DATE, Env } from "../env";
 import * as G from "../generated/graphql";
 import { UserContextType } from "../hooks";
@@ -30,11 +30,10 @@ import * as pages from "../pages";
 import {
   createHeaders,
   createUserData,
-  dateFormat,
   getServerStatus,
   gqlClient,
-  User,
-} from "../utils";
+} from "../effects";
+import { dateFormat, User } from "../utils";
 import * as style from "./app.scss";
 import { PopupMenu } from "./popup-menu";
 
@@ -74,6 +73,7 @@ export const App = withRouter(
       const path = prop.location.pathname;
       if (Env.ga !== null) {
         gtag("config", Env.ga.id, {
+          // eslint-disable-next-line @typescript-eslint/camelcase
           page_path: path,
         });
       }
@@ -101,12 +101,13 @@ export const App = withRouter(
             headers: createHeaders(token.id, token.key),
           },
         });
-        if ((res.data.token.__typename as string) === "TokenGeneral") {
+        if (res.data.token.__typename === "TokenGeneral") {
           throw Error();
         }
         this.setState({
-          initUserData: await createUserData(res.data
-            .token as G.TokenMasterFragment),
+          initUserData: await createUserData(
+            res.data.token as G.TokenMasterFragment, // TODO: ここのキャストおかしい
+          ),
         });
       } catch {
         this.setState({ initUserData: null });

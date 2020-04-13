@@ -36,7 +36,7 @@
     "no-shadowed-variable": false,
     "array-type": [
       true,
-      "array"
+      "generic"
     ],
     "strict-type-predicates": true,
     "no-floating-promises": true,

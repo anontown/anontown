@@ -11,7 +11,7 @@ export class ResRepoMock implements IResRepo {
     res: Res;
     count: number;
   }>();
-  private reses: IResDB[] = [];
+  private reses: Array<IResDB> = [];
 
   async findOne(id: string): Promise<Res> {
     const res = this.reses.find(x => x.id === id);
@@ -34,7 +34,7 @@ export class ResRepoMock implements IResRepo {
     this.reses[this.reses.findIndex(x => x.id === res.id)] = fromRes(res);
   }
 
-  async resCount(topicIDs: string[]): Promise<Map<string, number>> {
+  async resCount(topicIDs: Array<string>): Promise<Map<string, number>> {
     return this.reses
       .filter(x => topicIDs.includes(x.body.topic))
       .map(x => x.body.topic)
@@ -44,7 +44,7 @@ export class ResRepoMock implements IResRepo {
       );
   }
 
-  async replyCount(resIDs: string[]): Promise<Map<string, number>> {
+  async replyCount(resIDs: Array<string>): Promise<Map<string, number>> {
     return this.reses
       .map(x =>
         x.body.type === "normal" && x.body.reply !== null
@@ -62,7 +62,7 @@ export class ResRepoMock implements IResRepo {
     auth: IAuthContainer,
     query: G.ResQuery,
     limit: number,
-  ): Promise<Res[]> {
+  ): Promise<Array<Res>> {
     const notice = query.notice ? auth.getToken().user : null;
     const self = query.self ? auth.getToken().user : null;
     const texts = !isNullish(query.text)
@@ -141,7 +141,7 @@ export class ResRepoMock implements IResRepo {
     // tslint:disable-next-line: no-empty
   }
 
-  private async aggregate(reses: IResDB[]): Promise<Res[]> {
+  private async aggregate(reses: Array<IResDB>): Promise<Array<Res>> {
     const count = await this.replyCount(reses.map(x => x.id));
     return reses.map(r => toRes(r, count.get(r.id) || 0));
   }

@@ -1,7 +1,7 @@
 import { RaisedButton, TextField } from "material-ui";
 import * as React from "react";
 import * as G from "../generated/graphql";
-import { UserData } from "../models";
+import { UserData } from "../domains/entities";
 import { Errors } from "./errors";
 
 interface ClientEditorProps {
@@ -37,8 +37,8 @@ export function ClientEditor(props: ClientEditorProps) {
               url,
             },
           });
-          if (props.onUpdate !== undefined && result.data !== undefined) {
-            props.onUpdate(result.data.updateClient);
+          if (result.data !== undefined) {
+            props.onUpdate?.(result.data.updateClient);
           }
         }}
         label="OK"

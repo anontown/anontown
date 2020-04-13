@@ -1,6 +1,6 @@
 import { Checkbox, TextField } from "material-ui";
 import * as React from "react";
-import { ng } from "../../models";
+import { ng } from "../../domains/entities";
 
 export interface NGMatcherEditorProps {
   matcher: ng.NGNodeTextMatcher;

@@ -27,6 +27,10 @@ build-watch.server:
 build-watch.client:
 	cd client && ./bin/build-watch.sh
 
+.PHONY: build-watch.client-bff
+build-watch.client-bff:
+	cd client && ./bin/build-watch-bff.sh
+
 .PHONY: codegen-watch.server
 codegen-watch.server:
 	cd server && ./bin/codegen-watch.sh
@@ -34,10 +38,6 @@ codegen-watch.server:
 .PHONY: codegen-watch.client
 codegen-watch.client:
 	cd client && ./bin/codegen-watch.sh
-
-.PHONY: build-watch.client-bff
-build-watch.client-bff:
-	cd client && ./bin/build-watch-bff.sh
 
 .PHONY: lint-fix.client
 lint-fix.client:
@@ -71,3 +71,12 @@ serve:
 .PHONY: serve-bff-less
 serve-bff-less:
 	skaffold dev --port-forward -p dev -p dev-bff-less
+
+
+.PHONY: restart.client
+restart.client:
+	touch client/restart-dummy/`date +%s%3N`
+
+.PHONY: restart.server
+restart.server:
+	touch server/restart-dummy/`date +%s%3N`

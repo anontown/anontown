@@ -29,8 +29,8 @@ export class MsgRepo implements IMsgRepo {
     authToken: IAuthToken,
     query: G.MsgQuery,
     limit: number,
-  ): Promise<Msg[]> {
-    const filter: any[] = [
+  ): Promise<Array<Msg>> {
+    const filter: Array<any> = [
       {
         bool: {
           should: [

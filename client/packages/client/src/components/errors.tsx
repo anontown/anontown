@@ -2,7 +2,7 @@ import { FontIcon } from "material-ui";
 import * as React from "react";
 
 export interface ErrorsProps {
-  errors?: string[];
+  errors?: Array<string>;
 }
 
 export const Errors = (props: ErrorsProps) => (

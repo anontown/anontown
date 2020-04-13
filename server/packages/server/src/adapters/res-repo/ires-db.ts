@@ -31,7 +31,7 @@ export interface IResBaseDB<T extends ResType, Body> {
     readonly topic: string;
     readonly date: string;
     readonly user: string;
-    readonly votes: IVote[];
+    readonly votes: Array<IVote>;
     readonly lv: number;
     readonly hash: string;
   } & Body;
@@ -160,20 +160,11 @@ export function fromResBase<T extends ResType>() {
 }
 export function fromResNormal(res: ResNormal): IResNormalDB {
   return fromResBase<"normal">()(res, {
-    name: pipe(
-      res.name,
-      option.toNullable,
-    ),
+    name: pipe(res.name, option.toNullable),
     text: res.text,
-    reply: pipe(
-      res.reply,
-      option.toNullable,
-    ),
+    reply: pipe(res.reply, option.toNullable),
     deleteFlag: res.deleteFlag,
-    profile: pipe(
-      res.profile,
-      option.toNullable,
-    ),
+    profile: pipe(res.profile, option.toNullable),
     age: res.age,
   });
 }

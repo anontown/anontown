@@ -1,4 +1,4 @@
-import { routes } from "@anontown/common/dist/route";
+import { routes } from "@anontown/common/lib/route";
 import { Tab, Tabs } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
@@ -32,7 +32,11 @@ export const HomePage = (_props: HomePageProps) => {
               <Link to={routes.topicSearch.to({})}>トピック一覧</Link>
             </li>
             <li>
-              <a href="https://document.anontown.com/" target="_blank">
+              <a
+                href="https://document.anontown.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 説明書
               </a>
             </li>

@@ -6,7 +6,7 @@ import { IAuthContainer, IProfileRepo } from "../../ports";
 import { fromProfile, IProfileDB, toProfile } from "./jprofile-db";
 
 export class ProfileRepoMock implements IProfileRepo {
-  private profiles: IProfileDB[] = [];
+  private profiles: Array<IProfileDB> = [];
 
   async findOne(id: string): Promise<Profile> {
     const profile = this.profiles.find(x => x._id.toHexString() === id);
@@ -18,7 +18,10 @@ export class ProfileRepoMock implements IProfileRepo {
     return toProfile(profile);
   }
 
-  async find(auth: IAuthContainer, query: G.ProfileQuery): Promise<Profile[]> {
+  async find(
+    auth: IAuthContainer,
+    query: G.ProfileQuery,
+  ): Promise<Array<Profile>> {
     const self = query.self ? auth.getToken().user : null;
     const profiles = this.profiles
       .filter(x => self === null || x.user.toHexString() === self)

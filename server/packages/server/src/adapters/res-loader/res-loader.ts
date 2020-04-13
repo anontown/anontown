@@ -14,7 +14,7 @@ export class ResLoader implements IResLoader {
     return this.loader.load(id);
   }
 
-  loadMany(ids: string[]) {
+  loadMany(ids: Array<string>) {
     return this.loader.loadMany(ids);
   }
 }

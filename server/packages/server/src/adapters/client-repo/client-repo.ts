@@ -26,7 +26,7 @@ export class ClientRepo implements IClientRepo {
   async find(
     authToken: Option<IAuthTokenMaster>,
     query: G.ClientQuery,
-  ): Promise<Client[]> {
+  ): Promise<Array<Client>> {
     if (query.self && option.isNone(authToken)) {
       throw new AtAuthError("認証が必要です");
     }
@@ -38,7 +38,7 @@ export class ClientRepo implements IClientRepo {
     if (!isNullish(query.id)) {
       q._id = { $in: query.id.map(id => new ObjectID(id)) };
     }
-    const clients: IClientDB[] = await db
+    const clients: Array<IClientDB> = await db
       .collection("clients")
       .find(q)
       .sort({ date: -1 })

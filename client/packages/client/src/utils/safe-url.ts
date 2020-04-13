@@ -1,5 +1,5 @@
-export function safeURL(url: string) {
-  if (url.indexOf("javascript:") === 0 || url.indexOf("data:") === 0) {
+export function safeURL(url: string): string {
+  if (url.startsWith("javascript:") || url.startsWith("data:")) {
     return "";
   } else {
     return url;

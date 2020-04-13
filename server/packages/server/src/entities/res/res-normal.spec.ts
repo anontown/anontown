@@ -332,16 +332,10 @@ describe("ResNormal", () => {
       const api = resNormal.toAPI(none);
       expect(api).toEqual({
         ...resNormal.toBaseAPI(none),
-        name: pipe(
-          resNormal.name,
-          option.toNullable,
-        ),
+        name: pipe(resNormal.name, option.toNullable),
         text: resNormal.text,
         replyID: "replyres",
-        profileID: pipe(
-          resNormal.profile,
-          option.toNullable,
-        ),
+        profileID: pipe(resNormal.profile, option.toNullable),
         isReply: null,
       });
     });

@@ -4,7 +4,7 @@ import Popup, { Position } from "reactjs-popup";
 export interface PopupMenuProps {
   trigger: JSX.Element;
   children?: React.ReactNode;
-  position?: Position | Position[];
+  position?: Position | Array<Position>;
 }
 
 export function PopupMenu(props: PopupMenuProps) {

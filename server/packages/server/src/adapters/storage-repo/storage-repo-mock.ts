@@ -9,9 +9,12 @@ import { IStorageRepo } from "../../ports";
 import { fromStorage, IStorageDB, toStorage } from "./isotrage-db";
 
 export class StorageRepoMock implements IStorageRepo {
-  private storages: IStorageDB[] = [];
+  private storages: Array<IStorageDB> = [];
 
-  async find(token: IAuthToken, query: G.StorageQuery): Promise<Storage[]> {
+  async find(
+    token: IAuthToken,
+    query: G.StorageQuery,
+  ): Promise<Array<Storage>> {
     const storages = this.storages
       .filter(
         x =>
@@ -43,10 +46,7 @@ export class StorageRepoMock implements IStorageRepo {
       x =>
         x.user.toHexString() === storage.user &&
         (x.client !== null ? x.client.toHexString() : null) ===
-          pipe(
-            storage.client,
-            option.toNullable,
-          ) &&
+          pipe(storage.client, option.toNullable) &&
         x.key === storage.key,
     );
     if (index === -1) {
@@ -60,10 +60,7 @@ export class StorageRepoMock implements IStorageRepo {
       x =>
         x.user.toHexString() === storage.user &&
         (x.client !== null ? x.client.toHexString() : null) ===
-          pipe(
-            storage.client,
-            option.toNullable,
-          ) &&
+          pipe(storage.client, option.toNullable) &&
         x.key === storage.key,
     );
     this.storages.splice(index, 1);

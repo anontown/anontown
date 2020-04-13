@@ -3,7 +3,9 @@ import * as path from "path";
 import { Mongo } from "./db";
 import { mongoUtils } from "./migration-utils";
 
-export async function runNotExecutedMigrations(): Promise<MigrationModule[]> {
+export async function runNotExecutedMigrations(): Promise<
+  Array<MigrationModule>
+> {
   const executedMigrationNames = new Set(
     (await listMigrations()).map(x => x.name),
   );
@@ -50,7 +52,7 @@ export async function saveMigration(migration: Migration): Promise<void> {
   await db.collection("migrations").insertOne(migration);
 }
 
-export async function listMigrations(): Promise<Migration[]> {
+export async function listMigrations(): Promise<Array<Migration>> {
   await createMigrationsDatabase();
 
   const db = await Mongo();
@@ -73,7 +75,7 @@ export interface MigrationModule {
 
 export async function getMigrationModules(
   ext: string = ".js",
-): Promise<MigrationModule[]> {
+): Promise<Array<MigrationModule>> {
   const dir = path.join(__dirname, "migrations");
   const files = (await fs.readdir(dir))
     .filter(file => file.endsWith(ext))

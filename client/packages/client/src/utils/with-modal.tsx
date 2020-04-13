@@ -6,7 +6,7 @@ export const withModal = <P extends {}>(
   Page: React.ComponentType<P>,
   title: string,
 ) => {
-  return (props: P) => {
+  return (props: P): JSX.Element => {
     const { history } = useRouter();
     const goBack = React.useMemo(
       () => () => {

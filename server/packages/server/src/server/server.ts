@@ -1,7 +1,7 @@
 import { combineResolvers } from "apollo-resolvers";
 import { ApolloServer, gql, IResolvers } from "apollo-server-express";
-import * as cors from "cors";
-import * as express from "express";
+import cors from "cors";
+import express from "express";
 import { either } from "fp-ts";
 import * as fs from "fs-promise";
 import { GraphQLDateTime } from "graphql-iso-date";

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { UserData } from "../models";
+import { UserData } from "../domains/entities";
 
 export interface UserContextType {
   value: UserData | null;
@@ -8,7 +8,6 @@ export interface UserContextType {
 
 export const UserContext = React.createContext<UserContextType>({
   value: null,
-  // tslint:disable-next-line:no-empty
   update: () => {},
 });
 

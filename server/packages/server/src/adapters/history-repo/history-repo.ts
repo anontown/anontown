@@ -48,8 +48,8 @@ export class HistoryRepo implements IHistoryRepo {
     return toHistory({ id: history._id, body: history._source });
   }
 
-  async find(query: G.HistoryQuery, limit: number): Promise<History[]> {
-    const filter: any[] = [];
+  async find(query: G.HistoryQuery, limit: number): Promise<Array<History>> {
+    const filter: Array<any> = [];
     if (!isNullish(query.id)) {
       filter.push({
         terms: {

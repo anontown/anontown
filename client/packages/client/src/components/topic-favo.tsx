@@ -1,11 +1,12 @@
-import { routes } from "@anontown/common/dist/route";
+import { routes } from "@anontown/common/lib/route";
 import { FontIcon, IconButton, Paper } from "material-ui";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import * as G from "../generated/graphql";
-import { UserData } from "../models";
+import { UserData, Sto } from "../domains/entities";
 import { Snack } from "./snack";
 import { TopicListItem } from "./topic-list-item";
+import { RA, pipe, OrdT } from "../prelude";
 
 interface TopicFavoProps {
   userData: UserData;
@@ -25,7 +26,9 @@ export class TopicFavo extends React.Component<TopicFavoProps, TopicFavoState> {
       <div>
         <G.FindTopicsComponent
           variables={{
-            query: { id: this.props.userData.storage.topicFavo.toArray() },
+            query: {
+              id: Sto.getTopicFavo(this.props.userData.storage),
+            },
           }}
         >
           {({ loading, error, data, refetch }) => {
@@ -42,8 +45,14 @@ export class TopicFavo extends React.Component<TopicFavoProps, TopicFavoState> {
                     return <Snack msg="トピック取得に失敗しました" />;
                   }
 
-                  const topics = data.topics.sort((a, b) =>
-                    a.update > b.update ? -1 : a.update < b.update ? 1 : 0,
+                  const topics = pipe(
+                    data.topics,
+                    RA.sortBy([
+                      OrdT.contramap((x: G.TopicFragment) =>
+                        new Date(x.update).valueOf(),
+                      )(OrdT.ordNumber),
+                    ]),
+                    RA.reverse,
                   );
 
                   return (
