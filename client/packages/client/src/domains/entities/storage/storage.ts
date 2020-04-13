@@ -1,11 +1,19 @@
-import * as Im from "immutable";
 import * as N from "../ng";
 import { StorageJSONLatest } from "./storage-json";
 export * from "./storage-json";
 import { Newtype, iso } from "newtype-ts";
 import { list } from "../../../utils";
 import { Option } from "fp-ts/lib/Option";
-import { pipe, O, RA, ReadonlyRecord, RR, flow } from "../../../prelude";
+import {
+  pipe,
+  O,
+  RA,
+  ReadonlyRecord,
+  RR,
+  flow,
+  OrdT,
+  EqT,
+} from "../../../prelude";
 import { Lens } from "monocle-ts";
 
 interface TopicWriteA {
@@ -123,7 +131,7 @@ export const topicReadCountLens: Lens<
 
 interface StorageA {
   readonly topicFavo: ReadonlyArray<string>;
-  readonly tagsFavo: Im.Set<Im.Set<string>>;
+  readonly tagsFavo: ReadonlyArray<ReadonlyArray<string>>;
   readonly topicRead: ReadonlyRecord<string, TopicReadA>;
   readonly topicWrite: ReadonlyRecord<string, TopicWriteA>;
   readonly ng: ReadonlyArray<N.NG>;
@@ -138,7 +146,7 @@ export function getTagsFavo(
   storage: Storage,
 ): ReadonlyArray<ReadonlyArray<string>> {
   const { tagsFavo } = isoStorage.unwrap(storage);
-  return tagsFavo.toArray().map(x => x.toArray());
+  return tagsFavo;
 }
 
 export function getTopicFavo(storage: Storage): ReadonlyArray<string> {
@@ -258,28 +266,46 @@ export function unfavoTopic(id: string) {
 
 export function isTagsFavo(tags: ReadonlyArray<string>) {
   return (storage: Storage): boolean => {
-    return isoStorage.unwrap(storage).tagsFavo.has(Im.Set(tags));
+    return (
+      isoStorage
+        .unwrap(storage)
+        .tagsFavo.findIndex(xs =>
+          RA.getEq(EqT.eqString).equals(
+            RA.sort(OrdT.ordString)(xs),
+            RA.sort(OrdT.ordString)(tags),
+          ),
+        ) !== -1
+    );
   };
 }
 
 export function favoTags(tags: ReadonlyArray<string>) {
-  return isoStorage.modify(storage => ({
-    ...storage,
-    tagsFavo: storage.tagsFavo.add(Im.Set(tags)),
-  }));
+  return flow(
+    unfavoTags(tags),
+    isoStorage.modify(storage => ({
+      ...storage,
+      tagsFavo: RA.cons(tags, storage.tagsFavo),
+    })),
+  );
 }
 
 export function unfavoTags(tags: ReadonlyArray<string>) {
   return isoStorage.modify(storage => ({
     ...storage,
-    tagsFavo: storage.tagsFavo.delete(Im.Set(tags)),
+    tagsFavo: storage.tagsFavo.filter(
+      xs =>
+        !RA.getEq(EqT.eqString).equals(
+          RA.sort(OrdT.ordString)(xs),
+          RA.sort(OrdT.ordString)(tags),
+        ),
+    ),
   }));
 }
 
 export function toStorage(json: StorageJSONLatest): Storage {
   return isoStorage.wrap({
     topicFavo: json.topicFavo,
-    tagsFavo: Im.Set(json.tagsFavo.map(tags => Im.Set(tags))),
+    tagsFavo: json.tagsFavo,
     topicRead: json.topicRead,
     topicWrite: json.topicWrite,
     ng: json.ng.map(x => N.fromJSON(x)),
@@ -293,7 +319,7 @@ export function toJSON(storage: Storage): StorageJSONLatest {
   return {
     ver: "9",
     topicFavo: RA.toArray(topicFavo), // TODO: clone消す
-    tagsFavo: tagsFavo.map(tags => tags.toArray()).toArray(),
+    tagsFavo: tagsFavo.map(tags => RA.toArray(tags)), // TODO: clone消す
     topicRead: topicRead,
     topicWrite: topicWrite,
     ng: ng.map(x => N.toJSON(x)),
