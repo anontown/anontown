@@ -1,3 +1,11 @@
-import { O } from "./fp-ts";
+import { O, Option } from "./fp-ts";
 
 export const foldEffect = O.fold;
+
+export function fromSome<A>(x: Option<A>): A {
+  if (O.isSome(x)) {
+    return x.value;
+  } else {
+    throw new Error("x is None");
+  }
+}
