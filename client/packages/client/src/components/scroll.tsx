@@ -4,7 +4,7 @@ import * as op from "rxjs/operators";
 import { setTimeout } from "timers";
 import * as G from "../generated/graphql";
 import { useEffectRef, useLock, useValueRef } from "../hooks";
-import { pipe, Ord, OrdT, O, RA, ArrayUtils } from "../prelude";
+import { pipe, Ord, OrdT, O, RA, ArrayExtra } from "../prelude";
 
 interface ListItemData {
   id: string;
@@ -295,7 +295,7 @@ function useFetchUtils<T extends ListItemData>(
           });
 
           setData(
-            ArrayUtils.mergeAndUniqSortedArray(ordListItemKey)(
+            ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
               getKeyFromListItemData,
               result,
             )(os),
@@ -317,13 +317,13 @@ function useFetchUtils<T extends ListItemData>(
           });
 
           console.log(
-            ArrayUtils.mergeAndUniqSortedArray(ordListItemKey)(
+            ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
               getKeyFromListItemData,
               result,
             )(os),
           );
           setData(
-            ArrayUtils.mergeAndUniqSortedArray(ordListItemKey)(
+            ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
               getKeyFromListItemData,
               result,
             )(os),
@@ -582,7 +582,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     setData(
       pipe(
         data,
-        ArrayUtils.mergeAndUniqSortedArray(ordListItemKey)(
+        ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
           item => getKeyFromListItemData(item),
           [newData],
         ),
