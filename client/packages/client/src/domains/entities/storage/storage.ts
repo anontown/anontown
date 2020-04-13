@@ -5,14 +5,14 @@ export * from "./storage-json";
 import { Newtype, iso } from "newtype-ts";
 import { list } from "../../../utils";
 import { Option } from "fp-ts/lib/Option";
-import { pipe, O, RA } from "../../../prelude";
+import { pipe, O, RA, ReadonlyRecord, RR } from "../../../prelude";
 import { Lens } from "monocle-ts";
 
 interface TopicWriteA {
   name: string;
   profile: string | null;
   text: string;
-  replyText: Im.Map<string, string>;
+  replyText: ReadonlyRecord<string, string>;
   age: boolean;
 }
 
@@ -25,7 +25,7 @@ const initTopicWrite = isoTopicWrite.wrap({
   name: "",
   profile: null,
   text: "",
-  replyText: Im.Map<string, string>(),
+  replyText: {},
   age: true,
 });
 
@@ -38,7 +38,10 @@ export function getTopicWriteTextLens(
         if (reply === null) {
           return text;
         } else {
-          return replyText.get(reply, "");
+          return pipe(
+            RR.lookup(reply, replyText),
+            O.getOrElse(() => ""),
+          );
         }
       },
       text => topicWrite => {
@@ -50,7 +53,7 @@ export function getTopicWriteTextLens(
         } else {
           return {
             ...topicWrite,
-            replyText: topicWrite.replyText.set(reply, text),
+            replyText: RR.insertAt(reply, text)(topicWrite.replyText),
           };
         }
       },
@@ -121,8 +124,8 @@ export const topicReadCountLens: Lens<
 interface StorageA {
   readonly topicFavo: Im.Set<string>;
   readonly tagsFavo: Im.Set<Im.Set<string>>;
-  readonly topicRead: Im.Map<string, TopicReadA>;
-  readonly topicWrite: Im.Map<string, TopicWriteA>;
+  readonly topicRead: ReadonlyRecord<string, TopicReadA>;
+  readonly topicWrite: ReadonlyRecord<string, TopicWriteA>;
   readonly ng: ReadonlyArray<N.NG>;
 }
 
@@ -172,8 +175,7 @@ export function updateNG(ng: N.NG) {
 export function getTopicRead(id: string) {
   return (storage: Storage): Option<TopicRead> => {
     return pipe(
-      isoStorage.unwrap(storage).topicRead.get(id),
-      O.fromNullable,
+      RR.lookup(id, isoStorage.unwrap(storage).topicRead),
       O.map(isoTopicRead.wrap),
     );
   };
@@ -182,7 +184,7 @@ export function getTopicRead(id: string) {
 export function setTopicRead(id: string, value: TopicRead) {
   return isoStorage.modify(storage => ({
     ...storage,
-    topicRead: storage.topicRead.set(id, isoTopicRead.unwrap(value)),
+    topicRead: RR.insertAt(id, isoTopicRead.unwrap(value))(storage.topicRead),
   }));
 }
 
@@ -205,8 +207,7 @@ export function modifyTopicRead(
 export function getTopicWrite(id: string) {
   return (storage: Storage): TopicWrite => {
     return pipe(
-      isoStorage.unwrap(storage).topicWrite.get(id),
-      O.fromNullable,
+      RR.lookup(id, isoStorage.unwrap(storage).topicWrite),
       O.map(isoTopicWrite.wrap),
       O.getOrElse(() => initTopicWrite),
     );
@@ -216,7 +217,10 @@ export function getTopicWrite(id: string) {
 export function setTopicWrite(id: string, value: TopicWrite) {
   return isoStorage.modify(storage => ({
     ...storage,
-    topicWrite: storage.topicWrite.set(id, isoTopicWrite.unwrap(value)),
+    topicWrite: RR.insertAt(
+      id,
+      isoTopicWrite.unwrap(value),
+    )(storage.topicWrite),
   }));
 }
 
@@ -273,11 +277,8 @@ export function toStorage(json: StorageJSONLatest): Storage {
   return isoStorage.wrap({
     topicFavo: Im.Set(json.topicFavo),
     tagsFavo: Im.Set(json.tagsFavo.map(tags => Im.Set(tags))),
-    topicRead: Im.Map(json.topicRead),
-    topicWrite: Im.Map(json.topicWrite).map(x => ({
-      ...x,
-      replyText: Im.Map(x.replyText),
-    })),
+    topicRead: json.topicRead,
+    topicWrite: json.topicWrite,
     ng: json.ng.map(x => N.fromJSON(x)),
   });
 }
@@ -290,10 +291,8 @@ export function toJSON(storage: Storage): StorageJSONLatest {
     ver: "9",
     topicFavo: topicFavo.toArray(),
     tagsFavo: tagsFavo.map(tags => tags.toArray()).toArray(),
-    topicRead: topicRead.toObject(),
-    topicWrite: topicWrite
-      .map(x => ({ ...x, replyText: x.replyText.toObject() }))
-      .toObject(),
+    topicRead: topicRead,
+    topicWrite: topicWrite,
     ng: ng.map(x => N.toJSON(x)),
   };
 }
