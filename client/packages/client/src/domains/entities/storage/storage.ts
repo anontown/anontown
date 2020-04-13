@@ -122,7 +122,7 @@ export const topicReadCountLens: Lens<
 );
 
 interface StorageA {
-  readonly topicFavo: Im.Set<string>;
+  readonly topicFavo: ReadonlyArray<string>;
   readonly tagsFavo: Im.Set<Im.Set<string>>;
   readonly topicRead: ReadonlyRecord<string, TopicReadA>;
   readonly topicWrite: ReadonlyRecord<string, TopicWriteA>;
@@ -143,7 +143,7 @@ export function getTagsFavo(
 
 export function getTopicFavo(storage: Storage): ReadonlyArray<string> {
   const { topicFavo } = isoStorage.unwrap(storage);
-  return topicFavo.toArray();
+  return topicFavo;
 }
 
 export function addNG(ng: N.NG) {
@@ -235,21 +235,24 @@ export function modifyTopicWrite(
 
 export function isTopicFavo(id: string) {
   return (storage: Storage): boolean => {
-    return isoStorage.unwrap(storage).topicFavo.has(id);
+    return isoStorage.unwrap(storage).topicFavo.findIndex(x => x === id) !== -1;
   };
 }
 
 export function favoTopic(id: string) {
   return isoStorage.modify(storage => ({
     ...storage,
-    topicFavo: storage.topicFavo.add(id),
+    topicFavo: RA.cons(
+      id,
+      storage.topicFavo.filter(x => x !== id),
+    ),
   }));
 }
 
 export function unfavoTopic(id: string) {
   return isoStorage.modify(storage => ({
     ...storage,
-    topicFavo: storage.topicFavo.delete(id),
+    topicFavo: storage.topicFavo.filter(x => x !== id),
   }));
 }
 
@@ -275,7 +278,7 @@ export function unfavoTags(tags: ReadonlyArray<string>) {
 
 export function toStorage(json: StorageJSONLatest): Storage {
   return isoStorage.wrap({
-    topicFavo: Im.Set(json.topicFavo),
+    topicFavo: json.topicFavo,
     tagsFavo: Im.Set(json.tagsFavo.map(tags => Im.Set(tags))),
     topicRead: json.topicRead,
     topicWrite: json.topicWrite,
@@ -289,7 +292,7 @@ export function toJSON(storage: Storage): StorageJSONLatest {
   );
   return {
     ver: "9",
-    topicFavo: topicFavo.toArray(),
+    topicFavo: RA.toArray(topicFavo), // TODO: clone消す
     tagsFavo: tagsFavo.map(tags => tags.toArray()).toArray(),
     topicRead: topicRead,
     topicWrite: topicWrite,
