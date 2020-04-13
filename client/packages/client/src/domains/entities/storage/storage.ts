@@ -2,7 +2,6 @@ import * as N from "../ng";
 import { StorageJSONLatest } from "./storage-json";
 export * from "./storage-json";
 import { Newtype, iso } from "newtype-ts";
-import { list } from "../../../utils";
 import { Option } from "fp-ts/lib/Option";
 import {
   pipe,
@@ -13,6 +12,7 @@ import {
   flow,
   OrdT,
   EqT,
+  ReadonlyArrayExtra,
 } from "../../../prelude";
 import { Lens } from "monocle-ts";
 
@@ -176,7 +176,7 @@ export function removeNG(id: string) {
 export function updateNG(ng: N.NG) {
   return isoStorage.modify(storage => ({
     ...storage,
-    ng: list.update(storage.ng, ng),
+    ng: ReadonlyArrayExtra.update(ng)(storage.ng),
   }));
 }
 

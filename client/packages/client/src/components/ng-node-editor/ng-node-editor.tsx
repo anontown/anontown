@@ -7,14 +7,13 @@ import {
 } from "material-ui";
 import * as React from "react";
 import { ng } from "../../domains/entities";
-import { list } from "../../utils";
 import { Modal } from "../modal";
 import { NGHashNodeEditor } from "./ng-hash-node-editor";
 import { NGNameNodeEditor } from "./ng-name-node-editor";
 import { NGProfileNodeEditor } from "./ng-profile-node-editor";
 import { NGTextNodeEditor } from "./ng-text-node-editor";
 import { NGVoteNodeEditor } from "./ng-vote-node-editor";
-import { RA } from "../../prelude";
+import { RA, ReadonlyArrayExtra } from "../../prelude";
 
 export interface NGNodesEditorState {}
 export interface NGNodesEditorProps {
@@ -50,7 +49,7 @@ export class NGNodesEditor extends React.Component<
   };
 
   handleChangeNode = (x: ng.NGNode) => {
-    this.props.onChange(list.update(this.props.values, x));
+    this.props.onChange(ReadonlyArrayExtra.update(x)(this.props.values));
   };
 
   render() {
