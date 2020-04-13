@@ -16,24 +16,6 @@ export function useEffectSkipN(
   }, deps);
 }
 
-export function useEffectCond(
-  effect: React.EffectCallback,
-  cond = () => true,
-  deps?: React.DependencyList,
-  n = 1,
-) {
-  const countRef = React.useRef(0);
-
-  React.useEffect(() => {
-    if (cond()) {
-      if (countRef.current < n) {
-        countRef.current++;
-        return effect();
-      }
-    }
-  }, deps);
-}
-
 export function useValueRef<T>(val: T) {
   const ref = React.useRef(val);
   React.useEffect(() => {
