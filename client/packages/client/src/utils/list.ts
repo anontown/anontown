@@ -2,9 +2,9 @@ import { arrayImSet } from "@kgtkr/utils";
 import * as Im from "immutable";
 
 export function update<T extends { id: string }>(
-  list: Array<T>,
+  list: ReadonlyArray<T>,
   item: T,
-): Array<T> {
+): ReadonlyArray<T> {
   const index = list.findIndex(x => x.id === item.id);
   if (index !== -1) {
     return arrayImSet(index, item)(list);
