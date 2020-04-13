@@ -34,6 +34,7 @@ lazy val commonSettings = Seq(
 
 val zioVersion = "1.0.0-RC14"
 val monocleVersion = "2.0.0"
+val elastic4sVersion = "7.6.0"
 
 lazy val root = (project in file("."))
   .dependsOn(macros)
@@ -56,7 +57,6 @@ lazy val root = (project in file("."))
       "org.typelevel" %% "cats-effect" % "2.0.0",
       "org.atnos" %% "eff" % "5.5.2",
       "org.typelevel" %% "kittens" % "2.0.0",
-      "org.mongodb.scala" %% "mongo-scala-driver" % "2.7.0",
       "org.typelevel" %% "simulacrum" % "1.0.0",
       "com.github.julien-truffaut" %% "monocle-core" % monocleVersion,
       "com.github.julien-truffaut" %% "monocle-macro" % monocleVersion,
@@ -65,7 +65,12 @@ lazy val root = (project in file("."))
       "org.sangria-graphql" %% "sangria-circe" % "1.3.0",
       "co.fs2" %% "fs2-core" % "2.2.1",
       "co.fs2" %% "fs2-io" % "2.2.1",
-      "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0"
+      "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0",
+      "com.sksamuel.elastic4s" %% "elastic4s-core" % elastic4sVersion,
+      "com.sksamuel.elastic4s" %% "elastic4s-client-esjava" % elastic4sVersion,
+      "com.sksamuel.elastic4s" %% "elastic4s-json-circe" % elastic4sVersion,
+      "com.sksamuel.elastic4s" %% "elastic4s-effect-cats" % elastic4sVersion,
+      "com.github.etaty" %% "rediscala" % "1.9.0"
     ),
     mainClass in assembly := Some("com.anontown.App"),
     assemblyJarName in assembly := "app.jar"
