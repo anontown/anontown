@@ -1,10 +1,10 @@
-import { arrayGet, pipe, undefinedMap } from "@kgtkr/utils";
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import useRouter from "use-react-router";
 import { Page, ProfileEditor } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
+import { pipe, O, RA } from "../prelude";
 type ProfileEditPageProps = UserSwitchProps;
 
 export const ProfileEditPage = userSwitch((props: ProfileEditPageProps) => {
@@ -18,9 +18,12 @@ export const ProfileEditPage = userSwitch((props: ProfileEditPageProps) => {
   });
   queryResultConvert(profiles);
 
-  const profile = pipe(profiles.data)
-    .chain(undefinedMap(x => x.profiles))
-    .chain(undefinedMap(arrayGet(0))).value;
+  const profile = pipe(
+    O.fromNullable(profiles.data),
+    O.map(x => x.profiles),
+    O.chain(RA.head),
+    O.toUndefined,
+  );
 
   return (
     <Page>

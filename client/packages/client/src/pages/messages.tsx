@@ -1,4 +1,3 @@
-import { arrayFirst, arrayLast } from "@kgtkr/utils";
 import { Paper, RaisedButton } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
@@ -10,6 +9,7 @@ import {
   userSwitch,
   UserSwitchProps,
 } from "../utils";
+import { RA, O } from "../prelude";
 
 type MessagesPageProps = UserSwitchProps;
 
@@ -38,15 +38,15 @@ export const MessagesPage = userSwitch((_props: MessagesPageProps) => {
               if (msgs.data === undefined) {
                 return;
               }
-              const first = arrayFirst(msgs.data.msgs);
-              if (first === undefined) {
+              const first = RA.head(msgs.data.msgs);
+              if (O.isNone(first)) {
                 await msgs.refetch();
               } else {
                 msgs.fetchMore({
                   variables: {
                     query: {
                       date: {
-                        date: first.date,
+                        date: first.value.date,
                         type: "gt",
                       },
                     },
@@ -82,15 +82,16 @@ export const MessagesPage = userSwitch((_props: MessagesPageProps) => {
               if (msgs.data === undefined) {
                 return;
               }
-              const last = arrayLast(msgs.data.msgs);
-              if (last === undefined) {
+
+              const last = RA.last(msgs.data.msgs);
+              if (O.isNone(last)) {
                 await msgs.refetch();
               } else {
                 msgs.fetchMore({
                   variables: {
                     query: {
                       date: {
-                        date: last.date,
+                        date: last.value.date,
                         type: "lt",
                       },
                     },

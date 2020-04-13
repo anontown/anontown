@@ -1,6 +1,5 @@
 import { routes } from "@anontown/common/lib/route";
 import { useApolloClient } from "@apollo/react-hooks";
-import { arrayFirst } from "@kgtkr/utils";
 import {
   FontIcon,
   IconButton,
@@ -30,7 +29,7 @@ import * as G from "../generated/graphql";
 import { useFunctionRef, useUserContext } from "../hooks";
 import { queryResultConvert } from "../utils";
 import * as style from "./topic.scss";
-import { pipe, O } from "../prelude";
+import { pipe, O, RA, Monoid_ } from "../prelude";
 import { Sto } from "../domains/entities";
 // TODO:NGのtransparent
 
@@ -126,29 +125,35 @@ export const TopicPage = (_props: {}) => {
       return;
     }
     const storage = user.value.storage;
-    if (date === null) {
-      const storageRes = Sto.getTopicRead(match.params.id)(storage);
-      if (O.isSome(storageRes)) {
-        date = Sto.topicReadDateLens.get(storageRes.value);
-      } else {
-        const first = arrayFirst(items.current);
-        if (first === undefined) {
-          return;
-        }
-        date = first.date;
-      }
+    const odate = pipe(
+      [
+        O.fromNullable(date),
+        pipe(
+          storage,
+          Sto.getTopicRead(match.params.id),
+          O.map(storageRes => Sto.topicReadDateLens.get(storageRes)),
+        ),
+        pipe(
+          items.current,
+          RA.head,
+          O.map(first => first.date),
+        ),
+      ],
+      Monoid_.fold(O.getFirstMonoid()),
+    );
+
+    if (O.isSome(odate)) {
+      user.update({
+        ...user.value,
+        storage: Sto.setTopicRead(
+          topic.id,
+          Sto.makeTopicRead({
+            date: odate.value,
+            count: topic.resCount,
+          }),
+        )(storage),
+      });
     }
-    const dateNonNull = date;
-    user.update({
-      ...user.value,
-      storage: Sto.setTopicRead(
-        topic.id,
-        Sto.makeTopicRead({
-          date: dateNonNull,
-          count: topic.resCount,
-        }),
-      )(storage),
-    });
   }
 
   React.useEffect(() => {

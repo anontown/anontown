@@ -1,5 +1,4 @@
 import { isNullish } from "@kgtkr/utils";
-import * as Im from "immutable";
 import * as uuid from "uuid";
 import * as G from "../../generated/graphql";
 import * as ngJson from "./storage//storage-json/ng-json";
@@ -8,7 +7,7 @@ export function createDefaultNode(): NGNode {
   return {
     id: uuid.v4(),
     type: "and",
-    children: Im.List(),
+    children: [],
   };
 }
 
@@ -48,12 +47,12 @@ function isNodeNG(node: NGNode, res: G.ResFragment): boolean | null {
       return b !== null ? !b : null;
     }
     case "and": {
-      return node.children.size === 0
+      return node.children.length === 0
         ? null
         : node.children.every(x => !!isNodeNG(x, res));
     }
     case "or": {
-      return node.children.size === 0
+      return node.children.length === 0
         ? null
         : node.children.some(x => !!isNodeNG(x, res));
     }
@@ -142,12 +141,12 @@ function toJSONNode(node: NGNode): ngJson.NGNodeJson {
     case "and":
       return {
         type: "and",
-        children: node.children.map(x => toJSONNode(x)).toArray(),
+        children: node.children.map(x => toJSONNode(x)),
       };
     case "or":
       return {
         type: "or",
-        children: node.children.map(x => toJSONNode(x)).toArray(),
+        children: node.children.map(x => toJSONNode(x)),
       };
     case "profile":
       return node;
@@ -192,13 +191,13 @@ function fromJSONNode(node: ngJson.NGNodeJson): NGNode {
       return {
         id: uuid.v4(),
         type: "and",
-        children: Im.List(node.children.map(x => fromJSONNode(x))),
+        children: node.children.map(x => fromJSONNode(x)),
       };
     case "or":
       return {
         id: uuid.v4(),
         type: "or",
-        children: Im.List(node.children.map(x => fromJSONNode(x))),
+        children: node.children.map(x => fromJSONNode(x)),
       };
     case "profile":
       return { id: uuid.v4(), ...node };
@@ -251,13 +250,13 @@ export interface NGNodeNot {
 export interface NGNodeAnd {
   readonly id: string;
   readonly type: "and";
-  readonly children: Im.List<NGNode>;
+  readonly children: ReadonlyArray<NGNode>;
 }
 
 export interface NGNodeOr {
   readonly id: string;
   readonly type: "or";
-  readonly children: Im.List<NGNode>;
+  readonly children: ReadonlyArray<NGNode>;
 }
 
 export interface NGNodeProfile {

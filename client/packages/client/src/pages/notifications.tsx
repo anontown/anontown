@@ -1,4 +1,3 @@
-import { arrayLast } from "@kgtkr/utils";
 import { RaisedButton } from "material-ui";
 import * as React from "react";
 import { Helmet } from "react-helmet";
@@ -6,6 +5,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { Page, Res } from "../components";
 import * as G from "../generated/graphql";
 import { queryResultConvert, userSwitch, UserSwitchProps } from "../utils";
+import { RA, O } from "../prelude";
 
 type NotificationsPageProps = RouteComponentProps<{}> & UserSwitchProps;
 
@@ -36,15 +36,15 @@ export const NotificationsPage = userSwitch(
                 if (reses.data === undefined) {
                   return;
                 }
-                const first = arrayLast(reses.data.reses);
-                if (first === undefined) {
+                const first = RA.last(reses.data.reses);
+                if (O.isNone(first)) {
                   await reses.refetch();
                 } else {
                   reses.fetchMore({
                     variables: {
                       query: {
                         date: {
-                          date: first.date,
+                          date: first.value.date,
                           type: "gt",
                         },
                         notice: true,
@@ -76,15 +76,15 @@ export const NotificationsPage = userSwitch(
                 if (reses.data === undefined) {
                   return;
                 }
-                const last = arrayLast(reses.data.reses);
-                if (last === undefined) {
+                const last = RA.last(reses.data.reses);
+                if (O.isNone(last)) {
                   await reses.refetch();
                 } else {
                   reses.fetchMore({
                     variables: {
                       query: {
                         date: {
-                          date: last.date,
+                          date: last.value.date,
                           type: "lt",
                         },
                         notice: true,

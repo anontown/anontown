@@ -1,4 +1,3 @@
-import { undefinedUnwrapOr } from "@kgtkr/utils";
 import * as chroma from "chroma-js";
 import styled from "styled-components";
 import * as constant from "./constant";
@@ -12,7 +11,7 @@ export const Card = styled.div`
     .css()};
   border-width: 1px;
   padding: ${({ padding }: { padding?: "none" | "normal" }) => {
-    switch (undefinedUnwrapOr<"none" | "normal">("normal")(padding)) {
+    switch (padding ?? "normal") {
       case "none":
         return "0px";
       case "normal":
