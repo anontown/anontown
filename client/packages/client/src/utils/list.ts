@@ -1,13 +1,13 @@
-import { arrayImSet } from "@kgtkr/utils";
+import { RA, pipe, O } from "../prelude";
 
 export function update<T extends { id: string }>(
   list: ReadonlyArray<T>,
   item: T,
 ): ReadonlyArray<T> {
-  const index = list.findIndex(x => x.id === item.id);
-  if (index !== -1) {
-    return arrayImSet(index, item)(list);
-  } else {
-    return list;
-  }
+  return pipe(
+    list,
+    RA.findIndex(x => x.id === item.id),
+    O.chain(i => RA.updateAt(i, item)(list)),
+    O.getOrElse(() => list),
+  );
 }

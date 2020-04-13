@@ -1,4 +1,3 @@
-import { nullUnwrap } from "@kgtkr/utils";
 import { Checkbox, FontIcon, IconButton, Slider } from "material-ui";
 import * as React from "react";
 import { RGBColor } from "react-color";
@@ -14,6 +13,7 @@ import {
   RA,
   HistoryStack,
   HS,
+  unreachable,
 } from "../prelude";
 
 export interface Vector2d {
@@ -63,7 +63,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
   }
 
   getPoint(cx: number, cy: number): [number, number] {
-    const rect = nullUnwrap(this.imgRef.current).getBoundingClientRect();
+    const rect = (this.imgRef.current ?? unreachable()).getBoundingClientRect();
     return [cx - rect.left, cy - rect.top];
   }
 
@@ -180,7 +180,7 @@ export class Oekaki extends React.Component<OekakiProps, OekakiState> {
           <IconButton
             onClick={() => {
               // svg to formdata
-              const img = nullUnwrap(this.imgRef.current);
+              const img = this.imgRef.current ?? unreachable();
               const canvas = document.createElement("canvas");
               canvas.setAttribute("width", this.props.size.x.toString());
               canvas.setAttribute("height", this.props.size.y.toString());

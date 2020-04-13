@@ -1,4 +1,3 @@
-import { undefinedUnwrapOr } from "@kgtkr/utils";
 import * as React from "react";
 
 interface IconProps {
@@ -12,9 +11,7 @@ export function Icon(
   return (
     <i
       {...{ ...props, icon: undefined }}
-      className={
-        "material-icons" + " " + undefinedUnwrapOr("")(props.className)
-      }
+      className={"material-icons" + " " + (props.className ?? "")}
       style={{ userSelect: "none", ...props.style }}
     >
       {props.icon}
