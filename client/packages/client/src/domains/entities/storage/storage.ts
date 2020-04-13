@@ -5,7 +5,7 @@ export * from "./storage-json";
 import { Newtype, iso } from "newtype-ts";
 import { list } from "../../../utils";
 import { Option } from "fp-ts/lib/Option";
-import { pipe, O, RA, ReadonlyRecord, RR } from "../../../prelude";
+import { pipe, O, RA, ReadonlyRecord, RR, flow } from "../../../prelude";
 import { Lens } from "monocle-ts";
 
 interface TopicWriteA {
@@ -240,13 +240,13 @@ export function isTopicFavo(id: string) {
 }
 
 export function favoTopic(id: string) {
-  return isoStorage.modify(storage => ({
-    ...storage,
-    topicFavo: RA.cons(
-      id,
-      storage.topicFavo.filter(x => x !== id),
-    ),
-  }));
+  return flow(
+    unfavoTopic(id),
+    isoStorage.modify(storage => ({
+      ...storage,
+      topicFavo: RA.cons(id, storage.topicFavo),
+    })),
+  );
 }
 
 export function unfavoTopic(id: string) {
