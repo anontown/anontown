@@ -474,7 +474,6 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   const [data, setData] = React.useState<ReadonlyArray<T>>([]);
 
   React.useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     runCmd({ type: "reset", date: props.initDate });
   }, [props.initDate.valueOf(), ...props.fetchKey]);
 

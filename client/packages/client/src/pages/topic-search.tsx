@@ -9,72 +9,125 @@ import {
 import * as React from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
-import * as rx from "rxjs";
-import * as op from "rxjs/operators";
 import useRouter from "use-react-router";
 import { Page, TagsInput, TopicListItem } from "../components";
 import * as G from "../generated/graphql";
-import { useEffectRef, useUserContext } from "../hooks";
+import { useUserContext } from "../hooks";
 import { Card } from "../styled/card";
 import { queryResultConvert } from "../utils";
 import { Sto } from "../domains/entities";
+import { useDebouncedCallback } from "use-debounce";
+import { useOnChnageUrlSearch } from "../hooks/use-on-change-url-search";
+
+interface Query {
+  title: string;
+  tags: ReadonlyArray<string>;
+  dead: boolean;
+}
+
+interface State {
+  query: Query;
+  input: Query;
+}
+
+type Action =
+  | { type: "UPDATE_INPUT_TITLE"; title: string }
+  | { type: "UPDATE_INPUT_TAGS"; tags: ReadonlyArray<string> }
+  | { type: "UPDATE_INPUT_DEAD"; dead: boolean }
+  | { type: "UPDATE_URL_QUERY"; query: Query }
+  | { type: "COMPLETE_INPUT" };
 
 export const TopicSearchPage = (_props: {}) => {
-  const { location, history } = useRouter();
-  const query = routes.topicSearch.parseQuery(location.search);
-  const formChange = React.useRef(new rx.Subject<void>());
-  const [formTitle, setFormTitle] = React.useState(query.title);
-  const [formDead, setFormDead] = React.useState(query.dead);
-  const [formTags, setFormTags] = React.useState<ReadonlyArray<string>>(
-    query.tags,
+  const { history } = useRouter();
+
+  const init = useOnChnageUrlSearch(
+    query => routes.topicSearch.parseQuery(query),
+    query => {
+      dispatch({ type: "UPDATE_URL_QUERY", query: query });
+    },
   );
-  React.useEffect(() => {
-    setFormTitle(query.title);
-    setFormDead(query.dead);
-    setFormTags(query.tags);
-  }, [location.search]);
+
+  const [state, dispatch] = React.useReducer(
+    (prev: State, action: Action): State => {
+      switch (action.type) {
+        case "UPDATE_INPUT_TITLE": {
+          return {
+            ...prev,
+            input: {
+              ...prev.input,
+              title: action.title,
+            },
+          };
+        }
+        case "UPDATE_INPUT_TAGS": {
+          return {
+            ...prev,
+            input: {
+              ...prev.input,
+              tags: action.tags,
+            },
+          };
+        }
+        case "UPDATE_INPUT_DEAD": {
+          return {
+            ...prev,
+            input: {
+              ...prev.input,
+              dead: action.dead,
+            },
+          };
+        }
+        case "COMPLETE_INPUT": {
+          return {
+            ...prev,
+            query: prev.input,
+          };
+        }
+        case "UPDATE_URL_QUERY": {
+          return {
+            ...prev,
+            input: action.query,
+            query: action.query,
+          };
+        }
+      }
+    },
+    {
+      input: init,
+      query: init,
+    },
+  );
+
+  const [onInput] = useDebouncedCallback(() => {
+    dispatch({ type: "COMPLETE_INPUT" });
+    history.push(
+      routes.topicSearch.to(
+        {},
+        {
+          query: {
+            title: state.input.title,
+            dead: state.input.dead,
+            tags: state.input.tags,
+          },
+        },
+      ),
+    );
+  }, 500);
+
   const user = useUserContext();
   const limit = 100;
 
   const topics = G.useFindTopicsQuery({
     variables: {
       query: {
-        title: query.title,
-        tags: query.tags,
-        activeOnly: !query.dead,
+        title: state.query.title,
+        tags: state.query.tags,
+        activeOnly: !state.query.dead,
       },
       limit,
     },
   });
   queryResultConvert(topics);
-
-  useEffectRef(
-    f => {
-      const sub = formChange.current
-        .pipe(op.debounceTime(500))
-        .subscribe(() => {
-          f.current();
-        });
-      return () => {
-        sub.unsubscribe();
-      };
-    },
-    () => {
-      history.push(
-        routes.topicSearch.to(
-          {},
-          {
-            query: {
-              title: formTitle,
-              dead: formDead,
-              tags: formTags,
-            },
-          },
-        ),
-      );
-    },
-    [formChange.current],
-  );
 
   return (
     <Page>
@@ -89,13 +142,13 @@ export const TopicSearchPage = (_props: {}) => {
               const storage = user.value.storage;
               user.update({
                 ...user.value,
-                storage: (Sto.isTagsFavo(query.tags)(storage)
+                storage: (Sto.isTagsFavo(state.query.tags)(storage)
                   ? Sto.unfavoTags
-                  : Sto.favoTags)(query.tags)(storage),
+                  : Sto.favoTags)(state.query.tags)(storage),
               });
             }}
           >
-            {Sto.isTagsFavo(query.tags)(user.value.storage) ? (
+            {Sto.isTagsFavo(state.query.tags)(user.value.storage) ? (
               <FontIcon className="material-icons">star</FontIcon>
             ) : (
               <FontIcon className="material-icons">star_border</FontIcon>
@@ -105,27 +158,27 @@ export const TopicSearchPage = (_props: {}) => {
         <div>
           <TagsInput
             fullWidth={true}
-            value={formTags}
+            value={state.input.tags}
             onChange={v => {
-              setFormTags(v);
-              formChange.current.next();
+              dispatch({ type: "UPDATE_INPUT_TAGS", tags: v });
+              onInput();
             }}
           />
           <TextField
             fullWidth={true}
             floatingLabelText="タイトル"
-            value={formTitle}
+            value={state.input.title}
             onChange={(_e, v) => {
-              setFormTitle(v);
-              formChange.current.next();
+              dispatch({ type: "UPDATE_INPUT_TITLE", title: v });
+              onInput();
             }}
           />
           <Checkbox
             label="過去ログも"
-            checked={formDead}
+            checked={state.input.dead}
             onCheck={(_e, v) => {
-              setFormDead(v);
-              formChange.current.next();
+              dispatch({ type: "UPDATE_INPUT_DEAD", dead: v });
+              onInput();
             }}
           />
         </div>
