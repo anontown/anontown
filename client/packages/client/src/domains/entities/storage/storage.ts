@@ -5,7 +5,7 @@ export * from "./storage-json";
 import { Newtype, iso } from "newtype-ts";
 import { list } from "../../../utils";
 import { Option } from "fp-ts/lib/Option";
-import { pipe, O } from "../../../prelude";
+import { pipe, O, RA } from "../../../prelude";
 import { Lens } from "monocle-ts";
 
 interface TopicWriteA {
@@ -123,7 +123,7 @@ interface StorageA {
   readonly tagsFavo: Im.Set<Im.Set<string>>;
   readonly topicRead: Im.Map<string, TopicReadA>;
   readonly topicWrite: Im.Map<string, TopicWriteA>;
-  readonly ng: Im.List<N.NG>;
+  readonly ng: ReadonlyArray<N.NG>;
 }
 
 export interface Storage
@@ -146,13 +146,13 @@ export function getTopicFavo(storage: Storage): ReadonlyArray<string> {
 export function addNG(ng: N.NG) {
   return isoStorage.modify(storage => ({
     ...storage,
-    ng: storage.ng.insert(0, ng),
+    ng: RA.cons(ng, storage.ng),
   }));
 }
 
 export function getNG(storage: Storage): ReadonlyArray<N.NG> {
   const { ng } = isoStorage.unwrap(storage);
-  return ng.toArray();
+  return ng;
 }
 
 export function removeNG(id: string) {
@@ -165,7 +165,7 @@ export function removeNG(id: string) {
 export function updateNG(ng: N.NG) {
   return isoStorage.modify(storage => ({
     ...storage,
-    ng: list.updateIm(storage.ng, ng),
+    ng: list.update(storage.ng, ng),
   }));
 }
 
@@ -278,7 +278,7 @@ export function toStorage(json: StorageJSONLatest): Storage {
       ...x,
       replyText: Im.Map(x.replyText),
     })),
-    ng: Im.List(json.ng.map(x => N.fromJSON(x))),
+    ng: json.ng.map(x => N.fromJSON(x)),
   });
 }
 
@@ -294,6 +294,6 @@ export function toJSON(storage: Storage): StorageJSONLatest {
     topicWrite: topicWrite
       .map(x => ({ ...x, replyText: x.replyText.toObject() }))
       .toObject(),
-    ng: ng.map(x => N.toJSON(x)).toArray(),
+    ng: ng.map(x => N.toJSON(x)),
   };
 }
