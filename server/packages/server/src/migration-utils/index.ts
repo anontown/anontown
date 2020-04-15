@@ -3,3 +3,4 @@ import * as mongo from "./mongo";
 
 export const mongoUtils = mongo;
 export const esUtils = es;
+export * as esAutoReindex from "./es-auto-reindex";

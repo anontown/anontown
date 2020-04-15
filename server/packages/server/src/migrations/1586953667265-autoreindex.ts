@@ -1,10 +1,10 @@
-import { ESClient, Mongo } from "../db";
-import { esUtils, mongoUtils } from "../migration-utils";
+import { ESClient } from "../db";
+import { esAutoReindex } from "../migration-utils";
 
 export async function up() {
-  await esUtils.createIndex(ESClient(), {
-    index: "reses-6_8_8-0",
-    body: {
+  await esAutoReindex.createIndex(
+    { name: "reses", ver: 1 },
+    {
       mappings: {
         doc: {
           dynamic: "strict",
@@ -82,11 +82,11 @@ export async function up() {
         },
       },
     },
-  });
+  );
 
-  await esUtils.createIndex(ESClient(), {
-    index: "histories-6_8_8-0",
-    body: {
+  await esAutoReindex.createIndex(
+    { name: "histories", ver: 1 },
+    {
       mappings: {
         doc: {
           dynamic: "strict",
@@ -116,11 +116,14 @@ export async function up() {
         },
       },
     },
-  });
+  );
 
-  await esUtils.createIndex(ESClient(), {
-    index: "msgs-6_8_8-0",
-    body: {
+  await esAutoReindex.createIndex(
+    {
+      name: "msgs",
+      ver: 1,
+    },
+    {
       mappings: {
         doc: {
           dynamic: "strict",
@@ -138,11 +141,11 @@ export async function up() {
         },
       },
     },
-  });
+  );
 
-  await esUtils.createIndex(ESClient(), {
-    index: "topics-6_8_8-0",
-    body: {
+  await esAutoReindex.createIndex(
+    { name: "topics", ver: 1 },
+    {
       mappings: {
         doc: {
           dynamic: "strict",
@@ -185,7 +188,7 @@ export async function up() {
         },
       },
     },
-  });
+  );
 
   await ESClient().reindex({
     body: {
@@ -193,7 +196,7 @@ export async function up() {
         index: "reses_1",
       },
       dest: {
-        index: "reses-6_8_8-0",
+        index: "reses-1",
       },
     },
   });
@@ -204,7 +207,7 @@ export async function up() {
         index: "histories_1",
       },
       dest: {
-        index: "histories-6_8_8-0",
+        index: "histories-1",
       },
     },
   });
@@ -215,7 +218,7 @@ export async function up() {
         index: "msgs_1",
       },
       dest: {
-        index: "msgs-6_8_8-0",
+        index: "msgs-1",
       },
     },
   });
@@ -226,7 +229,7 @@ export async function up() {
         index: "topics_1",
       },
       dest: {
-        index: "topics-6_8_8-0",
+        index: "topics-1",
       },
     },
   });
@@ -238,10 +241,10 @@ export async function up() {
         { remove: { index: "histories_1", alias: "histories" } },
         { remove: { index: "msgs_1", alias: "msgs" } },
         { remove: { index: "topics_1", alias: "topics" } },
-        { add: { index: "reses-6_8_8-0", alias: "reses" } },
-        { add: { index: "histories-6_8_8-0", alias: "histories" } },
-        { add: { index: "msgs-6_8_8-0", alias: "msgs" } },
-        { add: { index: "topics-6_8_8-0", alias: "topics" } },
+        { add: { index: "reses-1", alias: "reses" } },
+        { add: { index: "histories-1", alias: "histories" } },
+        { add: { index: "msgs-1", alias: "msgs" } },
+        { add: { index: "topics-1", alias: "topics" } },
       ],
     },
   });
