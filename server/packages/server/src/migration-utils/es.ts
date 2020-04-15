@@ -10,16 +10,13 @@ export async function createIndex(
   }
 }
 
-export async function reindex(alias: string, from: string, to: string) {
-  const mappings = (await ESClient().indices.get({ index: from }))[from]
-    .mappings;
-
-  await createIndex(ESClient(), {
-    index: to,
-    body: {
-      mappings,
-    },
-  });
+export async function reindex(
+  alias: string,
+  from: string,
+  params: IndicesCreateParams,
+) {
+  const to = params.index;
+  await createIndex(ESClient(), params);
 
   await ESClient().reindex({
     body: {
