@@ -16,14 +16,12 @@ export const Mongo = lazy(async () => {
   return db.db();
 });
 
-export const ESVersion: string = "6.8";
-
 export const ESClient = lazy(
   () =>
     new es.Client({
       host: `http://${Config.es.host}`,
       log: "error",
-      apiVersion: ESVersion,
+      apiVersion: "6.8",
     }),
 );
 
