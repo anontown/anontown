@@ -1,9 +1,8 @@
-import { ESClient, Mongo } from "../db";
-import { esUtils, mongoUtils } from "../migration-utils";
+import { esUtils } from "../migration-utils";
 
 export async function up() {
-  await esUtils.createIndex(ESClient(), {
-    index: "reses-6_8_8-0",
+  await esUtils.reindex("reses", "reses_1", {
+    index: "reses_1586956049557",
     body: {
       mappings: {
         doc: {
@@ -83,9 +82,8 @@ export async function up() {
       },
     },
   });
-
-  await esUtils.createIndex(ESClient(), {
-    index: "histories-6_8_8-0",
+  await esUtils.reindex("histories", "histories_1", {
+    index: "histories_1586956049557",
     body: {
       mappings: {
         doc: {
@@ -118,8 +116,8 @@ export async function up() {
     },
   });
 
-  await esUtils.createIndex(ESClient(), {
-    index: "msgs-6_8_8-0",
+  await esUtils.reindex("msgs", "msgs_1", {
+    index: "msgs_1586956049557",
     body: {
       mappings: {
         doc: {
@@ -139,9 +137,8 @@ export async function up() {
       },
     },
   });
-
-  await esUtils.createIndex(ESClient(), {
-    index: "topics-6_8_8-0",
+  await esUtils.reindex("topics", "topics_1", {
+    index: "topics_1586956049557",
     body: {
       mappings: {
         doc: {
@@ -184,65 +181,6 @@ export async function up() {
           },
         },
       },
-    },
-  });
-
-  await ESClient().reindex({
-    body: {
-      source: {
-        index: "reses_1",
-      },
-      dest: {
-        index: "reses-6_8_8-0",
-      },
-    },
-  });
-
-  await ESClient().reindex({
-    body: {
-      source: {
-        index: "histories_1",
-      },
-      dest: {
-        index: "histories-6_8_8-0",
-      },
-    },
-  });
-
-  await ESClient().reindex({
-    body: {
-      source: {
-        index: "msgs_1",
-      },
-      dest: {
-        index: "msgs-6_8_8-0",
-      },
-    },
-  });
-
-  await ESClient().reindex({
-    body: {
-      source: {
-        index: "topics_1",
-      },
-      dest: {
-        index: "topics-6_8_8-0",
-      },
-    },
-  });
-
-  await ESClient().indices.updateAliases({
-    body: {
-      actions: [
-        { remove: { index: "reses_1", alias: "reses" } },
-        { remove: { index: "histories_1", alias: "histories" } },
-        { remove: { index: "msgs_1", alias: "msgs" } },
-        { remove: { index: "topics_1", alias: "topics" } },
-        { add: { index: "reses-6_8_8-0", alias: "reses" } },
-        { add: { index: "histories-6_8_8-0", alias: "histories" } },
-        { add: { index: "msgs-6_8_8-0", alias: "msgs" } },
-        { add: { index: "topics-6_8_8-0", alias: "topics" } },
-      ],
     },
   });
 }
