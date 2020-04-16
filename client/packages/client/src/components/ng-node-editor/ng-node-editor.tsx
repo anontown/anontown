@@ -1,4 +1,3 @@
-import * as Im from "immutable";
 import {
   FontIcon,
   IconButton,
@@ -8,18 +7,18 @@ import {
 } from "material-ui";
 import * as React from "react";
 import { ng } from "../../domains/entities";
-import { list } from "../../utils";
 import { Modal } from "../modal";
 import { NGHashNodeEditor } from "./ng-hash-node-editor";
 import { NGNameNodeEditor } from "./ng-name-node-editor";
 import { NGProfileNodeEditor } from "./ng-profile-node-editor";
 import { NGTextNodeEditor } from "./ng-text-node-editor";
 import { NGVoteNodeEditor } from "./ng-vote-node-editor";
+import { RA, ReadonlyArrayExtra } from "../../prelude";
 
 export interface NGNodesEditorState {}
 export interface NGNodesEditorProps {
-  values: Im.List<ng.NGNode>;
-  onChange: (nodes: Im.List<ng.NGNode>) => void;
+  values: ReadonlyArray<ng.NGNode>;
+  onChange: (nodes: ReadonlyArray<ng.NGNode>) => void;
   select: React.ReactNode;
   primaryText: React.ReactNode;
   nestedLevel: number;
@@ -46,11 +45,11 @@ export class NGNodesEditor extends React.Component<
 
   handleAddNode = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.stopPropagation();
-    this.props.onChange(this.props.values.insert(0, ng.createDefaultNode()));
+    this.props.onChange(RA.cons(ng.createDefaultNode(), this.props.values));
   };
 
   handleChangeNode = (x: ng.NGNode) => {
-    this.props.onChange(list.updateIm(this.props.values, x));
+    this.props.onChange(ReadonlyArrayExtra.update(x)(this.props.values));
   };
 
   render() {
@@ -74,27 +73,25 @@ export class NGNodesEditor extends React.Component<
             </>
           }
           autoGenerateNestedIndicator={false}
-          nestedItems={this.props.values
-            .map(value => (
-              <NGNodeEditor
-                key={value.id}
-                value={value}
-                onChange={this.handleChangeNode}
-                nestedLevel={this.props.nestedLevel + 1}
-                rightIconButton={
-                  <IconButton
-                    onClick={() =>
-                      this.props.onChange(
-                        this.props.values.filter(x => x.id !== value.id),
-                      )
-                    }
-                  >
-                    <FontIcon className="material-icons">close</FontIcon>
-                  </IconButton>
-                }
-              />
-            ))
-            .toArray()}
+          nestedItems={this.props.values.map(value => (
+            <NGNodeEditor
+              key={value.id}
+              value={value}
+              onChange={this.handleChangeNode}
+              nestedLevel={this.props.nestedLevel + 1}
+              rightIconButton={
+                <IconButton
+                  onClick={() =>
+                    this.props.onChange(
+                      this.props.values.filter(x => x.id !== value.id),
+                    )
+                  }
+                >
+                  <FontIcon className="material-icons">close</FontIcon>
+                </IconButton>
+              }
+            />
+          ))}
         />
       </>
     );
@@ -140,14 +137,14 @@ export class NGNodeEditor extends React.Component<
         this.props.onChange({
           id: this.props.value.id,
           type: "and",
-          children: Im.List(),
+          children: [],
         });
         break;
       case "or":
         this.props.onChange({
           id: this.props.value.id,
           type: "or",
-          children: Im.List(),
+          children: [],
         });
         break;
       case "profile":

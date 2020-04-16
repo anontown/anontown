@@ -144,6 +144,7 @@ module.exports = (env, argv) => {
       ? {
           contentBase: path.join(__dirname, "public"),
           port: 3000,
+          historyApiFallback: true,
         }
       : undefined,
   };
