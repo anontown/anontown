@@ -14,6 +14,6 @@ trait ClientRepositoryAlg[F[_]] {
   def find(
       authToken: Option[AuthTokenMaster],
       id: Option[List[ClientId]],
-      self: Option[Boolean]
+      self: Boolean
   ): EitherT[F, AtError, List[Client]];
 }
