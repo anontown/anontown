@@ -65,7 +65,7 @@ lazy val root = (project in file("."))
       "org.sangria-graphql" %% "sangria-circe" % "1.3.0",
       "co.fs2" %% "fs2-core" % "2.2.1",
       "co.fs2" %% "fs2-io" % "2.2.1",
-      "org.mongodb.scala" %% "mongo-scala-driver" % "2.9.0",
+      "org.mongodb.scala" %% "mongo-scala-driver" % "4.0.2",
       "com.sksamuel.elastic4s" %% "elastic4s-core" % elastic4sVersion,
       "com.sksamuel.elastic4s" %% "elastic4s-client-esjava" % elastic4sVersion,
       "com.sksamuel.elastic4s" %% "elastic4s-json-circe" % elastic4sVersion,
