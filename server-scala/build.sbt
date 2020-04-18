@@ -28,7 +28,8 @@ lazy val commonSettings = Seq(
       Wart.PublicInference,
       Wart.ImplicitParameter,
       Wart.ExplicitImplicitTypes,
-      Wart.Recursion
+      Wart.Recursion,
+      Wart.ImplicitConversion
     )
 )
 
