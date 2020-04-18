@@ -15,6 +15,7 @@ import org.bson.types.ObjectId
 import java.{util => ju}
 import org.mongodb.scala.model.Filters
 import com.anontown.AtNotFoundError
+import com.anontown.adapters.extra._
 
 class ClientRepository(db: MongoDatabase)(implicit cs: ContextShift[IO])
     extends ClientRepositoryAlg[IO] {
@@ -23,14 +24,7 @@ class ClientRepository(db: MongoDatabase)(implicit cs: ContextShift[IO])
     for {
       client <- EitherT
         .fromOptionF(
-          IO.fromFuture(
-            IO(
-              collection
-                .find(Filters.eq("_id", new ObjectId(id.value)))
-                .first()
-                .toFutureOption()
-            )
-          ),
+          collection.findOneIO(Filters.eq("_id", new ObjectId(id.value))),
           new AtNotFoundError("クライアントが存在しません"): AtError
         )
         .map(ClientRepository.fromDocument(_))
@@ -40,30 +34,19 @@ class ClientRepository(db: MongoDatabase)(implicit cs: ContextShift[IO])
   override def insert(client: Client): EitherT[IO, AtError, Unit] = {
     EitherT
       .right(
-        IO.fromFuture(
-          IO(
-            collection.insertOne(ClientRepository.toDocument(client)).toFuture()
-          )
-        )
+        collection.insertOneIO(ClientRepository.toDocument(client))
       )
-      .map(_ => ())
   }
 
   override def update(client: Client): EitherT[IO, AtError, Unit] = {
     EitherT
       .right(
-        IO.fromFuture(
-          IO(
-            collection
-              .replaceOne(
-                Filters.eq("_id", new ObjectId(client.id.value)),
-                ClientRepository.toDocument(client)
-              )
-              .toFuture()
+        collection
+          .replaceOneIO(
+            Filters.eq("_id", new ObjectId(client.id.value)),
+            ClientRepository.toDocument(client)
           )
-        )
       )
-      .map(_ => ())
   }
 
   override def find(
@@ -73,37 +56,32 @@ class ClientRepository(db: MongoDatabase)(implicit cs: ContextShift[IO])
     for {
       result <- EitherT
         .right[AtError](
-          IO.fromFuture(
-            IO(
-              collection
-                .find(
-                  Filters.and(
-                    List(
-                      users.map(
-                        users =>
-                          Filters
-                            .in(
-                              "_id",
-                              users.map(user => new ObjectId(user.value)): _*
-                            )
-                      ),
-                      ids.map(
-                        ids =>
-                          Filters
-                            .in(
-                              "_id",
-                              ids.map(id => new ObjectId(id.value)): _*
-                            )
-                      )
-                    ).flatten: _*
+          collection
+            .findIO(
+              Filters.and(
+                List(
+                  users.map(
+                    users =>
+                      Filters
+                        .in(
+                          "_id",
+                          users.map(user => new ObjectId(user.value)): _*
+                        )
+                  ),
+                  ids.map(
+                    ids =>
+                      Filters
+                        .in(
+                          "_id",
+                          ids.map(id => new ObjectId(id.value)): _*
+                        )
                   )
-                )
-                .toFuture()
+                ).flatten: _*
+              )
             )
-          )
         )
         .map(
-          clients => clients.map(x => ClientRepository.fromDocument(x)).toList
+          clients => clients.map(x => ClientRepository.fromDocument(x))
         )
     } yield result
   }
