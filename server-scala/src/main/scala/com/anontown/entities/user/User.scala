@@ -11,6 +11,7 @@ import com.anontown.ports.ConfigContainerAlg
 import cats.data.EitherT
 import com.anontown.entities.DateTime
 import com.anontown.entities.Interval
+import com.anontown.services.HashAlg
 
 final case class UserAPI(id: String, sn: String);
 
@@ -51,7 +52,7 @@ object User {
     semi.eq
   }
 
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: HashAlg](
       sn: String,
       pass: String
   ): EitherT[
@@ -95,7 +96,7 @@ object User {
       UserAPI(id = self.id.value, sn = self.sn.value);
     }
 
-    def change[F[_]: Monad: ConfigContainerAlg](
+    def change[F[_]: Monad: ConfigContainerAlg: HashAlg](
         authUser: AuthUser,
         pass: Option[String],
         sn: Option[String]
@@ -137,7 +138,7 @@ object User {
       } yield result
     }
 
-    def auth[F[_]: Monad: ConfigContainerAlg](
+    def auth[F[_]: Monad: ConfigContainerAlg: HashAlg](
         pass: String
     ): EitherT[F, AtError, AuthUser] = {
       EitherT

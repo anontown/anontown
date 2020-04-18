@@ -34,7 +34,7 @@ trait CreateResAlg[F[_]] {
   ): EitherT[F, AtError, ResNormal[TaggedTopicId, TaggedResId]];
 }
 
-class CreateRes[F[_]: Monad: TopicRepositoryAlg: UserRepositoryAlg: AuthContainerAlg: ResRepositoryAlg: ProfileRepositoryAlg: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: MutationLoggerAlg]
+class CreateRes[F[_]: Monad: TopicRepositoryAlg: UserRepositoryAlg: AuthContainerAlg: ResRepositoryAlg: ProfileRepositoryAlg: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: MutationLoggerAlg: HashAlg]
     extends CreateResAlg[F] {
   def run(
       topic: String,

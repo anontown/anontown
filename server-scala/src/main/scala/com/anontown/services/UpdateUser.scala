@@ -23,7 +23,7 @@ trait UpdateUserAlg[F[_]] {
   ): EitherT[F, AtError, (User, TokenMaster)];
 }
 
-class UpdateUser[F[_]: Monad: UserRepositoryAlg: ConfigContainerAlg: TokenRepositoryAlg: ObjectIdGeneratorAlg: ClockAlg: SafeIdGeneratorAlg]
+class UpdateUser[F[_]: Monad: UserRepositoryAlg: ConfigContainerAlg: TokenRepositoryAlg: ObjectIdGeneratorAlg: ClockAlg: SafeIdGeneratorAlg: HashAlg]
     extends UpdateUserAlg[F] {
   def run(
       authUser: AuthUser,
