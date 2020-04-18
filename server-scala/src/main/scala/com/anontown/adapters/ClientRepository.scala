@@ -6,7 +6,6 @@ import cats.effect.IO
 import cats.data.EitherT
 import com.anontown.entities.client.{Client, ClientId}
 import com.anontown.AtError
-import com.anontown.{AtError, AuthTokenMaster}
 import cats.effect.ContextShift
 import com.anontown.entities.client.ClientName
 import com.anontown.entities.client.ClientUrl
@@ -16,7 +15,6 @@ import org.bson.types.ObjectId
 import java.{util => ju}
 import org.mongodb.scala.model.Filters
 import com.anontown.AtNotFoundError
-import com.anontown.AtAuthError
 
 class ClientRepository(db: MongoDatabase)(implicit cs: ContextShift[IO])
     extends ClientRepositoryAlg[IO] {
@@ -69,23 +67,10 @@ class ClientRepository(db: MongoDatabase)(implicit cs: ContextShift[IO])
   }
 
   override def find(
-      authToken: Option[AuthTokenMaster],
-      id: Option[List[ClientId]],
-      self: Boolean
+      ids: Option[List[ClientId]],
+      users: Option[List[UserId]]
   ): EitherT[IO, AtError, List[Client]] = {
     for {
-      selfToken <- EitherT.fromEither[IO](
-        (if (self) {
-           authToken.fold(
-             Left(new AtAuthError("認証が必要です"): AtError): Either[
-               AtError,
-               Option[AuthTokenMaster]
-             ]
-           )(x => Right(Some(x)))
-         } else {
-           Right(None)
-         }): Either[AtError, Option[AuthTokenMaster]]
-      )
       result <- EitherT
         .right[AtError](
           IO.fromFuture(
@@ -94,11 +79,15 @@ class ClientRepository(db: MongoDatabase)(implicit cs: ContextShift[IO])
                 .find(
                   Filters.and(
                     List(
-                      selfToken.map(
-                        selfToken =>
-                          Filters.eq("user", new ObjectId(selfToken.user.value))
+                      users.map(
+                        users =>
+                          Filters
+                            .in(
+                              "_id",
+                              users.map(user => new ObjectId(user.value)): _*
+                            )
                       ),
-                      id.map(
+                      ids.map(
                         ids =>
                           Filters
                             .in(
