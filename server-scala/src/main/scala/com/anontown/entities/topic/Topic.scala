@@ -9,7 +9,7 @@ import com.anontown.entities.user.User
 import monocle.syntax.ApplyLens
 import shapeless._
 import record._
-import com.anontown.utils.Record._
+import com.anontown.extra.RecordExtra._
 import com.anontown.AuthToken
 import com.anontown.AtPrerequisiteError
 import com.anontown.ports.ConfigContainerAlg

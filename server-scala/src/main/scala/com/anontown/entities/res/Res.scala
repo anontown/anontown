@@ -8,7 +8,7 @@ import com.anontown.AtPrerequisiteError
 import monocle.syntax.ApplyLens
 import shapeless._
 import record._
-import com.anontown.utils.Record._
+import com.anontown.extra.RecordExtra._
 import com.anontown.entities.user.{UserId, User}
 import com.anontown.entities.topic.TopicId
 import cats.Applicative

@@ -6,7 +6,7 @@ import com.anontown.entities.user.UserId
 import monocle.syntax.ApplyLens
 import shapeless._
 import record._
-import com.anontown.utils.Record._
+import com.anontown.extra.RecordExtra._
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.AuthUser
 import com.anontown.ports.ObjectIdGeneratorAlg
