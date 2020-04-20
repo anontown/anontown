@@ -64,7 +64,7 @@ class ClientRepository(db: MongoDatabase)(implicit cs: ContextShift[IO])
                     users =>
                       Filters
                         .in(
-                          "_id",
+                          "user",
                           users.map(user => new ObjectId(user.value)): _*
                         )
                   ),
