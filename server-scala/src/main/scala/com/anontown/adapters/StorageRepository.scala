@@ -27,6 +27,7 @@ import com.anontown.entities.client.ClientId
 import org.bson.BsonObjectId
 import org.bson.BsonNull
 import org.bson.BsonString
+import org.bson.BsonValue
 
 class StorageRepository(db: MongoDatabase)(implicit cs: ContextShift[IO])
     extends StorageRepositoryAlg[IO] {
@@ -50,10 +51,13 @@ class StorageRepository(db: MongoDatabase)(implicit cs: ContextShift[IO])
 object StorageRepository {
   def fromStorage(storage: Storage): Document = {
     Document(
-      "client" -> storage.client.map(x => new ObjectId(x.value)),
-      "user" -> new ObjectId(storage.user.value),
-      "key" -> storage.key.value,
-      "value" -> storage.value.value
+      "client" -> storage.client
+        .fold[BsonValue](new BsonNull())(
+          x => new BsonObjectId(new ObjectId(x.value))
+        ),
+      "user" -> new BsonObjectId(new ObjectId(storage.user.value)),
+      "key" -> new BsonString(storage.key.value),
+      "value" -> new BsonString(storage.value.value)
     )
   }
 
