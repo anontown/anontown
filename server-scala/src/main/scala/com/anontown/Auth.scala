@@ -10,6 +10,9 @@ sealed trait AuthToken {
 
   val id: IdType;
   val user: UserId;
+
+  def asAuthTokenGeneral: Option[AuthTokenGeneral] = None
+  def asAuthTokenMaster: Option[AuthTokenMaster] = None
 }
 
 final case class AuthTokenGeneral(
@@ -18,6 +21,8 @@ final case class AuthTokenGeneral(
     client: ClientId
 ) extends AuthToken {
   type IdType = TokenGeneralId;
+
+  override def asAuthTokenGeneral: Option[AuthTokenGeneral] = Some(this)
 }
 
 final case class AuthTokenMaster(
@@ -25,6 +30,7 @@ final case class AuthTokenMaster(
     user: UserId
 ) extends AuthToken {
   type IdType = TokenMasterId;
+  override def asAuthTokenMaster: Option[AuthTokenMaster] = Some(this)
 }
 
 final case class AuthUser(id: UserId);
