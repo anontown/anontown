@@ -10,7 +10,7 @@ import com.anontown.entities.client.ClientId
 
 @finalAlg
 trait StorageRepositoryAlg[F[_]] {
-  def findOneKey(
+  def findOneByKey(
       userId: UserId,
       clientId: Option[ClientId],
       key: StorageKey

@@ -32,7 +32,7 @@ import org.bson.BsonValue
 class StorageRepository(db: MongoDatabase)(implicit cs: ContextShift[IO])
     extends StorageRepositoryAlg[IO] {
   val collection = db.getCollection[Document]("storages")
-  def findOneKey(
+  def findOneByKey(
       userId: UserId,
       clientId: Option[ClientId],
       key: StorageKey
