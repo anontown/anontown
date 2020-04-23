@@ -18,7 +18,7 @@ trait StorageRepositoryAlg[F[_]] {
   def find(
       userId: UserId,
       clientId: Option[ClientId],
-      key: Option[StorageKey]
+      keys: Option[List[StorageKey]]
   ): EitherT[F, AtError, List[Storage]];
   def save(storage: Storage): EitherT[F, AtError, Unit];
   def del(storage: Storage): EitherT[F, AtError, Unit];

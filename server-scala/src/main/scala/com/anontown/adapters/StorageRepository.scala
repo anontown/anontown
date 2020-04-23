@@ -7,20 +7,11 @@ import cats.data.EitherT
 import com.anontown.AtError
 import cats.effect.ContextShift
 import com.anontown.entities.user.UserId
-import com.anontown.entities.DateTime
 import org.bson.types.ObjectId
-import java.{util => ju}
 import org.mongodb.scala.model.Filters
 import com.anontown.AtNotFoundError
 import com.anontown.adapters.extra._
-import com.anontown.entities.profile.{Profile, ProfileId}
-import com.anontown.entities.profile.Profile
-import com.anontown.entities.profile.ProfileName
-import com.anontown.entities.profile.ProfileSn
-import com.anontown.entities.profile.ProfileText
-import com.anontown.AtConflictError
 import com.anontown.ports.StorageRepositoryAlg
-import com.anontown.AuthToken
 import com.anontown.entities.storage.{Storage, StorageKey, StorageValue}
 import com.anontown.entities.storage.Storage
 import com.anontown.entities.client.ClientId
@@ -36,20 +27,94 @@ class StorageRepository(db: MongoDatabase)(implicit cs: ContextShift[IO])
       userId: UserId,
       clientId: Option[ClientId],
       key: StorageKey
-  ): EitherT[IO, AtError, Storage] = { ??? }
+  ): EitherT[IO, AtError, Storage] = {
+    for {
+      storage <- EitherT
+        .fromOptionF(
+          collection
+            .findOneIO(
+              Filters.and(
+                Filters.eq("user", new ObjectId(userId.value)),
+                Filters
+                  .eq("client", clientId.map(id => new ObjectId(id.value))),
+                Filters.eq("key", key.value)
+              )
+            ),
+          new AtNotFoundError("ストレージが見つかりません"): AtError
+        )
+        .map(StorageRepository.fromDocument(_))
+    } yield storage
+  }
   def find(
       userId: UserId,
       clientId: Option[ClientId],
-      key: Option[StorageKey]
+      keys: Option[List[StorageKey]]
   ): EitherT[IO, AtError, List[Storage]] = {
-    ???
+    for {
+      result <- EitherT
+        .right[AtError](
+          collection
+            .findIO(
+              Filters.and(
+                Filters.eq("user", new ObjectId(userId.value)),
+                Filters
+                  .eq("client", clientId.map(id => new ObjectId(id.value))),
+                Filters.and(
+                  List(
+                    keys.map(
+                      keys => Filters.in("key", keys.map(key => key.value): _*)
+                    )
+                  ).flatten: _*
+                )
+              )
+            )
+        )
+        .map(
+          storages => storages.map(x => StorageRepository.fromDocument(x))
+        )
+    } yield result
   }
-  def save(storage: Storage): EitherT[IO, AtError, Unit] = ???
-  def del(storage: Storage): EitherT[IO, AtError, Unit] = ???
+  def save(storage: Storage): EitherT[IO, AtError, Unit] = {
+    EitherT.right[AtError](
+      collection
+        .replaceOneIO(
+          Filters.and(
+            Filters.eq("user", new ObjectId(storage.user.value)),
+            Filters
+              .eq(
+                "client",
+                storage.client.map(id => new ObjectId(id.value))
+              ),
+            Filters.eq("key", storage.key.value)
+          ),
+          StorageRepository.toDocument(storage),
+          upsert = true
+        )
+    )
+  }
+  def del(storage: Storage): EitherT[IO, AtError, Unit] = {
+    for {
+      _ <- EitherT
+        .right[AtError](
+          collection
+            .deleteOneIO(
+              Filters.and(
+                Filters.eq("user", new ObjectId(storage.user.value)),
+                Filters
+                  .eq(
+                    "client",
+                    storage.client.map(id => new ObjectId(id.value))
+                  ),
+                Filters.eq("key", storage.key.value)
+              )
+            )
+        )
+    } yield ()
+  }
 }
 
 object StorageRepository {
-  def fromStorage(storage: Storage): Document = {
+  def toDocument(storage: Storage): Document = {
     Document(
       "client" -> storage.client
         .fold[BsonValue](new BsonNull())(
@@ -61,7 +126,7 @@ object StorageRepository {
     )
   }
 
-  def toStorage(docuemnt: Document): Storage = {
+  def fromDocument(docuemnt: Document): Storage = {
     (for {
       client <- docuemnt
         .get("client")

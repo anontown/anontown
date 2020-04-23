@@ -4,6 +4,7 @@ import org.mongodb.scala._
 import cats.effect.IO
 import cats.effect.ContextShift
 import org.bson.conversions.Bson
+import com.mongodb.client.model.ReplaceOptions
 
 class MongoCollectionExtra(val self: MongoCollection[Document]) extends AnyVal {
   def findOneIO(filter: Bson)(
@@ -30,7 +31,7 @@ class MongoCollectionExtra(val self: MongoCollection[Document]) extends AnyVal {
       .map(_ => ())
   }
 
-  def replaceOneIO(filter: Bson, document: Document)(
+  def replaceOneIO(filter: Bson, document: Document, upsert: Boolean = false)(
       implicit cs: ContextShift[IO]
   ): IO[Unit] = {
     IO.fromFuture(
@@ -38,7 +39,8 @@ class MongoCollectionExtra(val self: MongoCollection[Document]) extends AnyVal {
           self
             .replaceOne(
               filter,
-              document
+              document,
+              options = new ReplaceOptions().upsert(upsert)
             )
             .toFuture()
         )
@@ -59,5 +61,20 @@ class MongoCollectionExtra(val self: MongoCollection[Document]) extends AnyVal {
         )
       )
       .map(xs => xs.toList)
+  }
+
+  def deleteOneIO(filter: Bson)(
+      implicit cs: ContextShift[IO]
+  ): IO[Unit] = {
+    IO.fromFuture(
+        IO(
+          self
+            .deleteOne(
+              filter
+            )
+            .toFuture()
+        )
+      )
+      .map(_ => ())
   }
 }
