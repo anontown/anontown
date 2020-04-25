@@ -316,12 +316,6 @@ function useFetchUtils<T extends ListItemData>(
             type: "lt",
           });
 
-          console.log(
-            ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
-              getKeyFromListItemData,
-              result,
-            )(os),
-          );
           setData(
             ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
               getKeyFromListItemData,
