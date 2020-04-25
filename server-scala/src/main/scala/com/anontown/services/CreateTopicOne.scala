@@ -22,7 +22,7 @@ trait CreateTopicOneAlg[F[_]] {
   ): EitherT[F, AtError, TopicOne];
 }
 
-class CreateTopicOne[F[_]: Monad: AuthContainerAlg: ObjectIdGeneratorAlg: ClockAlg: TopicRepositoryAlg: UserRepositoryAlg: ResRepositoryAlg: MutationLoggerAlg: ConfigContainerAlg]
+class CreateTopicOne[F[_]: Monad: AuthContainerAlg: ObjectIdGeneratorAlg: ClockAlg: TopicRepositoryAlg: UserRepositoryAlg: ResRepositoryAlg: MutationLoggerAlg: ConfigContainerAlg: HashAlg]
     extends CreateTopicOneAlg[F] {
   def run(
       title: String,

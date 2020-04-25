@@ -23,12 +23,10 @@ final case class SaltConfig(
 );
 final case class RecaptchaConfig(siteKey: String, secretKey: String);
 
-import com.anontown.utils;
-
 object ServerConfig {
   def fromEnv(env: Map[String, String]): Option[ServerConfig] = {
     for {
-      port <- env.get("SERVER_PORT").flatMap(utils.toIntOption)
+      port <- env.get("SERVER_PORT").flatMap(_.toIntOption)
     } yield ServerConfig(port = port)
   }
 }

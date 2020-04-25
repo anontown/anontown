@@ -8,7 +8,7 @@ import com.anontown.AtPrerequisiteError
 import monocle.syntax.ApplyLens
 import shapeless._
 import record._
-import com.anontown.utils.Record._
+import com.anontown.extra.RecordExtra._
 import com.anontown.entities.user.{UserId, User}
 import com.anontown.entities.topic.TopicId
 import cats.Applicative
@@ -30,6 +30,7 @@ import com.anontown.entities.history.{HistoryId, History}
 import com.anontown.entities.topic.{TopicTemporary, UntaggedTopicId}
 import com.anontown.entities.profile.{ProfileId, Profile}
 import com.anontown.entities.DateTime
+import com.anontown.services.HashAlg
 
 sealed trait ResAPI {
   val id: String;
@@ -354,7 +355,7 @@ final case class ResFork(
 }
 
 object ResFork {
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: HashAlg](
       topic: TopicNormal,
       user: User,
       authToken: AuthToken,
@@ -425,7 +426,7 @@ final case class ResHistory(
 }
 
 object ResHistory {
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: HashAlg](
       topic: TopicNormal,
       user: User,
       authToken: AuthToken,
@@ -530,7 +531,7 @@ final case class ResNormal[TopicIdTypeArg <: TopicId, ReplyResId <: ResId](
 }
 
 object ResNormal {
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg, ResIdType <: ResId, ResType <: Res { type Self <: ResType; type IdType <: ResIdType; }, TopicType <: Topic { type Self <: TopicType; }](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: HashAlg, ResIdType <: ResId, ResType <: Res { type Self <: ResType; type IdType <: ResIdType; }, TopicType <: Topic { type Self <: TopicType; }](
       topic: TopicType,
       user: User,
       authUser: AuthToken,
@@ -690,7 +691,7 @@ final case class ResTopic[TopicArg <: TopicTemporaryId](
 }
 
 object ResTopic {
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg, TopicTemporaryType <: TopicTemporary { type Self = TopicTemporaryType }](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: HashAlg, TopicTemporaryType <: TopicTemporary { type Self = TopicTemporaryType }](
       topic: TopicTemporaryType,
       user: User,
       authToken: AuthToken

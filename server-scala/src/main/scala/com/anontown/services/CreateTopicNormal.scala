@@ -23,7 +23,7 @@ trait CreateTopicNormalAlg[F[_]] {
   ): EitherT[F, AtError, TopicNormal];
 }
 
-class CreateTopicNormal[F[_]: Monad: UserRepositoryAlg: ObjectIdGeneratorAlg: AuthContainerAlg: ClockAlg: ResRepositoryAlg: HistoryRepositoryAlg: MutationLoggerAlg: ConfigContainerAlg: TopicRepositoryAlg]
+class CreateTopicNormal[F[_]: Monad: UserRepositoryAlg: ObjectIdGeneratorAlg: AuthContainerAlg: ClockAlg: ResRepositoryAlg: HistoryRepositoryAlg: MutationLoggerAlg: ConfigContainerAlg: TopicRepositoryAlg: HashAlg]
     extends CreateTopicNormalAlg[F] {
   def run(
       title: String,

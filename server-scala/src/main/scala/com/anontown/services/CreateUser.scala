@@ -25,7 +25,7 @@ trait CreateUserAlg[F[_]] {
   ): EitherT[F, AtError, (User, TokenMaster)];
 }
 
-class CreateUser[F[_]: Monad: RecaptchaClientAlg: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: UserRepositoryAlg: TokenRepositoryAlg: SafeIdGeneratorAlg]()
+class CreateUser[F[_]: Monad: RecaptchaClientAlg: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: UserRepositoryAlg: TokenRepositoryAlg: SafeIdGeneratorAlg: HashAlg]()
     extends CreateUserAlg[F] {
   def run(
       sn: String,

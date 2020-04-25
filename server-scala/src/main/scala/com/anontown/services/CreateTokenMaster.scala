@@ -17,7 +17,7 @@ trait CreateTokenMasterAlg[F[_]] {
   def run(authUser: AuthUser): EitherT[F, AtError, TokenMaster];
 }
 
-class CreateTokenMaster[F[_]: Monad: TokenRepositoryAlg: ObjectIdGeneratorAlg: SafeIdGeneratorAlg: ClockAlg: ConfigContainerAlg]
+class CreateTokenMaster[F[_]: Monad: TokenRepositoryAlg: ObjectIdGeneratorAlg: SafeIdGeneratorAlg: ClockAlg: ConfigContainerAlg: HashAlg]
     extends CreateTokenMasterAlg[F] {
   def run(authUser: AuthUser): EitherT[F, AtError, TokenMaster] = {
     for {

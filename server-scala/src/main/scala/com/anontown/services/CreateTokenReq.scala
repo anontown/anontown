@@ -18,7 +18,7 @@ trait CreateTokenReqAlg[F[_]] {
   def run(): EitherT[F, AtError, TokenReq];
 }
 
-class CreateTokenReq[F[_]: Monad: TokenRepositoryAlg: AuthContainerAlg: SafeIdGeneratorAlg: ClockAlg: ConfigContainerAlg]
+class CreateTokenReq[F[_]: Monad: TokenRepositoryAlg: AuthContainerAlg: SafeIdGeneratorAlg: ClockAlg: ConfigContainerAlg: HashAlg]
     extends CreateTokenReqAlg[F] {
   override def run(): EitherT[F, AtError, TokenReq] = {
     for {

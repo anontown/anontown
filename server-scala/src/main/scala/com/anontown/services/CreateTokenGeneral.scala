@@ -20,7 +20,7 @@ trait CreateTokenGeneralAlg[F[_]] {
   def run(client: String): EitherT[F, AtError, (TokenGeneral, TokenReq)];
 }
 
-class CreateTokenGeneral[F[_]: Monad: ClientRepositoryAlg: AuthContainerAlg: ClockAlg: SafeIdGeneratorAlg: TokenRepositoryAlg: ObjectIdGeneratorAlg: ConfigContainerAlg]
+class CreateTokenGeneral[F[_]: Monad: ClientRepositoryAlg: AuthContainerAlg: ClockAlg: SafeIdGeneratorAlg: TokenRepositoryAlg: ObjectIdGeneratorAlg: ConfigContainerAlg: HashAlg]
     extends CreateTokenGeneralAlg[F] {
   def run(client: String): EitherT[F, AtError, (TokenGeneral, TokenReq)] = {
     for {
