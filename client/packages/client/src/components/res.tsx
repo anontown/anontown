@@ -44,6 +44,8 @@ export const Res = (props: ResProps) => {
     padding: 8,
   };
 
+  const [submitVote] = G.useVoteResMutation();
+
   return user.value !== null &&
     !props.res.self &&
     !disableNG &&
@@ -62,66 +64,58 @@ export const Res = (props: ResProps) => {
             flexDirection: "column",
           }}
         >
-          <G.VoteResComponent
-            variables={{
-              res: props.res.id,
-              type: props.res.voteFlag === "uv" ? "cv" : "uv",
+          <IconButton
+            onClick={() => {
+              submitVote({
+                variables: {
+                  res: props.res.id,
+                  type: props.res.voteFlag === "uv" ? "cv" : "uv",
+                },
+              })
+                .then(({ data }) => {
+                  if (props.update !== undefined && data !== undefined) {
+                    props.update(data.voteRes);
+                  }
+                })
+                .catch(() => {
+                  setSnackMsg("投票に失敗しました");
+                });
             }}
-            onCompleted={data => {
-              if (props.update) {
-                props.update(data.voteRes);
-              }
-            }}
+            disabled={props.res.self || user.value === null}
           >
-            {(submit, { error }) => {
-              return (
-                <>
-                  {error && <Snack msg="投票に失敗しました" />}
-                  <IconButton
-                    onClick={() => submit()}
-                    disabled={props.res.self || user.value === null}
-                  >
-                    <FontIcon
-                      className="material-icons"
-                      color={props.res.voteFlag === "uv" ? "orange" : undefined}
-                    >
-                      keyboard_arrow_up
-                    </FontIcon>
-                  </IconButton>
-                </>
-              );
+            <FontIcon
+              className="material-icons"
+              color={props.res.voteFlag === "uv" ? "orange" : undefined}
+            >
+              keyboard_arrow_up
+            </FontIcon>
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              submitVote({
+                variables: {
+                  res: props.res.id,
+                  type: props.res.voteFlag === "dv" ? "cv" : "dv",
+                },
+              })
+                .then(({ data }) => {
+                  if (props.update !== undefined && data !== undefined) {
+                    props.update(data.voteRes);
+                  }
+                })
+                .catch(() => {
+                  setSnackMsg("投票に失敗しました");
+                });
             }}
-          </G.VoteResComponent>
-          <G.VoteResComponent
-            variables={{
-              res: props.res.id,
-              type: props.res.voteFlag === "dv" ? "cv" : "dv",
-            }}
-            onCompleted={data => {
-              if (props.update) {
-                props.update(data.voteRes);
-              }
-            }}
+            disabled={props.res.self || user.value === null}
           >
-            {(submit, { error }) => {
-              return (
-                <>
-                  {error && <Snack msg="投票に失敗しました" />}
-                  <IconButton
-                    onClick={() => submit()}
-                    disabled={props.res.self || user.value === null}
-                  >
-                    <FontIcon
-                      className="material-icons"
-                      color={props.res.voteFlag === "dv" ? "orange" : undefined}
-                    >
-                      keyboard_arrow_down
-                    </FontIcon>
-                  </IconButton>
-                </>
-              );
-            }}
-          </G.VoteResComponent>
+            <FontIcon
+              className="material-icons"
+              color={props.res.voteFlag === "dv" ? "orange" : undefined}
+            >
+              keyboard_arrow_down
+            </FontIcon>
+          </IconButton>
         </CardFlexFixed>
         <CardFlexStretch>
           <CardHeader

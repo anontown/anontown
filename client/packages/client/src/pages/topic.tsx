@@ -344,7 +344,14 @@ export const TopicPage = (_props: {}) => {
               scrollNewItemChange={res => storageSaveDate(res.date)}
               scrollNewItem={scrollNewItem.current}
               initDate={initDate}
-              dataToEl={res => <Res res={res} />}
+              dataToEl={res => (
+                <Res
+                  res={res}
+                  update={_res => {
+                    // TODO: update
+                  }}
+                />
+              )}
               changeItems={x => {
                 items.current = x;
               }}
