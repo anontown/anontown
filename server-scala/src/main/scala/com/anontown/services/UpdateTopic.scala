@@ -26,7 +26,7 @@ trait UpdateTopicAlg[F[_]] {
   ): EitherT[F, AtError, TopicNormal];
 }
 
-class UpdateTopic[F[_]: Monad: TopicRepositoryAlg: UserRepositoryAlg: ObjectIdGeneratorAlg: AuthContainerAlg: ClockAlg: ConfigContainerAlg: ResRepositoryAlg: HistoryRepositoryAlg: MutationLoggerAlg]
+class UpdateTopic[F[_]: Monad: TopicRepositoryAlg: UserRepositoryAlg: ObjectIdGeneratorAlg: AuthContainerAlg: ClockAlg: ConfigContainerAlg: ResRepositoryAlg: HistoryRepositoryAlg: MutationLoggerAlg: HashAlg]
     extends UpdateTopicAlg[F] {
   def run(
       id: String,

@@ -1,13 +1,12 @@
 package com.anontown.entities.token
 
-import com.anontown.utils;
 import com.anontown.ports.SafeIdGeneratorAlg
 import com.anontown.ports.ConfigContainerAlg
 import com.anontown.entities.user.UserId
 import monocle.syntax.ApplyLens
 import shapeless._
 import record._
-import com.anontown.utils.Record._
+import com.anontown.extra.RecordExtra._
 import cats._, cats.implicits._, cats.derived._
 import com.anontown.AuthUser
 import com.anontown.ports.ObjectIdGeneratorAlg
@@ -21,6 +20,7 @@ import cats.data.EitherT
 import com.anontown.AtNotFoundError
 import com.anontown.entities.DateTime
 import com.anontown.entities.Interval
+import com.anontown.services.HashAlg
 
 sealed trait TokenAPI {
   val id: String
@@ -94,12 +94,13 @@ object Token {
     }
   }
 
-  def createTokenKey[F[_]: Monad: SafeIdGeneratorAlg: ConfigContainerAlg]()
+  def createTokenKey[F[_]: Monad: SafeIdGeneratorAlg: ConfigContainerAlg: HashAlg]()
       : F[String] = {
     for {
       genId <- SafeIdGeneratorAlg[F].generateSafeId()
       tokenSalt <- ConfigContainerAlg[F].getConfig().map(_.salt.token)
-    } yield utils.hash(genId + tokenSalt)
+      key <- HashAlg[F].sha256(genId + tokenSalt)
+    } yield key
   }
 }
 
@@ -123,7 +124,7 @@ final case class TokenMaster(
 }
 
 object TokenMaster {
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: SafeIdGeneratorAlg: ConfigContainerAlg](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: SafeIdGeneratorAlg: ConfigContainerAlg: HashAlg](
       authUser: AuthUser
   ): F[
     TokenMaster
@@ -175,7 +176,7 @@ final case class TokenGeneral(
 }
 
 object TokenGeneral {
-  def create[F[_]: Monad: ClockAlg: ObjectIdGeneratorAlg: SafeIdGeneratorAlg: ConfigContainerAlg](
+  def create[F[_]: Monad: ClockAlg: ObjectIdGeneratorAlg: SafeIdGeneratorAlg: ConfigContainerAlg: HashAlg](
       authToken: AuthTokenMaster,
       client: Client
   ): F[
@@ -198,7 +199,7 @@ object TokenGeneral {
   implicit class TokenGeneralService(val self: TokenGeneral) {
     val reqExpireMinute: Int = 5;
 
-    def createReq[F[_]: Monad: ClockAlg: ConfigContainerAlg: SafeIdGeneratorAlg]()
+    def createReq[F[_]: Monad: ClockAlg: ConfigContainerAlg: SafeIdGeneratorAlg: HashAlg]()
         : F[(TokenGeneral, TokenReq)] = {
       for {
         requestDate <- ClockAlg[F].getRequestDate()

@@ -16,7 +16,11 @@ class DelStorage[F[_]: Monad: StorageRepositoryAlg: AuthContainerAlg]
   def run(key: String): EitherT[F, AtError, Unit] = {
     for {
       auth <- AuthContainerAlg[F].getToken()
-      storage <- StorageRepositoryAlg[F].findOneKey(auth, StorageKey(key))
+      storage <- StorageRepositoryAlg[F].findOneByKey(
+        auth.user,
+        auth.asAuthTokenGeneral.map(_.client),
+        StorageKey(key)
+      )
       _ <- StorageRepositoryAlg[F].del(storage)
     } yield ()
   }

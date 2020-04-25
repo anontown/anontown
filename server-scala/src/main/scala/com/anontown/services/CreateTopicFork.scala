@@ -20,7 +20,7 @@ trait CreateTopicForkAlg[F[_]] {
   def run(parent: String, title: String): EitherT[F, AtError, TopicFork];
 }
 
-class CreateTopicFork[F[_]: Monad: AuthContainerAlg: UserRepositoryAlg: TopicRepositoryAlg: ObjectIdGeneratorAlg: ClockAlg: ResRepositoryAlg: MutationLoggerAlg: ConfigContainerAlg]
+class CreateTopicFork[F[_]: Monad: AuthContainerAlg: UserRepositoryAlg: TopicRepositoryAlg: ObjectIdGeneratorAlg: ClockAlg: ResRepositoryAlg: MutationLoggerAlg: ConfigContainerAlg: HashAlg]
     extends CreateTopicForkAlg[F] {
   def run(parent: String, title: String): EitherT[F, AtError, TopicFork] = {
     for {

@@ -9,15 +9,15 @@ import com.anontown.entities.user.User
 import monocle.syntax.ApplyLens
 import shapeless._
 import record._
-import com.anontown.utils.Record._
+import com.anontown.extra.RecordExtra._
 import com.anontown.AuthToken
 import com.anontown.AtPrerequisiteError
 import com.anontown.ports.ConfigContainerAlg
-import com.anontown.utils;
 import cats.data.EitherT
 import com.anontown.ports.ObjectIdGeneratorAlg
 import monocle.macros.syntax.lens.toGenApplyLensOps
 import com.anontown.entities.DateTime
+import com.anontown.services.HashAlg
 
 sealed trait TopicAPI {
   val id: String;
@@ -162,23 +162,21 @@ object Topic {
       )
     }
 
-    def hash[F[_]: Monad: ConfigContainerAlg: ClockAlg](
+    def hash[F[_]: Monad: ConfigContainerAlg: ClockAlg: HashAlg](
         user: User
     ): F[String] = {
       for {
         config <- ConfigContainerAlg[F].getConfig()
         requestDate <- ClockAlg[F].getRequestDate()
-      } yield {
-        val zonedDate =
-          requestDate.toOffsetDateTime().atZoneSameInstant(config.timezone)
-        utils
-          .hash(
-            f"${user.id.value} ${zonedDate.getYear().toString()} ${zonedDate
-              .getMonth()
-              .toString()} ${zonedDate.getDayOfMonth().toString()} ${self.id.value} ${config.salt.hash}"
-          )
-          .substring(0, hashLen)
-      }
+        val zonedDate = requestDate
+          .toOffsetDateTime()
+          .atZoneSameInstant(config.timezone)
+        hash <- HashAlg[F].sha256(
+          f"${user.id.value} ${zonedDate.getYear().toString()} ${zonedDate
+            .getMonth()
+            .toString()} ${zonedDate.getDayOfMonth().toString()} ${self.id.value} ${config.salt.hash}"
+        )
+      } yield hash.substring(0, hashLen)
     }
 
     def resUpdate[R <: Res](res: R, isAge: Boolean): Either[AtError, A] = {
@@ -298,7 +296,7 @@ object TopicFork {
     semi.eq
   }
 
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: HashAlg](
       title: String,
       parent: TopicNormal,
       user: User,
@@ -398,7 +396,7 @@ object TopicOne {
     semi.eq
   }
 
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: HashAlg](
       title: String,
       tags: List[String],
       text: String,
@@ -482,7 +480,7 @@ object TopicNormal {
     semi.eq
   }
 
-  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
+  def create[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: HashAlg](
       title: String,
       tags: List[String],
       text: String,
@@ -529,7 +527,7 @@ object TopicNormal {
   }
 
   implicit class TopicNormalService(val self: TopicNormal) {
-    def changeData[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg](
+    def changeData[F[_]: Monad: ObjectIdGeneratorAlg: ClockAlg: ConfigContainerAlg: HashAlg](
         user: User,
         authToken: AuthToken,
         title: Option[String],
