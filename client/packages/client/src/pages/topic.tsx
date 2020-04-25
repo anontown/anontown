@@ -257,13 +257,9 @@ export const TopicPage = (_props: {}) => {
                       });
                     }}
                   >
-                    {isFavo ? (
-                      <FontIcon className="material-icons">star</FontIcon>
-                    ) : (
-                      <FontIcon className="material-icons">
-                        star_border
-                      </FontIcon>
-                    )}
+                    <FontIcon className="material-icons">
+                      {isFavo ? "star" : "star_border"}
+                    </FontIcon>
                   </IconButton>
                 ) : null}
                 <PopupMenu
