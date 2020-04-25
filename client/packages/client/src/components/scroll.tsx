@@ -432,6 +432,7 @@ export interface ScrollProps<T extends ListItemData> {
   dataToEl: (data: T) => JSX.Element;
   style?: React.CSSProperties;
   className?: string;
+  items: ReadonlyArray<T>;
   changeItems: (items: ReadonlyArray<T>) => void;
   existUnread: boolean;
   onChangeExistUnread: (existUnread: boolean) => void;
@@ -465,23 +466,17 @@ type Cmd =
 export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   const rootEl = React.useRef<HTMLDivElement | null>(null);
 
-  const [data, setData] = React.useState<ReadonlyArray<T>>([]);
-
   React.useEffect(() => {
     runCmd({ type: "reset", date: props.initDate });
   }, [props.initDate.valueOf(), ...props.fetchKey]);
 
-  React.useEffect(() => {
-    props.changeItems(data);
-  }, [data]);
-
-  const { idElMap, addFunction } = useIdElMap<T>(data);
+  const { idElMap, addFunction } = useIdElMap<T>(props.items);
   const { resetDate, findBefore, findAfter } = useFetchUtils(
     props.useFetch,
     rootEl.current,
-    data,
+    props.items,
     idElMap,
-    setData,
+    props.changeItems,
     props.newItemOrder,
   );
 
@@ -545,7 +540,7 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
     newItem => {
       props.scrollNewItemChange(newItem);
     },
-    data,
+    props.items,
     idElMap,
     rootEl.current,
     props.debounceTime,
@@ -572,9 +567,9 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
   // 新しいアイテム追加イベント
   const onSubscriptionDataRef = useValueRef((newData: T) => {
     props.onChangeExistUnread(true);
-    setData(
+    props.changeItems(
       pipe(
-        data,
+        props.items,
         ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
           item => getKeyFromListItemData(item),
           [newData],
@@ -586,7 +581,10 @@ export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
 
   return (
     <div className={props.className} style={props.style} ref={rootEl}>
-      {(props.newItemOrder === "bottom" ? RA.reverse(data) : data).map(item => (
+      {(props.newItemOrder === "bottom"
+        ? RA.reverse(props.items)
+        : props.items
+      ).map(item => (
         <div key={item.id} ref={el => addFunction(item.id, el)}>
           {props.dataToEl(item)}
         </div>

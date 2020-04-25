@@ -26,7 +26,7 @@ import {
 } from "../components";
 import { PopupMenu } from "../components/popup-menu";
 import * as G from "../generated/graphql";
-import { useFunctionRef, useUserContext } from "../hooks";
+import { useFunctionRef, useUserContext, useValueRef } from "../hooks";
 import { queryResultConvert } from "../utils";
 import * as style from "./topic.scss";
 import { pipe, O, RA, Monoid_ } from "../prelude";
@@ -83,7 +83,8 @@ export const TopicPage = (_props: {}) => {
   const [autoScrollSpeed, setAutoScrollSpeed] = React.useState(15);
   const [isAutoScroll, setIsAutoScroll] = React.useState(false);
   const scrollNewItem = React.useRef(new rx.ReplaySubject<string>(1));
-  const items = React.useRef<ReadonlyArray<G.ResFragment>>([]);
+  const [items, setItems] = React.useState<ReadonlyArray<G.ResFragment>>([]);
+  const itemsRef = useValueRef(items);
   const initDate = React.useMemo(
     () =>
       pipe(
@@ -134,7 +135,7 @@ export const TopicPage = (_props: {}) => {
           O.map(storageRes => Sto.topicReadDateLens.get(storageRes)),
         ),
         pipe(
-          items.current,
+          itemsRef.current,
           RA.head,
           O.map(first => first.date),
         ),
@@ -343,13 +344,16 @@ export const TopicPage = (_props: {}) => {
               dataToEl={res => (
                 <Res
                   res={res}
-                  update={_res => {
-                    // TODO: update
+                  update={res => {
+                    setItems(items =>
+                      items.map(item => (item.id === res.id ? res : item)),
+                    );
                   }}
                 />
               )}
+              items={items}
               changeItems={x => {
-                items.current = x;
+                setItems(x);
               }}
               existUnread={existUnread}
               onChangeExistUnread={x => setExistUnread(x)}
