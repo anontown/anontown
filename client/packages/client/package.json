@@ -126,6 +126,7 @@
     "remark-breaks": "^1.0.2",
     "remark-parse": "^6.0.3",
     "rxjs": "^6.4.0",
+    "rxjs-hooks": "^0.6.2",
     "styled-components": "^4.2.0",
     "subscriptions-transport-ws": "^0.9.16",
     "type-zoo": "^3.3.0",
