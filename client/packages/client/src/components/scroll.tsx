@@ -174,7 +174,6 @@ function useScrollLock<T extends ListItemData>(
         await f();
       } finally {
         if (O.isSome(elData)) {
-          await sleep(0);
           if (rootEl !== null) {
             rootEl.scrollTop += elY(elData.value.el) - elData.value.y;
           }
