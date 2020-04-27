@@ -173,6 +173,8 @@ export const Scroll = <T,>(props: ScrollProps<T>) => {
       return () => {
         subs.unsubscribe();
       };
+    } else {
+      return;
     }
   }, [containerElementRef.current, props.scrollDebounce]);
 
