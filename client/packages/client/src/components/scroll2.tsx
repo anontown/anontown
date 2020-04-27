@@ -4,6 +4,17 @@ import * as op from "rxjs/operators";
 import { O, Option } from "../prelude";
 import { useValueRef } from "../hooks";
 
+export interface ScrollHandle {
+  /**
+   * containerとitemsのセレクタで指定された2点の位置差がdiffになるようにスクロール位置を調整する
+   */
+  setScroll: (
+    containerPositionSelector: ContainerPositionSelector,
+    itemsPositionSelector: ItemsPositionSelector,
+    diff: number,
+  ) => Option<null>;
+}
+
 // itemToKeyは変化してはいけない
 function useKeyToElementMap<T>(
   itemToKey: (item: T) => string,
@@ -76,21 +87,12 @@ export type GetDiffMin<T> = (
   itemsPositionRatio: number,
 ) => Option<[number, T]>;
 
-/**
- * containerとitemsのセレクタで指定された2点の位置差がdiffになるようにスクロール位置を調整するコマンド
- */
-export interface SetScrollCmd {
-  containerPositionSelector: ContainerPositionSelector;
-  itemsPositionSelector: ItemsPositionSelector;
-  diff: number;
-}
-
 export interface ScrollProps<T> {
   itemToKey: (item: T) => string;
   renderItem: (item: T) => JSX.Element;
   scrollDebounce: number;
   onScroll: (getDiff: GetDiff, getDiffMin: GetDiffMin<T>) => void;
-  setScroll: rx.Observable<SetScrollCmd>;
+  handleRef: React.MutableRefObject<ScrollHandle | null>;
   style?: React.CSSProperties;
   className?: string;
   items: ReadonlyArray<T>;
@@ -178,24 +180,33 @@ export const Scroll = <T,>(props: ScrollProps<T>) => {
     }
   }, [containerElementRef.current, props.scrollDebounce]);
 
+  const handle = React.useMemo<ScrollHandle>(
+    () => ({
+      setScroll: (
+        containerPositionSelector,
+        itemsPositionSelector,
+        diff,
+      ): Option<null> => {
+        const curDiff = getDiff(
+          containerPositionSelector,
+          itemsPositionSelector,
+        );
+
+        const containerElement = containerElementRef.current;
+        if (containerElement === null || O.isNone(curDiff)) {
+          return O.none;
+        }
+
+        containerElement.scrollTop += curDiff.value - diff;
+        return O.some(null);
+      },
+    }),
+    [],
+  );
+
   React.useEffect(() => {
-    const subs = props.setScroll.subscribe(cmd => {
-      const curDiff = getDiff(
-        cmd.containerPositionSelector,
-        cmd.itemsPositionSelector,
-      );
-
-      const containerElement = containerElementRef.current;
-      if (containerElement === null || O.isNone(curDiff)) {
-        return;
-      }
-
-      containerElement.scrollTop += curDiff.value - cmd.diff;
-    });
-    return () => {
-      subs.unsubscribe();
-    };
-  }, [props.setScroll]);
+    props.handleRef.current = handle;
+  }, [handle, props.handleRef]);
 
   return (
     <div
