@@ -8,11 +8,21 @@ export interface ScrollHandle {
   /**
    * containerとitemsのセレクタで指定された2点の位置差がdiffになるようにスクロール位置を調整する
    */
-  setScroll: (
+  setDiff: (
     containerPositionSelector: ContainerPositionSelector,
     itemsPositionSelector: ItemsPositionSelector,
     diff: number,
   ) => Option<null>;
+
+  /**
+   * containerとitemsのセレクタで指定された2点の位置差を返す
+   * containerのセレクタの点が上なら正の値を、下なら負の値を返す
+   * containerかitemsのElementが存在しなければNoneを返す
+   */
+  getDiff: (
+    containerPositionSelector: ContainerPositionSelector,
+    itemsPositionSelector: ItemsPositionSelector,
+  ) => Option<number>;
 }
 
 // itemToKeyは変化してはいけない
@@ -70,16 +80,6 @@ export interface ItemsPositionSelector {
 }
 
 /**
- * containerとitemsのセレクタで指定された2点の位置差を返す
- * containerのセレクタの点が上なら正の値を、下なら負の値を返す
- * containerかitemsのElementが存在しなければNoneを返す
- */
-export type GetDiff = (
-  containerPositionSelector: ContainerPositionSelector,
-  itemsPositionSelector: ItemsPositionSelector,
-) => Option<number>;
-
-/**
  * GetDiffの最小値を返す
  */
 export type GetDiffMin<T> = (
@@ -91,7 +91,7 @@ export interface ScrollProps<T> {
   itemToKey: (item: T) => string;
   renderItem: (item: T) => JSX.Element;
   scrollDebounce: number;
-  onScroll: (getDiff: GetDiff, getDiffMin: GetDiffMin<T>) => void;
+  onScroll: (getDiffMin: GetDiffMin<T>) => void;
   handleRef: React.MutableRefObject<ScrollHandle | null>;
   style?: React.CSSProperties;
   className?: string;
@@ -160,6 +160,21 @@ export const Scroll = <T,>(props: ScrollProps<T>) => {
     [props.itemToKey],
   );
 
+  const setDiff = React.useCallback(
+    (containerPositionSelector, itemsPositionSelector, diff): Option<null> => {
+      const curDiff = getDiff(containerPositionSelector, itemsPositionSelector);
+
+      const containerElement = containerElementRef.current;
+      if (containerElement === null || O.isNone(curDiff)) {
+        return O.none;
+      }
+
+      containerElement.scrollTop += curDiff.value - diff;
+      return O.some(null);
+    },
+    [],
+  );
+
   const getDiffMinRef = useValueRef(getDiffMin);
 
   React.useEffect(() => {
@@ -169,7 +184,7 @@ export const Scroll = <T,>(props: ScrollProps<T>) => {
         .fromEvent(containerElement, "scroll")
         .pipe(op.debounceTime(props.scrollDebounce))
         .subscribe(() => {
-          props.onScroll(getDiff, getDiffMinRef.current);
+          props.onScroll(getDiffMinRef.current);
         });
 
       return () => {
@@ -182,26 +197,10 @@ export const Scroll = <T,>(props: ScrollProps<T>) => {
 
   const handle = React.useMemo<ScrollHandle>(
     () => ({
-      setScroll: (
-        containerPositionSelector,
-        itemsPositionSelector,
-        diff,
-      ): Option<null> => {
-        const curDiff = getDiff(
-          containerPositionSelector,
-          itemsPositionSelector,
-        );
-
-        const containerElement = containerElementRef.current;
-        if (containerElement === null || O.isNone(curDiff)) {
-          return O.none;
-        }
-
-        containerElement.scrollTop += curDiff.value - diff;
-        return O.some(null);
-      },
+      setDiff,
+      getDiff,
     }),
-    [],
+    [setDiff, getDiff],
   );
 
   React.useEffect(() => {
