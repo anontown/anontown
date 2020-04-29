@@ -1,5 +1,6 @@
 import * as React from "react";
 import { O, Option } from "../prelude";
+import { useFunctionRef } from "../hooks";
 
 export interface ScrollRef<_T> {
   /**
@@ -52,12 +53,12 @@ function useKeyToElementMap<T>({
     }
   }, [items]);
 
-  const setElement = (item: T, element: HTMLDivElement) => {
+  const setElement = React.useCallback((item: T, element: HTMLDivElement) => {
     const key = itemToKey(item);
     const prev = keyToElementMap.get(key);
     keyToElementMap.set(key, element);
     onSet(key, prev, element);
-  };
+  }, []);
 
   return [keyToElementMap, setElement];
 }
@@ -103,7 +104,7 @@ export interface ScrollProps<T> {
   itemToKey: (item: T) => string;
   renderItem: (item: T) => JSX.Element;
   scrollDebounce: number;
-  changeShowKeys: (keys: ReadonlyArray<string>) => void;
+  changeShowItems: (keys: ReadonlyArray<T>) => void;
   style?: React.CSSProperties;
   className?: string;
   items: ReadonlyArray<T>;
@@ -138,6 +139,22 @@ function _Scroll<T>() {
         null,
       );
 
+      const intersectionObserverCallback = useFunctionRef(
+        (entries: IntersectionObserverEntry[]) => {
+          for (const entry of entries) {
+            const key = (entry.target as HTMLDivElement).dataset["key"]!;
+            if (entry.isIntersecting) {
+              showKeys.add(key);
+            } else {
+              showKeys.delete(key);
+            }
+          }
+          props.changeShowItems(
+            props.items.filter(item => showKeys.has(props.itemToKey(item))),
+          );
+        },
+      );
+
       React.useEffect(() => {
         if (intersectionObserverRef.current !== null) {
           intersectionObserverRef.current.disconnect();
@@ -145,17 +162,7 @@ function _Scroll<T>() {
 
         if (containerElementRef.current !== null) {
           intersectionObserverRef.current = new IntersectionObserver(
-            entries => {
-              for (const entry of entries) {
-                const key = (entry.target as HTMLDivElement).dataset["key"]!;
-                if (entry.isIntersecting) {
-                  showKeys.add(key);
-                } else {
-                  showKeys.delete(key);
-                }
-              }
-              props.changeShowKeys(Array.from(showKeys));
-            },
+            intersectionObserverCallback,
             {
               root: containerElementRef.current,
             },
