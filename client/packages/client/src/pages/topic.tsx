@@ -21,7 +21,7 @@ import {
   Page,
   Res,
   ResWrite,
-  Scroll,
+  StreamScroll,
   TopicFavo,
 } from "../components";
 import { PopupMenu } from "../components/popup-menu";
@@ -328,7 +328,7 @@ export const TopicPage = (_props: {}) => {
                 </PopupMenu>
               </div>
             </Paper>
-            <Scroll<G.ResFragment>
+            <StreamScroll<G.ResFragment>
               fetchKey={[match.params.id]}
               useStream={useStream}
               useFetch={useFetch}

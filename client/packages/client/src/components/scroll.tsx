@@ -1,593 +1,258 @@
 import * as React from "react";
-import * as rx from "rxjs";
-import * as op from "rxjs/operators";
-import { setTimeout } from "timers";
-import * as G from "../generated/graphql";
-import { useEffectRef, useLock, useValueRef } from "../hooks";
-import { pipe, Ord, OrdT, O, RA, ArrayExtra } from "../prelude";
+import { O, Option } from "../prelude";
 
-interface ListItemData {
-  id: string;
-  date: string;
+export interface ScrollRef<_T> {
+  /**
+   * containerとitemsのセレクタで指定された2点の位置差がdiffになるようにスクロール位置を調整する
+   */
+  setDiff: (
+    containerPositionSelector: ContainerPositionSelector,
+    itemsPositionSelector: ItemsPositionSelector,
+    diff: number,
+  ) => Option<null>;
+
+  /**
+   * containerとitemsのセレクタで指定された2点の位置差を返す
+   * containerのセレクタの点が上なら正の値を、下なら負の値を返す
+   * containerかitemsのElementが存在しなければNoneを返す
+   */
+  getDiff: (
+    containerPositionSelector: ContainerPositionSelector,
+    itemsPositionSelector: ItemsPositionSelector,
+  ) => Option<number>;
 }
 
-function getKeyFromListItemData<T extends ListItemData>(x: T): ListItemKey {
-  return [-new Date(x.date).valueOf(), x.id];
-}
-
-type ListItemKey = [number, string];
-const ordListItemKey: Ord<ListItemKey> = OrdT.getTupleOrd(
-  OrdT.ordNumber,
-  OrdT.ordString,
-);
-
-function useToTop(el: HTMLDivElement | null) {
-  const elRef = useValueRef(el);
-  return React.useCallback(async () => {
-    if (elRef.current !== null) {
-      elRef.current.scrollTop = 0;
-    }
-  }, []);
-}
-
-function useToBottom(el: HTMLDivElement | null) {
-  const elRef = useValueRef(el);
-  return React.useCallback(async () => {
-    if (elRef.current !== null) {
-      elRef.current.scrollTop = elRef.current.scrollHeight;
-    }
-  }, []);
-}
-
-function useIdElMap<T extends ListItemData>(data: ReadonlyArray<T>) {
-  const idElMap = React.useMemo(() => new Map<string, HTMLDivElement>(), []);
-  React.useEffect(() => {
-    const items = new Set(data.map(x => x.id));
-    for (const id of Array.from(idElMap.keys())) {
-      if (!items.has(id)) {
-        idElMap.delete(id);
-      }
-    }
-  }, [idElMap, data]);
-
-  const addFunction = React.useCallback(
-    (key: string, el: HTMLDivElement | null) => {
-      if (el !== null) {
-        idElMap.set(key, el);
-      }
-    },
-    [idElMap],
+// itemToKeyは変化してはいけない
+function useKeyToElementMap<T>({
+  itemToKey,
+  items,
+  onSet,
+  onDelete,
+}: {
+  itemToKey: (item: T) => string;
+  items: ReadonlyArray<T>;
+  onSet: (
+    key: string,
+    prev: HTMLDivElement | undefined,
+    el: HTMLDivElement,
+  ) => void;
+  onDelete: (key: string, el: HTMLDivElement) => void;
+}): [Map<string, HTMLDivElement>, (item: T, element: HTMLDivElement) => void] {
+  const keyToElementMap = React.useMemo(
+    () => new Map<string, HTMLDivElement>(),
+    [],
   );
-
-  return { idElMap, addFunction };
-}
-
-// 上端に一番近いアイテム
-function useGetTopElement<T extends ListItemData>(
-  data: ReadonlyArray<T>,
-  idElMap: Map<string, HTMLDivElement>,
-) {
-  return React.useCallback(async () => {
-    await sleep(0);
-
-    // 最短距離のアイテム
-    const minItem = data
-      .map(item => {
-        const el = idElMap.get(item.id);
-        if (el !== undefined) {
-          return { item, el };
-        } else {
-          return null;
-        }
-      })
-      .filter((x): x is ItemElPair<T> => x !== null)
-      .reduce<ItemElPair<T> | null>((min, item) => {
-        if (min === null) {
-          return item;
-        } else if (
-          Math.abs(
-            min.el.getBoundingClientRect().top +
-              min.el.getBoundingClientRect().height / 2,
-          ) >
-          Math.abs(
-            item.el.getBoundingClientRect().top +
-              item.el.getBoundingClientRect().height / 2,
-          )
-        ) {
-          return item;
-        } else {
-          return min;
-        }
-      }, null);
-
-    if (minItem !== null) {
-      return minItem.item;
-    } else {
-      return null;
-    }
-  }, [data, idElMap]);
-}
-
-// 下端に一番近いアイテム
-function useGetBottomElement<T extends ListItemData>(
-  data: ReadonlyArray<T>,
-  idElMap: Map<string, HTMLDivElement>,
-) {
-  return React.useCallback(async () => {
-    await sleep(0);
-
-    // 最短距離のアイテム
-    const minItem = data
-      .map(item => {
-        const el = idElMap.get(item.id);
-        if (el !== undefined) {
-          return { item, el };
-        } else {
-          return null;
-        }
-      })
-      .filter((x): x is ItemElPair<T> => x !== null)
-      .reduce<ItemElPair<T> | null>((min, item) => {
-        if (min === null) {
-          return item;
-        } else if (
-          Math.abs(
-            window.innerHeight -
-              (min.el.getBoundingClientRect().top +
-                min.el.getBoundingClientRect().height / 2),
-          ) >
-          Math.abs(
-            window.innerHeight -
-              (item.el.getBoundingClientRect().top +
-                item.el.getBoundingClientRect().height / 2),
-          )
-        ) {
-          return item;
-        } else {
-          return min;
-        }
-      }, null);
-
-    if (minItem !== null) {
-      return minItem.item;
-    } else {
-      return null;
-    }
-  }, [data, idElMap]);
-}
-
-function useScrollLock<T extends ListItemData>(
-  data: ReadonlyArray<T>,
-  idElMap: Map<string, HTMLDivElement>,
-  rootEl: HTMLDivElement | null,
-) {
-  return React.useCallback(
-    async (f: () => Promise<void>) => {
-      await sleep(0);
-      const elData = pipe(
-        data,
-        RA.head,
-        O.chain(x => O.fromNullable(idElMap.get(x.id))),
-        O.map(x => ({ el: x, y: elY(x) })),
-      );
-      try {
-        await f();
-      } finally {
-        if (O.isSome(elData)) {
-          if (rootEl !== null) {
-            rootEl.scrollTop += elY(elData.value.el) - elData.value.y;
-          }
-        }
-      }
-    },
-    [data, idElMap, rootEl],
-  );
-}
-
-function useAutoScroll(
-  isAutoScroll: boolean,
-  autoScrollSpeed: number,
-  rootEl: HTMLDivElement | null,
-) {
-  const isAutoScrollRef = useValueRef(isAutoScroll);
-  const autoScrollSpeedRef = useValueRef(autoScrollSpeed);
-  const rootElRef = useValueRef(rootEl);
-
   React.useEffect(() => {
-    const subs = rx.interval(100).subscribe(() => {
-      if (isAutoScrollRef.current && rootElRef.current !== null) {
-        rootElRef.current.scrollTop += autoScrollSpeedRef.current;
+    const activeKeys = new Set(items.map(item => itemToKey(item)));
+    for (const [key, el] of Array.from(keyToElementMap.entries())) {
+      if (!activeKeys.has(key)) {
+        keyToElementMap.delete(key);
+        onDelete(key, el);
       }
-    });
-    return () => {
-      subs.unsubscribe();
-    };
-  }, []);
-}
-
-function useOnTopScroll(
-  f: () => void,
-  rootEl: HTMLDivElement | null,
-  width: number,
-  debounceTime: number,
-) {
-  const fRef = useValueRef(f);
-  const widthRef = useValueRef(width);
-
-  React.useEffect(() => {
-    const subs =
-      rootEl !== null
-        ? rx
-            .fromEvent(rootEl, "scroll")
-            .pipe(
-              op.map(() => rootEl.scrollTop),
-              op.filter(top => Math.abs(top) <= widthRef.current),
-              op.debounceTime(debounceTime),
-            )
-            .subscribe(() => fRef.current())
-        : null;
-    return () => {
-      if (subs !== null) {
-        subs.unsubscribe();
-      }
-    };
-  }, [rootEl, debounceTime]);
-}
-
-function useOnBottomScroll(
-  f: () => void,
-  rootEl: HTMLDivElement | null,
-  width: number,
-  debounceTime: number,
-) {
-  const fRef = useValueRef(f);
-  const widthRef = useValueRef(width);
-
-  // 下までスクロール
-  React.useEffect(() => {
-    const subs =
-      rootEl !== null
-        ? rx
-            .fromEvent(rootEl, "scroll")
-            .pipe(
-              op.map(() => rootEl.scrollTop + rootEl.clientHeight),
-              op.distinctUntilChanged(),
-              op.filter(
-                bottom =>
-                  widthRef.current >= Math.abs(rootEl.scrollHeight - bottom),
-              ),
-              op.debounceTime(debounceTime),
-            )
-            .subscribe(() => fRef.current())
-        : null;
-    return () => {
-      if (subs !== null) {
-        subs.unsubscribe();
-      }
-    };
-  }, [rootEl, debounceTime]);
-}
-
-function useFetchUtils<T extends ListItemData>(
-  useFetch: () => (date: G.DateQuery) => Promise<ReadonlyArray<T>>,
-  rootEl: HTMLDivElement | null,
-  data: ReadonlyArray<T>,
-  idElMap: Map<string, HTMLDivElement>,
-  setData: (x: ReadonlyArray<T>) => void,
-  newItemOrder: "top" | "bottom",
-) {
-  const fetch = useFetch();
-
-  const toTop = useToTop(rootEl);
-  const toBottom = useToBottom(rootEl);
-
-  const scrollLock = useScrollLock(data, idElMap, rootEl);
-
-  const findAfterWithData = React.useCallback(
-    async (os: ReadonlyArray<T>) => {
-      const first = RA.head(os);
-      if (O.isSome(first)) {
-        await scrollLock(async () => {
-          const result = await fetch({
-            date: first.value.date,
-            type: "gt",
-          });
-
-          setData(
-            ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
-              getKeyFromListItemData,
-              result,
-            )(os),
-          );
-        });
-      }
-    },
-    [scrollLock, fetch, setData],
-  );
-
-  const findBeforeWithData = React.useCallback(
-    async (os: ReadonlyArray<T>) => {
-      const old = RA.last(os);
-      if (O.isSome(old)) {
-        await scrollLock(async () => {
-          const result = await fetch({
-            date: old.value.date,
-            type: "lt",
-          });
-
-          setData(
-            ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
-              getKeyFromListItemData,
-              result,
-            )(os),
-          );
-        });
-      }
-    },
-    [scrollLock, fetch, setData],
-  );
-
-  const resetDate = React.useCallback(
-    async (date: string) => {
-      const result = await fetch({
-        date,
-        type: "lte",
-      });
-
-      setData(result);
-
-      switch (newItemOrder) {
-        case "bottom":
-          await toBottom();
-          break;
-        case "top":
-          await toTop();
-          break;
-      }
-      await findAfterWithData(result);
-    },
-    [data, setData, fetch, newItemOrder, toBottom, toTop, findAfterWithData],
-  );
-
-  const findBefore = React.useCallback(async () => {
-    if (data.length === 0) {
-      await resetDate(new Date().toISOString());
-    } else {
-      await findBeforeWithData(data);
     }
-  }, [data, resetDate, findBeforeWithData]);
+  }, [items]);
 
-  const findAfter = React.useCallback(async () => {
-    if (data.length === 0) {
-      await resetDate(new Date().toISOString());
-    } else {
-      await findAfterWithData(data);
-    }
-  }, [data, resetDate, findAfterWithData]);
+  const setElement = (item: T, element: HTMLDivElement) => {
+    const key = itemToKey(item);
+    const prev = keyToElementMap.get(key);
+    keyToElementMap.set(key, element);
+    onSet(key, prev, element);
+  };
 
-  return { findAfter, findBefore, resetDate };
+  return [keyToElementMap, setElement];
 }
 
-function useOnChangeCurrentItem<T extends ListItemData>(
-  f: (item: T) => void,
-  data: ReadonlyArray<T>,
-  idElMap: Map<string, HTMLDivElement>,
-  rootEl: HTMLDivElement | null,
-  debounceTime: number,
-  newItemOrder: "top" | "bottom",
-) {
-  const fRef = useValueRef(f);
-  const newItemOrderRef = useValueRef(newItemOrder);
+/*
+スクロール位置の指定方法
+アイテムの追加・サイズ変更、コンテナーのサイズ変更に依存しない値
+サイズは割合指定なら依存しなさそう(上は0、下はみたいな)
+コンテナの位置(0-1)とアイテムのidと位置(0-1)の間1のピクセル数を指定する形式がよさそう
+*/
 
-  const getTopElement = useGetTopElement(data, idElMap);
-  const getBottomElement = useGetBottomElement(data, idElMap);
-
-  // スクロールによってアイテムが変化した
-  React.useEffect(() => {
-    const subs =
-      rootEl !== null
-        ? rx
-            .fromEvent(rootEl, "scroll")
-            .pipe(
-              op.debounceTime(debounceTime),
-              op.mergeMap(() =>
-                newItemOrderRef.current === "top"
-                  ? getTopElement()
-                  : getBottomElement(),
-              ),
-            )
-            .subscribe(x => {
-              if (x !== null) {
-                fRef.current(x);
-              }
-            })
-        : null;
-    return () => {
-      if (subs !== null) {
-        subs.unsubscribe();
-      }
-    };
-  }, [rootEl, debounceTime, getTopElement, useGetBottomElement]);
-}
-interface ItemElPair<T extends ListItemData> {
-  item: T;
-  el: HTMLDivElement;
+/**
+ * コンテナのある一点を表すセレクタ
+ */
+export interface ContainerPositionSelector {
+  /**
+   * コンテナの一番上を0、一番下を1とした時の位置
+   */
+  ratio: number;
 }
 
-export interface ScrollProps<T extends ListItemData> {
-  newItemOrder: "top" | "bottom";
-  fetchKey: Array<unknown>;
-  useFetch: () => (date: G.DateQuery) => Promise<ReadonlyArray<T>>;
-  useStream: (f: (item: T) => void) => void;
-  width: number;
-  debounceTime: number;
-  autoScrollSpeed: number;
-  isAutoScroll: boolean;
-  // スクロール位置変更イベント
-  scrollNewItemChange: (item: T) => void;
-  // スクロール位置変更命令
-  scrollNewItem: rx.Observable<string>;
-  initDate: string;
-  dataToEl: (data: T) => JSX.Element;
+/**
+ * アイテムリストのある一点を表すセレクタ
+ */
+export interface ItemsPositionSelector {
+  key: string;
+
+  /**
+   * keyで指定されたアイテムの一番上を0、一番下を1とした時の位置
+   */
+  ratio: number;
+}
+
+/**
+ * GetDiffの最小値を返す
+ */
+export type GetDiffMin<T> = (
+  containerPositionSelector: ContainerPositionSelector,
+  itemsPositionRatio: number,
+) => Option<[number, T]>;
+
+export interface ScrollProps<T> {
+  itemToKey: (item: T) => string;
+  renderItem: (item: T) => JSX.Element;
+  scrollDebounce: number;
+  changeShowKeys: (keys: ReadonlyArray<string>) => void;
   style?: React.CSSProperties;
   className?: string;
   items: ReadonlyArray<T>;
   changeItems: (items: ReadonlyArray<T>) => void;
-  existUnread: boolean;
-  onChangeExistUnread: (existUnread: boolean) => void;
 }
 
-function elHeight(el: HTMLElement) {
-  return el.offsetHeight;
-}
-
-function elTop(el: HTMLElement) {
-  return el.offsetTop;
-}
-
-function elY(el: HTMLElement) {
-  return elTop(el) + elHeight(el) / 2;
-}
-
-function sleep(ms: number) {
-  return new Promise<void>(resolve => {
-    setTimeout(() => {
-      resolve();
-    }, ms);
-  });
-}
-
-type Cmd =
-  | { type: "reset"; date: string }
-  | { type: "after" }
-  | { type: "before" };
-
-export const Scroll = <T extends ListItemData>(props: ScrollProps<T>) => {
-  const rootEl = React.useRef<HTMLDivElement | null>(null);
-
-  React.useEffect(() => {
-    runCmd({ type: "reset", date: props.initDate });
-  }, [props.initDate.valueOf(), ...props.fetchKey]);
-
-  const { idElMap, addFunction } = useIdElMap<T>(props.items);
-  const { resetDate, findBefore, findAfter } = useFetchUtils(
-    props.useFetch,
-    rootEl.current,
-    props.items,
-    idElMap,
-    props.changeItems,
-    props.newItemOrder,
-  );
-
-  const lock = useLock();
-  const runCmd = React.useCallback(
-    async (cmd: Cmd) => {
-      await lock(async () => {
-        switch (cmd.type) {
-          case "reset":
-            await resetDate(cmd.date);
-            break;
-          case "before":
-            await findBefore();
-            break;
-          case "after":
-            await findAfter();
-            break;
-        }
+function _Scroll<T>() {
+  return React.forwardRef(
+    (props: ScrollProps<T>, ref: React.Ref<ScrollRef<T>>) => {
+      const containerElementRef = React.useRef<HTMLDivElement | null>(null);
+      const [keyToElementMap, setElement] = useKeyToElementMap<T>({
+        itemToKey: props.itemToKey,
+        items: props.items,
+        onSet: (_key, prev, el) => {
+          if (intersectionObserverRef.current !== null) {
+            if (prev !== undefined) {
+              intersectionObserverRef.current.unobserve(prev);
+            }
+            intersectionObserverRef.current.observe(el);
+          }
+        },
+        onDelete: (_key, el) => {
+          if (intersectionObserverRef.current !== null) {
+            intersectionObserverRef.current.unobserve(el);
+          }
+        },
       });
-    },
-    [props.fetchKey, lock, resetDate, findBefore, findAfter],
-  );
 
-  // 上までスクロール
-  useOnTopScroll(
-    () => {
-      switch (props.newItemOrder) {
-        case "top":
-          props.onChangeExistUnread(false);
-          runCmd({ type: "after" });
-          break;
-        case "bottom":
-          runCmd({ type: "before" });
-          break;
-      }
-    },
-    rootEl.current,
-    props.width,
-    props.debounceTime,
-  );
+      const showKeys = React.useMemo(() => new Set<string>(), []);
 
-  // 下までスクロール
-  useOnBottomScroll(
-    () => {
-      switch (props.newItemOrder) {
-        case "bottom":
-          props.onChangeExistUnread(false);
-          runCmd({ type: "after" });
-          break;
-        case "top":
-          runCmd({ type: "before" });
-          break;
-      }
-    },
-    rootEl.current,
-    props.width,
-    props.debounceTime,
-  );
+      const intersectionObserverRef = React.useRef<IntersectionObserver | null>(
+        null,
+      );
 
-  useOnChangeCurrentItem(
-    newItem => {
-      props.scrollNewItemChange(newItem);
-    },
-    props.items,
-    idElMap,
-    rootEl.current,
-    props.debounceTime,
-    props.newItemOrder,
-  );
+      React.useEffect(() => {
+        if (intersectionObserverRef.current !== null) {
+          intersectionObserverRef.current.disconnect();
+        }
 
-  // 自動スクロール
-  useAutoScroll(props.isAutoScroll, props.autoScrollSpeed, rootEl.current);
+        if (containerElementRef.current !== null) {
+          intersectionObserverRef.current = new IntersectionObserver(
+            entries => {
+              for (const entry of entries) {
+                const key = (entry.target as HTMLDivElement).dataset["key"]!;
+                if (entry.isIntersecting) {
+                  showKeys.add(key);
+                } else {
+                  showKeys.delete(key);
+                }
+              }
+              props.changeShowKeys(Array.from(showKeys));
+            },
+            {
+              root: containerElementRef.current,
+            },
+          );
+          for (const el of Array.from(keyToElementMap.values())) {
+            intersectionObserverRef.current.observe(el);
+          }
+        }
+      }, [containerElementRef.current]);
 
-  // スクロール位置変更入力
-  useEffectRef(
-    f => {
-      const subs = props.scrollNewItem.subscribe(x => f.current(x));
-      return () => {
-        subs.unsubscribe();
-      };
-    },
-    (date: string) => {
-      runCmd({ type: "reset", date });
-    },
-    [props.scrollNewItem],
-  );
+      const getDiff = React.useCallback(
+        (
+          containerPositionSelector: ContainerPositionSelector,
+          itemsPositionSelector: ItemsPositionSelector,
+        ): Option<number> => {
+          const containerElement = containerElementRef.current;
+          const itemElement = keyToElementMap.get(itemsPositionSelector.key);
+          if (containerElement === null || itemElement === undefined) {
+            return O.none;
+          }
 
-  // 新しいアイテム追加イベント
-  const onSubscriptionDataRef = useValueRef((newData: T) => {
-    props.onChangeExistUnread(true);
-    props.changeItems(
-      pipe(
-        props.items,
-        ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
-          item => getKeyFromListItemData(item),
-          [newData],
-        ),
-      ),
-    );
-  });
-  props.useStream(x => onSubscriptionDataRef.current(x));
+          // コンテナの上を基準とした時のセレクタで指定されたコンテナ座標
+          const containerPosition =
+            containerElement.clientHeight * containerPositionSelector.ratio;
 
-  return (
-    <div className={props.className} style={props.style} ref={rootEl}>
-      {(props.newItemOrder === "bottom"
-        ? RA.reverse(props.items)
-        : props.items
-      ).map(item => (
-        <div key={item.id} ref={el => addFunction(item.id, el)}>
-          {props.dataToEl(item)}
+          // コンテナの上を基準とした時のセレクタで指定されたアイテム座標
+          const itemPosition =
+            itemElement.getBoundingClientRect().y -
+            containerElement.getBoundingClientRect().y +
+            itemElement.clientHeight * itemsPositionSelector.ratio;
+
+          return O.some(itemPosition - containerPosition);
+        },
+        [],
+      );
+
+      const setDiff = React.useCallback(
+        (
+          containerPositionSelector,
+          itemsPositionSelector,
+          diff,
+        ): Option<null> => {
+          const curDiff = getDiff(
+            containerPositionSelector,
+            itemsPositionSelector,
+          );
+
+          const containerElement = containerElementRef.current;
+          if (containerElement === null || O.isNone(curDiff)) {
+            return O.none;
+          }
+
+          containerElement.scrollTop += curDiff.value - diff;
+          return O.some(null);
+        },
+        [],
+      );
+
+      React.useImperativeHandle(
+        ref,
+        () => ({
+          setDiff,
+          getDiff,
+        }),
+        [setDiff, getDiff],
+      );
+
+      return (
+        <div
+          className={props.className}
+          style={props.style}
+          ref={containerElementRef}
+        >
+          {props.items.map(item => (
+            <div
+              key={props.itemToKey(item)}
+              data-key={props.itemToKey(item)}
+              ref={el => {
+                if (el !== null) {
+                  setElement(item, el);
+                }
+              }}
+            >
+              {props.renderItem(item)}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      );
+    },
   );
-};
+}
+
+const _scroll = _Scroll<any>();
+
+export function Scroll<T>(): React.ForwardRefExoticComponent<
+  ScrollProps<T> & React.RefAttributes<ScrollRef<T>>
+> {
+  // 常に同じコンポーネントの参照を返したいので
+  return _scroll;
+}

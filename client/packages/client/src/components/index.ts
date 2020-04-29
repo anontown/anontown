@@ -24,7 +24,7 @@ export * from "./topic-favo";
 export * from "./topic-editor";
 export * from "./topic-fork";
 export * from "./tags-input";
-export * from "./scroll";
+export * from "./stream-scroll";
 export * from "./ng";
 export * from "./ng-editor";
 export * from "./ng-node-editor";
