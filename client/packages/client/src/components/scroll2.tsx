@@ -1,10 +1,7 @@
 import * as React from "react";
-import * as rx from "rxjs";
-import * as op from "rxjs/operators";
 import { O, Option } from "../prelude";
-import { useValueRef } from "../hooks";
 
-export interface ScrollHandle {
+export interface ScrollRef {
   /**
    * containerとitemsのセレクタで指定された2点の位置差がdiffになるようにスクロール位置を調整する
    */
@@ -26,25 +23,40 @@ export interface ScrollHandle {
 }
 
 // itemToKeyは変化してはいけない
-function useKeyToElementMap<T>(
-  itemToKey: (item: T) => string,
-  items: ReadonlyArray<T>,
-): [Map<string, HTMLDivElement>, (item: T, element: HTMLDivElement) => void] {
+function useKeyToElementMap<T>({
+  itemToKey,
+  items,
+  onSet,
+  onDelete,
+}: {
+  itemToKey: (item: T) => string;
+  items: ReadonlyArray<T>;
+  onSet: (
+    key: string,
+    prev: HTMLDivElement | undefined,
+    el: HTMLDivElement,
+  ) => void;
+  onDelete: (key: string, el: HTMLDivElement) => void;
+}): [Map<string, HTMLDivElement>, (item: T, element: HTMLDivElement) => void] {
   const keyToElementMap = React.useMemo(
     () => new Map<string, HTMLDivElement>(),
     [],
   );
   React.useEffect(() => {
-    const keys = new Set(items.map(item => itemToKey(item)));
-    for (const key of Array.from(keys)) {
-      if (!keys.has(key)) {
-        keys.delete(key);
+    const activeKeys = new Set(items.map(item => itemToKey(item)));
+    for (const [key, el] of Array.from(keyToElementMap.entries())) {
+      if (!activeKeys.has(key)) {
+        keyToElementMap.delete(key);
+        onDelete(key, el);
       }
     }
   }, [items]);
 
   const setElement = (item: T, element: HTMLDivElement) => {
-    keyToElementMap.set(itemToKey(item), element);
+    const key = itemToKey(item);
+    const prev = keyToElementMap.get(key);
+    keyToElementMap.set(key, element);
+    onSet(key, prev, element);
   };
 
   return [keyToElementMap, setElement];
@@ -91,140 +103,147 @@ export interface ScrollProps<T> {
   itemToKey: (item: T) => string;
   renderItem: (item: T) => JSX.Element;
   scrollDebounce: number;
-  onScroll: (getDiffMin: GetDiffMin<T>) => void;
-  handleRef: React.MutableRefObject<ScrollHandle | null>;
+  changeShowKeys: (keys: ReadonlyArray<string>) => void;
   style?: React.CSSProperties;
   className?: string;
   items: ReadonlyArray<T>;
   changeItems: (items: ReadonlyArray<T>) => void;
 }
 
-export const Scroll = <T,>(props: ScrollProps<T>) => {
-  const containerElementRef = React.useRef<HTMLDivElement | null>(null);
-  const [keyToElementMap, setElement] = useKeyToElementMap<T>(
-    props.itemToKey,
-    props.items,
-  );
+export function Scroll<T>() {
+  return React.forwardRef(
+    (props: ScrollProps<T>, ref: React.Ref<ScrollRef>) => {
+      const containerElementRef = React.useRef<HTMLDivElement | null>(null);
+      const [keyToElementMap, setElement] = useKeyToElementMap<T>({
+        itemToKey: props.itemToKey,
+        items: props.items,
+        onSet: (_key, prev, el) => {
+          if (intersectionObserverRef.current !== null) {
+            if (prev !== undefined) {
+              intersectionObserverRef.current.unobserve(prev);
+            }
+            intersectionObserverRef.current.observe(el);
+          }
+        },
+        onDelete: (_key, el) => {
+          if (intersectionObserverRef.current !== null) {
+            intersectionObserverRef.current.unobserve(el);
+          }
+        },
+      });
 
-  const getDiff = React.useCallback(
-    (
-      containerPositionSelector: ContainerPositionSelector,
-      itemsPositionSelector: ItemsPositionSelector,
-    ): Option<number> => {
-      const containerElement = containerElementRef.current;
-      const itemElement = keyToElementMap.get(itemsPositionSelector.key);
-      if (containerElement === null || itemElement === undefined) {
-        return O.none;
-      }
+      const showKeys = React.useMemo(() => new Set<string>(), []);
 
-      // コンテナの上を基準とした時のセレクタで指定されたコンテナ座標
-      const containerPosition =
-        containerElement.clientHeight * containerPositionSelector.ratio;
+      const intersectionObserverRef = React.useRef<IntersectionObserver | null>(
+        null,
+      );
 
-      // コンテナの上を基準とした時のセレクタで指定されたアイテム座標
-      const itemPosition =
-        itemElement.getBoundingClientRect().y -
-        containerElement.getBoundingClientRect().y +
-        itemElement.clientHeight * itemsPositionSelector.ratio;
+      React.useEffect(() => {
+        if (intersectionObserverRef.current !== null) {
+          intersectionObserverRef.current.disconnect();
+        }
 
-      return O.some(itemPosition - containerPosition);
-    },
-    [],
-  );
-
-  const getDiffMin = React.useCallback(
-    (
-      containerPositionSelector: ContainerPositionSelector,
-      itemsPositionRatio: number,
-    ): Option<[number, T]> => {
-      /*
-      TODO: 三分探索とか使って高速化
-      getDiffがnoneの可能性もあるので一度でもnoneがでたら全探索とか(Noneが出る可能性は全スクロールを母数とするとめったにない)工夫が必要
-      */
-      let min: Option<[number, T]> = O.none;
-
-      for (const item of props.items) {
-        const diff = getDiff(containerPositionSelector, {
-          ratio: itemsPositionRatio,
-          key: props.itemToKey(item),
-        });
-        if (O.isSome(diff)) {
-          if (O.isNone(min) || diff.value < min.value[0]) {
-            min = O.some([diff.value, item]);
+        if (containerElementRef.current !== null) {
+          intersectionObserverRef.current = new IntersectionObserver(
+            entries => {
+              for (const entry of entries) {
+                const key = (entry.target as HTMLDivElement).dataset["key"]!;
+                if (entry.isIntersecting) {
+                  showKeys.add(key);
+                } else {
+                  showKeys.delete(key);
+                }
+              }
+              props.changeShowKeys(Array.from(showKeys));
+            },
+            {
+              root: containerElementRef.current,
+            },
+          );
+          for (const el of Array.from(keyToElementMap.values())) {
+            intersectionObserverRef.current.observe(el);
           }
         }
-      }
+      }, [containerElementRef.current]);
 
-      return min;
-    },
-    [props.itemToKey],
-  );
+      const getDiff = React.useCallback(
+        (
+          containerPositionSelector: ContainerPositionSelector,
+          itemsPositionSelector: ItemsPositionSelector,
+        ): Option<number> => {
+          const containerElement = containerElementRef.current;
+          const itemElement = keyToElementMap.get(itemsPositionSelector.key);
+          if (containerElement === null || itemElement === undefined) {
+            return O.none;
+          }
 
-  const setDiff = React.useCallback(
-    (containerPositionSelector, itemsPositionSelector, diff): Option<null> => {
-      const curDiff = getDiff(containerPositionSelector, itemsPositionSelector);
+          // コンテナの上を基準とした時のセレクタで指定されたコンテナ座標
+          const containerPosition =
+            containerElement.clientHeight * containerPositionSelector.ratio;
 
-      const containerElement = containerElementRef.current;
-      if (containerElement === null || O.isNone(curDiff)) {
-        return O.none;
-      }
+          // コンテナの上を基準とした時のセレクタで指定されたアイテム座標
+          const itemPosition =
+            itemElement.getBoundingClientRect().y -
+            containerElement.getBoundingClientRect().y +
+            itemElement.clientHeight * itemsPositionSelector.ratio;
 
-      containerElement.scrollTop += curDiff.value - diff;
-      return O.some(null);
-    },
-    [],
-  );
+          return O.some(itemPosition - containerPosition);
+        },
+        [],
+      );
 
-  const getDiffMinRef = useValueRef(getDiffMin);
+      const setDiff = React.useCallback(
+        (
+          containerPositionSelector,
+          itemsPositionSelector,
+          diff,
+        ): Option<null> => {
+          const curDiff = getDiff(
+            containerPositionSelector,
+            itemsPositionSelector,
+          );
 
-  React.useEffect(() => {
-    const containerElement = containerElementRef.current;
-    if (containerElement !== null) {
-      const subs = rx
-        .fromEvent(containerElement, "scroll")
-        .pipe(op.debounceTime(props.scrollDebounce))
-        .subscribe(() => {
-          props.onScroll(getDiffMinRef.current);
-        });
+          const containerElement = containerElementRef.current;
+          if (containerElement === null || O.isNone(curDiff)) {
+            return O.none;
+          }
 
-      return () => {
-        subs.unsubscribe();
-      };
-    } else {
-      return;
-    }
-  }, [containerElementRef.current, props.scrollDebounce]);
+          containerElement.scrollTop += curDiff.value - diff;
+          return O.some(null);
+        },
+        [],
+      );
 
-  const handle = React.useMemo<ScrollHandle>(
-    () => ({
-      setDiff,
-      getDiff,
-    }),
-    [setDiff, getDiff],
-  );
+      React.useImperativeHandle(
+        ref,
+        () => ({
+          setDiff,
+          getDiff,
+        }),
+        [setDiff, getDiff],
+      );
 
-  React.useEffect(() => {
-    props.handleRef.current = handle;
-  }, [handle, props.handleRef]);
-
-  return (
-    <div
-      className={props.className}
-      style={props.style}
-      ref={containerElementRef}
-    >
-      {props.items.map(item => (
+      return (
         <div
-          key={props.itemToKey(item)}
-          ref={el => {
-            if (el !== null) {
-              setElement(item, el);
-            }
-          }}
+          className={props.className}
+          style={props.style}
+          ref={containerElementRef}
         >
-          {props.renderItem(item)}
+          {props.items.map(item => (
+            <div
+              key={props.itemToKey(item)}
+              data-key={props.itemToKey(item)}
+              ref={el => {
+                if (el !== null) {
+                  setElement(item, el);
+                }
+              }}
+            >
+              {props.renderItem(item)}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      );
+    },
   );
-};
+}
