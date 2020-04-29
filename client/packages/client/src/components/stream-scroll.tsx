@@ -5,6 +5,7 @@ import { setTimeout } from "timers";
 import * as G from "../generated/graphql";
 import { useEffectRef, useLock, useValueRef } from "../hooks";
 import { pipe, Ord, OrdT, O, RA, ArrayExtra } from "../prelude";
+import { useInterval } from "react-use";
 
 interface ListItemData {
   id: string;
@@ -189,20 +190,11 @@ function useAutoScroll(
   autoScrollSpeed: number,
   rootEl: HTMLDivElement | null,
 ) {
-  const isAutoScrollRef = useValueRef(isAutoScroll);
-  const autoScrollSpeedRef = useValueRef(autoScrollSpeed);
-  const rootElRef = useValueRef(rootEl);
-
-  React.useEffect(() => {
-    const subs = rx.interval(100).subscribe(() => {
-      if (isAutoScrollRef.current && rootElRef.current !== null) {
-        rootElRef.current.scrollTop += autoScrollSpeedRef.current;
-      }
-    });
-    return () => {
-      subs.unsubscribe();
-    };
-  }, []);
+  useInterval(() => {
+    if (isAutoScroll && rootEl !== null) {
+      rootEl.scrollTop += autoScrollSpeed;
+    }
+  }, 100);
 }
 
 function useOnTopScroll(

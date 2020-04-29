@@ -118,7 +118,7 @@
     "react-router-dom": "^5.0.1",
     "react-tabs": "^3.0.0",
     "react-twitter-embed": "^2.0.7",
-    "react-use": "^5.10.0",
+    "react-use": "^14.2.0",
     "reactjs-popup": "^1.4.2",
     "redux": "^4.0.4",
     "redux-logger": "^3.0.6",

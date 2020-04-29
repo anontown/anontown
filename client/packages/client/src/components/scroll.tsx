@@ -21,6 +21,8 @@ export interface ScrollRef<_T> {
     containerPositionSelector: ContainerPositionSelector,
     itemsPositionSelector: ItemsPositionSelector,
   ) => Option<number>;
+
+  modifyScrollTop(f: (scrollTop: number) => number): void;
 }
 
 // itemToKeyは変化してはいけない
@@ -221,13 +223,25 @@ function _Scroll<T>() {
         [],
       );
 
+      const modifyScrollTop = React.useCallback(
+        (f: (scrollTop: number) => number) => {
+          if (containerElementRef.current !== null) {
+            containerElementRef.current.scrollTop = f(
+              containerElementRef.current.scrollTop,
+            );
+          }
+        },
+        [],
+      );
+
       React.useImperativeHandle(
         ref,
         () => ({
           setDiff,
           getDiff,
+          modifyScrollTop,
         }),
-        [setDiff, getDiff],
+        [setDiff, getDiff, modifyScrollTop],
       );
 
       return (
