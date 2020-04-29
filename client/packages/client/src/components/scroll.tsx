@@ -22,7 +22,9 @@ export interface ScrollRef<_T> {
     itemsPositionSelector: ItemsPositionSelector,
   ) => Option<number>;
 
-  modifyScrollTop(f: (scrollTop: number) => number): void;
+  modifyScrollTop(
+    f: (_: { scrollTop: number; scrollHeight: number }) => number,
+  ): void;
 }
 
 // itemToKeyは変化してはいけない
@@ -224,11 +226,12 @@ function _Scroll<T>() {
       );
 
       const modifyScrollTop = React.useCallback(
-        (f: (scrollTop: number) => number) => {
+        (f: (_: { scrollTop: number; scrollHeight: number }) => number) => {
           if (containerElementRef.current !== null) {
-            containerElementRef.current.scrollTop = f(
-              containerElementRef.current.scrollTop,
-            );
+            containerElementRef.current.scrollTop = f({
+              scrollTop: containerElementRef.current.scrollTop,
+              scrollHeight: containerElementRef.current.scrollHeight,
+            });
           }
         },
         [],
