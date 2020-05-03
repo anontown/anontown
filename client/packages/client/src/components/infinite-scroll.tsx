@@ -13,7 +13,7 @@ export interface InfiniteScrollProps<T> {
   // keyがnullの時制御しない
   currentItemKey: string | null;
   // keyがnullの時アイテムが存在しない(itemsが0だったり、表示されているアイテムがなかったり)
-  onChangeCurrentItemKey: (key: string | null) => void;
+  onChangeCurrentItemKey: (key: string | null, item: T | null) => void;
   onScrollTop: () => void;
   onScrollBottom: () => void;
   // 上のアイテムを現在のアイテムとするか、下のアイテムを現在のアイテムとするか
@@ -23,9 +23,9 @@ export interface InfiniteScrollProps<T> {
 
 export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
   // 現在の実際のアイテムの位置。props.currentItemKeyより前に設定され現在のアイテムの位置と比較されることを期待している
-  const [currentItemKey, setCurrentItemKey] = React.useState<string | null>(
-    null,
-  );
+  const [currentItem, setCurrentItem] = React.useState<T | null>(null);
+  const currentItemKey =
+    currentItem !== null ? props.itemToKey(currentItem) : null;
 
   useInterval(() => {
     const scroll = scrollRef.current;
@@ -39,7 +39,7 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
   // 現在のアイテムの位置に変更があればchangeイベントを発生させる
   React.useEffect(() => {
     if (currentItemKey !== props.currentItemKey) {
-      props.onChangeCurrentItemKey(currentItemKey);
+      props.onChangeCurrentItemKey(currentItemKey, currentItem);
     }
   }, [currentItemKey]);
 
@@ -88,9 +88,19 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
       return;
     }
 
-    const newCurrentItemKey = props.currentItemKey;
+    const newCurrentItem =
+      props.currentItemKey !== null
+        ? props.items.find(
+            item => props.itemToKey(item) === props.currentItemKey,
+          )
+        : null;
 
-    if (newCurrentItemKey !== null && currentItemKey !== newCurrentItemKey) {
+    if (
+      newCurrentItem !== null &&
+      newCurrentItem !== undefined &&
+      currentItemKey !== props.itemToKey(newCurrentItem)
+    ) {
+      const newCurrentItemKey = props.itemToKey(newCurrentItem);
       lock(async () => {
         await sleep(0);
         switch (props.currentItemBase) {
@@ -111,7 +121,7 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
             break;
           }
         }
-        setCurrentItemKey(newCurrentItemKey);
+        setCurrentItem(newCurrentItem);
       });
     }
   }, [currentItemKey, props.currentItemKey]);
@@ -120,15 +130,11 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
     (items: ReadonlyArray<T>) => {
       switch (props.currentItemBase) {
         case "top": {
-          setCurrentItemKey(
-            pipe(RA.head(items), O.map(props.itemToKey), O.toNullable),
-          );
+          setCurrentItem(pipe(RA.head(items), O.toNullable));
           break;
         }
         case "bottom": {
-          setCurrentItemKey(
-            pipe(RA.last(items), O.map(props.itemToKey), O.toNullable),
-          );
+          setCurrentItem(pipe(RA.last(items), O.toNullable));
           break;
         }
       }
