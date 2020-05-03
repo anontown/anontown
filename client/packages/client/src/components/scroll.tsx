@@ -103,9 +103,12 @@ export interface ScrollProps<T> {
   style?: React.CSSProperties;
   className?: string;
   items: ReadonlyArray<T>;
-  changeItems: (items: ReadonlyArray<T>) => void;
 }
 
+/*
+細かい調整が可能なスクロールコンポーネント
+DOMに触らずに操作が可能だがrefを使っているので宣言的には書けない
+*/
 function _Scroll<T>() {
   return React.forwardRef(
     (props: ScrollProps<T>, ref: React.Ref<ScrollRef<T>>) => {
