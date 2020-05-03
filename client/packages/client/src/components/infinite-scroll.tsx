@@ -2,6 +2,7 @@ import { Scroll, ScrollRef } from "./scroll";
 import * as React from "react";
 import { RA, pipe, O, sleep, EqT } from "../prelude";
 import { useLock } from "../hooks";
+import { useInterval } from "react-use";
 
 export interface InfiniteScrollProps<T> {
   itemToKey: (item: T) => string;
@@ -17,14 +18,25 @@ export interface InfiniteScrollProps<T> {
   onScrollBottom: () => void;
   // 上のアイテムを現在のアイテムとするか、下のアイテムを現在のアイテムとするか
   currentItemBase: "top" | "bottom";
-  // TODO: 自動スクロールに関すること
+  autoScroll?: { speed: number; interval: number };
 }
 
 export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
+  // 現在の実際のアイテムの位置。props.currentItemKeyより前に設定され現在のアイテムの位置と比較されることを期待している
   const [currentItemKey, setCurrentItemKey] = React.useState<string | null>(
     null,
   );
 
+  useInterval(() => {
+    const scroll = scrollRef.current;
+    const autoScroll = props.autoScroll;
+    if (scroll === null || autoScroll === undefined) {
+      return;
+    }
+    scroll.modifyScrollTop(({ scrollTop }) => (scrollTop += autoScroll.speed));
+  }, props.autoScroll?.interval);
+
+  // 現在のアイテムの位置に変更があればchangeイベントを発生させる
   React.useEffect(() => {
     if (currentItemKey !== props.currentItemKey) {
       props.onChangeCurrentItemKey(currentItemKey);
@@ -32,6 +44,8 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
   }, [currentItemKey]);
 
   const scrollRef = React.useRef<ScrollRef<T> | null>(null);
+
+  // TODO: ロックいる？ロックするなら方法考える
   const lock = useLock();
 
   // アイテムに変更があったときスクロール位置固定
