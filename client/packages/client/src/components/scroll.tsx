@@ -96,14 +96,6 @@ export interface ItemsPositionSelector {
   ratio: number;
 }
 
-/**
- * GetDiffの最小値を返す
- */
-export type GetDiffMin<T> = (
-  containerPositionSelector: ContainerPositionSelector,
-  itemsPositionRatio: number,
-) => Option<[number, T]>;
-
 export interface ScrollProps<T> {
   itemToKey: (item: T) => string;
   renderItem: (item: T) => JSX.Element;
