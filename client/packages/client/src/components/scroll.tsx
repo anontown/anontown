@@ -107,7 +107,6 @@ export type GetDiffMin<T> = (
 export interface ScrollProps<T> {
   itemToKey: (item: T) => string;
   renderItem: (item: T) => JSX.Element;
-  scrollDebounce: number;
   changeShowItems: (keys: ReadonlyArray<T>) => void;
   style?: React.CSSProperties;
   className?: string;
