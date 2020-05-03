@@ -6,6 +6,8 @@ import * as G from "../generated/graphql";
 import { useEffectRef, useLock, useValueRef } from "../hooks";
 import { pipe, Ord, OrdT, O, RA, ArrayExtra } from "../prelude";
 import { useInterval } from "react-use";
+import { ScrollRef } from "./scroll";
+import { Do } from "fp-ts-contrib/lib/Do";
 
 interface ListItemData {
   id: string;
@@ -22,258 +24,86 @@ const ordListItemKey: Ord<ListItemKey> = OrdT.getTupleOrd(
   OrdT.ordString,
 );
 
-function useToTop(el: HTMLDivElement | null) {
-  const elRef = useValueRef(el);
+function useToTop<T>(ref: React.MutableRefObject<ScrollRef<T> | null>) {
   return React.useCallback(async () => {
-    if (elRef.current !== null) {
-      elRef.current.scrollTop = 0;
+    if (ref.current !== null) {
+      ref.current.modifyScrollTop(({}) => 0);
     }
   }, []);
 }
 
-function useToBottom(el: HTMLDivElement | null) {
-  const elRef = useValueRef(el);
+function useToBottom<T>(ref: React.MutableRefObject<ScrollRef<T> | null>) {
   return React.useCallback(async () => {
-    if (elRef.current !== null) {
-      elRef.current.scrollTop = elRef.current.scrollHeight;
+    if (ref.current !== null) {
+      ref.current.modifyScrollTop(({ scrollHeight }) => scrollHeight);
     }
   }, []);
-}
-
-function useIdElMap<T extends ListItemData>(data: ReadonlyArray<T>) {
-  const idElMap = React.useMemo(() => new Map<string, HTMLDivElement>(), []);
-  React.useEffect(() => {
-    const items = new Set(data.map(x => x.id));
-    for (const id of Array.from(idElMap.keys())) {
-      if (!items.has(id)) {
-        idElMap.delete(id);
-      }
-    }
-  }, [idElMap, data]);
-
-  const addFunction = React.useCallback(
-    (key: string, el: HTMLDivElement | null) => {
-      if (el !== null) {
-        idElMap.set(key, el);
-      }
-    },
-    [idElMap],
-  );
-
-  return { idElMap, addFunction };
-}
-
-// 上端に一番近いアイテム
-function useGetTopElement<T extends ListItemData>(
-  data: ReadonlyArray<T>,
-  idElMap: Map<string, HTMLDivElement>,
-) {
-  return React.useCallback(async () => {
-    await sleep(0);
-
-    // 最短距離のアイテム
-    const minItem = data
-      .map(item => {
-        const el = idElMap.get(item.id);
-        if (el !== undefined) {
-          return { item, el };
-        } else {
-          return null;
-        }
-      })
-      .filter((x): x is ItemElPair<T> => x !== null)
-      .reduce<ItemElPair<T> | null>((min, item) => {
-        if (min === null) {
-          return item;
-        } else if (
-          Math.abs(
-            min.el.getBoundingClientRect().top +
-              min.el.getBoundingClientRect().height / 2,
-          ) >
-          Math.abs(
-            item.el.getBoundingClientRect().top +
-              item.el.getBoundingClientRect().height / 2,
-          )
-        ) {
-          return item;
-        } else {
-          return min;
-        }
-      }, null);
-
-    if (minItem !== null) {
-      return minItem.item;
-    } else {
-      return null;
-    }
-  }, [data, idElMap]);
-}
-
-// 下端に一番近いアイテム
-function useGetBottomElement<T extends ListItemData>(
-  data: ReadonlyArray<T>,
-  idElMap: Map<string, HTMLDivElement>,
-) {
-  return React.useCallback(async () => {
-    await sleep(0);
-
-    // 最短距離のアイテム
-    const minItem = data
-      .map(item => {
-        const el = idElMap.get(item.id);
-        if (el !== undefined) {
-          return { item, el };
-        } else {
-          return null;
-        }
-      })
-      .filter((x): x is ItemElPair<T> => x !== null)
-      .reduce<ItemElPair<T> | null>((min, item) => {
-        if (min === null) {
-          return item;
-        } else if (
-          Math.abs(
-            window.innerHeight -
-              (min.el.getBoundingClientRect().top +
-                min.el.getBoundingClientRect().height / 2),
-          ) >
-          Math.abs(
-            window.innerHeight -
-              (item.el.getBoundingClientRect().top +
-                item.el.getBoundingClientRect().height / 2),
-          )
-        ) {
-          return item;
-        } else {
-          return min;
-        }
-      }, null);
-
-    if (minItem !== null) {
-      return minItem.item;
-    } else {
-      return null;
-    }
-  }, [data, idElMap]);
 }
 
 function useScrollLock<T extends ListItemData>(
-  data: ReadonlyArray<T>,
-  idElMap: Map<string, HTMLDivElement>,
-  rootEl: HTMLDivElement | null,
+  ref: React.MutableRefObject<ScrollRef<T> | null>,
+  items: ReadonlyArray<T>,
 ) {
   return React.useCallback(
     async (f: () => Promise<void>) => {
       await sleep(0);
-      const elData = pipe(
-        data,
+
+      const id = pipe(
+        items,
         RA.head,
-        O.chain(x => O.fromNullable(idElMap.get(x.id))),
-        O.map(x => ({ el: x, y: elY(x) })),
+        O.map(item => item.id),
       );
+      const diff = Do(O.option)
+        .bindL("id", ({}) => id)
+        .bindL("scrollRef", ({}) => O.fromNullable(ref.current))
+        .bindL("diff", ({ id, scrollRef }) =>
+          scrollRef.getDiff({ ratio: 0 }, { key: id, ratio: 0 }),
+        )
+        .return(({ diff }) => diff);
+
       try {
         await f();
       } finally {
-        if (O.isSome(elData)) {
-          if (rootEl !== null) {
-            rootEl.scrollTop += elY(elData.value.el) - elData.value.y;
-          }
+        if (O.isSome(id) && O.isSome(diff)) {
+          ref.current?.setDiff(
+            { ratio: 0 },
+            { key: id.value, ratio: 0 },
+            diff.value,
+          );
         }
       }
     },
-    [data, idElMap, rootEl],
+    [items],
   );
 }
 
-function useAutoScroll(
+function useAutoScroll<T>(
   isAutoScroll: boolean,
   autoScrollSpeed: number,
-  rootEl: HTMLDivElement | null,
+  ref: React.MutableRefObject<ScrollRef<T> | null>,
 ) {
   useInterval(() => {
-    if (isAutoScroll && rootEl !== null) {
-      rootEl.scrollTop += autoScrollSpeed;
+    if (isAutoScroll && ref.current !== null) {
+      ref.current.modifyScrollTop(
+        ({ scrollTop }) => scrollTop + autoScrollSpeed,
+      );
     }
   }, 100);
 }
 
-function useOnTopScroll(
-  f: () => void,
-  rootEl: HTMLDivElement | null,
-  width: number,
-  debounceTime: number,
-) {
-  const fRef = useValueRef(f);
-  const widthRef = useValueRef(width);
-
-  React.useEffect(() => {
-    const subs =
-      rootEl !== null
-        ? rx
-            .fromEvent(rootEl, "scroll")
-            .pipe(
-              op.map(() => rootEl.scrollTop),
-              op.filter(top => Math.abs(top) <= widthRef.current),
-              op.debounceTime(debounceTime),
-            )
-            .subscribe(() => fRef.current())
-        : null;
-    return () => {
-      if (subs !== null) {
-        subs.unsubscribe();
-      }
-    };
-  }, [rootEl, debounceTime]);
-}
-
-function useOnBottomScroll(
-  f: () => void,
-  rootEl: HTMLDivElement | null,
-  width: number,
-  debounceTime: number,
-) {
-  const fRef = useValueRef(f);
-  const widthRef = useValueRef(width);
-
-  // 下までスクロール
-  React.useEffect(() => {
-    const subs =
-      rootEl !== null
-        ? rx
-            .fromEvent(rootEl, "scroll")
-            .pipe(
-              op.map(() => rootEl.scrollTop + rootEl.clientHeight),
-              op.distinctUntilChanged(),
-              op.filter(
-                bottom =>
-                  widthRef.current >= Math.abs(rootEl.scrollHeight - bottom),
-              ),
-              op.debounceTime(debounceTime),
-            )
-            .subscribe(() => fRef.current())
-        : null;
-    return () => {
-      if (subs !== null) {
-        subs.unsubscribe();
-      }
-    };
-  }, [rootEl, debounceTime]);
-}
-
 function useFetchUtils<T extends ListItemData>(
+  ref: React.MutableRefObject<ScrollRef<T> | null>,
   useFetch: () => (date: G.DateQuery) => Promise<ReadonlyArray<T>>,
-  rootEl: HTMLDivElement | null,
-  data: ReadonlyArray<T>,
-  idElMap: Map<string, HTMLDivElement>,
-  setData: (x: ReadonlyArray<T>) => void,
+  items: ReadonlyArray<T>,
+  setItems: (x: ReadonlyArray<T>) => void,
   newItemOrder: "top" | "bottom",
 ) {
   const fetch = useFetch();
 
-  const toTop = useToTop(rootEl);
-  const toBottom = useToBottom(rootEl);
+  const toTop = useToTop(ref);
+  const toBottom = useToBottom(ref);
 
-  const scrollLock = useScrollLock(data, idElMap, rootEl);
+  const scrollLock = useScrollLock(ref, items);
 
   const findAfterWithData = React.useCallback(
     async (os: ReadonlyArray<T>) => {
@@ -285,7 +115,7 @@ function useFetchUtils<T extends ListItemData>(
             type: "gt",
           });
 
-          setData(
+          setItems(
             ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
               getKeyFromListItemData,
               result,
@@ -294,7 +124,7 @@ function useFetchUtils<T extends ListItemData>(
         });
       }
     },
-    [scrollLock, fetch, setData],
+    [scrollLock, fetch, setItems],
   );
 
   const findBeforeWithData = React.useCallback(
@@ -307,7 +137,7 @@ function useFetchUtils<T extends ListItemData>(
             type: "lt",
           });
 
-          setData(
+          setItems(
             ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
               getKeyFromListItemData,
               result,
@@ -316,7 +146,7 @@ function useFetchUtils<T extends ListItemData>(
         });
       }
     },
-    [scrollLock, fetch, setData],
+    [scrollLock, fetch, setItems],
   );
 
   const resetDate = React.useCallback(
@@ -326,7 +156,7 @@ function useFetchUtils<T extends ListItemData>(
         type: "lte",
       });
 
-      setData(result);
+      setItems(result);
 
       switch (newItemOrder) {
         case "bottom":
@@ -338,24 +168,24 @@ function useFetchUtils<T extends ListItemData>(
       }
       await findAfterWithData(result);
     },
-    [data, setData, fetch, newItemOrder, toBottom, toTop, findAfterWithData],
+    [items, setItems, fetch, newItemOrder, toBottom, toTop, findAfterWithData],
   );
 
   const findBefore = React.useCallback(async () => {
-    if (data.length === 0) {
+    if (items.length === 0) {
       await resetDate(new Date().toISOString());
     } else {
-      await findBeforeWithData(data);
+      await findBeforeWithData(items);
     }
-  }, [data, resetDate, findBeforeWithData]);
+  }, [items, resetDate, findBeforeWithData]);
 
   const findAfter = React.useCallback(async () => {
-    if (data.length === 0) {
+    if (items.length === 0) {
       await resetDate(new Date().toISOString());
     } else {
-      await findAfterWithData(data);
+      await findAfterWithData(items);
     }
-  }, [data, resetDate, findAfterWithData]);
+  }, [items, resetDate, findAfterWithData]);
 
   return { findAfter, findBefore, resetDate };
 }
@@ -401,17 +231,12 @@ function useOnChangeCurrentItem<T extends ListItemData>(
     };
   }, [rootEl, debounceTime, getTopElement, useGetBottomElement]);
 }
-interface ItemElPair<T extends ListItemData> {
-  item: T;
-  el: HTMLDivElement;
-}
 
 export interface StreamScrollProps<T extends ListItemData> {
   newItemOrder: "top" | "bottom";
   fetchKey: Array<unknown>;
   useFetch: () => (date: G.DateQuery) => Promise<ReadonlyArray<T>>;
   useStream: (f: (item: T) => void) => void;
-  width: number;
   debounceTime: number;
   autoScrollSpeed: number;
   isAutoScroll: boolean;
@@ -427,26 +252,6 @@ export interface StreamScrollProps<T extends ListItemData> {
   changeItems: (items: ReadonlyArray<T>) => void;
   existUnread: boolean;
   onChangeExistUnread: (existUnread: boolean) => void;
-}
-
-function elHeight(el: HTMLElement) {
-  return el.offsetHeight;
-}
-
-function elTop(el: HTMLElement) {
-  return el.offsetTop;
-}
-
-function elY(el: HTMLElement) {
-  return elTop(el) + elHeight(el) / 2;
-}
-
-function sleep(ms: number) {
-  return new Promise<void>(resolve => {
-    setTimeout(() => {
-      resolve();
-    }, ms);
-  });
 }
 
 type Cmd =

@@ -5,3 +5,4 @@ export * from "./raise";
 export * as OptionExtra from "./option-extra";
 export * as EitherExtra from "./either-extra";
 export * as ReadonlyArrayExtra from "./readonly-array-extra";
+export * from "./sleep";

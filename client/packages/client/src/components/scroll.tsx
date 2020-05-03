@@ -99,7 +99,7 @@ export interface ItemsPositionSelector {
 export interface ScrollProps<T> {
   itemToKey: (item: T) => string;
   renderItem: (item: T) => JSX.Element;
-  changeShowItems: (keys: ReadonlyArray<T>) => void;
+  changeShowItems: (items: ReadonlyArray<T>) => void;
   style?: React.CSSProperties;
   className?: string;
   items: ReadonlyArray<T>;
