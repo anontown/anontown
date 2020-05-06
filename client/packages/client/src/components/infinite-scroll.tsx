@@ -181,7 +181,6 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
           )
         ) {
           props.onScrollTop();
-          console.log("to-top");
         }
 
         if (
@@ -201,7 +200,6 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
           )
         ) {
           props.onScrollBottom();
-          console.log("to-bottom");
         }
       }
     },
