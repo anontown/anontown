@@ -2,6 +2,7 @@ import { Scroll, ScrollRef } from "./scroll";
 import * as React from "react";
 import { RA, pipe, O, EqT } from "../prelude";
 import { useInterval } from "react-use";
+import { Do } from "fp-ts-contrib/lib/Do";
 
 export interface InfiniteScrollProps<T> {
   itemToKey: (item: T) => string;
@@ -122,8 +123,36 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
     }
   }, [currentItemKey, props.currentItemKey]);
 
+  const prevShowHeadLastKey = React.useRef<{
+    head: string | null;
+    last: string | null;
+  } | null>(null);
+
   const changeShowItems = React.useCallback(
     (items: ReadonlyArray<T>) => {
+      {
+        const headKey = pipe(
+          RA.head(items),
+          O.map(props.itemToKey),
+          O.toNullable,
+        );
+        const lastKey = pipe(
+          RA.last(items),
+          O.map(props.itemToKey),
+          O.toNullable,
+        );
+
+        if (
+          prevShowHeadLastKey.current !== null &&
+          prevShowHeadLastKey.current.head === headKey &&
+          prevShowHeadLastKey.current.last === lastKey
+        ) {
+          return;
+        }
+
+        prevShowHeadLastKey.current = { head: headKey, last: lastKey };
+      }
+
       realCurrentItemRef.current = (() => {
         switch (props.currentItemBase) {
           case "top": {
@@ -134,6 +163,47 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
           }
         }
       })();
+
+      if (realCurrentItemRef.current !== null) {
+        if (
+          pipe(
+            Do(O.option)
+              .bindL("topShowKey", () =>
+                pipe(RA.head(items), O.map(props.itemToKey)),
+              )
+              .bindL("topItemKey", () =>
+                pipe(RA.head(props.items), O.map(props.itemToKey)),
+              )
+              .return(
+                ({ topShowKey, topItemKey }) => topShowKey === topItemKey,
+              ),
+            O.getOrElse(() => false),
+          )
+        ) {
+          props.onScrollTop();
+          console.log("to-top");
+        }
+
+        if (
+          pipe(
+            Do(O.option)
+              .bindL("bottomShowKey", () =>
+                pipe(RA.last(items), O.map(props.itemToKey)),
+              )
+              .bindL("bottomItemKey", () =>
+                pipe(RA.last(props.items), O.map(props.itemToKey)),
+              )
+              .return(
+                ({ bottomShowKey, bottomItemKey }) =>
+                  bottomShowKey === bottomItemKey,
+              ),
+            O.getOrElse(() => false),
+          )
+        ) {
+          props.onScrollBottom();
+          console.log("to-bottom");
+        }
+      }
     },
     [props.currentItemBase, props.itemToKey],
   );
