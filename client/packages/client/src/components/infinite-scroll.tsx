@@ -1,7 +1,6 @@
 import { Scroll, ScrollRef } from "./scroll";
 import * as React from "react";
-import { RA, pipe, O, sleep, EqT } from "../prelude";
-import { useLock } from "../hooks";
+import { RA, pipe, O, EqT } from "../prelude";
 import { useInterval } from "react-use";
 
 export interface InfiniteScrollProps<T> {
@@ -22,10 +21,12 @@ export interface InfiniteScrollProps<T> {
 }
 
 export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
-  // 現在の実際のアイテムの位置。props.currentItemKeyより前に設定され現在のアイテムの位置と比較されることを期待している
-  const [currentItem, setCurrentItem] = React.useState<T | null>(null);
+  // 現在の実際のアイテムの位置。 props.currentItemKey より前に設定され現在のアイテムの位置と比較されることを期待している
+  const realCurrentItemRef = React.useRef<T | null>(null);
   const currentItemKey =
-    currentItem !== null ? props.itemToKey(currentItem) : null;
+    realCurrentItemRef.current !== null
+      ? props.itemToKey(realCurrentItemRef.current)
+      : null;
 
   useInterval(() => {
     const scroll = scrollRef.current;
@@ -39,14 +40,11 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
   // 現在のアイテムの位置に変更があればchangeイベントを発生させる
   React.useEffect(() => {
     if (currentItemKey !== props.currentItemKey) {
-      props.onChangeCurrentItemKey(currentItemKey, currentItem);
+      props.onChangeCurrentItemKey(currentItemKey, realCurrentItemRef.current);
     }
   }, [currentItemKey]);
 
   const scrollRef = React.useRef<ScrollRef<T> | null>(null);
-
-  // TODO: ロックいる？ロックするなら方法考える
-  const lock = useLock();
 
   // アイテムに変更があったときスクロール位置固定
   const prevItemKeys = React.useRef<ReadonlyArray<string>>(
@@ -64,21 +62,20 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
     }
     prevItemKeys.current = itemKeys;
 
-    lock(async () => {
-      const diff = scroll.getDiff(
-        { ratio: 0 },
-        // elementに存在するkeyでなければいけないのでcurrentItemKeyを使う
-        { ratio: 0, key: currentItemKey },
-      );
-      if (O.isSome(diff)) {
-        await sleep(0);
+    const diff = scroll.getDiff(
+      { ratio: 0 },
+      // elementに存在するkeyでなければいけないのでcurrentItemKeyを使う
+      { ratio: 0, key: currentItemKey },
+    );
+    if (O.isSome(diff)) {
+      setTimeout(() => {
         scroll.setDiff(
           { ratio: 0 },
           { ratio: 0, key: currentItemKey },
           diff.value,
         );
-      }
-    });
+      }, 0);
+    }
   }, [props.items]);
 
   // propsのcurrentItemKeyが変わった時スクロール位置を変更する
@@ -101,8 +98,7 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
       currentItemKey !== props.itemToKey(newCurrentItem)
     ) {
       const newCurrentItemKey = props.itemToKey(newCurrentItem);
-      lock(async () => {
-        await sleep(0);
+      setTimeout(() => {
         switch (props.currentItemBase) {
           case "top": {
             scroll.setDiff(
@@ -121,23 +117,23 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
             break;
           }
         }
-        setCurrentItem(newCurrentItem);
-      });
+        realCurrentItemRef.current = newCurrentItem;
+      }, 0);
     }
   }, [currentItemKey, props.currentItemKey]);
 
   const changeShowItems = React.useCallback(
     (items: ReadonlyArray<T>) => {
-      switch (props.currentItemBase) {
-        case "top": {
-          setCurrentItem(pipe(RA.head(items), O.toNullable));
-          break;
+      realCurrentItemRef.current = (() => {
+        switch (props.currentItemBase) {
+          case "top": {
+            return pipe(RA.head(items), O.toNullable);
+          }
+          case "bottom": {
+            return pipe(RA.last(items), O.toNullable);
+          }
         }
-        case "bottom": {
-          setCurrentItem(pipe(RA.last(items), O.toNullable));
-          break;
-        }
-      }
+      })();
     },
     [props.currentItemBase, props.itemToKey],
   );
