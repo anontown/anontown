@@ -16,19 +16,10 @@ import { useTitle } from "react-use";
 import * as rx from "rxjs";
 import * as ops from "rxjs/operators";
 import useRouter from "use-react-router";
-import {
-  Modal,
-  NG,
-  Page,
-  Res,
-  ResWrite,
-  StreamScroll,
-  TopicFavo,
-} from "../components";
+import { Modal, NG, Page, Res, ResWrite, TopicFavo } from "../components";
 import { PopupMenu } from "../components/popup-menu";
 import * as G from "../generated/graphql";
-import { useFunctionRef, useUserContext, useValueRef } from "../hooks";
-import { queryResultConvert } from "../utils";
+import { useUserContext } from "../hooks";
 import * as style from "./topic.scss";
 import {
   pipe,
@@ -38,14 +29,16 @@ import {
   ArrayExtra,
   Ord,
   OrdT,
-  sleep,
   isNotNull,
   zenToRx,
 } from "../prelude";
 import { Sto, UserData } from "../domains/entities";
 import { InfiniteScroll } from "../components/infinite-scroll";
 import ApolloClient from "apollo-client";
-import { Epic } from "../hooks/use-reducer-with-observable";
+import {
+  Epic,
+  useReducerWithObservable,
+} from "../hooks/use-reducer-with-observable";
 import { Observable } from "rxjs";
 // TODO:NGのtransparent
 
@@ -66,23 +59,6 @@ function mergeReses(
   return ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(getKeyFromRes, ys)(
     xs,
   );
-}
-
-/* lazy use使う */
-function makeUseFetch(id: string) {
-  return () => {
-    const apolloClient = useApolloClient();
-    return async (date: G.DateQuery): Promise<ReadonlyArray<G.ResFragment>> => {
-      const result = await apolloClient.query<
-        G.FindResesQuery,
-        G.FindResesQueryVariables
-      >({
-        query: G.FindResesDocument,
-        variables: { query: { topic: id, date } },
-      });
-      return result.data.reses;
-    };
-  };
 }
 
 interface State {
@@ -149,6 +125,7 @@ type Action =
   | { type: "CLICK_OPEN_AUTO_SCROLL_MODAL" }
   | { type: "CLICK_CLOSE_AUTO_SCROLL_MODAL" }
   | { type: "CHANGE_ENABLE_AUTO_SCROLL"; value: boolean }
+  | { type: "CHANGE_AUTO_SCROLL_SPEED"; value: number }
   | { type: "CLICK_OPEN_NG_MODAL" }
   | { type: "CLICK_CLOSE_NG_MODAL" }
   | { type: "UPDATE_NG"; storage: Sto.Storage }
@@ -160,7 +137,8 @@ type Action =
   | { type: "CHANGE_CURRENT_RES"; res: G.ResFragment | null }
   | { type: "SUBMIT_RES"; storage: Sto.Storage }
   | { type: "UPDATE_USER_DATA"; userData: UserData | null }
-  | { type: "RECEIVE_NEW_RES"; res: G.ResFragment; count: number };
+  | { type: "RECEIVE_NEW_RES"; res: G.ResFragment; count: number }
+  | { type: "UPDATE_RES"; res: G.ResFragment };
 
 interface Env {
   apolloClient: ApolloClient<object>;
@@ -318,6 +296,12 @@ function reducer(prevState: State, action: Action): State {
         isAutoScroll: action.value,
       };
     }
+    case "CHANGE_AUTO_SCROLL_SPEED": {
+      return {
+        ...prevState,
+        autoScrollSpeed: action.value,
+      };
+    }
     case "CLICK_OPEN_NG_MODAL": {
       return {
         ...prevState,
@@ -394,6 +378,11 @@ function reducer(prevState: State, action: Action): State {
             : null,
       };
     }
+    case "UPDATE_RES":
+      return {
+        ...prevState,
+        reses: mergeReses(prevState.reses ?? [], [action.res]),
+      };
   }
 }
 
@@ -675,199 +664,98 @@ const epic: Epic<Action, State, Env> = (action$, state$, env) =>
 
 export const TopicPage = (_props: {}) => {
   const { match } = useRouter<{ id: string }>();
-  // TODO: useMemoで副作用を起こさない
-  const now = React.useMemo(() => new Date().toISOString(), []);
-  const [existUnread, setExistUnread] = React.useState(false);
-  const [isJumpDialog, setIsJumpDialog] = React.useState(false);
-  const [isAutoScrollDialog, setIsAutoScrollDialog] = React.useState(false);
-  const [isNGDialog, setIsNGDialog] = React.useState(false);
   const user = useUserContext();
-  const topics = G.useFindTopicsQuery({
-    variables: { query: { id: [match.params.id] } },
-  });
-  queryResultConvert(topics);
-  const topic = topics.data !== undefined ? topics.data.topics[0] : null;
-  const [autoScrollSpeed, setAutoScrollSpeed] = React.useState(15);
-  const [isAutoScroll, setIsAutoScroll] = React.useState(false);
-  const scrollNewItem = React.useRef(new rx.ReplaySubject<string>(1));
-  const [items, setItems] = React.useState<ReadonlyArray<G.ResFragment>>([]);
-  const itemsRef = useValueRef(items);
-  const initDate = React.useMemo(
-    () =>
-      pipe(
-        O.fromNullable(user.value),
-        O.chain(userData =>
-          Sto.getTopicRead(match.params.id)(userData.storage),
-        ),
-        O.map(Sto.topicReadDateLens.get),
-        O.getOrElse(() => now),
-      ),
-    [user.value],
-  );
-  const [jumpValue, setJumpValue] = React.useState(new Date(now).valueOf());
   const apolloClient = useApolloClient();
-  const fetch = React.useCallback(
-    async (date: G.DateQuery): Promise<ReadonlyArray<G.ResFragment>> => {
-      const result = await apolloClient.query<
-        G.FindResesQuery,
-        G.FindResesQueryVariables
-      >({
-        query: G.FindResesDocument,
-        variables: { query: { topic: match.params.id, date } },
-      });
-      return result.data.reses;
-    },
-    [match.params.id],
+
+  const [state, dispatch] = useReducerWithObservable(
+    reducer,
+    State({ userData: user.value, topicId: match.params.id }),
+    epic,
+    { apolloClient: apolloClient, updateUserData: ud => user.update(ud) },
   );
 
   React.useEffect(() => {
-    (async () => {
-      const beforeItems = await fetch({ date: initDate, type: "lte" });
-      setItems(beforeItems);
-      // TODO: 位置移動
-      await sleep(0);
-    })();
+    dispatch({ type: "UPDATE_USER_DATA", userData: user.value });
+  }, [user.value]);
+
+  React.useEffect(() => {
+    dispatch({ type: "INIT", topicId: match.params.id, now: new Date() });
   }, [match.params.id]);
 
   const isFavo =
-    user.value !== null && Sto.isTopicFavo(match.params.id)(user.value.storage);
+    state.userData !== null &&
+    Sto.isTopicFavo(state.topicId)(state.userData.storage);
 
-  G.useResAddedSubscription({
-    variables: { topic: match.params.id },
-    onSubscriptionData: ({ subscriptionData: { data } }) => {
-      if (data !== undefined) {
-        const {
-          resAdded: { count, res },
-        } = data;
-        topics.updateQuery(ts => ({
-          ...ts,
-          topics: ts.topics.map(t => ({
-            ...t,
-            resCount: count,
-          })),
-        }));
-        setExistUnread(false);
-        setItems(
-          pipe(
-            items,
-            ArrayExtra.mergeAndUniqSortedArray(ordListItemKey)(
-              item => getKeyFromRes(item),
-              [res],
-            ),
-          ),
-        );
-      }
-    },
-  });
-
-  const useFetch = React.useMemo(() => makeUseFetch(match.params.id), [
-    match.params.id,
-  ]);
-
-  function storageSaveDate(date: string | null) {
-    if (user.value === null || topic === null) {
-      return;
-    }
-    const storage = user.value.storage;
-    const odate = pipe(
-      [
-        O.fromNullable(date),
-        pipe(
-          storage,
-          Sto.getTopicRead(match.params.id),
-          O.map(storageRes => Sto.topicReadDateLens.get(storageRes)),
-        ),
-        pipe(
-          itemsRef.current,
-          RA.head,
-          O.map(first => first.date),
-        ),
-      ],
-      Monoid_.fold(O.getFirstMonoid()),
-    );
-
-    if (O.isSome(odate)) {
-      user.update({
-        ...user.value,
-        storage: Sto.setTopicRead(
-          topic.id,
-          Sto.makeTopicRead({
-            date: odate.value,
-            count: topic.resCount,
-          }),
-        )(storage),
-      });
-    }
-  }
-
-  React.useEffect(() => {
-    storageSaveDate(null);
-  }, [topic !== null ? topic.resCount : null]);
-
-  useTitle(topic !== null ? topic.title : "トピック");
+  useTitle(state.topic?.title ?? "トピック");
 
   return (
     <Page
       disableScroll={true}
       sidebar={
-        user.value !== null ? (
-          <TopicFavo detail={false} userData={user.value} />
+        state.userData !== null ? (
+          <TopicFavo detail={false} userData={state.userData} />
         ) : undefined
       }
     >
-      {topic !== null ? (
+      {state.topic !== null &&
+      state.reses !== null &&
+      state.now !== null &&
+      state.jumpValue !== null ? (
         <>
           <Modal
-            isOpen={isAutoScrollDialog}
-            onRequestClose={() => setIsAutoScrollDialog(false)}
+            isOpen={state.isAutoScrollDialog}
+            onRequestClose={() =>
+              dispatch({ type: "CLICK_CLOSE_AUTO_SCROLL_MODAL" })
+            }
           >
             <h1>自動スクロール</h1>
             <Toggle
               label="自動スクロール"
-              toggled={isAutoScroll}
-              onToggle={(_e, v) => setIsAutoScroll(v)}
+              toggled={state.isAutoScroll}
+              onToggle={(_e, v) =>
+                dispatch({ type: "CHANGE_ENABLE_AUTO_SCROLL", value: v })
+              }
             />
             <Slider
               max={30}
-              value={autoScrollSpeed}
-              onChange={(_e, v) => setAutoScrollSpeed(v)}
+              value={state.autoScrollSpeed}
+              onChange={(_e, v) =>
+                dispatch({ type: "CHANGE_AUTO_SCROLL_SPEED", value: v })
+              }
             />
           </Modal>
-          {user.value !== null ? (
+          {state.userData !== null ? (
             <Modal
-              isOpen={isNGDialog}
-              onRequestClose={() => setIsNGDialog(false)}
+              isOpen={state.isNGDialog}
+              onRequestClose={() => dispatch({ type: "CLICK_CLOSE_NG_MODAL" })}
             >
               <h1>NG</h1>
               <NG
-                userData={user.value}
+                userData={state.userData}
                 onChangeStorage={v => {
-                  if (user.value !== null) {
-                    user.update({
-                      ...user.value,
-                      storage: v,
-                    });
-                  }
+                  dispatch({ type: "UPDATE_NG", storage: v });
                 }}
               />
             </Modal>
           ) : null}
           <Modal
-            isOpen={isJumpDialog}
-            onRequestClose={() => setIsJumpDialog(false)}
+            isOpen={state.isJumpDialog}
+            onRequestClose={() => dispatch({ type: "CLICK_CLOSE_JUMP_MODAL" })}
           >
             <h1>ジャンプ</h1>
             <Slider
-              min={new Date(topic.date).valueOf()}
-              max={new Date(now).valueOf()}
-              value={jumpValue}
-              onChange={(_e, v) => setJumpValue(v)}
+              min={new Date(state.topic.date).valueOf()}
+              max={state.now.valueOf()}
+              value={state.jumpValue}
+              onChange={(_e, v) =>
+                dispatch({ type: "CHANGE_JUMP_VALUE", value: v })
+              }
             />
-            <div>{moment(new Date(jumpValue)).format("YYYY-MM-DD")}</div>
+            <div>{moment(new Date(state.jumpValue)).format("YYYY-MM-DD")}</div>
             <div>
               <RaisedButton
                 onClick={() => {
-                  scrollNewItem.current.next(new Date(jumpValue).toISOString());
+                  dispatch({ type: "CLICK_JUMP" });
                 }}
               >
                 ジャンプ
@@ -877,28 +765,19 @@ export const TopicPage = (_props: {}) => {
           <div className={style.main}>
             <Paper className={style.header}>
               <div className={style.subject}>
-                {topic.__typename === "TopicFork" ? (
+                {state.topic.__typename === "TopicFork" ? (
                   <FontIcon className="material-icons">call_split</FontIcon>
                 ) : null}
-                {topic.__typename === "TopicOne" ? (
+                {state.topic.__typename === "TopicOne" ? (
                   <FontIcon className="material-icons">looks_one</FontIcon>
                 ) : null}
-                {topic.title}
+                {state.topic.title}
               </div>
               <div className={style.toolbar}>
-                {user.value !== null ? (
+                {state.userData !== null ? (
                   <IconButton
                     onClick={() => {
-                      if (user.value === null) {
-                        return;
-                      }
-                      const storage = user.value.storage;
-                      user.update({
-                        ...user.value,
-                        storage: (isFavo ? Sto.unfavoTopic : Sto.favoTopic)(
-                          match.params.id,
-                        )(storage),
-                      });
+                      dispatch({ type: "TOGGLE_FAVO" });
                     }}
                   >
                     <FontIcon className="material-icons">
@@ -919,21 +798,22 @@ export const TopicPage = (_props: {}) => {
                       <Link
                         to={routes.topicData.to(
                           {
-                            id: match.params.id,
+                            id: state.topicId,
                           },
                           { state: { modal: true } },
                         )}
                       />
                     }
                   />
-                  {topic.__typename === "TopicNormal" && user.value !== null ? (
+                  {state.topic.__typename === "TopicNormal" &&
+                  state.userData !== null ? (
                     <MenuItem
                       primaryText="トピック編集"
                       containerElement={
                         <Link
                           to={routes.topicEdit.to(
                             {
-                              id: match.params.id,
+                              id: state.topicId,
                             },
                             { state: { modal: true } },
                           )}
@@ -941,14 +821,14 @@ export const TopicPage = (_props: {}) => {
                       }
                     />
                   ) : null}
-                  {topic.__typename === "TopicNormal" ? (
+                  {state.topic.__typename === "TopicNormal" ? (
                     <MenuItem
                       primaryText="派生トピック"
                       containerElement={
                         <Link
                           to={routes.topicFork.to(
                             {
-                              id: match.params.id,
+                              id: state.topicId,
                             },
                             { state: { modal: true } },
                           )}
@@ -958,50 +838,47 @@ export const TopicPage = (_props: {}) => {
                   ) : null}
                   <MenuItem
                     primaryText="自動スクロール"
-                    onClick={() => setIsAutoScrollDialog(true)}
+                    onClick={() =>
+                      dispatch({ type: "CLICK_OPEN_AUTO_SCROLL_MODAL" })
+                    }
                   />
                   <MenuItem
                     primaryText="ジャンプ"
-                    onClick={() => setIsJumpDialog(true)}
+                    onClick={() => dispatch({ type: "CLICK_OPEN_JUMP_MODAL" })}
                   />
                   <MenuItem
                     primaryText="NG"
-                    onClick={() => setIsNGDialog(true)}
+                    onClick={() => dispatch({ type: "CLICK_OPEN_NG_MODAL" })}
                   />
                 </PopupMenu>
               </div>
             </Paper>
             <InfiniteScroll<G.ResFragment>
-              fetchKey={[match.params.id]}
-              useStream={useStream}
-              useFetch={useFetch}
-              className={style.reses}
-              newItemOrder="bottom"
-              width={10}
-              debounceTime={500}
-              autoScrollSpeed={autoScrollSpeed}
-              isAutoScroll={isAutoScroll}
-              scrollNewItemChange={res => storageSaveDate(res.date)}
-              scrollNewItem={scrollNewItem.current}
-              initDate={initDate}
-              dataToEl={res => (
+              itemToKey={res => res.id}
+              renderItem={res => (
                 <Res
                   res={res}
                   update={res => {
-                    setItems(items =>
-                      items.map(item => (item.id === res.id ? res : item)),
-                    );
+                    dispatch({ type: "UPDATE_RES", res });
                   }}
                 />
               )}
-              items={items}
-              changeItems={x => {
-                setItems(x);
-              }}
-              existUnread={existUnread}
-              onChangeExistUnread={x => setExistUnread(x)}
+              className={style.reses}
+              items={RA.reverse(state.reses)}
+              currentItemKey={state.currentResId}
+              onChangeCurrentItemKey={(_key, res) =>
+                dispatch({ type: "CHANGE_CURRENT_RES", res })
+              }
+              onScrollTop={() => dispatch({ type: "SCROLL_TO_LAST" })}
+              onScrollBottom={() => dispatch({ type: "SCROLL_TO_FIRST" })}
+              currentItemBase="bottom"
+              autoScroll={
+                state.isAutoScroll
+                  ? { interval: 100, speed: state.autoScrollSpeed }
+                  : undefined
+              }
             />
-            {existUnread ? (
+            {state.existUnread ? (
               <div
                 style={{
                   boxShadow: "0px 0px 5px 3px rgba(255, 0, 255, 0.7)",
@@ -1009,19 +886,14 @@ export const TopicPage = (_props: {}) => {
                 }}
               />
             ) : null}
-            {user.value !== null ? (
+            {state.userData !== null ? (
               <Paper className={style.resWrite}>
                 <ResWrite
-                  topic={topic.id}
+                  topic={state.topic.id}
                   reply={null}
-                  userData={user.value}
+                  userData={state.userData}
                   changeStorage={x => {
-                    if (user.value !== null) {
-                      user.update({
-                        ...user.value,
-                        storage: x,
-                      });
-                    }
+                    dispatch({ type: "SUBMIT_RES", storage: x });
                   }}
                 />
               </Paper>
