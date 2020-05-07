@@ -688,6 +688,11 @@ export const TopicPage = (_props: {}) => {
 
   useTitle(state.topic?.title ?? "トピック");
 
+  const reversedReses = React.useMemo(
+    () => (state.reses !== null ? RA.reverse(state.reses) : null),
+    [state.reses],
+  );
+
   return (
     <Page
       disableScroll={true}
@@ -698,7 +703,7 @@ export const TopicPage = (_props: {}) => {
       }
     >
       {state.topic !== null &&
-      state.reses !== null &&
+      reversedReses !== null &&
       state.now !== null &&
       state.jumpValue !== null ? (
         <>
@@ -864,7 +869,7 @@ export const TopicPage = (_props: {}) => {
                 />
               )}
               className={style.reses}
-              items={RA.reverse(state.reses)}
+              items={reversedReses}
               currentItemKey={state.currentResId}
               onChangeCurrentItemKey={(_key, res) =>
                 dispatch({ type: "CHANGE_CURRENT_RES", res })
