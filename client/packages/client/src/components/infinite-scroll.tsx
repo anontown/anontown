@@ -22,12 +22,13 @@ export interface InfiniteScrollProps<T> {
 }
 
 export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
-  // 現在の実際のアイテムの位置。 props.currentItemKey より前に設定され現在のアイテムの位置と比較されることを期待している
-  const realCurrentItemRef = React.useRef<T | null>(null);
-  const currentItemKey =
-    realCurrentItemRef.current !== null
-      ? props.itemToKey(realCurrentItemRef.current)
-      : null;
+  // 現在の実際のアイテムの位置
+  const realCurrentItemKeyRef = React.useRef<string | null>(null);
+  const changeCurrentItemKey = React.useCallback((item: T | null) => {
+    const key = item !== null ? props.itemToKey(item) : null;
+    realCurrentItemKeyRef.current = key;
+    props.onChangeCurrentItemKey(key, item);
+  }, []);
 
   useInterval(() => {
     const scroll = scrollRef.current;
@@ -38,13 +39,6 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
     scroll.modifyScrollTop(({ scrollTop }) => (scrollTop += autoScroll.speed));
   }, props.autoScroll?.interval);
 
-  // 現在のアイテムの位置に変更があればchangeイベントを発生させる
-  React.useEffect(() => {
-    if (currentItemKey !== props.currentItemKey) {
-      props.onChangeCurrentItemKey(currentItemKey, realCurrentItemRef.current);
-    }
-  }, [currentItemKey]);
-
   const scrollRef = React.useRef<ScrollRef<T> | null>(null);
 
   // アイテムに変更があったときスクロール位置固定
@@ -54,9 +48,10 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
   React.useEffect(() => {
     const scroll = scrollRef.current;
     const itemKeys = props.items.map(item => props.itemToKey(item));
+    const realCurrentItemKey = realCurrentItemKeyRef.current;
     if (
       scroll === null ||
-      currentItemKey === null ||
+      realCurrentItemKey === null ||
       RA.getEq(EqT.eqString).equals(prevItemKeys.current, itemKeys)
     ) {
       return;
@@ -66,13 +61,13 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
     const diff = scroll.getDiff(
       { ratio: 0 },
       // elementに存在するkeyでなければいけないのでcurrentItemKeyを使う
-      { ratio: 0, key: currentItemKey },
+      { ratio: 0, key: realCurrentItemKey },
     );
     if (O.isSome(diff)) {
       setTimeout(() => {
         scroll.setDiff(
           { ratio: 0 },
-          { ratio: 0, key: currentItemKey },
+          { ratio: 0, key: realCurrentItemKey },
           diff.value,
         );
       }, 0);
@@ -96,7 +91,7 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
     if (
       newCurrentItem !== null &&
       newCurrentItem !== undefined &&
-      currentItemKey !== props.itemToKey(newCurrentItem)
+      realCurrentItemKeyRef.current !== props.itemToKey(newCurrentItem)
     ) {
       const newCurrentItemKey = props.itemToKey(newCurrentItem);
       setTimeout(() => {
@@ -118,10 +113,9 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
             break;
           }
         }
-        realCurrentItemRef.current = newCurrentItem;
       }, 0);
     }
-  }, [currentItemKey, props.currentItemKey]);
+  }, [realCurrentItemKeyRef.current, props.currentItemKey]);
 
   const prevShowHeadLastKey = React.useRef<{
     head: string | null;
@@ -153,18 +147,20 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
         prevShowHeadLastKey.current = { head: headKey, last: lastKey };
       }
 
-      realCurrentItemRef.current = (() => {
-        switch (props.currentItemBase) {
-          case "top": {
-            return pipe(RA.head(items), O.toNullable);
+      changeCurrentItemKey(
+        (() => {
+          switch (props.currentItemBase) {
+            case "top": {
+              return pipe(RA.head(items), O.toNullable);
+            }
+            case "bottom": {
+              return pipe(RA.last(items), O.toNullable);
+            }
           }
-          case "bottom": {
-            return pipe(RA.last(items), O.toNullable);
-          }
-        }
-      })();
+        })(),
+      );
 
-      if (realCurrentItemRef.current !== null) {
+      if (realCurrentItemKeyRef.current !== null) {
         if (
           pipe(
             Do(O.option)
