@@ -66,13 +66,11 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
       { ratio: 1, key: currentItemKey },
     );
     if (O.isSome(diff)) {
-      setTimeout(() => {
-        scroll.setDiff(
-          { ratio: 1 },
-          { ratio: 1, key: currentItemKey },
-          diff.value,
-        );
-      }, 0);
+      scroll.setDiff(
+        { ratio: 1 },
+        { ratio: 1, key: currentItemKey },
+        diff.value,
+      );
     }
   }, [props.items]);
 
@@ -84,28 +82,19 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
     }
 
     const jumpItemKey = props.jumpItemKey;
-    const jumpItem =
-      props.jumpItemKey !== null
-        ? props.items.find(item => props.itemToKey(item) === props.jumpItemKey)
-        : undefined;
-
     if (jumpItemKey !== null) {
-      props.onResetJumpItemKey();
-    }
-
-    if (jumpItemKey !== null && jumpItem !== undefined) {
-      setTimeout(() => {
-        switch (props.currentItemBase) {
-          case "top": {
-            scroll.setDiff({ ratio: 0 }, { key: jumpItemKey, ratio: 0 }, 0);
-            break;
-          }
-          case "bottom": {
-            scroll.setDiff({ ratio: 1 }, { key: jumpItemKey, ratio: 1 }, 0);
-            break;
-          }
+      switch (props.currentItemBase) {
+        case "top": {
+          scroll.setDiff({ ratio: 0 }, { key: jumpItemKey, ratio: 0 }, 0);
+          break;
         }
-      }, 0);
+        case "bottom": {
+          scroll.setDiff({ ratio: 1 }, { key: jumpItemKey, ratio: 1 }, 0);
+          break;
+        }
+      }
+
+      props.onResetJumpItemKey();
     }
   });
 
