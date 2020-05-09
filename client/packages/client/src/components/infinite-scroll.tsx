@@ -52,7 +52,9 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
     if (
       scroll === null ||
       currentItemKey === null ||
-      RA.getEq(EqT.eqString).equals(prevItemKeys.current, itemKeys)
+      RA.getEq(EqT.eqString).equals(prevItemKeys.current, itemKeys) ||
+      // ジャンプ先が指定されてるなら固定しない
+      props.jumpItemKey !== null
     ) {
       return;
     }
@@ -74,7 +76,7 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
     }
   }, [props.items]);
 
-  // propsのcurrentItemKeyがnullでない時スクロール位置を変更する
+  // props.jumpItemKeyがnullでない時スクロール位置を変更する
   React.useEffect(() => {
     const scroll = scrollRef.current;
     if (scroll === null) {
