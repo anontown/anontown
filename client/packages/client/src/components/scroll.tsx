@@ -199,9 +199,9 @@ function _Scroll<T>() {
 
       const setDiff = React.useCallback(
         (
-          containerPositionSelector,
-          itemsPositionSelector,
-          diff,
+          containerPositionSelector: ContainerPositionSelector,
+          itemsPositionSelector: ItemsPositionSelector,
+          diff: number,
         ): Option<null> => {
           const curDiff = getDiff(
             containerPositionSelector,
