@@ -30,7 +30,7 @@ import {
   Ord,
   OrdT,
   isNotNull,
-  zenToRx,
+  RxExtra,
 } from "../prelude";
 import { Sto, UserData } from "../domains/entities";
 import { InfiniteScroll } from "../components/infinite-scroll";
@@ -70,7 +70,7 @@ interface State {
   userData: UserData | null;
   autoScrollSpeed: number;
   isAutoScroll: boolean;
-  currentResId: string | null;
+  jumpResId: string | null;
   // 以下の値が全てnullでなくなれば準備完了
   topic: G.TopicFragment | null;
   now: Date | null;
@@ -98,7 +98,7 @@ function State({
     autoScrollSpeed: 15,
     isAutoScroll: false,
     jumpValue: null,
-    currentResId: null,
+    jumpResId: null,
   };
 }
 
@@ -138,7 +138,8 @@ type Action =
   | { type: "SUBMIT_RES"; storage: Sto.Storage }
   | { type: "UPDATE_USER_DATA"; userData: UserData | null }
   | { type: "RECEIVE_NEW_RES"; res: G.ResFragment; count: number }
-  | { type: "UPDATE_RES"; res: G.ResFragment };
+  | { type: "UPDATE_RES"; res: G.ResFragment }
+  | { type: "RESET_JUMP_RES" };
 
 interface Env {
   apolloClient: ApolloClient<object>;
@@ -150,41 +151,45 @@ function storageSaveDate(
   state: State,
   env: Env,
 ): rx.Observable<Action> {
-  if (state.userData === null || state.topic === null || state.reses === null) {
-    return rx.never();
-  }
-  const storage = state.userData.storage;
-  const odate = pipe(
-    [
-      O.fromNullable(date),
-      pipe(
-        storage,
-        Sto.getTopicRead(state.topicId),
-        O.map(storageRes => Sto.topicReadDateLens.get(storageRes)),
-      ),
-      pipe(
-        state.reses,
-        RA.head,
-        O.map(first => first.date),
-      ),
-    ],
-    Monoid_.fold(O.getFirstMonoid()),
-  );
+  return RxExtra.fromIOVoid(() => {
+    if (
+      state.userData === null ||
+      state.topic === null ||
+      state.reses === null
+    ) {
+      return;
+    }
+    const storage = state.userData.storage;
+    const odate = pipe(
+      [
+        O.fromNullable(date),
+        pipe(
+          storage,
+          Sto.getTopicRead(state.topicId),
+          O.map(storageRes => Sto.topicReadDateLens.get(storageRes)),
+        ),
+        pipe(
+          state.reses,
+          RA.head,
+          O.map(first => first.date),
+        ),
+      ],
+      Monoid_.fold(O.getFirstMonoid()),
+    );
 
-  if (O.isSome(odate)) {
-    env.updateUserData({
-      ...state.userData,
-      storage: Sto.setTopicRead(
-        state.topicId,
-        Sto.makeTopicRead({
-          date: odate.value,
-          count: count ?? state.topic.resCount,
-        }),
-      )(storage),
-    });
-  }
-
-  return rx.never();
+    if (O.isSome(odate)) {
+      env.updateUserData({
+        ...state.userData,
+        storage: Sto.setTopicRead(
+          state.topicId,
+          Sto.makeTopicRead({
+            date: odate.value,
+            count: count ?? state.topic.resCount,
+          }),
+        )(storage),
+      });
+    }
+  });
 }
 
 function reducer(prevState: State, action: Action): State {
@@ -216,7 +221,7 @@ function reducer(prevState: State, action: Action): State {
         ...prevState,
         existUnread: false,
         reses: mergeReses(action.beforeReses, action.afterReses),
-        currentResId: pipe(
+        jumpResId: pipe(
           [RA.last(action.afterReses), RA.head(action.beforeReses)],
           Monoid_.fold(O.getFirstMonoid()),
           O.map(res => res.id),
@@ -324,10 +329,7 @@ function reducer(prevState: State, action: Action): State {
       return prevState;
     }
     case "CHANGE_CURRENT_RES": {
-      return {
-        ...prevState,
-        currentResId: action.res?.id ?? null,
-      };
+      return prevState;
     }
     case "SUBMIT_RES": {
       return prevState;
@@ -357,6 +359,12 @@ function reducer(prevState: State, action: Action): State {
         ...prevState,
         reses: mergeReses(prevState.reses ?? [], [action.res]),
       };
+    case "RESET_JUMP_RES": {
+      return {
+        ...prevState,
+        jumpResId: null,
+      };
+    }
   }
 }
 
@@ -366,27 +374,21 @@ function fetchTopic(
 ): Observable<Action> {
   return rx.merge(
     rx.of<Action>({ type: "FETCH_TOPIC_REQUEST" }),
-    rx
-      .from(
-        env.apolloClient.query<G.FindTopicsQuery, G.FindTopicsQueryVariables>({
-          query: G.FindTopicsDocument,
-          variables: { query: { id: [topicId] } },
-        }),
-      )
-      .pipe(
-        ops.mergeMap(res =>
-          pipe(
-            RA.head(res.data.topics),
-            O.map(topic =>
-              rx.of<Action>({ type: "FETCH_TOPIC_SUCCESS", topic }),
-            ),
-            O.getOrElse<rx.Observable<Action>>(() =>
-              rx.throwError(new Error()),
-            ),
-          ),
+    RxExtra.fromTask(() =>
+      env.apolloClient.query<G.FindTopicsQuery, G.FindTopicsQueryVariables>({
+        query: G.FindTopicsDocument,
+        variables: { query: { id: [topicId] } },
+      }),
+    ).pipe(
+      ops.mergeMap(res =>
+        pipe(
+          RA.head(res.data.topics),
+          O.map(topic => rx.of<Action>({ type: "FETCH_TOPIC_SUCCESS", topic })),
+          O.getOrElse<rx.Observable<Action>>(() => rx.throwError(new Error())),
         ),
-        ops.catchError(_e => rx.of<Action>({ type: "FETCH_TOPIC_FAILURE" })),
       ),
+      ops.catchError(_e => rx.of<Action>({ type: "FETCH_TOPIC_FAILURE" })),
+    ),
   );
 }
 
@@ -394,19 +396,17 @@ function fetchRes(
   { topicId, dateQuery }: { topicId: string; dateQuery: G.DateQuery },
   env: Env,
 ): Observable<ReadonlyArray<G.ResFragment>> {
-  return rx
-    .from(
-      env.apolloClient.query<G.FindResesQuery, G.FindResesQueryVariables>({
-        query: G.FindResesDocument,
-        variables: {
-          query: {
-            topic: topicId,
-            date: dateQuery,
-          },
+  return RxExtra.fromTask(() =>
+    env.apolloClient.query<G.FindResesQuery, G.FindResesQueryVariables>({
+      query: G.FindResesDocument,
+      variables: {
+        query: {
+          topic: topicId,
+          date: dateQuery,
         },
-      }),
-    )
-    .pipe(ops.map(res => res.data.reses));
+      },
+    }),
+  ).pipe(ops.map(res => res.data.reses));
 }
 
 function fetchInitRes(
@@ -489,7 +489,7 @@ const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ops.withLatestFrom(state$),
       ops.mergeMap(([action, state]) =>
         rx.merge(
-          zenToRx(
+          RxExtra.fromZen(
             env.apolloClient.subscribe<
               G.ResAddedSubscription,
               G.ResAddedSubscriptionVariables
@@ -500,15 +500,12 @@ const epic: Epic<Action, State, Env> = (action$, state$, env) =>
           ).pipe(
             ops.map(res => res.data ?? null),
             ops.filter(isNotNull),
-            ops.mergeMap(res =>
-              rx.merge(
-                storageSaveDate({ count: res.resAdded.count }, state, env),
-                rx.of<Action>({
-                  type: "RECEIVE_NEW_RES",
-                  res: res.resAdded.res,
-                  count: res.resAdded.count,
-                }),
-              ),
+            ops.map(
+              (res): Action => ({
+                type: "RECEIVE_NEW_RES",
+                res: res.resAdded.res,
+                count: res.resAdded.count,
+              }),
             ),
           ),
           fetchTopic({ topicId: action.topicId }, env),
@@ -529,6 +526,24 @@ const epic: Epic<Action, State, Env> = (action$, state$, env) =>
           ),
         ),
       ),
+    ),
+    action$.pipe(
+      ops.map(action =>
+        action.type === "FETCH_TOPIC_SUCCESS" ? action : null,
+      ),
+      ops.filter(isNotNull),
+      ops.withLatestFrom(state$),
+      ops.mergeMap(([action, state]) => {
+        return storageSaveDate({ count: action.topic.resCount }, state, env);
+      }),
+    ),
+    action$.pipe(
+      ops.map(action => (action.type === "RECEIVE_NEW_RES" ? action : null)),
+      ops.filter(isNotNull),
+      ops.withLatestFrom(state$),
+      ops.mergeMap(([action, state]) => {
+        return storageSaveDate({ count: action.count }, state, env);
+      }),
     ),
     action$.pipe(
       ops.map(action => (action.type === "SCROLL_TO_FIRST" ? action : null)),
@@ -605,19 +620,20 @@ const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ops.withLatestFrom(state$),
       ops.mergeMap(
         ([_action, state]): Observable<Action> => {
-          if (state.userData !== null) {
-            const isFavo = Sto.isTopicFavo(state.topicId)(
-              state.userData.storage,
-            );
-            const storage = state.userData.storage;
-            env.updateUserData({
-              ...state.userData,
-              storage: (isFavo ? Sto.unfavoTopic : Sto.favoTopic)(
-                state.topicId,
-              )(storage),
-            });
-          }
-          return rx.never();
+          return RxExtra.fromIOVoid(() => {
+            if (state.userData !== null) {
+              const isFavo = Sto.isTopicFavo(state.topicId)(
+                state.userData.storage,
+              );
+              const storage = state.userData.storage;
+              env.updateUserData({
+                ...state.userData,
+                storage: (isFavo ? Sto.unfavoTopic : Sto.favoTopic)(
+                  state.topicId,
+                )(storage),
+              });
+            }
+          });
         },
       ),
     ),
@@ -627,10 +643,29 @@ const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ops.withLatestFrom(state$),
       ops.mergeMap(
         ([action, state]): Observable<Action> => {
-          if (state.userData !== null) {
-            env.updateUserData({ ...state.userData, storage: action.storage });
+          return RxExtra.fromIOVoid(() => {
+            if (state.userData !== null) {
+              env.updateUserData({
+                ...state.userData,
+                storage: action.storage,
+              });
+            }
+          });
+        },
+      ),
+    ),
+    action$.pipe(
+      ops.map(action => (action.type === "CHANGE_CURRENT_RES" ? action : null)),
+      ops.filter(isNotNull),
+      ops.withLatestFrom(state$),
+      ops.debounceTime(500),
+      ops.mergeMap(
+        ([action, state]): Observable<Action> => {
+          if (action.res) {
+            return storageSaveDate({ date: action.res.date }, state, env);
+          } else {
+            return rx.never();
           }
-          return rx.never();
         },
       ),
     ),
@@ -841,8 +876,11 @@ export const TopicPage = (_props: {}) => {
               renderItem={res => <Res res={res} update={handleUpdateRes} />}
               className={style.reses}
               items={reversedReses}
-              currentItemKey={state.currentResId}
-              onChangeCurrentItemKey={(_key, res) =>
+              jumpItemKey={state.jumpResId}
+              onResetJumpItemKey={() => {
+                dispatch({ type: "RESET_JUMP_RES" });
+              }}
+              onChangeCurrentItem={res =>
                 dispatch({ type: "CHANGE_CURRENT_RES", res })
               }
               onScrollTop={() => dispatch({ type: "SCROLL_TO_LAST" })}

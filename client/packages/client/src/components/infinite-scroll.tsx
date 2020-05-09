@@ -10,10 +10,10 @@ export interface InfiniteScrollProps<T> {
   style?: React.CSSProperties;
   className?: string;
   items: ReadonlyArray<T>;
-  // keyがnullの時制御しない
-  currentItemKey: string | null;
-  // keyがnullの時アイテムが存在しない(itemsが0だったり、表示されているアイテムがなかったり)
-  onChangeCurrentItemKey: (key: string | null, item: T | null) => void;
+  jumpItemKey: string | null;
+  onResetJumpItemKey: () => void;
+  // nullの時アイテムが存在しない(itemsが0だったり、表示されているアイテムがなかったり)
+  onChangeCurrentItem: (item: T | null) => void;
   onScrollTop: () => void;
   onScrollBottom: () => void;
   // 上のアイテムを現在のアイテムとするか、下のアイテムを現在のアイテムとするか
@@ -23,11 +23,11 @@ export interface InfiniteScrollProps<T> {
 
 export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
   // 現在の実際のアイテムの位置
-  const realCurrentItemKeyRef = React.useRef<string | null>(null);
+  const currentItemKeyRef = React.useRef<string | null>(null);
   const changeCurrentItemKey = React.useCallback((item: T | null) => {
     const key = item !== null ? props.itemToKey(item) : null;
-    realCurrentItemKeyRef.current = key;
-    props.onChangeCurrentItemKey(key, item);
+    currentItemKeyRef.current = key;
+    props.onChangeCurrentItem(item);
   }, []);
 
   useInterval(() => {
@@ -48,10 +48,10 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
   React.useLayoutEffect(() => {
     const scroll = scrollRef.current;
     const itemKeys = props.items.map(item => props.itemToKey(item));
-    const realCurrentItemKey = realCurrentItemKeyRef.current;
+    const currentItemKey = currentItemKeyRef.current;
     if (
       scroll === null ||
-      realCurrentItemKey === null ||
+      currentItemKey === null ||
       RA.getEq(EqT.eqString).equals(prevItemKeys.current, itemKeys)
     ) {
       return;
@@ -61,61 +61,49 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
     const diff = scroll.getDiff(
       { ratio: 0 },
       // elementに存在するkeyでなければいけないのでcurrentItemKeyを使う
-      { ratio: 0, key: realCurrentItemKey },
+      { ratio: 0, key: currentItemKey },
     );
     if (O.isSome(diff)) {
       setTimeout(() => {
         scroll.setDiff(
           { ratio: 0 },
-          { ratio: 0, key: realCurrentItemKey },
+          { ratio: 0, key: currentItemKey },
           diff.value,
         );
       }, 0);
     }
   }, [props.items]);
 
-  // propsのcurrentItemKeyが変わった時スクロール位置を変更する
+  // propsのcurrentItemKeyがnullでない時スクロール位置を変更する
   React.useEffect(() => {
     const scroll = scrollRef.current;
     if (scroll === null) {
       return;
     }
 
-    const newCurrentItem =
-      props.currentItemKey !== null
-        ? props.items.find(
-            item => props.itemToKey(item) === props.currentItemKey,
-          )
-        : null;
+    const jumpItemKey = props.jumpItemKey;
+    const jumpItem =
+      props.jumpItemKey !== null
+        ? props.items.find(item => props.itemToKey(item) === props.jumpItemKey)
+        : undefined;
 
-    if (
-      newCurrentItem !== null &&
-      newCurrentItem !== undefined &&
-      realCurrentItemKeyRef.current !== props.itemToKey(newCurrentItem)
-    ) {
-      const newCurrentItemKey = props.itemToKey(newCurrentItem);
+    props.onResetJumpItemKey();
+
+    if (jumpItemKey !== null && jumpItem !== undefined) {
       setTimeout(() => {
         switch (props.currentItemBase) {
           case "top": {
-            scroll.setDiff(
-              { ratio: 0 },
-              { key: newCurrentItemKey, ratio: 0 },
-              0,
-            );
+            scroll.setDiff({ ratio: 0 }, { key: jumpItemKey, ratio: 0 }, 0);
             break;
           }
           case "bottom": {
-            scroll.setDiff(
-              { ratio: 1 },
-              { key: newCurrentItemKey, ratio: 1 },
-              0,
-            );
+            scroll.setDiff({ ratio: 1 }, { key: jumpItemKey, ratio: 1 }, 0);
             break;
           }
         }
       }, 0);
     }
-  }, [realCurrentItemKeyRef.current, props.currentItemKey]);
+  });
 
   const prevShowHeadLastKey = React.useRef<{
     head: string | null;
@@ -160,7 +148,7 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
         })(),
       );
 
-      if (realCurrentItemKeyRef.current !== null) {
+      if (currentItemKeyRef.current !== null) {
         if (
           pipe(
             Do(O.option)
