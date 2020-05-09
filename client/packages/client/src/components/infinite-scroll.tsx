@@ -41,38 +41,73 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
 
   const scrollRef = React.useRef<ScrollRef<T> | null>(null);
 
-  // アイテムに変更があったときスクロール位置固定
-  const prevItemKeys = React.useRef<ReadonlyArray<string>>(
-    props.items.map(item => props.itemToKey(item)),
-  );
-  React.useLayoutEffect(() => {
+  // かなり違法だけど冪等を意識してるのでバグの原因にはならないはず。UNSAFE_componentWillUpdateに相当
+  // 固定が必要ならnullでない
+  const fixedDataRef = React.useRef<null | { key: string; diff: number }>(null);
+  (() => {
+    // べき等にするために一回の描画で一回しか実行しないようにしたいのでフラグ
+    const isProcessRef = React.useRef(false);
+    React.useEffect(() => {
+      isProcessRef.current = false;
+    });
+
+    // 前回のitemsの参照
+    const prevItemsRef = React.useRef(props.items);
+
+    // 既にこのrenderで呼び出されてるなら処理しない
+    if (isProcessRef.current) {
+      return;
+    }
+    isProcessRef.current = true;
+
     const scroll = scrollRef.current;
-    const itemKeys = props.items.map(item => props.itemToKey(item));
     const currentItemKey = currentItemKeyRef.current;
+    const prevItems = prevItemsRef.current;
+    prevItemsRef.current = props.items;
+
     if (
       scroll === null ||
       currentItemKey === null ||
-      RA.getEq(EqT.eqString).equals(prevItemKeys.current, itemKeys) ||
       // ジャンプ先が指定されてるなら固定しない
-      props.jumpItemKey !== null
+      props.jumpItemKey !== null ||
+      // 速度的な問題で先に参照比較
+      prevItems === props.items ||
+      RA.getEq(EqT.eqString).equals(
+        prevItems.map(item => props.itemToKey(item)),
+        props.items.map(item => props.itemToKey(item)),
+      )
     ) {
       return;
     }
-    prevItemKeys.current = itemKeys;
 
+    // 固定するべき条件を満たした
     const diff = scroll.getDiff(
       { ratio: 1 },
       // elementに存在するkeyでなければいけないのでcurrentItemKeyを使う
       { ratio: 1, key: currentItemKey },
     );
     if (O.isSome(diff)) {
-      scroll.setDiff(
-        { ratio: 1 },
-        { ratio: 1, key: currentItemKey },
-        diff.value,
-      );
+      fixedDataRef.current = {
+        diff: diff.value,
+        key: currentItemKey,
+      };
     }
-  }, [props.items]);
+  })();
+
+  React.useLayoutEffect(() => {
+    const scroll = scrollRef.current;
+    const fixedData = fixedDataRef.current;
+    if (scroll === null || fixedData === null) {
+      return;
+    }
+    fixedDataRef.current = null;
+
+    scroll.setDiff(
+      { ratio: 1 },
+      { ratio: 1, key: fixedData.key },
+      fixedData.diff,
+    );
+  });
 
   // props.jumpItemKeyがnullでない時スクロール位置を変更する
   React.useLayoutEffect(() => {
