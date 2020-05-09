@@ -28,7 +28,7 @@ interface ResProps {
   update?: (res: G.ResFragment) => void;
 }
 
-export const Res = (props: ResProps) => {
+export const Res = React.memo((props: ResProps) => {
   const [isReply, setIsReply] = React.useState(false);
   const [snackMsg, setSnackMsg] = React.useState<string | null>(null);
   const [disableNG, setDisableNG] = React.useState(false);
@@ -375,4 +375,4 @@ export const Res = (props: ResProps) => {
       </CardFlex>
     </Card>
   );
-};
+});

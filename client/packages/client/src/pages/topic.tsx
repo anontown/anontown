@@ -197,9 +197,7 @@ function reducer(prevState: State, action: Action): State {
       };
     }
     case "FETCH_TOPIC_REQUEST": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "FETCH_TOPIC_SUCCESS": {
       return {
@@ -208,14 +206,10 @@ function reducer(prevState: State, action: Action): State {
       };
     }
     case "FETCH_TOPIC_FAILURE": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "FETCH_INIT_RES_REQUEST": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "FETCH_INIT_RES_SUCCESS": {
       return {
@@ -231,9 +225,7 @@ function reducer(prevState: State, action: Action): State {
       };
     }
     case "FETCH_INIT_RES_FAILURE": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "SCROLL_TO_FIRST": {
       return {
@@ -242,9 +234,7 @@ function reducer(prevState: State, action: Action): State {
       };
     }
     case "FETCH_NEW_RES_REQUEST": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "FETCH_NEW_RES_SUCCESS": {
       return {
@@ -253,19 +243,13 @@ function reducer(prevState: State, action: Action): State {
       };
     }
     case "FETCH_NEW_RES_FAILURE": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "SCROLL_TO_LAST": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "FETCH_OLD_RES_REQUEST": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "FETCH_OLD_RES_SUCCESS": {
       return {
@@ -274,9 +258,7 @@ function reducer(prevState: State, action: Action): State {
       };
     }
     case "FETCH_OLD_RES_FAILURE": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "CLICK_OPEN_AUTO_SCROLL_MODAL": {
       return {
@@ -315,9 +297,7 @@ function reducer(prevState: State, action: Action): State {
       };
     }
     case "UPDATE_NG": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "CLICK_OPEN_JUMP_MODAL": {
       return {
@@ -338,14 +318,10 @@ function reducer(prevState: State, action: Action): State {
       };
     }
     case "CLICK_JUMP": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "TOGGLE_FAVO": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "CHANGE_CURRENT_RES": {
       return {
@@ -354,9 +330,7 @@ function reducer(prevState: State, action: Action): State {
       };
     }
     case "SUBMIT_RES": {
-      return {
-        ...prevState,
-      };
+      return prevState;
     }
     case "UPDATE_USER_DATA": {
       return {
@@ -693,6 +667,10 @@ export const TopicPage = (_props: {}) => {
     [state.reses],
   );
 
+  const handleUpdateRes = React.useCallback((res: G.ResFragment) => {
+    dispatch({ type: "UPDATE_RES", res });
+  }, []);
+
   return (
     <Page
       disableScroll={true}
@@ -860,14 +838,7 @@ export const TopicPage = (_props: {}) => {
             </Paper>
             <InfiniteScroll<G.ResFragment>
               itemToKey={res => res.id}
-              renderItem={res => (
-                <Res
-                  res={res}
-                  update={res => {
-                    dispatch({ type: "UPDATE_RES", res });
-                  }}
-                />
-              )}
+              renderItem={res => <Res res={res} update={handleUpdateRes} />}
               className={style.reses}
               items={reversedReses}
               currentItemKey={state.currentResId}
