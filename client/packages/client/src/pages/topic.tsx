@@ -868,8 +868,8 @@ export const TopicPage = (_props: {}) => {
                   topic={state.topic.id}
                   reply={null}
                   userData={state.userData}
-                  changeStorage={x => {
-                    dispatch({ type: "SUBMIT_RES", storage: x });
+                  changeStorage={storage => {
+                    dispatch({ type: "SUBMIT_RES", storage });
                   }}
                 />
               </Paper>
