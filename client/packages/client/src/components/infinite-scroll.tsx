@@ -45,7 +45,7 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
   const prevItemKeys = React.useRef<ReadonlyArray<string>>(
     props.items.map(item => props.itemToKey(item)),
   );
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const scroll = scrollRef.current;
     const itemKeys = props.items.map(item => props.itemToKey(item));
     const realCurrentItemKey = realCurrentItemKeyRef.current;
