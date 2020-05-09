@@ -61,15 +61,15 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
     prevItemKeys.current = itemKeys;
 
     const diff = scroll.getDiff(
-      { ratio: 0 },
+      { ratio: 1 },
       // elementに存在するkeyでなければいけないのでcurrentItemKeyを使う
-      { ratio: 0, key: currentItemKey },
+      { ratio: 1, key: currentItemKey },
     );
     if (O.isSome(diff)) {
       setTimeout(() => {
         scroll.setDiff(
-          { ratio: 0 },
-          { ratio: 0, key: currentItemKey },
+          { ratio: 1 },
+          { ratio: 1, key: currentItemKey },
           diff.value,
         );
       }, 0);
@@ -77,7 +77,7 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
   }, [props.items]);
 
   // props.jumpItemKeyがnullでない時スクロール位置を変更する
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const scroll = scrollRef.current;
     if (scroll === null) {
       return;
@@ -89,7 +89,9 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
         ? props.items.find(item => props.itemToKey(item) === props.jumpItemKey)
         : undefined;
 
-    props.onResetJumpItemKey();
+    if (jumpItemKey !== null) {
+      props.onResetJumpItemKey();
+    }
 
     if (jumpItemKey !== null && jumpItem !== undefined) {
       setTimeout(() => {
