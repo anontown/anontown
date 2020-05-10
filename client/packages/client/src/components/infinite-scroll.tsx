@@ -43,6 +43,7 @@ export function InfiniteScroll<T>(props: InfiniteScrollProps<T>) {
 
   // かなり違法だけど冪等を意識してるのでバグの原因にはならないはず。UNSAFE_componentWillUpdateに相当
   // 固定が必要ならnullでない
+  // TODO: getSnapshotBeforeUpdate使いたいけどhooksなさそう
   const fixedDataRef = React.useRef<null | { key: string; diff: number }>(null);
   (() => {
     // べき等にするために一回の描画で一回しか実行しないようにしたいのでフラグ
