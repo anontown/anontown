@@ -2,6 +2,7 @@ import * as rx from "rxjs";
 import * as zen from "zen-observable-ts";
 import { IO } from "./fp-ts";
 import { Task } from "fp-ts/lib/Task";
+import * as ops from "rxjs/operators";
 
 export function fromZen<A>(zen$: zen.Observable<A>): rx.Observable<A> {
   return new rx.Observable(subscriber => {
@@ -30,4 +31,26 @@ export function fromIOVoid(io: IO<void>): rx.Observable<never> {
 
 export function fromTask<A>(taskA: Task<A>): rx.Observable<A> {
   return rx.defer(() => rx.from(taskA()));
+}
+
+/**
+ * 最低でも一定時間遅延するオペレーター
+ */
+export function delayMinMergeMap<A, B>(
+  ab: (a: A, index: number) => rx.Observable<[number | null, B]>,
+): rx.OperatorFunction<A, B> {
+  return (a$: rx.Observable<A>): rx.Observable<B> =>
+    a$.pipe(
+      ops.mergeMap((a, index) => {
+        const startTime = Date.now();
+        return ab(a, index).pipe(
+          ops.delayWhen(([ms, _b]) =>
+            ms !== null
+              ? rx.timer(Math.max(0, ms + startTime - Date.now()))
+              : rx.of(null),
+          ),
+          ops.map(([_ms, b]) => b),
+        );
+      }),
+    );
 }

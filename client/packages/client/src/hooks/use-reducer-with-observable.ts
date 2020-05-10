@@ -16,7 +16,13 @@ export function useReducerWithObservable<A, S, R>(
 ): [S, (action: A) => void] {
   const state$ = React.useMemo(() => new Subject<S>(), []);
   const action$ = React.useMemo(() => new Subject<A>(), []);
-  const [state, reducerDispatch] = React.useReducer(reducer, initialState);
+  const [state, reducerDispatch] = React.useReducer(
+    (prevState: S, action: A): S => {
+      const newState = reducer(prevState, action);
+      return newState;
+    },
+    initialState,
+  );
   const dispatch = React.useCallback((action: A) => {
     reducerDispatch(action);
     action$.next(action);

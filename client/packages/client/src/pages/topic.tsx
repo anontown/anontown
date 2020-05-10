@@ -567,18 +567,26 @@ const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ops.map(action => (action.type === "SCROLL_TO_FIRST" ? action : null)),
       ops.filter(isNotNull),
       ops.withLatestFrom(state$),
-      ops.mergeMap(([_action, state]) =>
+      ops.filter(([_action, state]) => !state.fetchingOld),
+      ops.map(([_action, state]) =>
         pipe(
           O.fromNullable(state.reses),
-          O.filter(_ => !state.fetchingOld),
           O.chain(RA.head),
-          O.map(res =>
-            fetchNewRes(
-              { topicId: state.topicId, base: new Date(res.date) },
-              env,
-            ),
+          O.map(headRes => ({ headRes, topicId: state.topicId })),
+          O.toNullable,
+        ),
+      ),
+      ops.filter(isNotNull),
+      RxExtra.delayMinMergeMap(({ headRes, topicId }) =>
+        fetchNewRes(
+          { topicId: topicId, base: new Date(headRes.date) },
+          env,
+        ).pipe(
+          ops.map((action): [number | null, Action] =>
+            action.type === "FETCH_NEW_RES_REQUEST"
+              ? [null, action]
+              : [200, action],
           ),
-          O.getOrElse(() => rx.of<Action>()),
         ),
       ),
     ),
@@ -586,18 +594,23 @@ const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ops.map(action => (action.type === "SCROLL_TO_LAST" ? action : null)),
       ops.filter(isNotNull),
       ops.withLatestFrom(state$),
-      ops.mergeMap(([_action, state]) =>
+      ops.filter(([_action, state]) => !state.fetchingNew),
+      ops.map(([_action, state]) =>
         pipe(
           O.fromNullable(state.reses),
-          O.filter(_ => !state.fetchingNew),
           O.chain(RA.last),
-          O.map(res =>
-            fetchOldRes(
-              { topicId: state.topicId, base: new Date(res.date) },
-              env,
-            ),
+          O.map(lastRes => ({ lastRes, topicId: state.topicId })),
+          O.toNullable,
+        ),
+      ),
+      ops.filter(isNotNull),
+      RxExtra.delayMinMergeMap(({ lastRes, topicId }) =>
+        fetchOldRes({ topicId, base: new Date(lastRes.date) }, env).pipe(
+          ops.map((action): [number | null, Action] =>
+            action.type === "FETCH_OLD_RES_REQUEST"
+              ? [null, action]
+              : [200, action],
           ),
-          O.getOrElse(() => rx.of<Action>()),
         ),
       ),
     ),
