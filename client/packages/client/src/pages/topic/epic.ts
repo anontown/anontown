@@ -1,11 +1,9 @@
-import * as rx from "rxjs";
-import * as ops from "rxjs/operators";
+import { rx, rxOps } from "../../prelude";
 import * as G from "../../generated/graphql";
 import { pipe, O, RA, Monoid_, isNotNull, RxExtra } from "../../prelude";
 import { Sto, UserData } from "../../domains/entities";
 import ApolloClient from "apollo-client";
 import { Epic } from "../../hooks/use-reducer-with-observable";
-import { Observable } from "rxjs";
 import { Action } from "./action";
 import { State } from "./state";
 
@@ -63,7 +61,7 @@ export function storageSaveDate(
 function fetchTopic(
   { topicId }: { topicId: string },
   env: Env,
-): Observable<Action> {
+): rx.Observable<Action> {
   return rx.merge(
     rx.of<Action>({ type: "FETCH_TOPIC_REQUEST" }),
     RxExtra.fromTask(() =>
@@ -72,14 +70,14 @@ function fetchTopic(
         variables: { query: { id: [topicId] } },
       }),
     ).pipe(
-      ops.mergeMap(res =>
+      rxOps.mergeMap(res =>
         pipe(
           RA.head(res.data.topics),
           O.map(topic => rx.of<Action>({ type: "FETCH_TOPIC_SUCCESS", topic })),
           O.getOrElse<rx.Observable<Action>>(() => rx.throwError(new Error())),
         ),
       ),
-      ops.catchError(_e => rx.of<Action>({ type: "FETCH_TOPIC_FAILURE" })),
+      rxOps.catchError(_e => rx.of<Action>({ type: "FETCH_TOPIC_FAILURE" })),
     ),
   );
 }
@@ -87,7 +85,7 @@ function fetchTopic(
 function fetchRes(
   { topicId, dateQuery }: { topicId: string; dateQuery: G.DateQuery },
   env: Env,
-): Observable<ReadonlyArray<G.ResFragment>> {
+): rx.Observable<ReadonlyArray<G.ResFragment>> {
   return RxExtra.fromTask(() =>
     env.apolloClient.query<G.FindResesQuery, G.FindResesQueryVariables>({
       query: G.FindResesDocument,
@@ -98,13 +96,13 @@ function fetchRes(
         },
       },
     }),
-  ).pipe(ops.map(res => res.data.reses));
+  ).pipe(rxOps.map(res => res.data.reses));
 }
 
 function fetchInitRes(
   { topicId, base }: { topicId: string; base: Date },
   env: Env,
-): Observable<Action> {
+): rx.Observable<Action> {
   return rx.merge(
     rx.of<Action>({ type: "FETCH_INIT_RES_REQUEST" }),
     rx
@@ -119,14 +117,16 @@ function fetchInitRes(
         ),
       )
       .pipe(
-        ops.map(
+        rxOps.map(
           ([before, after]): Action => ({
             type: "FETCH_INIT_RES_SUCCESS",
             beforeReses: before,
             afterReses: after,
           }),
         ),
-        ops.catchError(_e => rx.of<Action>({ type: "FETCH_INIT_RES_FAILURE" })),
+        rxOps.catchError(_e =>
+          rx.of<Action>({ type: "FETCH_INIT_RES_FAILURE" }),
+        ),
       ),
   );
 }
@@ -134,20 +134,20 @@ function fetchInitRes(
 function fetchNewRes(
   { topicId, base }: { topicId: string; base: Date },
   env: Env,
-): Observable<Action> {
+): rx.Observable<Action> {
   return rx.merge(
     rx.of<Action>({ type: "FETCH_NEW_RES_REQUEST" }),
     fetchRes(
       { topicId, dateQuery: { type: "gt", date: base.toISOString() } },
       env,
     ).pipe(
-      ops.map(
+      rxOps.map(
         (reses): Action => ({
           type: "FETCH_NEW_RES_SUCCESS",
           reses,
         }),
       ),
-      ops.catchError(_e => rx.of<Action>({ type: "FETCH_NEW_RES_FAILURE" })),
+      rxOps.catchError(_e => rx.of<Action>({ type: "FETCH_NEW_RES_FAILURE" })),
     ),
   );
 }
@@ -155,20 +155,20 @@ function fetchNewRes(
 function fetchOldRes(
   { topicId, base }: { topicId: string; base: Date },
   env: Env,
-): Observable<Action> {
+): rx.Observable<Action> {
   return rx.merge(
     rx.of<Action>({ type: "FETCH_OLD_RES_REQUEST" }),
     fetchRes(
       { topicId, dateQuery: { type: "lt", date: base.toISOString() } },
       env,
     ).pipe(
-      ops.map(
+      rxOps.map(
         (reses): Action => ({
           type: "FETCH_OLD_RES_SUCCESS",
           reses,
         }),
       ),
-      ops.catchError(_e => rx.of<Action>({ type: "FETCH_OLD_RES_FAILURE" })),
+      rxOps.catchError(_e => rx.of<Action>({ type: "FETCH_OLD_RES_FAILURE" })),
     ),
   );
 }
@@ -176,10 +176,10 @@ function fetchOldRes(
 export const epic: Epic<Action, State, Env> = (action$, state$, env) =>
   rx.merge(
     action$.pipe(
-      ops.map(action => (action.type === "INIT" ? action : null)),
-      ops.filter(isNotNull),
-      ops.withLatestFrom(state$),
-      ops.mergeMap(([action, state]) =>
+      rxOps.map(action => (action.type === "INIT" ? action : null)),
+      rxOps.filter(isNotNull),
+      rxOps.withLatestFrom(state$),
+      rxOps.mergeMap(([action, state]) =>
         rx.merge(
           RxExtra.fromZen(
             env.apolloClient.subscribe<
@@ -190,9 +190,9 @@ export const epic: Epic<Action, State, Env> = (action$, state$, env) =>
               query: G.ResAddedDocument,
             }),
           ).pipe(
-            ops.map(res => res.data ?? null),
-            ops.filter(isNotNull),
-            ops.map(
+            rxOps.map(res => res.data ?? null),
+            rxOps.filter(isNotNull),
+            rxOps.map(
               (res): Action => ({
                 type: "RECEIVE_NEW_RES",
                 res: res.resAdded.res,
@@ -220,29 +220,29 @@ export const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ),
     ),
     action$.pipe(
-      ops.map(action =>
+      rxOps.map(action =>
         action.type === "FETCH_TOPIC_SUCCESS" ? action : null,
       ),
-      ops.filter(isNotNull),
-      ops.withLatestFrom(state$),
-      ops.mergeMap(([action, state]) => {
+      rxOps.filter(isNotNull),
+      rxOps.withLatestFrom(state$),
+      rxOps.mergeMap(([action, state]) => {
         return storageSaveDate({ count: action.topic.resCount }, state, env);
       }),
     ),
     action$.pipe(
-      ops.map(action => (action.type === "RECEIVE_NEW_RES" ? action : null)),
-      ops.filter(isNotNull),
-      ops.withLatestFrom(state$),
-      ops.mergeMap(([action, state]) => {
+      rxOps.map(action => (action.type === "RECEIVE_NEW_RES" ? action : null)),
+      rxOps.filter(isNotNull),
+      rxOps.withLatestFrom(state$),
+      rxOps.mergeMap(([action, state]) => {
         return storageSaveDate({ count: action.count }, state, env);
       }),
     ),
     action$.pipe(
-      ops.map(action => (action.type === "SCROLL_TO_FIRST" ? action : null)),
-      ops.filter(isNotNull),
-      ops.withLatestFrom(state$),
-      ops.filter(([_action, state]) => !state.fetchingOld),
-      ops.map(([_action, state]) =>
+      rxOps.map(action => (action.type === "SCROLL_TO_FIRST" ? action : null)),
+      rxOps.filter(isNotNull),
+      rxOps.withLatestFrom(state$),
+      rxOps.filter(([_action, state]) => !state.fetchingOld),
+      rxOps.map(([_action, state]) =>
         pipe(
           O.fromNullable(state.reses),
           O.chain(RA.head),
@@ -250,13 +250,13 @@ export const epic: Epic<Action, State, Env> = (action$, state$, env) =>
           O.toNullable,
         ),
       ),
-      ops.filter(isNotNull),
+      rxOps.filter(isNotNull),
       RxExtra.delayMinMergeMap(({ headRes, topicId }) =>
         fetchNewRes(
           { topicId: topicId, base: new Date(headRes.date) },
           env,
         ).pipe(
-          ops.map((action): [number | null, Action] =>
+          rxOps.map((action): [number | null, Action] =>
             action.type === "FETCH_NEW_RES_REQUEST"
               ? [null, action]
               : [200, action],
@@ -265,11 +265,11 @@ export const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ),
     ),
     action$.pipe(
-      ops.map(action => (action.type === "SCROLL_TO_LAST" ? action : null)),
-      ops.filter(isNotNull),
-      ops.withLatestFrom(state$),
-      ops.filter(([_action, state]) => !state.fetchingNew),
-      ops.map(([_action, state]) =>
+      rxOps.map(action => (action.type === "SCROLL_TO_LAST" ? action : null)),
+      rxOps.filter(isNotNull),
+      rxOps.withLatestFrom(state$),
+      rxOps.filter(([_action, state]) => !state.fetchingNew),
+      rxOps.map(([_action, state]) =>
         pipe(
           O.fromNullable(state.reses),
           O.chain(RA.last),
@@ -277,10 +277,10 @@ export const epic: Epic<Action, State, Env> = (action$, state$, env) =>
           O.toNullable,
         ),
       ),
-      ops.filter(isNotNull),
+      rxOps.filter(isNotNull),
       RxExtra.delayMinMergeMap(({ lastRes, topicId }) =>
         fetchOldRes({ topicId, base: new Date(lastRes.date) }, env).pipe(
-          ops.map((action): [number | null, Action] =>
+          rxOps.map((action): [number | null, Action] =>
             action.type === "FETCH_OLD_RES_REQUEST"
               ? [null, action]
               : [200, action],
@@ -289,11 +289,11 @@ export const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ),
     ),
     action$.pipe(
-      ops.map(action => (action.type === "UPDATE_NG" ? action : null)),
-      ops.filter(isNotNull),
-      ops.withLatestFrom(state$),
-      ops.mergeMap(
-        ([action, state]): Observable<Action> => {
+      rxOps.map(action => (action.type === "UPDATE_NG" ? action : null)),
+      rxOps.filter(isNotNull),
+      rxOps.withLatestFrom(state$),
+      rxOps.mergeMap(
+        ([action, state]): rx.Observable<Action> => {
           if (state.userData !== null) {
             env.updateUserData({ ...state.userData, storage: action.storage });
           }
@@ -302,16 +302,16 @@ export const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ),
     ),
     action$.pipe(
-      ops.map(action => (action.type === "CLICK_JUMP" ? action : null)),
-      ops.filter(isNotNull),
-      ops.withLatestFrom(state$),
-      ops.map(([_action, state]) =>
+      rxOps.map(action => (action.type === "CLICK_JUMP" ? action : null)),
+      rxOps.filter(isNotNull),
+      rxOps.withLatestFrom(state$),
+      rxOps.map(([_action, state]) =>
         state.jumpValue !== null
           ? { topicId: state.topicId, jumpValue: state.jumpValue }
           : null,
       ),
-      ops.filter(isNotNull),
-      ops.mergeMap(({ topicId, jumpValue }) =>
+      rxOps.filter(isNotNull),
+      rxOps.mergeMap(({ topicId, jumpValue }) =>
         fetchInitRes(
           {
             topicId: topicId,
@@ -322,11 +322,11 @@ export const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ),
     ),
     action$.pipe(
-      ops.map(action => (action.type === "TOGGLE_FAVO" ? action : null)),
-      ops.filter(isNotNull),
-      ops.withLatestFrom(state$),
-      ops.mergeMap(
-        ([_action, state]): Observable<Action> => {
+      rxOps.map(action => (action.type === "TOGGLE_FAVO" ? action : null)),
+      rxOps.filter(isNotNull),
+      rxOps.withLatestFrom(state$),
+      rxOps.mergeMap(
+        ([_action, state]): rx.Observable<Action> => {
           return RxExtra.fromIOVoid(() => {
             if (state.userData !== null) {
               const isFavo = Sto.isTopicFavo(state.topicId)(
@@ -345,11 +345,11 @@ export const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ),
     ),
     action$.pipe(
-      ops.map(action => (action.type === "SUBMIT_RES" ? action : null)),
-      ops.filter(isNotNull),
-      ops.withLatestFrom(state$),
-      ops.mergeMap(
-        ([action, state]): Observable<Action> => {
+      rxOps.map(action => (action.type === "SUBMIT_RES" ? action : null)),
+      rxOps.filter(isNotNull),
+      rxOps.withLatestFrom(state$),
+      rxOps.mergeMap(
+        ([action, state]): rx.Observable<Action> => {
           return RxExtra.fromIOVoid(() => {
             if (state.userData !== null) {
               env.updateUserData({
@@ -362,12 +362,14 @@ export const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ),
     ),
     action$.pipe(
-      ops.map(action => (action.type === "CHANGE_CURRENT_RES" ? action : null)),
-      ops.filter(isNotNull),
-      ops.withLatestFrom(state$),
-      ops.debounceTime(500),
-      ops.mergeMap(
-        ([action, state]): Observable<Action> => {
+      rxOps.map(action =>
+        action.type === "CHANGE_CURRENT_RES" ? action : null,
+      ),
+      rxOps.filter(isNotNull),
+      rxOps.withLatestFrom(state$),
+      rxOps.debounceTime(500),
+      rxOps.mergeMap(
+        ([action, state]): rx.Observable<Action> => {
           if (action.res) {
             return storageSaveDate({ date: action.res.date }, state, env);
           } else {

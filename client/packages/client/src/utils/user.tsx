@@ -1,6 +1,5 @@
 import * as React from "react";
-import * as rx from "rxjs";
-import * as op from "rxjs/operators";
+import { rx, rxOps } from "../prelude";
 import { UserData } from "../domains/entities";
 import * as G from "../generated/graphql";
 import {
@@ -37,7 +36,7 @@ export const User = (props: UserProps): JSX.Element => {
   useEffectRef(
     f => {
       const subs = subjectRef.current
-        .pipe(op.debounceTime(5000))
+        .pipe(rxOps.debounceTime(5000))
         .subscribe(data => {
           f.current(data);
         });

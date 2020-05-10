@@ -1,4 +1,4 @@
-import { O, Option } from "./fp-ts";
+import { O, Option } from "./fp-ts-exports";
 
 export const foldEffect = O.fold;
 

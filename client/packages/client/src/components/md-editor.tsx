@@ -1,7 +1,5 @@
 import { FontIcon, IconButton, MenuItem } from "material-ui";
 import * as React from "react";
-import * as rx from "rxjs";
-import * as op from "rxjs/operators";
 import { imgur } from "../effects";
 import { Errors } from "./errors";
 import { Md } from "./md";
@@ -9,6 +7,7 @@ import { Modal } from "./modal";
 import { Oekaki } from "./oekaki";
 import { PopupMenu } from "./popup-menu";
 import { TextArea } from "./text-area";
+import { rx, rxOps } from "../prelude";
 
 export interface MdEditorProps {
   value: string;
@@ -45,9 +44,9 @@ export class MdEditor extends React.Component<MdEditorProps, MdEditorState> {
   upload(datas: Array<FormData>) {
     rx.of(...datas)
       .pipe(
-        op.mergeMap(form => imgur.upload(form)),
-        op.map(url => `![](${url})`),
-        op.reduce((tags, tag) => tags + tag + "\n", ""),
+        rxOps.mergeMap(form => imgur.upload(form)),
+        rxOps.map(url => `![](${url})`),
+        rxOps.reduce((tags, tag) => tags + tag + "\n", ""),
       )
       .subscribe(
         tags => {

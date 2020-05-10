@@ -1,4 +1,4 @@
-import { RA, pipe, O } from "./fp-ts";
+import { RA, pipe, O } from "./fp-ts-exports";
 
 export function update<T extends { id: string }>(item: T) {
   return (list: ReadonlyArray<T>): ReadonlyArray<T> =>

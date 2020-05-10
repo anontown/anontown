@@ -1,4 +1,4 @@
-import { E, Either } from "./fp-ts";
+import { E, Either } from "./fp-ts-exports";
 
 export const foldEffect = E.fold;
 

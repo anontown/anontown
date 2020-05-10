@@ -1,4 +1,4 @@
-import { RA, Ord, O } from "./fp-ts";
+import { RA, Ord, O } from "./fp-ts-exports";
 
 /**
  * 配列xsに配列ysをマージし、配列を返す。引数も還り値もキーで昇順にソート済みでキーの重複がない。

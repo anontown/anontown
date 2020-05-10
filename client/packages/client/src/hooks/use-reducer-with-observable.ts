@@ -1,12 +1,12 @@
 import * as React from "react";
 
-import { Observable, Subject } from "rxjs";
+import { rx } from "../prelude";
 
 export type Epic<A, S, R> = (
-  action$: Observable<A>,
-  state$: Observable<S>,
+  action$: rx.Observable<A>,
+  state$: rx.Observable<S>,
   env: R,
-) => Observable<A>;
+) => rx.Observable<A>;
 
 export function useReducerWithObservable<A, S, R>(
   reducer: (prevState: S, action: A) => S,
@@ -14,8 +14,8 @@ export function useReducerWithObservable<A, S, R>(
   epic: Epic<A, S, R>,
   env: R,
 ): [S, (action: A) => void] {
-  const state$ = React.useMemo(() => new Subject<S>(), []);
-  const action$ = React.useMemo(() => new Subject<A>(), []);
+  const state$ = React.useMemo(() => new rx.Subject<S>(), []);
+  const action$ = React.useMemo(() => new rx.Subject<A>(), []);
   const [state, reducerDispatch] = React.useReducer(
     (prevState: S, action: A): S => {
       const newState = reducer(prevState, action);
