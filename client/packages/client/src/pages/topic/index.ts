@@ -1,0 +1,1 @@
+export { TopicPage } from "./view";
