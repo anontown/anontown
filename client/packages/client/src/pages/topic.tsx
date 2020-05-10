@@ -76,6 +76,8 @@ interface State {
   now: Date | null;
   reses: ReadonlyArray<G.ResFragment> | null;
   jumpValue: number | null;
+  fetchingOld: boolean;
+  fetchingNew: boolean;
 }
 
 function State({
@@ -99,6 +101,8 @@ function State({
     isAutoScroll: false,
     jumpValue: null,
     jumpResId: null,
+    fetchingOld: false,
+    fetchingNew: false,
   };
 }
 
@@ -239,31 +243,45 @@ function reducer(prevState: State, action: Action): State {
       };
     }
     case "FETCH_NEW_RES_REQUEST": {
-      return prevState;
+      return {
+        ...prevState,
+        fetchingNew: true,
+      };
     }
     case "FETCH_NEW_RES_SUCCESS": {
       return {
         ...prevState,
         reses: mergeReses(prevState.reses ?? [], action.reses),
+        fetchingNew: false,
       };
     }
     case "FETCH_NEW_RES_FAILURE": {
-      return prevState;
+      return {
+        ...prevState,
+        fetchingNew: false,
+      };
     }
     case "SCROLL_TO_LAST": {
       return prevState;
     }
     case "FETCH_OLD_RES_REQUEST": {
-      return prevState;
+      return {
+        ...prevState,
+        fetchingOld: true,
+      };
     }
     case "FETCH_OLD_RES_SUCCESS": {
       return {
         ...prevState,
         reses: mergeReses(prevState.reses ?? [], action.reses),
+        fetchingOld: false,
       };
     }
     case "FETCH_OLD_RES_FAILURE": {
-      return prevState;
+      return {
+        ...prevState,
+        fetchingOld: false,
+      };
     }
     case "CLICK_OPEN_AUTO_SCROLL_MODAL": {
       return {
@@ -552,6 +570,7 @@ const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ops.mergeMap(([_action, state]) =>
         pipe(
           O.fromNullable(state.reses),
+          O.filter(_ => !state.fetchingOld),
           O.chain(RA.head),
           O.map(res =>
             fetchNewRes(
@@ -570,6 +589,7 @@ const epic: Epic<Action, State, Env> = (action$, state$, env) =>
       ops.mergeMap(([_action, state]) =>
         pipe(
           O.fromNullable(state.reses),
+          O.filter(_ => !state.fetchingNew),
           O.chain(RA.last),
           O.map(res =>
             fetchOldRes(
