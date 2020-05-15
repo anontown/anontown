@@ -35,7 +35,6 @@ module.exports = {
     "@typescript-eslint/prefer-for-of": "error",
     "@typescript-eslint/prefer-function-type": "error",
     complexity: "warn", // 便利そう
-    "dot-notation": "error",
     eqeqeq: ["error"],
     "guard-for-in": "error",
     "new-parens": "error",

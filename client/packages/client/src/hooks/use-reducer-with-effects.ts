@@ -18,7 +18,7 @@ export function useReducerWithEffects<S, A>(
   const [state, dispatch] = React.useReducer(
     (prevState: State<S, A>, action: Action<S, A>): State<S, A> => {
       switch (action.type) {
-        case "APP_ACTION":
+        case "APP_ACTION": {
           const [newAppState, newEffect] = reducer(
             prevState.appState,
             action.appAction,
@@ -28,11 +28,13 @@ export function useReducerWithEffects<S, A>(
             appState: newAppState,
             effects: [...prevState.effects, newEffect],
           };
-        case "CLEAR_EFFECTS":
+        }
+        case "CLEAR_EFFECTS": {
           return {
             ...prevState,
             effects: [],
           };
+        }
       }
     },
     { appState: initialState, effects: [] },
