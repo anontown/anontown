@@ -140,7 +140,7 @@ function _Scroll<T>() {
       const intersectionObserverCallback = useFunctionRef(
         (entries: Array<IntersectionObserverEntry>) => {
           for (const entry of entries) {
-            const key = (entry.target as HTMLDivElement).dataset["key"]!;
+            const key = (entry.target as HTMLDivElement).dataset.key!;
             if (entry.isIntersecting) {
               showKeys.add(key);
             } else {
