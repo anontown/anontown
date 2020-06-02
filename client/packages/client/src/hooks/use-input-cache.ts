@@ -1,6 +1,5 @@
 import * as React from "react";
-import * as rx from "rxjs";
-import * as op from "rxjs/operators";
+import { rx, rxOps } from "../prelude";
 import { useEffectRef } from "./ref";
 
 export function useInputCache<T>(
@@ -17,7 +16,7 @@ export function useInputCache<T>(
 
   useEffectRef(
     f => {
-      const subs = subject.pipe(op.debounceTime(dueTime)).subscribe(x => {
+      const subs = subject.pipe(rxOps.debounceTime(dueTime)).subscribe(x => {
         f.current(x);
       });
 

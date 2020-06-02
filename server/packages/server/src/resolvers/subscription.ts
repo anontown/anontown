@@ -1,4 +1,4 @@
-import * as op from "rxjs/operators";
+import * as rxOps from "rxjs/operators";
 import * as G from "../generated/graphql";
 import { observableAsyncIterator } from "../utils";
 
@@ -7,8 +7,8 @@ export const subscription: G.SubscriptionResolvers = {
     subscribe: (_parent, args, context, _info) =>
       observableAsyncIterator(
         context.ports.resRepo.insertEvent.pipe(
-          op.filter(x => x.res.topic === args.topic),
-          op.map(x => ({
+          rxOps.filter(x => x.res.topic === args.topic),
+          rxOps.map(x => ({
             count: x.count,
             res: x.res.toAPI(context.ports.authContainer.getTokenOrNull()),
           })),

@@ -1,10 +1,10 @@
-import * as rx from "rxjs/ajax";
-import * as op from "rxjs/operators";
+import { rxOps } from "../prelude";
+import * as rxAjax from "rxjs/ajax";
 
 import { Env } from "../env";
 
 export function upload(data: FormData): Promise<string> {
-  return rx
+  return rxAjax
     .ajax({
       url: "https://api.imgur.com/3/image",
       method: "POST",
@@ -14,6 +14,6 @@ export function upload(data: FormData): Promise<string> {
       body: data,
       crossDomain: true,
     })
-    .pipe(op.map(r => r.response.data.link))
+    .pipe(rxOps.map(r => r.response.data.link))
     .toPromise();
 }
