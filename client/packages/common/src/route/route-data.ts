@@ -13,33 +13,33 @@ export type PathDataElement<T extends string> =
   | PathDataElementConst
   | PathDataElementVariable<T>;
 
-export type PathData<T extends string> = readonly PathDataElement<T>[];
+export type PathData<T extends string> = ReadonlyArray<PathDataElement<T>>;
 
 function pathDataToString<T extends string>(
   pathData: PathData<T>,
-  variableNameToString: (x: T) => string
+  variableNameToString: (x: T) => string,
 ): string {
   return pathData
-    .map((x) => {
+    .map(x => {
       if (x.type === "const") {
         return x.value;
       } else {
         return variableNameToString(x.name);
       }
     })
-    .map((x) => `/${x}`)
+    .map(x => `/${x}`)
     .join("");
 }
 
 function pathDataToPath<T extends string>(
   pathData: PathData<T>,
-  params: ReadonlyRecord<T, string>
+  params: ReadonlyRecord<T, string>,
 ): string {
-  return pathDataToString(pathData, (name) => encodeURIComponent(params[name]));
+  return pathDataToString(pathData, name => encodeURIComponent(params[name]));
 }
 
 function pathDataToMatcher<T extends string>(pathData: PathData<T>): string {
-  return pathDataToString(pathData, (name) => `:${name}`);
+  return pathDataToString(pathData, name => `:${name}`);
 }
 
 export class PathDataBuilder<T extends string> {
@@ -61,7 +61,11 @@ export class PathDataBuilder<T extends string> {
   }
 }
 
-export type ParsedQueryValue = string | readonly string[] | null | undefined;
+export type ParsedQueryValue =
+  | string
+  | ReadonlyArray<string>
+  | null
+  | undefined;
 
 type RouteDataToParamNames<T> = T extends RouteData<infer P, any> ? P : never;
 
@@ -83,7 +87,7 @@ export class RouteData<P extends string, Q extends object> {
     return x[0];
   };
 
-  static encodeArray = (x: ParsedQueryValue): readonly string[] => {
+  static encodeArray = (x: ParsedQueryValue): ReadonlyArray<string> => {
     if (x === null || x === undefined) {
       return [];
     }
@@ -98,31 +102,31 @@ export class RouteData<P extends string, Q extends object> {
   constructor(
     public pathData: PathData<P>,
     public encodeQuery: (
-      query: ReadonlyRecord<string, string | readonly string[]>
+      query: ReadonlyRecord<string, string | ReadonlyArray<string>>,
     ) => Q,
     public decodeQuery: (
-      query: Partial<Q>
-    ) => ReadonlyRecord<string, string | readonly string[]>
+      query: Partial<Q>,
+    ) => ReadonlyRecord<string, string | ReadonlyArray<string>>,
   ) {}
 
   static create<P extends string>(
-    pathDataBuilder: PathDataBuilder<P>
+    pathDataBuilder: PathDataBuilder<P>,
   ): RouteData<P, {}> {
     return new RouteData(
       pathDataBuilder.value,
       () => ({}),
-      () => ({})
+      () => ({}),
     );
   }
 
   static createWithQuery<P extends string, Q extends object>(
     pathDataBuilder: PathDataBuilder<P>,
     encodeQuery: (
-      query: ReadonlyRecord<string, string | readonly string[]>
+      query: ReadonlyRecord<string, string | ReadonlyArray<string>>,
     ) => Q,
     decodeQuery: (
-      query: Partial<Q>
-    ) => ReadonlyRecord<string, string | readonly string[]>
+      query: Partial<Q>,
+    ) => ReadonlyRecord<string, string | ReadonlyArray<string>>,
   ): RouteData<P, Q> {
     return new RouteData(pathDataBuilder.value, encodeQuery, decodeQuery);
   }
@@ -139,7 +143,7 @@ export class RouteData<P extends string, Q extends object> {
     }: {
       query?: Partial<Q>;
       state?: any;
-    } = {}
+    } = {},
   ): LocationDescriptorObject {
     return {
       pathname: pathDataToPath(this.pathData, params),
@@ -153,12 +157,12 @@ export class RouteData<P extends string, Q extends object> {
     return this.encodeQuery(
       RA.filter(
         (x): x is ReadonlyArray<string> | string =>
-          Array.isArray(x) || typeof x === "string"
-      )(qs.parse(query))
+          Array.isArray(x) || typeof x === "string",
+      )(qs.parse(query)),
     );
   }
 
-  parsePathData(data: readonly string[]): ReadonlyRecord<P, string> {
+  parsePathData(data: ReadonlyArray<string>): ReadonlyRecord<P, string> {
     return this.pathData
       .filter((x): x is PathDataElementVariable<any> => x.type === "variable")
       .reduce<any>((result, x, i) => {

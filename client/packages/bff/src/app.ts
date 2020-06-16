@@ -18,12 +18,12 @@ function addRoute<P extends string, Q extends object>(route: RouteData<P, Q>) {
       // const parsedData = route.parsePathData(pathData);
       const template = await fse.readFile(
         path.join(rootDir, ".index.ejs"),
-        "utf8"
+        "utf8",
       );
       ctx.body = lodash.template(template)({
         escapedEnvJson: outputJsValueToHtml(env.jsEnv),
       });
-    })
+    }),
   );
 }
 
@@ -32,9 +32,9 @@ for (const r of routeArray) {
 }
 
 app.use(
-  kr.get("/ping", async (ctx) => {
+  kr.get("/ping", async ctx => {
     ctx.body = "OK";
-  })
+  }),
 );
 
 app.use(async (ctx, next) => {
