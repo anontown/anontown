@@ -3,19 +3,14 @@ const path = require("path");
 module.exports = {
   root: true,
   parser: "@typescript-eslint/parser",
-  env: {
-    browser: true,
-  },
   extends: [
     "eslint:recommended",
-    "plugin:react/recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:prettier/recommended",
     "prettier",
     "prettier/@typescript-eslint",
-    "prettier/react",
   ],
   parserOptions: {
     project: "tsconfig.json",
@@ -33,7 +28,7 @@ module.exports = {
     // "@typescript-eslint/return-await": ["error", "always"], // なんかasync関数じゃないのにfixしたらawaitつけてくる…
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-empty-interface": "off",
-    "@typescript-eslint/no-floating-promises": "warn", // そのうちエラーにしたい(Reactのコールバック的に今は無理)
+    "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/prefer-for-of": "error",
     "@typescript-eslint/prefer-function-type": "error",
     complexity: "warn", // 便利そう
@@ -64,10 +59,8 @@ module.exports = {
     "no-var": "error",
     "prefer-const": "error",
     // strict-type-predicates入れたい: https://github.com/typescript-eslint/typescript-eslint/pull/738
-    "react/jsx-boolean-value": ["error", "always"],
     "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     // unused-importがほしい: https://github.com/typescript-eslint/typescript-eslint/issues/371
-    "react/display-name": "warn",
     "@typescript-eslint/no-use-before-define": [
       "warn",
       {
@@ -82,12 +75,10 @@ module.exports = {
         allowHigherOrderFunctions: true,
       },
     ],
-  },
-  settings: {
-    react: {
-      createClass: "createReactClass",
-      pragma: "React",
-      version: "detect",
-    },
+    "@typescript-eslint/no-unsafe-member-access": "warn", // そのうち
+    "no-shadow": "warn", // とりあえず
+    "@typescript-eslint/no-unsafe-assignment": "warn", // port周りで使いまくってるので
+    "@typescript-eslint/no-unsafe-return": "warn", // そのうち
+    "@typescript-eslint/ban-types": "off", // {}とか使えんのはきっつい
   },
 };

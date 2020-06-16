@@ -16,7 +16,7 @@ export const subscription: G.SubscriptionResolvers = {
       ),
     resolve: (x: any) => {
       // TODO: こうしないと動かない何故
-      return x as any;
+      return x;
     },
   },
 };

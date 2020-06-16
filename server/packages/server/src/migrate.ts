@@ -74,7 +74,7 @@ export interface MigrationModule {
 }
 
 export async function getMigrationModules(
-  ext: string = ".js",
+  ext = ".js",
 ): Promise<Array<MigrationModule>> {
   const dir = path.join(__dirname, "migrations");
   const files = (await fs.readdir(dir))
@@ -82,6 +82,7 @@ export async function getMigrationModules(
     .sort();
   return files.map<MigrationModule>(file => ({
     name: path.basename(file, ext),
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     up: require(path.join(dir, file)).up,
   }));
 }

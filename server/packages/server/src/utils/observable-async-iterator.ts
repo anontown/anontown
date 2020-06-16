@@ -56,7 +56,8 @@ export function observableAsyncIterator<T>(
   return {
     next() {
       if (!listening) {
-        return (this as any).return();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        return this.return();
       }
       if (!addedListeners) {
         addEventListeners();

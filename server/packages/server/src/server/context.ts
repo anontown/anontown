@@ -45,7 +45,10 @@ async function createToken(raw: unknown, tokenRepo: ITokenRepo) {
   }
 
   return some(
-    await authFromApiParam.token(tokenRepo, { id: id.value, key: key.value }),
+    await authFromApiParam.tokenHeaderToToken(tokenRepo, {
+      id: id.value,
+      key: key.value,
+    }),
   );
 }
 

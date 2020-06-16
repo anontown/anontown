@@ -49,11 +49,19 @@ lint-fix.server:
 
 .PHONY: lint.client
 lint.client:
-	docker-compose -f docker-compose-test.yml run --rm client ./bin/lint.sh
+	cd client && ./bin/lint.sh
 
 .PHONY: lint.server
 lint.server:
-	docker-compose -f docker-compose-test.yml run --rm server ./bin/lint.sh
+	cd server && ./bin/lint.sh
+
+.PHONY: lint-quiet.client
+lint-quiet.client:
+	cd client && ./bin/lint-quiet.sh
+
+.PHONY: lint-quiet.server
+lint-quiet.server:
+	cd server && ./bin/lint-quiet.sh
 
 .PHONY: test.server
 test.server:

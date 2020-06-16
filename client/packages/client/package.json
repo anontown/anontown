@@ -12,6 +12,7 @@
     "codegen:watch": "graphql-codegen -w",
     "clean": "rm -rf ./dist && rm -rf ./src/generated",
     "lint": "eslint --ext .ts,.tsx src/",
+    "lint:quiet": "eslint --ext .ts,.tsx src/ --quiet",
     "lint:fix": "eslint --ext .ts,.tsx --fix src/"
   },
   "author": "",

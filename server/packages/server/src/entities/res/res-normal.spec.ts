@@ -306,7 +306,7 @@ describe("ResNormal", () => {
     });
 
     for (const name of [null, "name"]) {
-      it("bodyが不正な時エラーになるか。ただしname=" + name, () => {
+      it("bodyが不正な時エラーになるか。ただしname=" + String(name), () => {
         for (const text of ["", "x".repeat(5001)]) {
           expect(() => {
             ResNormal.create(
