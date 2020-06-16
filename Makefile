@@ -63,6 +63,14 @@ lint-quiet.client:
 lint-quiet.server:
 	cd server && ./bin/lint-quiet.sh
 
+.PHONY: lint-docker.client
+lint-docker.client:
+	docker-compose -f docker-compose-test.yml run --rm client ./bin/lint.sh
+
+.PHONY: lint-docker.server
+lint-docker.server:
+	docker-compose -f docker-compose-test.yml run --rm server ./bin/lint.sh
+
 .PHONY: test.server
 test.server:
 	docker-compose -f docker-compose-test.yml run --rm server ./bin/test.sh
