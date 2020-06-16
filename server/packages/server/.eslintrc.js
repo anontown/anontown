@@ -3,6 +3,10 @@ const path = require("path");
 module.exports = {
   root: true,
   parser: "@typescript-eslint/parser",
+  env: {
+    node: true,
+    jest: true,
+  },
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
