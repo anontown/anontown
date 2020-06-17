@@ -27,13 +27,13 @@ COPY packages ./packages
 RUN npx lerna run codegen --scope @anontown/server --include-filtered-dependencies \
   && npx lerna run build --scope @anontown/server
 
-COPY bin/ bin/
+COPY Makefile Makefile
 
 FROM base as dev
 
 COPY restart-dummy ./restart-dummy
-CMD ./bin/start-watch.sh
+CMD make start-watch
 
 FROM base
 
-CMD ./bin/start.sh
+CMD make start
