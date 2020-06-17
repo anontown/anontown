@@ -2,7 +2,7 @@ import * as routes from "./routes";
 import { RouteData } from "./route-data";
 export { RouteData, RouteDataToParams } from "./route-data";
 export { routes };
-export const routeArray: RouteData<string, {}>[] = [
+export const routeArray: Array<RouteData<string, {}>> = [
   routes.home,
   routes.res,
   routes.resReply,
@@ -25,5 +25,5 @@ export const routeArray: RouteData<string, {}>[] = [
   routes.settings,
   routes.accountSetting,
   routes.appsSetting,
-  routes.devSetting
+  routes.devSetting,
 ];

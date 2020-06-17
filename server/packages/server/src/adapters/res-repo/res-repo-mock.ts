@@ -137,9 +137,7 @@ export class ResRepoMock implements IResRepo {
     return result;
   }
 
-  dispose(): void {
-    // tslint:disable-next-line: no-empty
-  }
+  dispose(): void {}
 
   private async aggregate(reses: Array<IResDB>): Promise<Array<Res>> {
     const count = await this.replyCount(reses.map(x => x.id));

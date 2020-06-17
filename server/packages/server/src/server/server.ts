@@ -92,7 +92,9 @@ export async function serverRun() {
 
   httpServer.listen({ port: Config.server.port }, () => {
     console.log(
-      `Server ready at ${server.graphqlPath}, ${server.subscriptionsPath}`,
+      `Server ready at ${server.graphqlPath}, ${
+        server.subscriptionsPath ?? "<unknown subscriptionsPath>"
+      }`,
     );
   });
 }
