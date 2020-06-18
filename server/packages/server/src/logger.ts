@@ -5,6 +5,8 @@ function createFormatter(label: string) {
     winston.format.label({ label }),
     winston.format.timestamp(),
     winston.format.printf(({ level, message, label, timestamp }) => {
+      // TODO: disableしない
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return `${timestamp} [${label}] ${level}: ${message}`;
     }),
   );

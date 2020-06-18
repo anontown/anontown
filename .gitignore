@@ -1,6 +1,5 @@
 .env
 /deploy/
-.vscode/
 .DS_Store
 .metals/
 /env/

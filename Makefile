@@ -21,48 +21,64 @@ bootstrap.client:
 
 .PHONY: build-watch.server
 build-watch.server:
-	cd server && ./bin/build-watch.sh
+	cd server && make build-watch
 
 .PHONY: build-watch.client
 build-watch.client:
-	cd client && ./bin/build-watch.sh
+	cd client && make build-watch
 
 .PHONY: build-watch.client-bff
 build-watch.client-bff:
-	cd client && ./bin/build-watch-bff.sh
+	cd client && make build-watch-bff
 
 .PHONY: codegen-watch.server
 codegen-watch.server:
-	cd server && ./bin/codegen-watch.sh
+	cd server && make codegen-watch
 
 .PHONY: codegen-watch.client
 codegen-watch.client:
-	cd client && ./bin/codegen-watch.sh
+	cd client && make codegen-watch
 
 .PHONY: lint-fix.client
 lint-fix.client:
-	cd client && ./bin/lint-fix.sh
+	cd client && make lint-fix
 
 .PHONY: lint-fix.server
 lint-fix.server:
-	cd server && ./bin/lint-fix.sh
+	cd server && make lint-fix
 
 .PHONY: lint.client
 lint.client:
-	docker-compose -f docker-compose-test.yml run --rm client ./bin/lint.sh
+	cd client && make lint
 
 .PHONY: lint.server
 lint.server:
-	docker-compose -f docker-compose-test.yml run --rm server ./bin/lint.sh
+	cd server && make lint
+
+.PHONY: lint-quiet.client
+lint-quiet.client:
+	cd client && make lint-quiet
+
+.PHONY: lint-quiet.server
+lint-quiet.server:
+	cd server && make lint-quiet
+
+.PHONY: lint-docker.client
+lint-docker.client:
+	docker-compose -f docker-compose-test.yml run --rm client make lint
+
+.PHONY: lint-docker.server
+lint-docker.server:
+	docker-compose -f docker-compose-test.yml run --rm server make lint
 
 .PHONY: test.server
 test.server:
-	docker-compose -f docker-compose-test.yml run --rm server ./bin/test.sh
+	docker-compose -f docker-compose-test.yml run --rm server make test
 
 .PHONY: update-schema
 update-schema:
 	docker build -t server server
-	docker run --rm server ./bin/render-schema.sh > client/schema.json
+	docker run --rm server make render-schema > client/schema.json
 
 .PHONY: serve
 serve:

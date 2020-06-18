@@ -10,9 +10,9 @@ jobs:
       - name: build
         run: docker-compose -f docker-compose-test.yml build
       - name: lint-client
-        run: make lint.client
+        run: make lint-docker.client
       - name: lint-server
-        run: make lint.server
+        run: make lint-docker.server
       - name: run sysctl
         run: |
           sudo sysctl -w vm.max_map_count=262144

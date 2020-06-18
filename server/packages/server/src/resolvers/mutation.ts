@@ -40,7 +40,7 @@ export const mutation: G.MutationResolvers = {
     return { user: user.toAPI(), token: token.toAPI() };
   },
   updateUser: async (_obj, args, context, _info) => {
-    const authUser = await authFromApiParam.user(
+    const authUser = await authFromApiParam.authUserRequestToUser(
       context.ports.userRepo,
       args.auth,
     );
@@ -288,7 +288,7 @@ export const mutation: G.MutationResolvers = {
     };
   },
   createTokenMaster: async (_obj, args, context, _info) => {
-    const authUser = await authFromApiParam.user(
+    const authUser = await authFromApiParam.authUserRequestToUser(
       context.ports.userRepo,
       args.auth,
     );

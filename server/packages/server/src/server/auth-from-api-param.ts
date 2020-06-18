@@ -6,7 +6,7 @@ import { AtAuthError } from "../at-error";
 import { isNullish } from "@kgtkr/utils";
 import * as G from "../generated/graphql";
 
-export async function token(
+export async function tokenHeaderToToken(
   tokenRepo: ITokenRepo,
   apiParamToken: { id: string; key: string },
 ): Promise<IAuthToken> {
@@ -16,7 +16,7 @@ export async function token(
   return authToken;
 }
 
-export async function user(
+export async function authUserRequestToUser(
   userRepo: IUserRepo,
   apiParamUser: G.AuthUser,
 ): Promise<IAuthUser> {

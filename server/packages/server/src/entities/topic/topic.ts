@@ -144,16 +144,17 @@ export abstract class TopicBase<
 
   hash(date: Date, user: User): string {
     const mdate = moment(date).tz(Config.timezone);
+    // TODO: テンプレートリテラル使うべきでは
     return hash(
       // ユーザー依存
       user.id +
         " " +
         // 書き込み年月日依存
-        mdate.year() +
+        String(mdate.year()) +
         " " +
-        mdate.month() +
+        String(mdate.month()) +
         " " +
-        mdate.date() +
+        String(mdate.date()) +
         " " +
         // トピ依存
         this.id +
