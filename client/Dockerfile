@@ -32,4 +32,4 @@ RUN npx lerna run codegen --scope @anontown/client --include-filtered-dependenci
   && npx lerna run build --scope @anontown/bff \
   && npx lerna run build --scope @anontown/client
 
-CMD make start.sh
+CMD make start
