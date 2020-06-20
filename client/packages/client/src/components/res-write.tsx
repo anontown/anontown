@@ -109,7 +109,9 @@ export const ResWrite = (props: ResWriteProps) => {
               }}
               value={pipe(Sto.topicWriteProfileLens.get(data), x => x ?? "")}
               onChange={v => {
-                updateTopicWrite(Sto.topicWriteProfileLens.set(v));
+                updateTopicWrite(
+                  Sto.topicWriteProfileLens.set(v.length === 0 ? null : v),
+                );
               }}
               options={[
                 { value: "", text: "(プロフなし)" },
