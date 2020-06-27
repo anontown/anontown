@@ -35,11 +35,6 @@ spec:
                 configMapKeyRef:
                   name: config
                   key: RECAPTCHA_SITE_KET
-            - name: CLIENT_ORIGIN
-              valueFrom:
-                configMapKeyRef:
-                  name: client-url
-                  key: CLIENT_ORIGIN
             - name: CAMO_ORIGIN
               valueFrom:
                 configMapKeyRef:

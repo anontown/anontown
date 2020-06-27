@@ -2,12 +2,14 @@ import { FontIcon, IconButton } from "material-ui";
 import * as React from "react";
 import { Rnd } from "react-rnd";
 import { Link } from "react-router-dom";
-import { Env } from "../env";
 import { mdParser, safeURL } from "../utils";
 import { camo } from "../effects";
 
 import * as style from "./md.scss";
 import { Modal } from "./modal";
+
+// TODO: ここに置くべきではない。DIできるべき
+const CLIENT_ORIGIN = location.origin;
 
 type URLType =
   | { type: "normal"; url: string }
@@ -90,10 +92,10 @@ function urlEnum(url: string): URLType {
     };
   }
 
-  if (url.startsWith(Env.client.origin)) {
+  if (url.startsWith(CLIENT_ORIGIN)) {
     return {
       type: "router",
-      path: url.substring(Env.client.origin.length),
+      path: url.substring(CLIENT_ORIGIN.length),
     };
   }
 
@@ -165,19 +167,19 @@ function MdTable(props: { node: mdParser.Table }) {
           {},
           ...(head.type === "tableRow"
             ? head.children.map((cell, index) =>
-                React.createElement(
-                  "th",
-                  {
-                    style: {
-                      textAlign: props.node.align[index],
-                    },
+              React.createElement(
+                "th",
+                {
+                  style: {
+                    textAlign: props.node.align[index],
                   },
-                  ...(cell.type === "tableCell"
-                    ? // eslint-disable-next-line react/jsx-key
-                      cell.children.map(c => <MdNode node={c} />)
-                    : []),
-                ),
-              )
+                },
+                ...(cell.type === "tableCell"
+                  ? // eslint-disable-next-line react/jsx-key
+                  cell.children.map(c => <MdNode node={c} />)
+                  : []),
+              ),
+            )
             : []),
         )}
       </thead>
@@ -189,23 +191,23 @@ function MdTable(props: { node: mdParser.Table }) {
           .map(row =>
             row.type === "tableRow"
               ? React.createElement(
-                  "tr",
-                  {},
-                  ...row.children.map((cell, index) =>
-                    cell.type === "tableCell"
-                      ? React.createElement(
-                          "td",
-                          {
-                            style: {
-                              textAlign: props.node.align[index],
-                            },
-                          },
-                          // eslint-disable-next-line react/jsx-key
-                          ...cell.children.map(c => <MdNode node={c} />),
-                        )
-                      : [],
-                  ),
-                )
+                "tr",
+                {},
+                ...row.children.map((cell, index) =>
+                  cell.type === "tableCell"
+                    ? React.createElement(
+                      "td",
+                      {
+                        style: {
+                          textAlign: props.node.align[index],
+                        },
+                      },
+                      // eslint-disable-next-line react/jsx-key
+                      ...cell.children.map(c => <MdNode node={c} />),
+                    )
+                    : [],
+                ),
+              )
               : [],
           ),
       )}
