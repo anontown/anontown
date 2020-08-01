@@ -2,14 +2,6 @@
 noop:
 	echo
 
-.PHONY: lint-docker.client
-lint-docker.client:
-	docker-compose -f docker-compose-test.yml run --rm client make lint
-
-.PHONY: lint-docker.server
-lint-docker.server:
-	docker-compose -f docker-compose-test.yml run --rm server make lint
-
 .PHONY: test.server
 test.server:
 	docker-compose -f docker-compose-test.yml run --rm server make test

@@ -14,17 +14,17 @@ RUN npx lerna bootstrap --ci --no-progress
 COPY schema.json .eslintignore .eslintrc.js .prettierrc ./
 COPY packages ./packages
 
-COPY Makefile Makefile
+COPY bin/ bin
 
 FROM base as dev
 
 COPY restart-dummy ./restart-dummy
-CMD make start-watch
+CMD ./bin/start-watch.sh
 
 FROM base as dev-webpack-dev-server
 
 COPY restart-dummy ./restart-dummy
-CMD make start-watch-bff-less
+CMD ./bin/start-watch-webpack-dev-server.sh
 
 FROM base
 
@@ -32,4 +32,5 @@ RUN npx lerna run codegen --scope @anontown/client --include-filtered-dependenci
   && npx lerna run build --scope @anontown/bff \
   && npx lerna run build --scope @anontown/client
 
-CMD make start
+CMD ./bin/start.sh
+
