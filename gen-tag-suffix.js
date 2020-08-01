@@ -23,3 +23,11 @@ const tagSuffix = (() => {
 })();
 
 console.log(tagSuffix);
+
+function startsWithTail(s, searchString) {
+  if (s.startsWith(searchString)) {
+    return s.substring(searchString.length);
+  } else {
+    return null;
+  }
+}

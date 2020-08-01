@@ -52,7 +52,7 @@ jobs:
       - name: install node
         uses: actions/setup-node@v1
       - name: build-and-push
-        run: TAG_SUFFIX=$(node gen-tag-suffix.js) && skaffold build -p prod
+        run: TAG_SUFFIX=$(node gen-tag-suffix.js) skaffold build -p prod
         env:
           SKAFFOLD_DEFAULT_REPO: docker.pkg.github.com/${{ github.repository }}
           REF: ${{ github.ref }}
