@@ -72,6 +72,13 @@ profiles:
           context: redis
   - name: prod
     build:
+      tagPolicy:
+        customTemplate:
+          template: "{{.COMMIT_SHA}}{{.TAG_SUFFIX}}"
+          components:
+            - name: COMMIT_SHA
+              gitCommit:
+                variant: AbbrevCommitSha
       artifacts:
         - image: anontown-es
           context: es
