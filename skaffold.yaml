@@ -44,6 +44,18 @@ profiles:
                 dest: "."
               - src: "**/*.scss"
                 dest: "."
+        - image: anontown-client-webpack-dev-server
+          context: client
+          docker:
+            target: dev-webpack-dev-server
+          sync:
+            manual:
+              - src: "**/*.ts"
+                dest: "."
+              - src: "**/*.tsx"
+                dest: "."
+              - src: "**/*.scss"
+                dest: "."
         - image: anontown-doc
           context: doc
           docker:
@@ -58,10 +70,6 @@ profiles:
           context: mongo
         - image: anontown-redis
           context: redis
-  - name: dev-bff-less
-    patches:
-      - path: /build/artifacts/2/docker/target
-        value: dev-bff-less
   - name: prod
     build:
       artifacts:

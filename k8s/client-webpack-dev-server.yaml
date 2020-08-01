@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-webpack-dev-server
+spec:
+  ports:
+    - port: 3001
+  selector:
+    app: client-webpack-dev-server
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-webpack-dev-server
+spec:
+  selector:
+    matchLabels:
+      app: client-webpack-dev-server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: client-webpack-dev-server
+    spec:
+      containers:
+        - image: anontown-client-webpack-dev-server
+          name: client-webpack-dev-server
+          env:
+            - name: PORT
+              value: "3001"
+            - name: RECAPTCHA_SITE_KET
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: RECAPTCHA_SITE_KET
+            - name: CAMO_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: client-url
+                  key: CAMO_ORIGIN
+            - name: CAMO_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: common
+                  key: CAMO_KEY
+            - name: API_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: client-url
+                  key: API_ORIGIN
+            - name: SOCKET_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: client-url
+                  key: SOCKET_ORIGIN
+            - name: IMGUR_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: IMGUR_CLIENT_ID
+            - name: GA
+              valueFrom:
+                configMapKeyRef:
+                  name: config
+                  key: GA
+          ports:
+            - containerPort: 3001

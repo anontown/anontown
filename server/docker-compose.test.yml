@@ -1,7 +1,7 @@
 version: "3.4"
 services:
-  server:
-    build: server
+  app:
+    build: .
     environment:
       SERVER_PORT: "8080"
       MONGO_HOST: mongo:27017
@@ -21,9 +21,9 @@ services:
       - redis
   mongo:
     restart: always
-    build: mongo
+    build: ../mongo
   es:
-    build: es
+    build: ../es
     environment:
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
     ulimits:
@@ -31,27 +31,4 @@ services:
         soft: 65536
         hard: 65536
   redis:
-    build: redis
-  camo:
-    build: camo
-    environment:
-      PORT: "4181"
-    ports:
-      - 4181:4181
-  client:
-    build: "./client"
-    environment:
-      PORT: "3000"
-      RECAPTCHA_SITE_KET: xxxxxxxxxxxx
-      CAMO_ORIGIN: https://localhost:4181
-      CAMO_KEY: "XXXXXX"
-      API_ORIGIN: http://localhost:8080
-      SOCKET_ORIGIN: ws://localhost:8080
-      IMGUR_CLIENT_ID: "XXXXXX"
-      GA: ""
-    ports:
-      - 3000:3000
-  doc:
-    build: doc
-    ports:
-      - 4928:4928
+    build: ../redis

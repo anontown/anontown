@@ -143,7 +143,7 @@ module.exports = (env, argv) => {
     devServer: !enableBff
       ? {
           contentBase: path.join(__dirname, "public"),
-          port: 3000,
+          port: process["PORT"] || 3000,
           historyApiFallback: true,
         }
       : undefined,

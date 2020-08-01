@@ -21,7 +21,7 @@ FROM base as dev
 COPY restart-dummy ./restart-dummy
 CMD make start-watch
 
-FROM base as dev-bff-less
+FROM base as dev-webpack-dev-server
 
 COPY restart-dummy ./restart-dummy
 CMD make start-watch-bff-less

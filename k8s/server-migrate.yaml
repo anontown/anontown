@@ -8,7 +8,7 @@ spec:
       containers:
         - name: server
           image: anontown-server
-          args: ["make", "migrate"]
+          args: ["./bin/migrate.sh"]
           env:
             - name: SERVER_PORT
               value: "8080"
