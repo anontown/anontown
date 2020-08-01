@@ -82,6 +82,9 @@ profiles:
             - name: COMMIT_SHA
               gitCommit:
                 variant: AbbrevCommitSha
+            - name: TAG_SUFFIX
+              envTemplate:
+                template: "{{.TAG_SUFFIX}}"
       artifacts:
         - image: anontown-es
           context: es
