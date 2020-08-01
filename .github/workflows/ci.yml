@@ -3,23 +3,36 @@ name: ci
 on: [push]
 
 jobs:
-  build-and-test:
+  build-and-static-check-server:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: build
-        run: docker-compose -f docker-compose-test.yml build
-      - name: lint-client
-        run: make lint-docker.client
-      - name: lint-server
-        run: make lint-docker.server
+      - name: build image
+        run: docker build -t server .
+        working-directory: server
+      - name: lint
+        run: docker run --rm server ./bin/lint.sh
+        working-directory: server
+  build-and-test-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
       - name: run sysctl
-        run: |
-          sudo sysctl -w vm.max_map_count=262144
-      - name: test-server
-        run: make test.server
+        run: sudo sysctl -w vm.max_map_count=262144
+      - name: test
+        run: make test
+        working-directory: server
+  build-and-static-check-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: build image
+        run: docker build -t client .
+        working-directory: client
+      - name: lint
+        run: docker run --rm client ./bin/lint.sh
+        working-directory: client
   build-and-push:
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/topic/')
     runs-on: ubuntu-latest
     needs: [build-and-test]
     steps:

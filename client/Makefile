@@ -2,9 +2,14 @@
 noop:
 	echo
 
+.PHONY: deps
+deps:
+	npm i
+	npx lerna bootstrap
+
 .PHONY: lint
 lint:
-	npm run lint
+	./bin/lint.sh
 
 .PHONY: lint-fix
 lint-fix:
@@ -12,7 +17,7 @@ lint-fix:
 
 .PHONY: lint-quiet
 lint-quiet:
-	npm run lint:quiet
+	./bin/lint-quiet.sh
 
 .PHONY: restart
 restart:
