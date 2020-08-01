@@ -41,21 +41,23 @@ export async function up() {
   await ESClient().indices.putTemplate({
     name: "template",
     body: {
-      template: ["*"],
-      settings: {
-        analysis: {
-          analyzer: {
-            default: {
-              type: "custom",
-              tokenizer: "kuromoji_tokenizer",
-              char_filter: ["icu_normalizer", "kuromoji_iteration_mark"],
-              filter: [
-                "kuromoji_baseform",
-                "kuromoji_part_of_speech",
-                "ja_stop",
-                "kuromoji_number",
-                "kuromoji_stemmer",
-              ],
+      index_patterns: ["*"],
+      template: {
+        settings: {
+          analysis: {
+            analyzer: {
+              default: {
+                type: "custom",
+                tokenizer: "kuromoji_tokenizer",
+                char_filter: ["icu_normalizer", "kuromoji_iteration_mark"],
+                filter: [
+                  "kuromoji_baseform",
+                  "kuromoji_part_of_speech",
+                  "ja_stop",
+                  "kuromoji_number",
+                  "kuromoji_stemmer",
+                ],
+              },
             },
           },
         },
