@@ -41,7 +41,7 @@ export async function up() {
   await ESClient().indices.putTemplate({
     name: "template",
     body: {
-      index_patterns: ["*"],
+      template: ["*"],
       settings: {
         analysis: {
           analyzer: {
