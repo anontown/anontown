@@ -13,6 +13,9 @@ portForward:
     resourceName: client
     port: 3000
   - resourceType: service
+    resourceName: client-webpack-dev-server
+    port: 3001
+  - resourceType: service
     resourceName: doc
     port: 4928
   - resourceType: service
