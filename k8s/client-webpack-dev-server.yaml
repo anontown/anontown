@@ -1,35 +1,35 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: client
+  name: client-webpack-dev-server
 spec:
   ports:
-    - port: 3000
+    - port: 3001
   selector:
-    app: client
+    app: client-webpack-dev-server
   clusterIP: None
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: client
+  name: client-webpack-dev-server
 spec:
   selector:
     matchLabels:
-      app: client
+      app: client-webpack-dev-server
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: client
+        app: client-webpack-dev-server
     spec:
       containers:
-        - image: anontown-client
-          name: client
+        - image: anontown-client-webpack-dev-server
+          name: client-webpack-dev-server
           env:
             - name: PORT
-              value: "3000"
+              value: "3001"
             - name: RECAPTCHA_SITE_KET
               valueFrom:
                 configMapKeyRef:
@@ -66,4 +66,4 @@ spec:
                   name: config
                   key: GA
           ports:
-            - containerPort: 3000
+            - containerPort: 3001

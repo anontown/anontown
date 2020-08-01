@@ -42,6 +42,7 @@ export async function up() {
     name: "template",
     body: {
       index_patterns: ["*"],
+      template: ["*"],
       settings: {
         analysis: {
           analyzer: {

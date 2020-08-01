@@ -2,12 +2,14 @@ import { FontIcon, IconButton } from "material-ui";
 import * as React from "react";
 import { Rnd } from "react-rnd";
 import { Link } from "react-router-dom";
-import { Env } from "../env";
 import { mdParser, safeURL } from "../utils";
 import { camo } from "../effects";
 
 import * as style from "./md.scss";
 import { Modal } from "./modal";
+
+// TODO: ここに置くべきではない。DIできるべき
+const CLIENT_ORIGIN = location.origin;
 
 type URLType =
   | { type: "normal"; url: string }
@@ -90,10 +92,10 @@ function urlEnum(url: string): URLType {
     };
   }
 
-  if (url.startsWith(Env.client.origin)) {
+  if (url.startsWith(CLIENT_ORIGIN)) {
     return {
       type: "router",
-      path: url.substring(Env.client.origin.length),
+      path: url.substring(CLIENT_ORIGIN.length),
     };
   }
 

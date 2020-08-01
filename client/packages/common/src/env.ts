@@ -1,7 +1,4 @@
 export interface Env {
-  client: {
-    origin: string;
-  };
   camo: {
     origin: string;
     key: string;
@@ -33,9 +30,6 @@ function unwrap<A>(x: A | undefined): A {
 
 export function loadEnv(env: Record<string, string | undefined>): Env {
   return {
-    client: {
-      origin: unwrap(env["CLIENT_ORIGIN"]),
-    },
     camo: {
       origin: unwrap(env["CAMO_ORIGIN"]),
       key: unwrap(env["CAMO_KEY"]),

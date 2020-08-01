@@ -9,7 +9,7 @@ export async function getServerStatus() {
     .then(x => x === "OK")
     .catch(_e => false);
   const client = EnableBff
-    ? await fetch(Env.client.origin + "/ping", {
+    ? await fetch(location.origin + "/ping", {
         mode: "cors",
         cache: "no-store",
       })
