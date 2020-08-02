@@ -1,4 +1,4 @@
-apiVersion: skaffold/v2beta1
+apiVersion: skaffold/v2beta6
 kind: Config
 deploy:
   kubectl:
@@ -12,6 +12,9 @@ portForward:
   - resourceType: service
     resourceName: client
     port: 3000
+  - resourceType: service
+    resourceName: client-webpack-dev-server
+    port: 3001
   - resourceType: service
     resourceName: doc
     port: 4928
@@ -44,6 +47,18 @@ profiles:
                 dest: "."
               - src: "**/*.scss"
                 dest: "."
+        - image: anontown-client-webpack-dev-server
+          context: client
+          docker:
+            target: dev-webpack-dev-server
+          sync:
+            manual:
+              - src: "**/*.ts"
+                dest: "."
+              - src: "**/*.tsx"
+                dest: "."
+              - src: "**/*.scss"
+                dest: "."
         - image: anontown-doc
           context: doc
           docker:
@@ -58,12 +73,18 @@ profiles:
           context: mongo
         - image: anontown-redis
           context: redis
-  - name: dev-bff-less
-    patches:
-      - path: /build/artifacts/2/docker/target
-        value: dev-bff-less
   - name: prod
     build:
+      tagPolicy:
+        customTemplate:
+          template: "{{.COMMIT_SHA}}{{.TAG_SUFFIX}}"
+          components:
+            - name: COMMIT_SHA
+              gitCommit:
+                variant: AbbrevCommitSha
+            - name: TAG_SUFFIX
+              envTemplate:
+                template: "{{.TAG_SUFFIX}}"
       artifacts:
         - image: anontown-es
           context: es
