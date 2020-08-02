@@ -6,7 +6,7 @@
     "@kgtkr/utils": "^1.0.0",
     "@types/nanoid": "^1.2.1",
     "apollo-resolvers": "^1.4.1",
-    "apollo-server-express": "^2.4.8",
+    "apollo-server-express": "^2.14.2",
     "array-range": "^1.0.1",
     "cors": "^2.8.5",
     "cron": "^1.7.0",
