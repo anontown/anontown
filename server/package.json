@@ -18,6 +18,8 @@
     "lint": "eslint --ext .ts,.tsx packages/*/src",
     "lint:quiet": "eslint --ext .ts,.tsx packages/*/src --quiet",
     "lint:fix": "eslint --ext .ts,.tsx --fix packages/*/src",
-    "test": "jest --runInBand --forceExit"
+    "test": "jest --runInBand --forceExit",
+    "build:watch": "tsc -b packages -w --preserveWatchOutput",
+    "build": "tsc -b packages"
   }
 }

@@ -62,11 +62,9 @@
   },
   "scripts": {
     "start": "node ./dist/app.js",
-    "build": "tsc -b .",
     "codegen": "graphql-codegen",
     "start:watch": "wait-on ./dist/app.js && nodemon --delay 5 ./dist/app.js",
     "codegen:watch": "graphql-codegen -w",
-    "build:watch": "tsc -b . -w --preserveWatchOutput",
     "clean": "rm -rf ./dist && rm -rf ./src/generated",
     "migrate": "node ./dist/jobs/migrate.js",
     "render-schema": "node ./dist/render-schema.js"
