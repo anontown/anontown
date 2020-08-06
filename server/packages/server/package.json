@@ -67,6 +67,8 @@
     "codegen:watch": "graphql-codegen -w",
     "clean": "rm -rf ./dist && rm -rf ./src/generated",
     "migrate": "node ./dist/jobs/migrate.js",
-    "render-schema": "node ./dist/render-schema.js"
+    "render-schema": "node ./dist/render-schema.js",
+    "build:watch": "tsc -b . -w --preserveWatchOutput",
+    "build": "tsc -b ."
   }
 }

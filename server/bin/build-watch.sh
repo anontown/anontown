@@ -1,3 +1,3 @@
 #!/bin/sh -eu
 
-npm run build:watch
+npx lerna run build:watch --stream --scope @anontown/server
