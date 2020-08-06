@@ -1,4 +1,4 @@
-import { run } from "./ires-repo.th";
+import { run } from "./ires-repo-laws";
 
 import { ResRepo } from "../../";
 

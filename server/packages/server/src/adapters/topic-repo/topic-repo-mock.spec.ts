@@ -1,4 +1,4 @@
-import { run } from "./itopic-repo.th";
+import { run } from "./itopic-repo-laws";
 
 import { ResRepoMock, TopicRepoMock } from "../../";
 
