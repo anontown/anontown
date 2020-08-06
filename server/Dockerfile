@@ -9,7 +9,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
   && tar -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
   && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-FROM node:10.15.3-alpine as base
+FROM node:12.18.3-alpine as base
 
 WORKDIR /home
 
