@@ -136,7 +136,7 @@ export const ResWrite = (props: ResWriteProps) => {
         maxRows={5}
         minRows={1}
         onKeyDown={e => {
-          if ((e.shiftKey || e.ctrlKey) && e.keyCode === 13) {
+          if ((e.metaKey || e.ctrlKey) && e.keyCode === 13) {
             e.preventDefault();
             submit();
           }
