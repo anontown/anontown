@@ -74,11 +74,15 @@ export interface MigrationModule {
 }
 
 export async function getMigrationModules(
-  ext = ".js",
+  ext: ".js" | ".ts" = ".js",
 ): Promise<Array<MigrationModule>> {
   const dir = path.join(__dirname, "migrations");
   const files = (await fs.readdir(dir))
-    .filter(file => file.endsWith(ext))
+    .filter(file =>
+      ext === ".js"
+        ? file.endsWith(ext)
+        : file.endsWith(ext) && !file.endsWith(".d.ts"),
+    )
     .sort();
   return files.map<MigrationModule>(file => ({
     name: path.basename(file, ext),
