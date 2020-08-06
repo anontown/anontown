@@ -21,12 +21,15 @@ export class ResRepo implements IResRepo {
   private subRedis = createRedisClient();
 
   constructor(private refresh?: boolean) {
-    this.subRedis.subscribe("res/add");
-    this.subRedis.on("message", (_channel: any, message: any) => {
-      const data: ResPubSub = JSON.parse(message);
-      this.insertEvent.next({
-        res: toRes(data.res, data.replyCount),
-        count: data.count,
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    this.subRedis.on("ready", async () => {
+      await this.subRedis.subscribe("res/add");
+      this.subRedis.on("message", (_channel: any, message: any) => {
+        const data: ResPubSub = JSON.parse(message);
+        this.insertEvent.next({
+          res: toRes(data.res, data.replyCount),
+          count: data.count,
+        });
       });
     });
   }
