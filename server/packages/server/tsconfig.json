@@ -6,6 +6,8 @@
     "lib": [
       "es2020"
     ],
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
