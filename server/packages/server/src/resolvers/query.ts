@@ -39,17 +39,6 @@ export const query: G.QueryResolvers = {
       x.toAPI(context.ports.authContainer.getTokenOrNull()),
     );
   },
-  msgs: async (_obj, args, context, _info) => {
-    const msgs = await context.ports.msgRepo.find(
-      context.ports.authContainer.getToken(),
-      {
-        id: args.query.id ?? null,
-        date: args.query.date ?? null,
-      },
-      args.limit,
-    );
-    return msgs.map(x => x.toAPI(context.ports.authContainer.getToken()));
-  },
   profiles: async (_obj, args, context, _info) => {
     const profiles = await context.ports.profileRepo.find(
       context.ports.authContainer,

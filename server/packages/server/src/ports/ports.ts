@@ -7,8 +7,6 @@ import {
   IHistoryRepo,
   IIpContainer,
   ILogger,
-  IMsgLoader,
-  IMsgRepo,
   IObjectIdGenerator,
   IProfileLoader,
   IProfileRepo,
@@ -30,7 +28,6 @@ export interface Ports {
   logger: ILogger;
   clientRepo: IClientRepo;
   historyRepo: IHistoryRepo;
-  msgRepo: IMsgRepo;
   profileRepo: IProfileRepo;
   resRepo: IResRepo;
   tokenRepo: ITokenRepo;
@@ -39,7 +36,6 @@ export interface Ports {
   storageRepo: IStorageRepo;
   clientLoader: IClientLoader;
   historyLoader: IHistoryLoader;
-  msgLoader: IMsgLoader;
   profileLoader: IProfileLoader;
   resLoader: IResLoader;
   topicLoader: ITopicLoader;
