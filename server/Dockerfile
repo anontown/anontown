@@ -25,7 +25,7 @@ RUN npx lerna bootstrap --ci --no-progress
 COPY schema.gql .eslintignore .eslintrc.js .prettierrc ./
 COPY packages ./packages
 RUN npx lerna run codegen --scope @anontown/server --include-filtered-dependencies \
-  && npm run build --scope @anontown/server
+  && npm run build
 
 COPY bin ./bin
 
