@@ -196,12 +196,6 @@ export const App = withRouter(
                                   }
                                 />
                                 <MenuItem
-                                  primaryText="お知らせ"
-                                  containerElement={
-                                    <Link to={routes.messages.to({})} />
-                                  }
-                                />
-                                <MenuItem
                                   primaryText="設定"
                                   containerElement={
                                     <Link to={routes.settings.to({})} />
@@ -298,11 +292,6 @@ export const App = withRouter(
                             exact={true}
                             path={routes.notifications.matcher()}
                             component={pages.NotificationsPage}
-                          />
-                          <Route
-                            exact={true}
-                            path={routes.messages.matcher()}
-                            component={pages.MessagesPage}
                           />
                           <Route
                             exact={true}

@@ -18,7 +18,6 @@ export const routeArray: Array<RouteData<string, {}>> = [
   routes.profile,
   routes.profileEdit,
   routes.notifications,
-  routes.messages,
   routes.signup,
   routes.login,
   routes.auth,
