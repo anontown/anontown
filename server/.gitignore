@@ -1,5 +1,7 @@
 /node_modules/
+/packages/*/dist/
 /packages/*/node_modules/
+/packages/*/tsconfig.tsbuildinfo
 .tsbuildinfo
 *.tsbuildinfo
 /restart-dummy/*
