@@ -3,8 +3,7 @@ import { AtNotFoundError } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { ESClient } from "../../db";
 import { Msg } from "../../entities";
-import * as G from "../../generated/graphql";
-import { IMsgRepo } from "../../ports";
+import { IMsgRepo, MsgQuery } from "../../ports";
 import { fromMsg, IMsgDB, toMsg } from "./imsg-db";
 
 export class MsgRepo implements IMsgRepo {
@@ -27,7 +26,7 @@ export class MsgRepo implements IMsgRepo {
 
   async find(
     authToken: IAuthToken,
-    query: G.MsgQuery,
+    query: MsgQuery,
     limit: number,
   ): Promise<Array<Msg>> {
     const filter: Array<any> = [

@@ -2,6 +2,7 @@ import { none, some } from "fp-ts/lib/Option";
 import { ObjectID } from "mongodb";
 import { AtError, Client, dbReset, IClientRepo } from "../../";
 import { IAuthTokenMaster } from "../../auth";
+import { ClientQuery } from "../../ports";
 
 export function run(repoGene: () => IClientRepo, isReset: boolean) {
   const client = new Client(
@@ -83,7 +84,7 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
 
       // 無
 
-      expect(await repo.find(none, {})).toEqual([
+      expect(await repo.find(none, { ...ClientQuery })).toEqual([
         client4,
         client2,
         client1,
@@ -94,25 +95,25 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
 
       expect(
         await repo.find(none, {
+          ...ClientQuery,
           id: [],
         }),
       ).toEqual([]);
 
       expect(
-        await repo.find(none, {
-          id: [client1.id],
-        }),
+        await repo.find(none, { ...ClientQuery, id: [client1.id] }),
       ).toEqual([client1]);
 
       expect(
         await repo.find(none, {
+          ...ClientQuery,
           id: [client1.id, new ObjectID().toHexString()],
         }),
       ).toEqual([client1]);
 
       // self
 
-      expect(await repo.find(none, { self: false })).toEqual([
+      expect(await repo.find(none, { ...ClientQuery, self: false })).toEqual([
         client4,
         client2,
         client1,
@@ -127,7 +128,7 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
             user: user1,
             type: "master",
           }),
-          { self: true },
+          { ...ClientQuery, self: true },
         ),
       ).toEqual([client2, client1, client3]);
 
@@ -147,7 +148,9 @@ export function run(repoGene: () => IClientRepo, isReset: boolean) {
 
     it("トークンがnullでselfがtrueの時エラーになるか", async () => {
       const repo = repoGene();
-      await expect(repo.find(none, { self: true })).rejects.toThrow(AtError);
+      await expect(
+        repo.find(none, { ...ClientQuery, self: true }),
+      ).rejects.toThrow(AtError);
     });
   });
 

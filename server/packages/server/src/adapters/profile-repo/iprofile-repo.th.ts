@@ -2,6 +2,7 @@ import { none, some } from "fp-ts/lib/Option";
 import { ObjectID } from "mongodb";
 import { AtError, AuthContainer, dbReset, IProfileRepo, Profile } from "../../";
 import { IAuthToken } from "../../auth";
+import { ProfileQuery } from "../../ports";
 
 export function run(repoGene: () => IProfileRepo, isReset: boolean) {
   beforeEach(async () => {
@@ -91,12 +92,9 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
       await repo.insert(profile4);
 
       // id
-      expect(await repo.find(new AuthContainer(none), {})).toEqual([
-        profile4,
-        profile2,
-        profile1,
-        profile3,
-      ]);
+      expect(
+        await repo.find(new AuthContainer(none), { ...ProfileQuery }),
+      ).toEqual([profile4, profile2, profile1, profile3]);
 
       // self
       expect(
@@ -109,20 +107,24 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
               type: "master",
             }),
           ),
-          { self: true },
+          { ...ProfileQuery, self: true },
         ),
       ).toEqual([profile2, profile1, profile3]);
 
       expect(
         await repo.find(new AuthContainer(none), {
+          ...ProfileQuery,
           self: false,
         }),
       ).toEqual([profile4, profile2, profile1, profile3]);
 
       // id
-      expect(await repo.find(new AuthContainer(none), { id: [] })).toEqual([]);
+      expect(
+        await repo.find(new AuthContainer(none), { ...ProfileQuery, id: [] }),
+      ).toEqual([]);
       expect(
         await repo.find(new AuthContainer(none), {
+          ...ProfileQuery,
           id: [profile1.id, profile2.id, new ObjectID().toHexString()],
         }),
       ).toEqual([profile2, profile1]);
@@ -147,7 +149,7 @@ export function run(repoGene: () => IProfileRepo, isReset: boolean) {
       const repo = repoGene();
 
       await expect(
-        repo.find(new AuthContainer(none), { self: true }),
+        repo.find(new AuthContainer(none), { ...ProfileQuery, self: true }),
       ).rejects.toThrow(AtError);
     });
   });

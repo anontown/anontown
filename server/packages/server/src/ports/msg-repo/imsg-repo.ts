@@ -1,6 +1,16 @@
 import { IAuthToken } from "../../auth";
 import { Msg } from "../../entities";
-import * as G from "../../generated/graphql";
+import { DateQuery } from "../date-query";
+
+export interface MsgQuery {
+  id: Array<string> | null;
+  date: DateQuery | null;
+}
+
+export const MsgQuery: MsgQuery = {
+  id: null,
+  date: null,
+};
 
 export interface IMsgRepo {
   findOne(id: string): Promise<Msg>;
@@ -8,7 +18,7 @@ export interface IMsgRepo {
   update(msg: Msg): Promise<void>;
   find(
     authToken: IAuthToken,
-    query: G.MsgQuery,
+    query: MsgQuery,
     limit: number,
   ): Promise<Array<Msg>>;
 }

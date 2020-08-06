@@ -1,5 +1,6 @@
 import { none, some } from "fp-ts/lib/Option";
 import { AtError, dbReset, IAuthTokenMaster, IMsgRepo, Msg } from "../../";
+import { MsgQuery } from "../../ports";
 
 export function run(repoGene: () => IMsgRepo, isReset: boolean) {
   beforeEach(async () => {
@@ -96,7 +97,7 @@ export function run(repoGene: () => IMsgRepo, isReset: boolean) {
       await repo.insert(msg9);
 
       // 無
-      expect(await repo.find(token, {}, 100)).toEqual([
+      expect(await repo.find(token, { ...MsgQuery }, 100)).toEqual([
         msg4,
         msg9,
         msg7,
@@ -107,26 +108,20 @@ export function run(repoGene: () => IMsgRepo, isReset: boolean) {
         msg6,
       ]);
 
-      expect(await repo.find(token, {}, 3)).toEqual([msg4, msg9, msg7]);
+      expect(await repo.find(token, { ...MsgQuery }, 3)).toEqual([
+        msg4,
+        msg9,
+        msg7,
+      ]);
 
       // id
 
-      expect(
-        await repo.find(
-          token,
-          {
-            id: [],
-          },
-          100,
-        ),
-      ).toEqual([]);
+      expect(await repo.find(token, { ...MsgQuery, id: [] }, 100)).toEqual([]);
 
       expect(
         await repo.find(
           token,
-          {
-            id: ["msg1", "msg2", "msg3"],
-          },
+          { ...MsgQuery, id: ["msg1", "msg2", "msg3"] },
           100,
         ),
       ).toEqual([msg1, msg3]);
@@ -137,6 +132,7 @@ export function run(repoGene: () => IMsgRepo, isReset: boolean) {
         await repo.find(
           token,
           {
+            ...MsgQuery,
             date: {
               type: "gte",
               date: new Date(70).toISOString(),
@@ -150,6 +146,7 @@ export function run(repoGene: () => IMsgRepo, isReset: boolean) {
         await repo.find(
           token,
           {
+            ...MsgQuery,
             date: {
               type: "gt",
               date: new Date(70).toISOString(),
@@ -163,6 +160,7 @@ export function run(repoGene: () => IMsgRepo, isReset: boolean) {
         await repo.find(
           token,
           {
+            ...MsgQuery,
             date: {
               type: "lte",
               date: new Date(30).toISOString(),
@@ -176,6 +174,7 @@ export function run(repoGene: () => IMsgRepo, isReset: boolean) {
         await repo.find(
           token,
           {
+            ...MsgQuery,
             date: {
               type: "lt",
               date: new Date(30).toISOString(),
@@ -190,6 +189,7 @@ export function run(repoGene: () => IMsgRepo, isReset: boolean) {
         await repo.find(
           token,
           {
+            ...MsgQuery,
             date: {
               type: "lt",
               date: new Date(30).toISOString(),

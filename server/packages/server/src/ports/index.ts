@@ -21,3 +21,4 @@ export * from "./topic-loader";
 export * from "./auth-container";
 export * from "./msg-loader";
 export * from "./ports";
+export * from "./date-query";

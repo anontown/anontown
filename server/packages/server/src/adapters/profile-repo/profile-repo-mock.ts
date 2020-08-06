@@ -1,8 +1,7 @@
 import { isNullish } from "@kgtkr/utils";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
 import { Profile } from "../../entities";
-import * as G from "../../generated/graphql";
-import { IAuthContainer, IProfileRepo } from "../../ports";
+import { IAuthContainer, IProfileRepo, ProfileQuery } from "../../ports";
 import { fromProfile, IProfileDB, toProfile } from "./jprofile-db";
 
 export class ProfileRepoMock implements IProfileRepo {
@@ -20,7 +19,7 @@ export class ProfileRepoMock implements IProfileRepo {
 
   async find(
     auth: IAuthContainer,
-    query: G.ProfileQuery,
+    query: ProfileQuery,
   ): Promise<Array<Profile>> {
     const self = query.self ? auth.getToken().user : null;
     const profiles = this.profiles

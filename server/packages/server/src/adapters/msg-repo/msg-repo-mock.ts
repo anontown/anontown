@@ -2,8 +2,7 @@ import { isNullish } from "@kgtkr/utils";
 import { AtNotFoundError } from "../../at-error";
 import { IAuthToken } from "../../auth";
 import { Msg } from "../../entities";
-import * as G from "../../generated/graphql";
-import { IMsgRepo } from "../../ports";
+import { IMsgRepo, MsgQuery } from "../../ports";
 import { fromMsg, IMsgDB, toMsg } from "./imsg-db";
 
 export class MsgRepoMock implements IMsgRepo {
@@ -21,7 +20,7 @@ export class MsgRepoMock implements IMsgRepo {
 
   async find(
     authToken: IAuthToken,
-    query: G.MsgQuery,
+    query: MsgQuery,
     limit: number,
   ): Promise<Array<Msg>> {
     const msgs = this.msgs

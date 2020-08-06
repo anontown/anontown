@@ -1,6 +1,11 @@
 import * as DataLoader from "dataloader";
 import { Client } from "../../entities/index";
-import { IAuthContainer, IClientLoader, IClientRepo } from "../../ports/index";
+import {
+  IAuthContainer,
+  IClientLoader,
+  IClientRepo,
+  ClientQuery,
+} from "../../ports/index";
 import { loader } from "../loader-helper";
 
 export class ClientLoader implements IClientLoader {
@@ -8,7 +13,10 @@ export class ClientLoader implements IClientLoader {
 
   constructor(clientRepo: IClientRepo, auth: IAuthContainer) {
     this.loader = loader(ids =>
-      clientRepo.find(auth.getTokenMasterOrNull(), { id: ids }),
+      clientRepo.find(auth.getTokenMasterOrNull(), {
+        ...ClientQuery,
+        id: ids,
+      }),
     );
   }
 

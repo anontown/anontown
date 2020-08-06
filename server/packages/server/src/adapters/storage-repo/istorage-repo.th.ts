@@ -8,6 +8,7 @@ import {
   IStorageRepo,
   Storage,
 } from "../../";
+import { StorageQuery } from "../../ports";
 
 export function run(repoGene: () => IStorageRepo, isReset: boolean) {
   beforeEach(async () => {
@@ -227,11 +228,21 @@ export function run(repoGene: () => IStorageRepo, isReset: boolean) {
       await repo.save(storage6);
       await repo.save(storage7);
 
-      expect(await repo.find(authMaster, {})).toEqual([storage1, storage2]);
-      expect(await repo.find(authMaster, { key: [] })).toEqual([]);
-      expect(await repo.find(authMaster, { key: [key1] })).toEqual([storage1]);
+      expect(await repo.find(authMaster, { ...StorageQuery })).toEqual([
+        storage1,
+        storage2,
+      ]);
+      expect(await repo.find(authMaster, { ...StorageQuery, key: [] })).toEqual(
+        [],
+      );
+      expect(
+        await repo.find(authMaster, { ...StorageQuery, key: [key1] }),
+      ).toEqual([storage1]);
 
-      expect(await repo.find(authGeneral, {})).toEqual([storage4, storage5]);
+      expect(await repo.find(authGeneral, { ...StorageQuery })).toEqual([
+        storage4,
+        storage5,
+      ]);
       expect(await repo.find(authGeneral, { key: [] })).toEqual([]);
       expect(await repo.find(authGeneral, { key: [key2] })).toEqual([storage5]);
     });

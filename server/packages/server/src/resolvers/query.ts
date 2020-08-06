@@ -17,7 +17,10 @@ export const query: G.QueryResolvers = {
   clients: async (_obj, args, context, _info) => {
     const clients = await context.ports.clientRepo.find(
       context.ports.authContainer.getTokenMasterOrNull(),
-      args.query,
+      {
+        id: args.query.id ?? null,
+        self: args.query.self ?? null,
+      },
     );
     return clients.map(c =>
       c.toAPI(context.ports.authContainer.getTokenMasterOrNull()),
@@ -25,7 +28,11 @@ export const query: G.QueryResolvers = {
   },
   histories: async (_obj, args, context, _info) => {
     const histories = await context.ports.historyRepo.find(
-      args.query,
+      {
+        id: args.query.id ?? null,
+        topic: args.query.topic ?? null,
+        date: args.query.date ?? null,
+      },
       args.limit,
     );
     return histories.map(x =>
@@ -35,7 +42,10 @@ export const query: G.QueryResolvers = {
   msgs: async (_obj, args, context, _info) => {
     const msgs = await context.ports.msgRepo.find(
       context.ports.authContainer.getToken(),
-      args.query,
+      {
+        id: args.query.id ?? null,
+        date: args.query.date ?? null,
+      },
       args.limit,
     );
     return msgs.map(x => x.toAPI(context.ports.authContainer.getToken()));
@@ -43,7 +53,10 @@ export const query: G.QueryResolvers = {
   profiles: async (_obj, args, context, _info) => {
     const profiles = await context.ports.profileRepo.find(
       context.ports.authContainer,
-      args.query,
+      {
+        id: args.query.id ?? null,
+        self: args.query.self ?? null,
+      },
     );
     return profiles.map(p =>
       p.toAPI(context.ports.authContainer.getTokenOrNull()),
@@ -52,7 +65,17 @@ export const query: G.QueryResolvers = {
   reses: async (_obj, args, context, _info: any) => {
     const reses = await context.ports.resRepo.find(
       context.ports.authContainer,
-      args.query,
+      {
+        id: args.query.id ?? null,
+        topic: args.query.topic ?? null,
+        notice: args.query.notice ?? null,
+        hash: args.query.hash ?? null,
+        reply: args.query.reply ?? null,
+        profile: args.query.profile ?? null,
+        self: args.query.self ?? null,
+        text: args.query.text ?? null,
+        date: args.query.date ?? null,
+      },
       args.limit,
     );
     return reses.map(x =>
@@ -62,7 +85,9 @@ export const query: G.QueryResolvers = {
   storages: async (_obj, args, context, _info) => {
     const storages = await context.ports.storageRepo.find(
       context.ports.authContainer.getToken(),
-      args.query,
+      {
+        key: args.query.key ?? null,
+      },
     );
     return storages.map(x => x.toAPI(context.ports.authContainer.getToken()));
   },
@@ -80,7 +105,13 @@ export const query: G.QueryResolvers = {
   },
   topics: async (_obj, args, context, _info) => {
     const topic = await context.ports.topicRepo.find(
-      args.query,
+      {
+        id: args.query.id ?? null,
+        title: args.query.title ?? null,
+        tags: args.query.tags ?? null,
+        activeOnly: args.query.activeOnly ?? null,
+        parent: args.query.parent ?? null,
+      },
       args.skip,
       args.limit,
     );

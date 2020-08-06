@@ -6,8 +6,7 @@ import { AtAuthError, AtNotFoundError } from "../../at-error";
 import { IAuthTokenMaster } from "../../auth";
 import { Mongo } from "../../db";
 import { Client } from "../../entities";
-import * as G from "../../generated/graphql";
-import { IClientRepo } from "../../ports";
+import { IClientRepo, ClientQuery } from "../../ports";
 import { fromClient, IClientDB, toClient } from "./iclient-db";
 
 export class ClientRepo implements IClientRepo {
@@ -25,7 +24,7 @@ export class ClientRepo implements IClientRepo {
 
   async find(
     authToken: Option<IAuthTokenMaster>,
-    query: G.ClientQuery,
+    query: ClientQuery,
   ): Promise<Array<Client>> {
     if (query.self && option.isNone(authToken)) {
       throw new AtAuthError("認証が必要です");
