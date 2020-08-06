@@ -1,4 +1,5 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "target": "es2019",
     "module": "commonjs",
@@ -8,14 +9,8 @@
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "strict": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "noEmitOnError": true,
-    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
   },
   "include": [
