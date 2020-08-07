@@ -7,18 +7,6 @@ deps:
 	npm i
 	npx lerna bootstrap
 
-.PHONY: lint
-lint:
-	./bin/lint.sh
-
-.PHONY: lint-fix
-lint-fix:
-	npm run lint:fix
-
-.PHONY: lint-quiet
-lint-quiet:
-	./bin/lint-quiet.sh
-
 .PHONY: test
 test:
 	docker-compose -f docker-compose.test.yml build
@@ -27,3 +15,7 @@ test:
 .PHONY: restart
 restart:
 	touch restart-dummy/`date +%s%3N`
+
+.PHONY: chmod-bin
+chmod-bin:
+	chmod +x ./bin/*.sh

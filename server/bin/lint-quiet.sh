@@ -1,3 +1,3 @@
 #!/bin/sh -eu
 
-npm run lint-quiet
+npx eslint --ext .ts,.tsx packages/*/src --quiet
