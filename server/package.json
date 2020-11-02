@@ -11,9 +11,5 @@
     "eslint-plugin-prettier": "^3.1.4",
     "prettier": "^2.0.4"
   },
-  "scripts": {
-    "lint": "eslint --ext .ts,.tsx packages/*/src",
-    "lint:quiet": "eslint --ext .ts,.tsx packages/*/src --quiet",
-    "lint:fix": "eslint --ext .ts,.tsx --fix packages/*/src"
-  }
+  "scripts": {}
 }

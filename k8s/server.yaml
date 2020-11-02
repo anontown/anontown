@@ -28,6 +28,8 @@ spec:
         - image: anontown-server
           name: server
           env:
+            - name: TZ
+              value: "Asia/Tokyo"
             - name: SERVER_PORT
               value: "8080"
             - name: MONGO_HOST

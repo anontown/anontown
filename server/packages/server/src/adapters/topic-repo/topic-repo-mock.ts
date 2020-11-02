@@ -1,8 +1,7 @@
 import { isNullish } from "@kgtkr/utils";
 import { AtNotFoundError } from "../../at-error";
 import { Topic } from "../../entities";
-import * as G from "../../generated/graphql";
-import { IResRepo, ITopicRepo } from "../../ports";
+import { IResRepo, ITopicRepo, TopicQuery } from "../../ports";
 import {
   fromTopic,
   ITopicDB,
@@ -44,7 +43,7 @@ export class TopicRepoMock implements ITopicRepo {
   }
 
   async find(
-    query: G.TopicQuery,
+    query: TopicQuery,
     skip: number,
     limit: number,
   ): Promise<Array<Topic>> {

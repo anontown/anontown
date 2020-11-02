@@ -1,3 +1,3 @@
 #!/bin/sh -eu
 
-npm run lint
+npx eslint --ext .ts,.tsx packages/*/src

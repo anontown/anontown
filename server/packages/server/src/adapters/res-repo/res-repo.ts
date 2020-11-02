@@ -3,8 +3,7 @@ import { Subject } from "rxjs";
 import { AtNotFoundError } from "../../at-error";
 import { createRedisClient, ESClient, RedisClient } from "../../db";
 import { Res } from "../../entities";
-import * as G from "../../generated/graphql";
-import { IAuthContainer, IResRepo } from "../../ports";
+import { IAuthContainer, IResRepo, ResQuery } from "../../ports";
 import { fromRes, IResDB, toRes } from "./ires-db";
 
 interface ResPubSub {
@@ -21,12 +20,15 @@ export class ResRepo implements IResRepo {
   private subRedis = createRedisClient();
 
   constructor(private refresh?: boolean) {
-    this.subRedis.subscribe("res/add");
-    this.subRedis.on("message", (_channel: any, message: any) => {
-      const data: ResPubSub = JSON.parse(message);
-      this.insertEvent.next({
-        res: toRes(data.res, data.replyCount),
-        count: data.count,
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    this.subRedis.on("ready", async () => {
+      await this.subRedis.subscribe("res/add");
+      this.subRedis.on("message", (_channel: any, message: any) => {
+        const data: ResPubSub = JSON.parse(message);
+        this.insertEvent.next({
+          res: toRes(data.res, data.replyCount),
+          count: data.count,
+        });
       });
     });
   }
@@ -156,7 +158,7 @@ export class ResRepo implements IResRepo {
 
   async find(
     auth: IAuthContainer,
-    query: G.ResQuery,
+    query: ResQuery,
     limit: number,
   ): Promise<Array<Res>> {
     const filter: Array<object> = [];

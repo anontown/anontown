@@ -83,9 +83,6 @@ export const profileEdit = RouteData.create(
 export const notifications = RouteData.create(
   PathDataBuilder.create().const("notifications"),
 );
-export const messages = RouteData.create(
-  PathDataBuilder.create().const("messages"),
-);
 export const signup = RouteData.create(
   PathDataBuilder.create().const("signup"),
 );

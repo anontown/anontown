@@ -1,6 +1,5 @@
 export * from "./client-repo";
 export * from "./history-repo";
-export * from "./msg-repo";
 export * from "./profile-repo";
 export * from "./res-repo";
 export * from "./token-repo";
@@ -14,7 +13,6 @@ export * from "./safeid-generator";
 export * from "./logger";
 export * from "./client-loader";
 export * from "./history-loader";
-export * from "./msg-loader";
 export * from "./profile-loader";
 export * from "./res-loader";
 export * from "./topic-loader";

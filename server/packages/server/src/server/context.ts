@@ -8,8 +8,6 @@ import {
   HistoryLoader,
   HistoryRepo,
   Logger,
-  MsgLoader,
-  MsgRepo,
   ObjectIdGenerator,
   ProfileLoader,
   ProfileRepo,
@@ -73,7 +71,6 @@ export async function createContext(
 
   const clientRepo = new ClientRepo();
   const historyRepo = new HistoryRepo();
-  const msgRepo = new MsgRepo();
   const profileRepo = new ProfileRepo();
   const resRepo = new ResRepo();
   const topicRepo = new TopicRepo(resRepo);
@@ -81,7 +78,6 @@ export async function createContext(
   const storageRepo = new StorageRepo();
   const clientLoader = new ClientLoader(clientRepo, authContainer);
   const historyLoader = new HistoryLoader(historyRepo);
-  const msgLoader = new MsgLoader(msgRepo, authContainer);
   const profileLoader = new ProfileLoader(profileRepo, authContainer);
   const resLoader = new ResLoader(resRepo, authContainer);
   const topicLoader = new TopicLoader(topicRepo);
@@ -97,7 +93,6 @@ export async function createContext(
       objectIdGenerator: new ObjectIdGenerator(),
       clientRepo,
       historyRepo,
-      msgRepo,
       profileRepo,
       resRepo,
       tokenRepo,
@@ -106,7 +101,6 @@ export async function createContext(
       storageRepo,
       clientLoader,
       historyLoader,
-      msgLoader,
       profileLoader,
       resLoader,
       topicLoader,

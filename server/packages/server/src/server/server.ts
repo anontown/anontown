@@ -70,10 +70,13 @@ export async function serverRun() {
     },
     debug: false,
     formatError: (error: any) => {
-      console.log(error);
-      if (error.extensions.exception[AtErrorSymbol]) {
+      if (
+        error.extensions.exception[AtErrorSymbol] &&
+        !(error instanceof AtServerError)
+      ) {
         return error.extensions.exception.data;
       } else {
+        console.error(error);
         return new AtServerError().data;
       }
     },

@@ -3,8 +3,7 @@ import { ObjectID, WriteError } from "mongodb";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
 import { Mongo } from "../../db";
 import { Profile } from "../../entities";
-import * as G from "../../generated/graphql";
-import { IAuthContainer, IProfileRepo } from "../../ports";
+import { IAuthContainer, IProfileRepo, ProfileQuery } from "../../ports";
 import { fromProfile, IProfileDB, toProfile } from "./jprofile-db";
 
 export class ProfileRepo implements IProfileRepo {
@@ -23,7 +22,7 @@ export class ProfileRepo implements IProfileRepo {
 
   async find(
     auth: IAuthContainer,
-    query: G.ProfileQuery,
+    query: ProfileQuery,
   ): Promise<Array<Profile>> {
     const q: any = {};
     if (query.self) {

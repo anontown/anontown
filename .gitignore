@@ -1,5 +1,4 @@
 .env
 /deploy/
 .DS_Store
-.metals/
 /env/

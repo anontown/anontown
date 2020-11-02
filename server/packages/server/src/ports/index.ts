@@ -1,6 +1,5 @@
 export * from "./client-repo";
 export * from "./history-repo";
-export * from "./msg-repo";
 export * from "./profile-repo";
 export * from "./res-repo";
 export * from "./token-repo";
@@ -19,5 +18,5 @@ export * from "./profile-loader";
 export * from "./res-loader";
 export * from "./topic-loader";
 export * from "./auth-container";
-export * from "./msg-loader";
 export * from "./ports";
+export * from "./date-query";

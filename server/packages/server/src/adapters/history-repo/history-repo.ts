@@ -2,8 +2,7 @@ import { isNullish } from "@kgtkr/utils";
 import { AtNotFoundError } from "../../at-error";
 import { ESClient } from "../../db";
 import { History } from "../../entities";
-import * as G from "../../generated/graphql";
-import { IHistoryRepo } from "../../ports";
+import { IHistoryRepo, HistoryQuery } from "../../ports";
 import { fromHistory, IHistoryDB, toHistory } from "./ihistory-db";
 export class HistoryRepo implements IHistoryRepo {
   constructor(private refresh?: boolean) {}
@@ -48,7 +47,7 @@ export class HistoryRepo implements IHistoryRepo {
     return toHistory({ id: history._id, body: history._source });
   }
 
-  async find(query: G.HistoryQuery, limit: number): Promise<Array<History>> {
+  async find(query: HistoryQuery, limit: number): Promise<Array<History>> {
     const filter: Array<any> = [];
     if (!isNullish(query.id)) {
       filter.push({

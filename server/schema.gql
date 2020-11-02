@@ -35,18 +35,6 @@ type History {
   self: Boolean
 }
 
-# notice message
-type Msg {
-  # msg id
-  id: ID!
-  # is private msg
-  priv: Boolean
-  # msg text
-  text: String!
-  # create date
-  date: DateTime!
-}
-
 # user profile
 type Profile {
   # profile id
@@ -353,11 +341,6 @@ input HistoryQuery {
   date: DateQuery
 }
 
-input MsgQuery {
-  id: [ID!]
-  date: DateQuery
-}
-
 input ProfileQuery {
   id: [ID!]
   self: Boolean
@@ -396,7 +379,6 @@ input TopicQuery {
 type Query {
   clients(query: ClientQuery!): [Client!]!
   histories(query: HistoryQuery!, limit: Int! = 100): [History!]!
-  msgs(query: MsgQuery!, limit: Int! = 100): [Msg!]!
   profiles(query: ProfileQuery!): [Profile!]!
   reses(query: ResQuery!, limit: Int! = 100): [Res!]!
   storages(query: StorageQuery!): [Storage!]!
