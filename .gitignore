@@ -1,4 +1,2 @@
-.env
 /deploy/
 .DS_Store
-/env/

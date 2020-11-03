@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./k8s/client/
+  - ./k8s/config/
+  - ./k8s/doc/
+  - ./k8s/server/
