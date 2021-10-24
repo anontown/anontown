@@ -13,7 +13,7 @@ services:
       SALT_TOKEN_REQ: ddd
       RECAPTCHA_SITE_KET: xxxxxxxxxxxx
       RECAPTCHA_SECRET_KET: xxxxxxxxxxx
-      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/postgres?schema=public"
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/postgres?schema=public"
     ports:
       - 8080:8080
     depends_on:
