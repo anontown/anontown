@@ -22,7 +22,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --no-progress
 
 COPY lerna.json ./
-COPY packages/server/package.json packages/server/package-lock.json ./packages/server/
+COPY packages/server/package.json packages/server/package-lock.json packages/server/prisma ./packages/server/
 RUN npx lerna bootstrap --ci --no-progress
 
 COPY schema.gql .eslintignore .eslintrc.js .prettierrc ./
