@@ -8,7 +8,7 @@ import * as P from "@prisma/client";
 import * as O from "fp-ts/lib/Option";
 import { PrismaTransactionClient } from "../../prisma-client";
 
-export function toMsg(m: P.Msg): Msg {
+function toEntity(m: P.Msg): Msg {
   return new Msg(
     m.id,
     O.fromNullable(m.receiverId),
@@ -17,7 +17,7 @@ export function toMsg(m: P.Msg): Msg {
   );
 }
 
-export function fromMsg(msg: Msg): Omit<P.Prisma.MsgCreateInput, "id"> {
+function fromEntity(msg: Msg): Omit<P.Prisma.MsgCreateInput, "id"> {
   return {
     receiverId: O.toNullable(msg.receiver),
     content: msg.text,
@@ -34,7 +34,7 @@ export class MsgRepo implements IMsgRepo {
       throw new AtNotFoundError("メッセージが存在しません");
     }
 
-    return toMsg(msg);
+    return toEntity(msg);
   }
 
   async find(
@@ -80,7 +80,7 @@ export class MsgRepo implements IMsgRepo {
       take: limit,
     });
 
-    const result = msgs.map(m => toMsg(m));
+    const result = msgs.map(m => toEntity(m));
     if (
       !isNullish(query.date) &&
       (query.date.type === "gt" || query.date.type === "gte")
@@ -91,14 +91,14 @@ export class MsgRepo implements IMsgRepo {
   }
 
   async insert(msg: Msg): Promise<void> {
-    const mDB = fromMsg(msg);
+    const mDB = fromEntity(msg);
     await this.prisma.msg.create({
       data: { ...mDB, id: msg.id },
     });
   }
 
   async update(msg: Msg): Promise<void> {
-    const mDB = fromMsg(msg);
+    const mDB = fromEntity(msg);
     await this.prisma.msg.update({
       where: { id: msg.id },
       data: mDB,
