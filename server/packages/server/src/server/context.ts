@@ -79,7 +79,7 @@ export async function createContext(
   const profileRepo = new ProfileRepo(prisma);
   const resRepo = new ResRepo();
   const topicRepo = new TopicRepo(resRepo);
-  const userRepo = new UserRepo();
+  const userRepo = new UserRepo(prisma);
   const storageRepo = new StorageRepo();
   const clientLoader = new ClientLoader(clientRepo, authContainer);
   const historyLoader = new HistoryLoader(historyRepo);

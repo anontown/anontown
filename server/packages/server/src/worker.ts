@@ -2,11 +2,13 @@ import { CronJob } from "cron";
 import { Logger, ResRepo, TopicRepo, UserRepo } from "./adapters";
 import { ResWaitCountKey } from "./entities";
 import { ITopicRepo } from "./ports/index";
+import { prisma } from "./prisma-client";
 
 export function runWorker() {
+  // TODO: トランザクション
   const logger = new Logger();
   const topicRepo = new TopicRepo(new ResRepo());
-  const userRepo = new UserRepo();
+  const userRepo = new UserRepo(prisma);
 
   runTopicWorker(topicRepo, logger);
   runUserWorker(userRepo, logger);
