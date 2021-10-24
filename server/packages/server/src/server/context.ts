@@ -74,7 +74,7 @@ export async function createContext(
 
   // TODO: トランザクション
   const clientRepo = new ClientRepo(prisma);
-  const historyRepo = new HistoryRepo();
+  const historyRepo = new HistoryRepo(prisma);
   const msgRepo = new MsgRepo(prisma);
   const profileRepo = new ProfileRepo();
   const resRepo = new ResRepo();

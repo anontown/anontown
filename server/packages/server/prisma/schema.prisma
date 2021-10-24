@@ -186,29 +186,22 @@ model ResVote {
 }
 
 model History {
-  id          String       @id @db.VarChar(64)
-  topicId     String       @map("topic_id") @db.VarChar(64)
-  tags        HistoryTag[]
-  description String       @db.Text
-  createdAt   DateTime     @map("created_at") @db.Timestamptz(3)
-  hash        String       @db.VarChar(64)
-  userId      String       @map("user_id") @db.VarChar(64)
+  id          String   @id @db.VarChar(64)
+  topicId     String   @map("topic_id") @db.VarChar(64)
+  tags        String[] @db.Text
+  title       String   @db.Text
+  description String   @db.Text
+  createdAt   DateTime @map("created_at") @db.Timestamptz(3)
+  hash        String   @db.VarChar(64)
+  userId      String   @map("user_id") @db.VarChar(64)
 
   // TODO: titleとtextのindex
+
   @@index([topicId])
   @@index([createdAt])
   @@index([hash])
   @@index([userId])
   @@map("histories")
-}
-
-model HistoryTag {
-  historyId String  @map("history_id") @db.VarChar(64)
-  history   History @relation(fields: [historyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tag       String  @db.Text
-
-  @@id([historyId, tag])
-  @@map("history_tags")
 }
 
 model Msg {
@@ -229,15 +222,6 @@ enum TopicType {
   FORK    @map(name: "fork")
 }
 
-model TopicTag {
-  topicId String @map("topic_id") @db.VarChar(64)
-  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tag     String @db.Text
-
-  @@id([topicId, tag])
-  @@map("topic_tags")
-}
-
 model Topic {
   id           String    @id @db.VarChar(64)
   type         TopicType
@@ -248,8 +232,8 @@ model Topic {
   active       Boolean   @map("active")
 
   // search
-  tags        TopicTag[]
-  description String?    @db.Text
+  tags        String[] @db.Text
+  description String?  @db.Text
 
   // normal
   // one

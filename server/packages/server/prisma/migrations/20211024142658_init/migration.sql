@@ -123,20 +123,14 @@ CREATE TABLE "res_votes" (
 CREATE TABLE "histories" (
     "id" VARCHAR(64) NOT NULL,
     "topic_id" VARCHAR(64) NOT NULL,
+    "tags" TEXT[],
+    "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ(3) NOT NULL,
     "hash" VARCHAR(64) NOT NULL,
     "user_id" VARCHAR(64) NOT NULL,
 
     CONSTRAINT "histories_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "history_tags" (
-    "history_id" VARCHAR(64) NOT NULL,
-    "tag" TEXT NOT NULL,
-
-    CONSTRAINT "history_tags_pkey" PRIMARY KEY ("history_id","tag")
 );
 
 -- CreateTable
@@ -150,14 +144,6 @@ CREATE TABLE "msgs" (
 );
 
 -- CreateTable
-CREATE TABLE "topic_tags" (
-    "topic_id" VARCHAR(64) NOT NULL,
-    "tag" TEXT NOT NULL,
-
-    CONSTRAINT "topic_tags_pkey" PRIMARY KEY ("topic_id","tag")
-);
-
--- CreateTable
 CREATE TABLE "topics" (
     "id" VARCHAR(64) NOT NULL,
     "type" "TopicType" NOT NULL,
@@ -166,6 +152,7 @@ CREATE TABLE "topics" (
     "created_at" TIMESTAMPTZ(3) NOT NULL,
     "age_updated_at" TIMESTAMPTZ(3) NOT NULL,
     "active" BOOLEAN NOT NULL,
+    "tags" TEXT[],
     "description" TEXT,
     "parent_id" VARCHAR(64),
 
@@ -321,9 +308,3 @@ ALTER TABLE "reses" ADD CONSTRAINT "reses_reply_id_fkey" FOREIGN KEY ("reply_id"
 
 -- AddForeignKey
 ALTER TABLE "res_votes" ADD CONSTRAINT "res_votes_res_id_fkey" FOREIGN KEY ("res_id") REFERENCES "reses"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
-
--- AddForeignKey
-ALTER TABLE "history_tags" ADD CONSTRAINT "history_tags_history_id_fkey" FOREIGN KEY ("history_id") REFERENCES "histories"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
-
--- AddForeignKey
-ALTER TABLE "topic_tags" ADD CONSTRAINT "topic_tags_topic_id_fkey" FOREIGN KEY ("topic_id") REFERENCES "topics"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
