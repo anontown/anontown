@@ -1,6 +1,6 @@
 import { none, some } from "fp-ts/lib/Option";
 import { ObjectID } from "mongodb";
-import { AtError, AuthContainer, dbReset, IProfileRepo, Profile } from "../../";
+import { AtError, AuthContainer, IProfileRepo, Profile } from "../../";
 import { IAuthToken } from "../../auth";
 
 export function run(

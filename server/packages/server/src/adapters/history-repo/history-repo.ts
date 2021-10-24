@@ -1,11 +1,9 @@
 import { isNullish } from "@kgtkr/utils";
 import { AtNotFoundError } from "../../at-error";
-import { ESClient } from "../../db";
 import { History } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IHistoryRepo } from "../../ports";
 import { PrismaTransactionClient } from "../../prisma-client";
-import { IHistoryDB } from "./ihistory-db";
 import * as P from "@prisma/client";
 import * as Im from "immutable";
 
