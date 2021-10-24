@@ -80,7 +80,7 @@ export async function createContext(
   const resRepo = new ResRepo();
   const topicRepo = new TopicRepo(resRepo);
   const userRepo = new UserRepo(prisma);
-  const storageRepo = new StorageRepo();
+  const storageRepo = new StorageRepo(prisma);
   const clientLoader = new ClientLoader(clientRepo, authContainer);
   const historyLoader = new HistoryLoader(historyRepo);
   const msgLoader = new MsgLoader(msgRepo, authContainer);

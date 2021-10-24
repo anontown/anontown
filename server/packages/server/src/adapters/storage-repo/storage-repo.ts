@@ -1,75 +1,109 @@
 import { isNullish } from "@kgtkr/utils";
-import { option } from "fp-ts";
+import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
-import { ObjectID } from "mongodb";
 import { AtNotFoundError } from "../../at-error";
 import { IAuthToken } from "../../auth";
-import { Mongo } from "../../db";
 import { Storage } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IStorageRepo } from "../../ports";
-import { fromStorage, IStorageDB, toStorage } from "./isotrage-db";
+import * as P from "@prisma/client";
+import { PrismaTransactionClient } from "../../prisma-client";
+
+function toEntity(db: P.Storage): Storage {
+  return new Storage(
+    pipe(
+      O.some(db.clientId),
+      O.filter(client => client !== ""),
+    ),
+    db.userId,
+    db.key,
+    db.value,
+  );
+}
+
+function fromEntityToUniqueKey(
+  entity: Omit<Storage, "value">,
+): P.Prisma.StorageClientIdUserIdKeyCompoundUniqueInput {
+  return {
+    clientId: pipe(
+      entity.client,
+      O.getOrElse(() => ""),
+    ),
+    userId: entity.user,
+    key: entity.key,
+  };
+}
+
+function fromEntity(
+  storage: Storage,
+): Omit<P.Prisma.StorageCreateInput, "userId" | "clientId" | "key"> {
+  return {
+    value: storage.value,
+  };
+}
 
 export class StorageRepo implements IStorageRepo {
+  constructor(private prisma: PrismaTransactionClient) {}
+
   async find(
     token: IAuthToken,
     query: G.StorageQuery,
   ): Promise<Array<Storage>> {
-    const db = await Mongo();
-    const q: any = {
-      user: new ObjectID(token.user),
-      client: token.type === "general" ? new ObjectID(token.client) : null,
-    };
+    const filter: Array<P.Prisma.StorageWhereInput> = [
+      {
+        userId: token.user,
+        clientId: token.type === "general" ? token.client : "",
+      },
+    ];
+
     if (!isNullish(query.key)) {
-      q.key = { $in: query.key };
+      filter.push({
+        key: {
+          in: query.key,
+        },
+      });
     }
-    const storages: Array<IStorageDB> = await db
-      .collection("storages")
-      .find(q)
-      .toArray();
-    return storages.map(x => toStorage(x));
+    const storages = await this.prisma.storage.findMany({
+      where: {
+        AND: filter,
+      },
+    });
+    return storages.map(x => toEntity(x));
   }
 
   async findOneKey(token: IAuthToken, key: string): Promise<Storage> {
-    const db = await Mongo();
-    const storage: IStorageDB | null = await db.collection("storages").findOne({
-      user: new ObjectID(token.user),
-      client: token.type === "general" ? new ObjectID(token.client) : null,
-      key,
+    const model = await this.prisma.storage.findUnique({
+      where: {
+        clientId_userId_key: {
+          clientId: token.type === "general" ? token.client : "",
+          userId: token.user,
+          key,
+        },
+      },
     });
-    if (storage === null) {
+
+    if (model === null) {
       throw new AtNotFoundError("ストレージが見つかりません");
     }
-    return toStorage(storage);
+    return toEntity(model);
   }
   async save(storage: Storage): Promise<void> {
-    const db = await Mongo();
-
-    await db.collection("storages").replaceOne(
-      {
-        user: new ObjectID(storage.user),
-        client: pipe(
-          storage.client,
-          option.map(client => new ObjectID(client)),
-          option.toNullable,
-        ),
-        key: storage.key,
+    await this.prisma.storage.upsert({
+      where: {
+        clientId_userId_key: fromEntityToUniqueKey(storage),
       },
-      fromStorage(storage),
-      { upsert: true },
-    );
+      update: fromEntity(storage),
+      create: {
+        ...fromEntityToUniqueKey(storage),
+        ...fromEntity(storage),
+      },
+    });
   }
   async del(storage: Storage): Promise<void> {
-    const db = await Mongo();
-
-    await db.collection("storages").deleteOne({
-      user: new ObjectID(storage.user),
-      client: pipe(
-        storage.client,
-        option.map(client => new ObjectID(client)),
-        option.toNullable,
-      ),
-      key: storage.key,
+    await this.prisma.storage.delete({
+      where: {
+        clientId_userId_key: fromEntityToUniqueKey(storage),
+      },
     });
   }
 }
