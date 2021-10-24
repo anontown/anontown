@@ -1,5 +1,5 @@
 import * as Im from "immutable";
-import { AtError, dbReset, History, IHistoryRepo } from "../../";
+import { AtError, History, IHistoryRepo } from "../../";
 
 export function run(
   $isolate: (callback: (repo: IHistoryRepo) => Promise<void>) => Promise<void>,
