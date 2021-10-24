@@ -3,7 +3,7 @@ import { AtConflictError, AtNotFoundError } from "../../at-error";
 import { Profile } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IAuthContainer, IProfileRepo } from "../../ports";
-import { fromProfile, IProfileDB, toProfile } from "./jprofile-db";
+import { fromProfile, IProfileDB, toProfile } from "./iprofile-db";
 
 export class ProfileRepoMock implements IProfileRepo {
   private profiles: Array<IProfileDB> = [];
