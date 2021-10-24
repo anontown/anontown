@@ -50,7 +50,7 @@ export class ProfileRepo implements IProfileRepo {
   ): Promise<Array<Profile>> {
     const filter: Array<P.Prisma.ProfileWhereInput> = [];
     if (query.self) {
-      filter.push({ userId: auth.getToken().id });
+      filter.push({ userId: auth.getToken().user });
     }
     if (!isNullish(query.id)) {
       filter.push({ id: { in: query.id } });
