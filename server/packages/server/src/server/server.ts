@@ -3,7 +3,7 @@ import { ApolloServer, gql, IResolvers } from "apollo-server-express";
 import cors from "cors";
 import express from "express";
 import { either } from "fp-ts";
-import * as fs from "fs-promise";
+import { promises as fs } from "fs";
 import { GraphQLDateTime } from "graphql-iso-date";
 import { createServer } from "http";
 import * as t from "io-ts";

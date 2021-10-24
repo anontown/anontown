@@ -1,4 +1,4 @@
-import * as fs from "fs-promise";
+import { promises as fs } from "fs";
 import * as path from "path";
 import { Mongo } from "./db";
 import { mongoUtils } from "./migration-utils";

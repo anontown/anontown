@@ -1,4 +1,4 @@
-import * as fs from "fs-promise";
+import * as fs from "fs";
 import { buildSchema, graphql, introspectionQuery } from "graphql";
 
 const schema = buildSchema(fs.readFileSync("../../schema.gql", "utf8"));

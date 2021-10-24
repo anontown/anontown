@@ -46,7 +46,7 @@ export class ProfileRepo implements IProfileRepo {
     try {
       await db.collection("profiles").insertOne(fromProfile(profile));
     } catch (ex) {
-      const e: WriteError = ex;
+      const e = ex as WriteError;
       if (e.code === 11000) {
         throw new AtConflictError("スクリーンネームが使われています");
       } else {
@@ -62,7 +62,7 @@ export class ProfileRepo implements IProfileRepo {
         .collection("profiles")
         .replaceOne({ _id: new ObjectID(profile.id) }, fromProfile(profile));
     } catch (ex) {
-      const e: WriteError = ex;
+      const e = ex as WriteError;
       if (e.code === 11000) {
         throw new AtConflictError("スクリーンネームが使われています");
       } else {

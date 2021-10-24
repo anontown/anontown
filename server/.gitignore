@@ -4,3 +4,4 @@
 *.tsbuildinfo
 /restart-dummy/*
 !/restart-dummy/.gitkeep
+!/.env

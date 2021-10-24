@@ -1,3 +1,4 @@
+import { prisma } from "../prisma-client";
 import { array, option } from "fp-ts";
 import { none, some } from "fp-ts/lib/Option";
 import {
@@ -71,9 +72,10 @@ export async function createContext(
 
   const authContainer = new AuthContainer(token);
 
+  // TODO: トランザクション
   const clientRepo = new ClientRepo();
   const historyRepo = new HistoryRepo();
-  const msgRepo = new MsgRepo();
+  const msgRepo = new MsgRepo(prisma);
   const profileRepo = new ProfileRepo();
   const resRepo = new ResRepo();
   const topicRepo = new TopicRepo(resRepo);

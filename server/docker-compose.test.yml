@@ -13,12 +13,14 @@ services:
       SALT_TOKEN_REQ: ddd
       RECAPTCHA_SITE_KET: xxxxxxxxxxxx
       RECAPTCHA_SECRET_KET: xxxxxxxxxxx
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/postgres?schema=public"
     ports:
       - 8080:8080
     depends_on:
       - mongo
       - es
       - redis
+      - db
   mongo:
     restart: always
     build: ../mongo
@@ -30,5 +32,12 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+  db:
+    image: postgres:12.8-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
   redis:
     build: ../redis
+
