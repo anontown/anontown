@@ -54,7 +54,7 @@ CREATE TABLE "tokenReqs" (
     "active" BOOLEAN NOT NULL,
     "tokenId" VARCHAR(64) NOT NULL,
 
-    CONSTRAINT "tokenReqs_pkey" PRIMARY KEY ("key")
+    CONSTRAINT "tokenReqs_pkey" PRIMARY KEY ("tokenId","key")
 );
 
 -- CreateTable
