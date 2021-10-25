@@ -132,6 +132,7 @@ model Res {
   id        String    @id @db.VarChar(64)
   type      ResType
   topicId   String    @map("topic_id") @db.VarChar(64)
+  topic     Topic     @relation(fields: [topicId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt DateTime  @map("created_at") @db.Timestamptz(3)
   userId    String    @map("user_id") @db.VarChar(64)
   votes     ResVote[]
@@ -249,4 +250,5 @@ model Topic {
   @@index([active])
   @@index([parentId])
   @@map("topics")
+  Res Res[]
 }
