@@ -63,7 +63,7 @@ export async function createContext(
 
   const logger = new Logger();
 
-  const tokenRepo = new TokenRepo();
+  const tokenRepo = new TokenRepo(prisma);
 
   const token = await createToken(
     headers["x-token"] || headers["X-Token"],

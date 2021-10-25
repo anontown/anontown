@@ -301,7 +301,7 @@ CREATE INDEX "topics_active_idx" ON "topics"("active");
 CREATE INDEX "topics_parent_id_idx" ON "topics"("parent_id");
 
 -- AddForeignKey
-ALTER TABLE "tokenReqs" ADD CONSTRAINT "tokenReqs_tokenId_fkey" FOREIGN KEY ("tokenId") REFERENCES "tokens"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "tokenReqs" ADD CONSTRAINT "tokenReqs_tokenId_fkey" FOREIGN KEY ("tokenId") REFERENCES "tokens"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "reses" ADD CONSTRAINT "reses_reply_id_fkey" FOREIGN KEY ("reply_id") REFERENCES "reses"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;

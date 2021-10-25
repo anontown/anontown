@@ -3,5 +3,7 @@ import { TokenRepoMock } from "../../";
 import { run } from "./itoken-repo.th";
 
 describe("TokenRepoMock", () => {
-  run(() => new TokenRepoMock(), false);
+  run(async callback => {
+    await callback(new TokenRepoMock());
+  });
 });
