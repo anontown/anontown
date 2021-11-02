@@ -49,7 +49,7 @@ export async function serverRun() {
     plugins: [
       {
         requestDidStart: () => ({
-          willSendResponse: response => {
+          willSendResponse: async response => {
             const ctx = (response.context as unknown) as AppContext;
             ctx.ports.resRepo.dispose();
 
@@ -57,9 +57,9 @@ export async function serverRun() {
               response.response.errors === undefined ||
               response.response.errors.length === 0
             ) {
-              ctx.prismaOnSuccess();
+              await ctx.prismaOnSuccess();
             } else {
-              ctx.prismaOnError(response.response.errors);
+              await ctx.prismaOnError(response.response.errors);
             }
           },
         }),

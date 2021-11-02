@@ -32,8 +32,8 @@ import * as authFromApiParam from "./auth-from-api-param";
 
 export interface AppContext {
   ports: Ports;
-  prismaOnSuccess: () => void;
-  prismaOnError: (err: unknown) => void;
+  prismaOnSuccess: () => Promise<void>;
+  prismaOnError: (err: unknown) => Promise<void>;
 }
 
 async function createToken(raw: unknown, tokenRepo: ITokenRepo) {
@@ -74,13 +74,19 @@ export async function createContext(
       prismaTransaction: PrismaTransactionClient;
     }
   >(resolvePrismaContext => {
-    void prisma.$transaction<void>(
+    const promise = prisma.$transaction<void>(
       prismaTransaction =>
         new Promise((resolve, reject) => {
           resolvePrismaContext({
             prismaTransaction,
-            prismaOnSuccess: () => resolve(undefined),
-            prismaOnError: reject,
+            prismaOnSuccess: async () => {
+              resolve(undefined);
+              await promise;
+            },
+            prismaOnError: async (err: unknown) => {
+              reject(err);
+              await promise;
+            },
           });
         }),
     );
