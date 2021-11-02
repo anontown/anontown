@@ -1,4 +1,4 @@
-import { prisma } from "../prisma-client";
+import { prisma, PrismaTransactionClient } from "../prisma-client";
 import { array, option } from "fp-ts";
 import { none, some } from "fp-ts/lib/Option";
 import {
@@ -32,6 +32,8 @@ import * as authFromApiParam from "./auth-from-api-param";
 
 export interface AppContext {
   ports: Ports;
+  prismaOnSuccess: () => void;
+  prismaOnError: (err: unknown) => void;
 }
 
 async function createToken(raw: unknown, tokenRepo: ITokenRepo) {
@@ -63,7 +65,28 @@ export async function createContext(
 
   const logger = new Logger();
 
-  const tokenRepo = new TokenRepo(prisma);
+  const {
+    prismaTransaction,
+    prismaOnError,
+    prismaOnSuccess,
+  } = await new Promise<
+    Pick<AppContext, "prismaOnError" | "prismaOnSuccess"> & {
+      prismaTransaction: PrismaTransactionClient;
+    }
+  >(resolvePrismaContext => {
+    void prisma.$transaction<void>(
+      prismaTransaction =>
+        new Promise((resolve, reject) => {
+          resolvePrismaContext({
+            prismaTransaction,
+            prismaOnSuccess: () => resolve(undefined),
+            prismaOnError: reject,
+          });
+        }),
+    );
+  });
+
+  const tokenRepo = new TokenRepo(prismaTransaction);
 
   const token = await createToken(
     headers["x-token"] || headers["X-Token"],
@@ -73,14 +96,14 @@ export async function createContext(
   const authContainer = new AuthContainer(token);
 
   // TODO: トランザクション
-  const clientRepo = new ClientRepo(prisma);
-  const historyRepo = new HistoryRepo(prisma);
-  const msgRepo = new MsgRepo(prisma);
-  const profileRepo = new ProfileRepo(prisma);
+  const clientRepo = new ClientRepo(prismaTransaction);
+  const historyRepo = new HistoryRepo(prismaTransaction);
+  const msgRepo = new MsgRepo(prismaTransaction);
+  const profileRepo = new ProfileRepo(prismaTransaction);
   const resRepo = new ResRepo();
   const topicRepo = new TopicRepo(resRepo);
-  const userRepo = new UserRepo(prisma);
-  const storageRepo = new StorageRepo(prisma);
+  const userRepo = new UserRepo(prismaTransaction);
+  const storageRepo = new StorageRepo(prismaTransaction);
   const clientLoader = new ClientLoader(clientRepo, authContainer);
   const historyLoader = new HistoryLoader(historyRepo);
   const msgLoader = new MsgLoader(msgRepo, authContainer);
@@ -113,5 +136,7 @@ export async function createContext(
       resLoader,
       topicLoader,
     },
+    prismaOnError,
+    prismaOnSuccess,
   };
 }
