@@ -1,28 +1,153 @@
-import { isNullish } from "@kgtkr/utils";
+import { isNullish, nullUnwrap } from "@kgtkr/utils";
 import { AtNotFoundError } from "../../at-error";
-import { ESClient } from "../../db";
-import { ITagsAPI, Topic } from "../../entities";
+import {
+  ITagsAPI,
+  Topic,
+  TopicFork,
+  TopicNormal,
+  TopicOne,
+} from "../../entities";
 import * as G from "../../generated/graphql";
-import { IResRepo, ITopicRepo } from "../../ports";
-import { fromTopic, ITopicDB, toTopic } from "./itopic-db";
+import { ITopicRepo } from "../../ports";
+import * as P from "@prisma/client";
+import * as Im from "immutable";
+import { PrismaTransactionClient } from "../../prisma-client";
+import { pipe } from "fp-ts/lib/pipeable";
+import * as A from "fp-ts/lib/Array";
+import * as Ord from "fp-ts/lib/Ord";
+function toEntity(
+  model: P.Topic & {
+    tags: Array<P.TopicTag>;
+    _count: {
+      reses: number;
+    } | null;
+  },
+): Topic {
+  switch (model.type) {
+    case "FORK":
+      return new TopicFork(
+        model.id,
+        model.title,
+        model.updatedAt,
+        model.createdAt,
+        model._count?.reses ?? 0,
+        model.ageUpdatedAt,
+        model.active,
+        nullUnwrap(model.parentId),
+      );
+    case "NORMAL":
+    case "ONE": {
+      const tags = pipe(
+        model.tags,
+        A.sort(Ord.contramap<number, P.TopicTag>(x => x.order)(Ord.ordNumber)),
+        A.map(({ tag }) => tag),
+        xs => Im.List(xs),
+      );
+
+      switch (model.type) {
+        case "NORMAL":
+          return new TopicNormal(
+            model.id,
+            model.title,
+            tags,
+            nullUnwrap(model.description),
+            model.updatedAt,
+            model.createdAt,
+            model._count?.reses ?? 0,
+            model.ageUpdatedAt,
+            model.active,
+          );
+        case "ONE":
+          return new TopicOne(
+            model.id,
+            model.title,
+            tags,
+            nullUnwrap(model.description),
+            model.updatedAt,
+            model.createdAt,
+            model._count?.reses ?? 0,
+            model.ageUpdatedAt,
+            model.active,
+          );
+      }
+    }
+  }
+}
+
+function fromEntity(entity: Topic): Omit<P.Prisma.TopicCreateInput, "id"> {
+  const topicBase: Omit<P.Prisma.TopicCreateInput, "id" | "type"> = {
+    title: entity.title,
+    updatedAt: entity.update,
+    createdAt: entity.date,
+    ageUpdatedAt: entity.ageUpdate,
+    active: entity.active,
+  };
+
+  switch (entity.type) {
+    case "fork":
+      return {
+        ...topicBase,
+        type: "ONE",
+        parentId: entity.parent,
+      };
+    case "normal":
+    case "one": {
+      const topicSearchBase: Omit<P.Prisma.TopicCreateInput, "id" | "type"> = {
+        ...topicBase,
+        description: entity.text,
+      };
+
+      switch (entity.type) {
+        case "normal":
+          return {
+            ...topicSearchBase,
+            type: "NORMAL",
+          };
+        case "one":
+          return {
+            ...topicSearchBase,
+            type: "ONE",
+          };
+      }
+    }
+  }
+}
+
+function tagsFromEntity(
+  topic: TopicOne | TopicNormal,
+): Array<P.Prisma.TopicTagCreateManyInput> {
+  return topic.tags
+    .toArray()
+    .map<P.Prisma.TopicTagCreateManyInput>((tag, i) => ({
+      topicId: topic.id,
+      order: i,
+      tag: tag,
+    }));
+}
 
 export class TopicRepo implements ITopicRepo {
-  constructor(public resRepo: IResRepo, private refresh?: boolean) {}
+  constructor(private prisma: PrismaTransactionClient) {}
 
   async findOne(id: string): Promise<Topic> {
-    let topic;
-    try {
-      topic = await ESClient().get<ITopicDB["body"]>({
-        index: "topics",
-        type: "doc",
+    const topic = await this.prisma.topic.findUnique({
+      where: {
         id,
-      });
-    } catch {
+      },
+      include: {
+        tags: true,
+        _count: {
+          select: {
+            reses: true,
+          },
+        },
+      },
+    });
+
+    if (topic === null) {
       throw new AtNotFoundError("トピックが存在しません");
     }
-    return (
-      await this.aggregate([{ id: topic._id, body: topic._source } as ITopicDB])
-    )[0];
+
+    return toEntity(topic);
   }
 
   async findTags(limit: number): Promise<Array<ITagsAPI>> {
@@ -30,25 +155,20 @@ export class TopicRepo implements ITopicRepo {
       return [];
     }
 
-    const data = await ESClient().search({
-      index: "topics",
-      size: 0,
-      body: {
-        aggs: {
-          tags_count: {
-            terms: {
-              field: "tags",
-              size: limit,
-            },
-          },
+    const tags = await this.prisma.topicTag.groupBy({
+      by: ["tag"],
+      _count: {
+        tag: true,
+      },
+      orderBy: {
+        _count: {
+          tag: "desc",
         },
       },
+      take: limit,
     });
 
-    const tags: Array<{ key: string; doc_count: number }> =
-      data.aggregations.tags_count.buckets;
-
-    return tags.map(x => ({ name: x.key, count: x.doc_count }));
+    return tags.map(x => ({ name: x.tag, count: x._count.tag }));
   }
 
   async find(
@@ -56,131 +176,107 @@ export class TopicRepo implements ITopicRepo {
     skip: number,
     limit: number,
   ): Promise<Array<Topic>> {
-    const filter: Array<any> = [];
+    const filter: Array<P.Prisma.TopicWhereInput> = [];
     if (!isNullish(query.id)) {
       filter.push({
-        terms: {
-          _id: query.id,
+        id: {
+          in: query.id,
         },
       });
     }
 
     if (!isNullish(query.title)) {
-      filter.push({
-        match: {
+      for (const title of query.title.split(/\s/).filter(x => x.length !== 0)) {
+        filter.push({
           title: {
-            query: query.title,
-            operator: "and",
-            zero_terms_query: "all",
+            contains: title,
+            mode: "insensitive",
           },
-        },
-      });
+        });
+      }
     }
 
     if (!isNullish(query.tags)) {
-      filter.push(
-        ...query.tags.map(t => ({
-          term: {
-            tags: t,
+      for (const tag of query.tags) {
+        filter.push({
+          tags: {
+            some: {
+              tag,
+            },
           },
-        })),
-      );
+        });
+      }
     }
 
     if (query.activeOnly) {
       filter.push({
-        term: { active: true },
+        active: true,
       });
     }
 
     if (!isNullish(query.parent)) {
       filter.push({
-        match: {
-          parent: query.parent,
-        },
+        parentId: query.parent,
       });
     }
 
-    const topics = await ESClient().search<ITopicDB["body"]>({
-      index: "topics",
-      size: limit,
-      from: skip,
-      body: {
-        query: {
-          bool: {
-            filter,
-          },
-        },
-        sort: { ageUpdate: { order: "desc" } },
+    const topics = await this.prisma.topic.findMany({
+      where: { AND: filter },
+      orderBy: {
+        ageUpdatedAt: "desc",
       },
+      include: { tags: true, _count: { select: { reses: true } } },
+      take: limit,
+      skip: skip,
     });
 
-    return this.aggregate(
-      topics.hits.hits.map(x => ({ id: x._id, body: x._source })),
-    );
+    return topics.map(x => toEntity(x));
   }
 
   async cronTopicCheck(now: Date): Promise<void> {
-    await ESClient().updateByQuery({
-      index: "topics",
-      type: "doc",
-      body: {
-        script: {
-          inline: "ctx._source.active = false",
+    await this.prisma.topic.updateMany({
+      where: {
+        updatedAt: {
+          lt: now,
         },
-        query: {
-          bool: {
-            filter: [
-              {
-                range: {
-                  update: {
-                    lt: new Date(
-                      now.valueOf() - 1000 * 60 * 60 * 24 * 7,
-                    ).toISOString(),
-                  },
-                },
-              },
-              {
-                terms: {
-                  type: ["one", "fork"],
-                },
-              },
-            ],
-          },
-        },
+        active: true,
       },
-      refresh: this.refresh,
+      data: {
+        active: false,
+      },
     });
   }
 
   async insert(topic: Topic): Promise<void> {
-    const tDB = fromTopic(topic);
-    await ESClient().create({
-      index: "topics",
-      type: "doc",
-      id: tDB.id,
-      body: tDB.body,
-      refresh: this.refresh,
+    const model = fromEntity(topic);
+    await this.prisma.topic.create({
+      data: {
+        ...model,
+        id: topic.id,
+      },
     });
+
+    if (topic.type === "one" || topic.type === "normal") {
+      await this.prisma.topicTag.createMany({
+        data: tagsFromEntity(topic),
+      });
+    }
   }
 
   async update(topic: Topic): Promise<void> {
-    const tDB = fromTopic(topic);
-    await ESClient().index({
-      index: "topics",
-      type: "doc",
-      id: tDB.id,
-      body: tDB.body,
-      refresh:
-        this.refresh !== undefined
-          ? (this.refresh.toString() as "true" | "false")
-          : undefined,
+    const model = fromEntity(topic);
+
+    await this.prisma.topic.update({
+      where: { id: topic.id },
+      data: model,
     });
-  }
-
-  private async aggregate(topics: Array<ITopicDB>): Promise<Array<Topic>> {
-    const count = await this.resRepo.resCount(topics.map(x => x.id));
-
-    return topics.map(x => toTopic(x, count.get(x.id) || 0));
+    if (topic.type === "one" || topic.type === "normal") {
+      await this.prisma.topicTag.deleteMany({
+        where: { topicId: topic.id },
+      });
+      await this.prisma.topicTag.createMany({
+        data: tagsFromEntity(topic),
+      });
+    }
   }
 }

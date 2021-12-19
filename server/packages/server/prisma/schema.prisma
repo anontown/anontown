@@ -188,14 +188,14 @@ model ResVote {
 }
 
 model History {
-  id          String   @id @db.VarChar(64)
-  topicId     String   @map("topic_id") @db.VarChar(64)
-  tags        String[] @db.Text
-  title       String   @db.Text
-  description String   @db.Text
-  createdAt   DateTime @map("created_at") @db.Timestamptz(3)
-  hash        String   @db.VarChar(64)
-  userId      String   @map("user_id") @db.VarChar(64)
+  id          String       @id @db.VarChar(64)
+  topicId     String       @map("topic_id") @db.VarChar(64)
+  tags        HistoryTag[]
+  title       String       @db.Text
+  description String       @db.Text
+  createdAt   DateTime     @map("created_at") @db.Timestamptz(3)
+  hash        String       @db.VarChar(64)
+  userId      String       @map("user_id") @db.VarChar(64)
 
   // TODO: titleとtextのindex
 
@@ -204,6 +204,17 @@ model History {
   @@index([hash])
   @@index([userId])
   @@map("histories")
+}
+
+model HistoryTag {
+  historyId String  @map("history_id") @db.VarChar(64)
+  history   History @relation(fields: [historyId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  order     Int     @db.Integer
+  tag       String  @db.Text
+
+  @@id([historyId, order])
+  @@index([tag])
+  @@map("history_tags")
 }
 
 model Msg {
@@ -234,8 +245,8 @@ model Topic {
   active       Boolean   @map("active")
 
   // search
-  tags        String[] @db.Text
-  description String?  @db.Text
+  tags        TopicTag[]
+  description String?    @db.Text
 
   // normal
   // one
@@ -243,6 +254,8 @@ model Topic {
   parentId String? @map("parent_id") @db.VarChar(64)
 
   // TODO: text, titleのindex
+  reses Res[]
+
   @@index([type])
   @@index([updatedAt])
   @@index([createdAt])
@@ -250,5 +263,15 @@ model Topic {
   @@index([active])
   @@index([parentId])
   @@map("topics")
-  Res Res[]
+}
+
+model TopicTag {
+  topicId String @map("topic_id") @db.VarChar(64)
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  order   Int    @db.Integer
+  tag     String @db.Text
+
+  @@id([topicId, order])
+  @@index([tag])
+  @@map("topic_tags")
 }

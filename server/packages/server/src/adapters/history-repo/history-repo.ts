@@ -6,13 +6,25 @@ import { IHistoryRepo } from "../../ports";
 import { PrismaTransactionClient } from "../../prisma-client";
 import * as P from "@prisma/client";
 import * as Im from "immutable";
+import { pipe } from "fp-ts/lib/pipeable";
+import * as A from "fp-ts/lib/Array";
+import * as Ord from "fp-ts/lib/Ord";
 
-export function ToEntity(h: P.History): History {
+function toEntity(
+  h: P.History & {
+    tags: Array<P.HistoryTag>;
+  },
+): History {
   return new History(
     h.id,
     h.topicId,
     h.title,
-    Im.List(h.tags),
+    pipe(
+      h.tags,
+      A.sort(Ord.contramap<number, P.HistoryTag>(x => x.order)(Ord.ordNumber)),
+      A.map(({ tag }) => tag),
+      xs => Im.List(xs),
+    ),
     h.description,
     h.createdAt,
     h.hash,
@@ -20,18 +32,27 @@ export function ToEntity(h: P.History): History {
   );
 }
 
-export function fromEntity(
-  history: History,
-): Omit<P.Prisma.HistoryCreateInput, "id"> {
+function fromEntity(history: History): Omit<P.Prisma.HistoryCreateInput, "id"> {
   return {
     topicId: history.topic,
     title: history.title,
-    tags: history.tags.toArray(),
     description: history.text,
     createdAt: history.date,
     hash: history.hash,
     userId: history.user,
   };
+}
+
+function tagsFromEntity(
+  history: History,
+): Array<P.Prisma.HistoryTagCreateManyInput> {
+  return history.tags
+    .toArray()
+    .map<P.Prisma.HistoryTagCreateManyInput>((tag, i) => ({
+      historyId: history.id,
+      order: i,
+      tag: tag,
+    }));
 }
 
 export class HistoryRepo implements IHistoryRepo {
@@ -45,6 +66,10 @@ export class HistoryRepo implements IHistoryRepo {
         id: history.id,
       },
     });
+
+    await this.prisma.historyTag.createMany({
+      data: tagsFromEntity(history),
+    });
   }
 
   async update(history: History): Promise<void> {
@@ -54,15 +79,24 @@ export class HistoryRepo implements IHistoryRepo {
       where: { id: history.id },
       data: model,
     });
+    await this.prisma.historyTag.deleteMany({
+      where: { historyId: history.id },
+    });
+    await this.prisma.historyTag.createMany({
+      data: tagsFromEntity(history),
+    });
   }
 
   async findOne(id: string): Promise<History> {
-    const history = await this.prisma.history.findUnique({ where: { id } });
+    const history = await this.prisma.history.findUnique({
+      where: { id },
+      include: { tags: true },
+    });
     if (history === null) {
       throw new AtNotFoundError("編集履歴が存在しません");
     }
 
-    return ToEntity(history);
+    return toEntity(history);
   }
 
   async find(query: G.HistoryQuery, limit: number): Promise<Array<History>> {
@@ -100,10 +134,11 @@ export class HistoryRepo implements IHistoryRepo {
             ? "asc"
             : "desc",
       },
+      include: { tags: true },
       take: limit,
     });
 
-    const result = histories.map(h => ToEntity(h));
+    const result = histories.map(h => toEntity(h));
     if (
       !isNullish(query.date) &&
       (query.date.type === "gt" || query.date.type === "gte")
