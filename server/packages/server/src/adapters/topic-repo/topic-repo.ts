@@ -240,6 +240,9 @@ export class TopicRepo implements ITopicRepo {
           lt: now,
         },
         active: true,
+        type: {
+          in: ["FORK", "ONE"],
+        },
       },
       data: {
         active: false,
