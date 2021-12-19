@@ -87,7 +87,7 @@ function fromEntity(entity: Topic): Omit<P.Prisma.TopicCreateInput, "id"> {
     case "fork":
       return {
         ...topicBase,
-        type: "ONE",
+        type: "FORK",
         parentId: entity.parent,
       };
     case "normal":
@@ -237,7 +237,7 @@ export class TopicRepo implements ITopicRepo {
     await this.prisma.topic.updateMany({
       where: {
         updatedAt: {
-          lt: now,
+          lt: new Date(now.valueOf() - 1000 * 60 * 60 * 24 * 7),
         },
         active: true,
         type: {
