@@ -49,20 +49,22 @@ function toEntity(
 }
 
 function fromEntity(token: Token): Omit<P.Prisma.TokenCreateInput, "id"> {
+  const tokenBase: Omit<P.Prisma.TokenCreateInput, "id" | "type"> = {
+    key: token.key,
+    userId: token.user,
+    createdAt: token.date,
+  };
+
   switch (token.type) {
     case "general":
       return {
-        key: token.key,
-        userId: token.user,
-        createdAt: token.date,
+        ...tokenBase,
         type: "GENERAL",
         clientId: token.client,
       };
     case "master":
       return {
-        key: token.key,
-        userId: token.user,
-        createdAt: token.date,
+        ...tokenBase,
         type: "MASTER",
       };
   }
