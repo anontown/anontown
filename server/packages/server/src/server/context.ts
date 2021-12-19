@@ -1,4 +1,4 @@
-import { prisma, PrismaTransactionClient } from "../prisma-client";
+import { transaction } from "../prisma-client";
 import { array, option } from "fp-ts";
 import { none, some } from "fp-ts/lib/Option";
 import {
@@ -69,29 +69,7 @@ export async function createContext(
     prismaTransaction,
     prismaOnError,
     prismaOnSuccess,
-  } = await new Promise<
-    Pick<AppContext, "prismaOnError" | "prismaOnSuccess"> & {
-      prismaTransaction: PrismaTransactionClient;
-    }
-  >(resolvePrismaContext => {
-    const promise = prisma.$transaction<void>(
-      prismaTransaction =>
-        new Promise((resolve, reject) => {
-          resolvePrismaContext({
-            prismaTransaction,
-            prismaOnSuccess: async () => {
-              resolve(undefined);
-              await promise;
-            },
-            prismaOnError: async (err: unknown) => {
-              reject(err);
-              await promise;
-            },
-          });
-        }),
-    );
-  });
-
+  } = await transaction();
   const tokenRepo = new TokenRepo(prismaTransaction);
 
   const token = await createToken(
@@ -107,7 +85,7 @@ export async function createContext(
   const msgRepo = new MsgRepo(prismaTransaction);
   const profileRepo = new ProfileRepo(prismaTransaction);
   const resRepo = new ResRepo();
-  const topicRepo = new TopicRepo(resRepo);
+  const topicRepo = new TopicRepo(prismaTransaction);
   const userRepo = new UserRepo(prismaTransaction);
   const storageRepo = new StorageRepo(prismaTransaction);
   const clientLoader = new ClientLoader(clientRepo, authContainer);

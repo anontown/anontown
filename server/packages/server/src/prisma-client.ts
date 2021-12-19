@@ -28,3 +28,28 @@ export async function $transactionAfterRollback(
     throw e;
   }
 }
+
+export function transaction(): Promise<{
+  prismaTransaction: PrismaTransactionClient;
+  prismaOnError: (err: unknown) => Promise<void>;
+  prismaOnSuccess: () => Promise<void>;
+}> {
+  return new Promise(resolvePrismaContext => {
+    const promise = prisma.$transaction<void>(
+      prismaTransaction =>
+        new Promise((resolve, reject) => {
+          resolvePrismaContext({
+            prismaTransaction,
+            prismaOnSuccess: async () => {
+              resolve(undefined);
+              await promise;
+            },
+            prismaOnError: async (err: unknown) => {
+              reject(err);
+              await promise;
+            },
+          });
+        }),
+    );
+  });
+}
