@@ -6,6 +6,9 @@ import * as P from "@prisma/client";
 import { nullUnwrap } from "@kgtkr/utils";
 import * as Im from "immutable";
 import { PrismaTransactionClient } from "../../prisma-client";
+import * as A from "fp-ts/lib/Array";
+import * as Ord from "fp-ts/lib/Ord";
+import { pipe } from "fp-ts/lib/pipeable";
 
 function toEntity(
   model: P.Token & {
@@ -19,12 +22,19 @@ function toEntity(
         model.key,
         nullUnwrap(model.clientId),
         model.userId,
-        Im.List(
-          model.reqs.map(req => ({
+        pipe(
+          model.reqs,
+          A.sort(
+            Ord.contramap<number, P.TokenReq>(x => x.expires.valueOf())(
+              Ord.ordNumber,
+            ),
+          ),
+          A.map(req => ({
             key: req.key,
             expireDate: req.expires,
             active: req.active,
           })),
+          xs => Im.List(xs),
         ),
         model.createdAt,
       );
@@ -47,13 +57,6 @@ function fromEntity(token: Token): Omit<P.Prisma.TokenCreateInput, "id"> {
         createdAt: token.date,
         type: "GENERAL",
         clientId: token.client,
-        reqs: {
-          create: token.req.toArray().map(req => ({
-            key: req.key,
-            expires: req.expireDate,
-            active: req.active,
-          })),
-        },
       };
     case "master":
       return {
@@ -64,6 +67,18 @@ function fromEntity(token: Token): Omit<P.Prisma.TokenCreateInput, "id"> {
       };
   }
 }
+
+function reqsFromEntity(
+  token: TokenGeneral,
+): Array<P.Prisma.TokenReqCreateManyInput> {
+  return token.req.toArray().map<P.Prisma.TokenReqCreateManyInput>(req => ({
+    key: req.key,
+    expires: req.expireDate,
+    active: req.active,
+    tokenId: token.id,
+  }));
+}
+
 export class TokenRepo implements ITokenRepo {
   constructor(private prisma: PrismaTransactionClient) {}
 
@@ -71,9 +86,7 @@ export class TokenRepo implements ITokenRepo {
     const token = await this.prisma.token.findUnique({
       where: { id },
       include: {
-        reqs: {
-          orderBy: { expires: "asc" },
-        },
+        reqs: true,
       },
     });
 
@@ -88,9 +101,7 @@ export class TokenRepo implements ITokenRepo {
     const models = await this.prisma.token.findMany({
       where: { userId: authToken.user },
       include: {
-        reqs: {
-          orderBy: { expires: "asc" },
-        },
+        reqs: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -102,16 +113,21 @@ export class TokenRepo implements ITokenRepo {
     await this.prisma.token.create({
       data: { ...fromEntity(token), id: token.id },
     });
+    if (token.type === "general") {
+      await this.prisma.tokenReq.createMany({ data: reqsFromEntity(token) });
+    }
   }
 
   async update(token: Token): Promise<void> {
-    if (token.type === "general") {
-      await this.prisma.tokenReq.deleteMany({ where: { tokenId: token.id } });
-    }
     await this.prisma.token.update({
       where: { id: token.id },
       data: fromEntity(token),
     });
+
+    if (token.type === "general") {
+      await this.prisma.tokenReq.deleteMany({ where: { tokenId: token.id } });
+      await this.prisma.tokenReq.createMany({ data: reqsFromEntity(token) });
+    }
   }
 
   async delClientToken(
