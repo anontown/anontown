@@ -32,7 +32,8 @@
     "rxjs": "^6.4.0",
     "source-map-support": "^0.5.11",
     "type-zoo": "^3.3.0",
-    "winston": "^3.2.1"
+    "winston": "^3.2.1",
+    "zod": "^3.11.6"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^1.0.3",

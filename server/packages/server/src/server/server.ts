@@ -51,7 +51,6 @@ export async function serverRun() {
         requestDidStart: () => ({
           willSendResponse: async response => {
             const ctx = (response.context as unknown) as AppContext;
-            ctx.ports.resRepo.dispose();
 
             if (
               response.response.errors === undefined ||

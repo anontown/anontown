@@ -1,33 +1,47 @@
 import { isNullish } from "@kgtkr/utils";
-import { Subject } from "rxjs";
+import { Observable } from "rxjs";
 import { AtNotFoundError } from "../../at-error";
 import { createRedisClient, ESClient, RedisClient } from "../../db";
 import { Res } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IAuthContainer, IResRepo } from "../../ports";
 import { fromRes, IResDB, toRes } from "./ires-db";
+import { z } from "zod";
 
-interface ResPubSub {
-  res: IResDB;
-  count: number;
-  replyCount: number;
-}
+const ResPubSub = z.object({
+  id: z.string(),
+});
+
+type ResPubSub = z.infer<typeof ResPubSub>;
+const ResPubSubChannel = "res/add";
 
 export class ResRepo implements IResRepo {
-  readonly insertEvent: Subject<{ res: Res; count: number }> = new Subject<{
-    res: Res;
-    count: number;
-  }>();
-  private subRedis = createRedisClient();
+  constructor(private refresh?: boolean) {}
 
-  constructor(private refresh?: boolean) {
-    this.subRedis.subscribe("res/add");
-    this.subRedis.on("message", (_channel: any, message: any) => {
-      const data: ResPubSub = JSON.parse(message);
-      this.insertEvent.next({
-        res: toRes(data.res, data.replyCount),
-        count: data.count,
+  subscribeInsertEvent(): Observable<{ res: Res; count: number }> {
+    return new Observable<{ res: Res; count: number }>(subscriber => {
+      const subRedis = createRedisClient();
+      subRedis.subscribe(ResPubSubChannel);
+      subRedis.on("message", (_channel: any, message: string) => {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        (async () => {
+          const unknownData: unknown = JSON.parse(message);
+          try {
+            const data = ResPubSub.parse(unknownData);
+            const res = await this.findOne(data.id);
+            const count = (await this.replyCount([res.id])).get(res.id) ?? 0;
+            subscriber.next({
+              res: res,
+              count: count,
+            });
+          } catch (e) {
+            console.error(e);
+          }
+        })();
       });
+      return () => {
+        subRedis.disconnect();
+      };
     });
   }
 
@@ -56,13 +70,10 @@ export class ResRepo implements IResRepo {
     });
     // TODO:refresh:trueじゃなくても動くようにしたいけどとりあえず
 
-    const resCount = (await this.resCount([res.topic])).get(res.topic) || 0;
     const data: ResPubSub = {
-      res: fromRes(res),
-      replyCount: res.replyCount,
-      count: resCount,
+      id: res.id,
     };
-    await RedisClient().publish("res/add", JSON.stringify(data));
+    await RedisClient().publish(ResPubSubChannel, JSON.stringify(data));
   }
 
   async update(res: Res): Promise<void> {
@@ -280,10 +291,6 @@ export class ResRepo implements IResRepo {
       result.reverse();
     }
     return result;
-  }
-
-  dispose() {
-    this.subRedis.disconnect();
   }
 
   private async aggregate(reses: Array<IResDB>): Promise<Array<Res>> {
