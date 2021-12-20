@@ -174,15 +174,14 @@ model Res {
 }
 
 model ResVote {
-  resId     String   @map("res_id") @db.VarChar(64)
-  res       Res      @relation(fields: [resId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  userId    String   @map("user_id") @db.VarChar(64)
-  createdAt DateTime @map("created_at") @db.Timestamptz(3)
-  vote      Int      @db.Integer
+  resId  String @map("res_id") @db.VarChar(64)
+  res    Res    @relation(fields: [resId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  order  Int    @db.Integer
+  userId String @map("user_id") @db.VarChar(64)
+  vote   Int    @db.Integer
 
-  @@id([resId, userId])
+  @@id([resId, order])
   @@index([userId])
-  @@index([createdAt])
   @@index([vote])
   @@map("res_votes")
 }

@@ -12,10 +12,6 @@ export interface IResRepo {
 
   update(res: Res): Promise<void>;
 
-  resCount(topicIDs: Array<string>): Promise<Map<string, number>>;
-
-  replyCount(resIDs: Array<string>): Promise<Map<string, number>>;
-
   find(
     auth: IAuthContainer,
     query: G.ResQuery,

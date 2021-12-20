@@ -112,11 +112,11 @@ CREATE TABLE "reses" (
 -- CreateTable
 CREATE TABLE "res_votes" (
     "res_id" VARCHAR(64) NOT NULL,
+    "order" INTEGER NOT NULL,
     "user_id" VARCHAR(64) NOT NULL,
-    "created_at" TIMESTAMPTZ(3) NOT NULL,
     "vote" INTEGER NOT NULL,
 
-    CONSTRAINT "res_votes_pkey" PRIMARY KEY ("res_id","user_id")
+    CONSTRAINT "res_votes_pkey" PRIMARY KEY ("res_id","order")
 );
 
 -- CreateTable
@@ -273,9 +273,6 @@ CREATE INDEX "reses_fork_id_idx" ON "reses"("fork_id");
 
 -- CreateIndex
 CREATE INDEX "res_votes_user_id_idx" ON "res_votes"("user_id");
-
--- CreateIndex
-CREATE INDEX "res_votes_created_at_idx" ON "res_votes"("created_at");
 
 -- CreateIndex
 CREATE INDEX "res_votes_vote_idx" ON "res_votes"("vote");
