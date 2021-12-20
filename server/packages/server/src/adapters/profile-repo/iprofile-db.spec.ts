@@ -1,4 +1,4 @@
-import { ObjectID } from "mongodb";
+import { ObjectID } from "bson";
 import { Profile } from "../../entities";
 import { fromProfile, toProfile } from "./iprofile-db";
 

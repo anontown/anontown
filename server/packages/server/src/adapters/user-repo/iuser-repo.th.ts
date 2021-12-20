@@ -1,4 +1,4 @@
-import { ObjectID } from "mongodb";
+import { ObjectID } from "bson";
 import { AtError, User } from "../../";
 import { IUserRepo } from "../../ports";
 

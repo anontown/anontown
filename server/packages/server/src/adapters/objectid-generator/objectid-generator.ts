@@ -1,4 +1,4 @@
-import { ObjectID } from "mongodb";
+import { ObjectID } from "bson";
 import { IObjectIdGenerator } from "../../ports";
 
 export class ObjectIdGenerator implements IObjectIdGenerator {

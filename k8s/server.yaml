@@ -30,10 +30,6 @@ spec:
           env:
             - name: SERVER_PORT
               value: "8080"
-            - name: MONGO_HOST
-              value: mongo:27017
-            - name: ES_HOST
-              value: es:9200
             - name: REDIS_HOST
               value: redis:6379
             - name: SALT_PASS

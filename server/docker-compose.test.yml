@@ -4,8 +4,6 @@ services:
     build: .
     environment:
       SERVER_PORT: "8080"
-      MONGO_HOST: mongo:27017
-      ES_HOST: es:9200
       REDIS_HOST: redis:6379
       SALT_PASS: aaa
       SALT_HASH: bbb
@@ -17,21 +15,8 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      - mongo
-      - es
       - redis
       - db
-  mongo:
-    restart: always
-    build: ../mongo
-  es:
-    build: ../es
-    environment:
-      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
   db:
     image: postgres:12.8-alpine
     environment:

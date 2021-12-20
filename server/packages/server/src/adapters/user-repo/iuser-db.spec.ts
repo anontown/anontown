@@ -1,4 +1,4 @@
-import { ObjectID } from "mongodb";
+import { ObjectID } from "bson";
 import { Config } from "../../config";
 import { User } from "../../entities";
 import { hash } from "../../utils/hash";

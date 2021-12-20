@@ -1,7 +1,7 @@
 import { option } from "fp-ts";
 import { fromNullable } from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
-import { ObjectID } from "mongodb";
+import { ObjectID } from "bson";
 import { Storage } from "../../entities";
 
 export interface IStorageDB {

@@ -1,5 +1,5 @@
 import * as Im from "immutable";
-import { ObjectID } from "mongodb";
+import { ObjectID } from "bson";
 import {
   ITokenReq,
   Token,
