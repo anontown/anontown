@@ -1,11 +1,12 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions", "fullTextSearch"]
+  previewFeatures = ["interactiveTransactions", "referentialIntegrity"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider             = "postgresql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
 }
 
 model Client {
@@ -66,7 +67,7 @@ model TokenReq {
   key     String   @db.Text
   expires DateTime @db.Timestamptz(3)
   active  Boolean
-  token   Token    @relation(fields: [tokenId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  token   Token    @relation(fields: [tokenId], references: [id])
   tokenId String   @db.VarChar(64)
 
   @@id([tokenId, key])
@@ -132,7 +133,7 @@ model Res {
   id        String    @id @db.VarChar(64)
   type      ResType
   topicId   String    @map("topic_id") @db.VarChar(64)
-  topic     Topic     @relation(fields: [topicId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  topic     Topic     @relation(fields: [topicId], references: [id])
   createdAt DateTime  @map("created_at") @db.Timestamptz(3)
   userId    String    @map("user_id") @db.VarChar(64)
   votes     ResVote[]
@@ -143,7 +144,7 @@ model Res {
   name       String?        @db.Text
   content    String?        @db.Text
   replyId    String?        @map("reply_id") @db.VarChar(64)
-  reply      Res?           @relation("resReply", fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  reply      Res?           @relation("resReply", fields: [replyId], references: [id])
   replieds   Res[]          @relation("resReply")
   deleteFlag ResDeleteFlag? @map("delete_flag")
   profileId  String?        @map("profile_id") @db.VarChar(64)
@@ -175,7 +176,7 @@ model Res {
 
 model ResVote {
   resId  String @map("res_id") @db.VarChar(64)
-  res    Res    @relation(fields: [resId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  res    Res    @relation(fields: [resId], references: [id])
   order  Int    @db.Integer
   userId String @map("user_id") @db.VarChar(64)
   vote   Int    @db.Integer
@@ -207,7 +208,7 @@ model History {
 
 model HistoryTag {
   historyId String  @map("history_id") @db.VarChar(64)
-  history   History @relation(fields: [historyId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  history   History @relation(fields: [historyId], references: [id])
   order     Int     @db.Integer
   tag       String  @db.Text
 
@@ -266,7 +267,7 @@ model Topic {
 
 model TopicTag {
   topicId String @map("topic_id") @db.VarChar(64)
-  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  topic   Topic  @relation(fields: [topicId], references: [id])
   order   Int    @db.Integer
   tag     String @db.Text
 
