@@ -241,26 +241,6 @@ interface IResWait {
 
   const tokens = await db.collection<ITokenDB>("tokens").find().toArray();
 
-  /*
-  model Token {
-  id        String    @id @db.VarChar(64)
-  key       String    @db.Text
-  type      TokenType
-  userId    String    @db.VarChar(64)
-  createdAt DateTime  @map("created_at") @db.Timestamptz(3)
-
-  // normal
-  clientId String?    @db.VarChar(64)
-  reqs     TokenReq[]
-
-  @@index([type])
-  @@index([userId])
-  @@index([createdAt])
-  @@index([clientId])
-  @@map("tokens")
-}
-  */
-
   await prisma.token.createMany({
     data: tokens.map((token) => ({
       id: token._id.toHexString(),
