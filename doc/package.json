@@ -5,7 +5,8 @@
   "description": "",
   "scripts": {
     "build": "honkit build src dist",
-    "start": "honkit serve src dist"
+    "dev": "honkit serve src dist",
+    "start": "serve dist -p 4928"
   },
   "repository": {
     "type": "git",
@@ -19,5 +20,8 @@
   "homepage": "https://github.com/anontown/anontown#readme",
   "devDependencies": {
     "honkit": "^4.0.0"
+  },
+  "dependencies": {
+    "serve": "^14.0.1"
   }
 }

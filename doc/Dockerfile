@@ -1,4 +1,4 @@
-FROM node:10.15.3-alpine as base
+FROM node:10.15.3-alpine
 
 ENV HOME=/home/app
 WORKDIR $HOME
@@ -9,12 +9,4 @@ RUN npx gitbook install
 
 COPY src $HOME/src
 RUN npm run build
-
-FROM base as dev
-
 CMD npm start
-
-FROM nginx:1.17.4
-
-COPY nginx.conf /etc/nginx
-COPY --from=base /home/app/dist /usr/share/nginx/html
