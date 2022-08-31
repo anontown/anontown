@@ -1,4 +1,4 @@
-import { ObjectID } from "mongodb";
+import { ObjectID } from "bson";
 import { AtError, Config, hash, User } from "../../";
 import { DummyObjectIdGenerator } from "../../adapters";
 

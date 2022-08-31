@@ -1,7 +1,12 @@
 import { run } from "./itopic-repo.th";
 
-import { ResRepoMock, TopicRepo } from "../../";
+import { TopicRepo } from "../../";
+import { $transactionAfterRollback } from "../../prisma-client";
 
 describe("TopicRepo", () => {
-  run(() => new TopicRepo(new ResRepoMock(), true), true);
+  run(async callback => {
+    await $transactionAfterRollback(async prisma => {
+      await callback(new TopicRepo(prisma));
+    });
+  });
 });

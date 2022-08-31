@@ -1,4 +1,4 @@
-import { ObjectID } from "mongodb";
+import { ObjectID } from "bson";
 import { Client } from "../../entities";
 
 export interface IClientDB {

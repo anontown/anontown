@@ -1,7 +1,12 @@
 import { run } from "./ires-repo.th";
 
 import { ResRepo } from "../../";
+import { $transactionAfterRollback } from "../../prisma-client";
 
 describe("ResRepo", () => {
-  run(() => new ResRepo(true), true);
+  run(async callback => {
+    await $transactionAfterRollback(async prisma => {
+      await callback(new ResRepo(prisma));
+    });
+  });
 });

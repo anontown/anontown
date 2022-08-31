@@ -1,73 +1,103 @@
 import { isNullish } from "@kgtkr/utils";
-import { ObjectID, WriteError } from "mongodb";
 import { AtConflictError, AtNotFoundError } from "../../at-error";
-import { Mongo } from "../../db";
 import { Profile } from "../../entities";
 import * as G from "../../generated/graphql";
 import { IAuthContainer, IProfileRepo } from "../../ports";
-import { fromProfile, IProfileDB, toProfile } from "./jprofile-db";
+import { PrismaTransactionClient } from "../../prisma-client";
+import * as P from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+
+function toEntity(p: P.Profile): Profile {
+  return new Profile(
+    p.id,
+    p.userId,
+    p.name,
+    p.description,
+    p.createdAt,
+    p.updatedAt,
+    p.screenName,
+  );
+}
+
+function fromEntity(profile: Profile): Omit<P.Prisma.ProfileCreateInput, "id"> {
+  return {
+    userId: profile.user,
+    name: profile.name,
+    description: profile.text,
+    createdAt: profile.date,
+    updatedAt: profile.update,
+    screenName: profile.sn,
+  };
+}
 
 export class ProfileRepo implements IProfileRepo {
-  async findOne(id: string): Promise<Profile> {
-    const db = await Mongo();
-    const profile: IProfileDB | null = await db
-      .collection("profiles")
-      .findOne({ _id: new ObjectID(id) });
+  constructor(private prisma: PrismaTransactionClient) {}
 
+  async findOne(id: string): Promise<Profile> {
+    const profile = await this.prisma.profile.findUnique({
+      where: { id },
+    });
     if (profile === null) {
       throw new AtNotFoundError("プロフィールが存在しません");
     }
 
-    return toProfile(profile);
+    return toEntity(profile);
   }
 
   async find(
     auth: IAuthContainer,
     query: G.ProfileQuery,
   ): Promise<Array<Profile>> {
-    const q: any = {};
+    const filter: Array<P.Prisma.ProfileWhereInput> = [];
     if (query.self) {
-      q.user = new ObjectID(auth.getToken().user);
+      filter.push({ userId: auth.getToken().user });
     }
     if (!isNullish(query.id)) {
-      q._id = { $in: query.id.map(x => new ObjectID(x)) };
+      filter.push({ id: { in: query.id } });
     }
-    const db = await Mongo();
-    const profiles: Array<IProfileDB> = await db
-      .collection("profiles")
-      .find(q)
-      .sort({ date: -1 })
-      .toArray();
-    return profiles.map(p => toProfile(p));
+    const profiles = await this.prisma.profile.findMany({
+      where: {
+        AND: filter,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return profiles.map(p => toEntity(p));
   }
 
   async insert(profile: Profile): Promise<void> {
-    const db = await Mongo();
     try {
-      await db.collection("profiles").insertOne(fromProfile(profile));
-    } catch (ex) {
-      const e: WriteError = ex;
-      if (e.code === 11000) {
-        throw new AtConflictError("スクリーンネームが使われています");
-      } else {
-        throw e;
+      const model = fromEntity(profile);
+      await this.prisma.profile.create({
+        data: {
+          ...model,
+          id: profile.id,
+        },
+      });
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === "P2002") {
+          throw new AtConflictError("スクリーンネームが使われています");
+        }
       }
+      throw e;
     }
   }
 
   async update(profile: Profile): Promise<void> {
-    const db = await Mongo();
     try {
-      await db
-        .collection("profiles")
-        .replaceOne({ _id: new ObjectID(profile.id) }, fromProfile(profile));
-    } catch (ex) {
-      const e: WriteError = ex;
-      if (e.code === 11000) {
-        throw new AtConflictError("スクリーンネームが使われています");
-      } else {
-        throw e;
+      await this.prisma.profile.update({
+        where: { id: profile.id },
+        data: fromEntity(profile),
+      });
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === "P2002") {
+          throw new AtConflictError("スクリーンネームが使われています");
+        }
       }
+      throw e;
     }
   }
 }

@@ -3,7 +3,7 @@ import { ApolloServer, gql, IResolvers } from "apollo-server-express";
 import cors from "cors";
 import express from "express";
 import { either } from "fp-ts";
-import * as fs from "fs-promise";
+import { promises as fs } from "fs";
 import { GraphQLDateTime } from "graphql-iso-date";
 import { createServer } from "http";
 import * as t from "io-ts";
@@ -49,9 +49,17 @@ export async function serverRun() {
     plugins: [
       {
         requestDidStart: () => ({
-          willSendResponse: response => {
+          willSendResponse: async response => {
             const ctx = (response.context as unknown) as AppContext;
-            ctx.ports.resRepo.dispose();
+
+            if (
+              response.response.errors === undefined ||
+              response.response.errors.length === 0
+            ) {
+              await ctx.prismaOnSuccess();
+            } else {
+              await ctx.prismaOnError(response.response.errors);
+            }
           },
         }),
       },

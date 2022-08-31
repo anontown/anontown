@@ -1,4 +1,4 @@
-import { ObjectID } from "mongodb";
+import { ObjectID } from "bson";
 import { IResWait, User } from "../../entities";
 
 export interface IUserDB {

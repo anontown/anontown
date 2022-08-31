@@ -3,12 +3,6 @@ export const Config = {
   server: {
     port: Number(process.env.SERVER_PORT),
   },
-  mongo: {
-    host: process.env.MONGO_HOST as string,
-  },
-  es: {
-    host: process.env.ES_HOST as string,
-  },
   redis: {
     host: process.env.REDIS_HOST as string,
   },

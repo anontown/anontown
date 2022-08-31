@@ -9,17 +9,20 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
   && tar -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
   && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-FROM node:10.15.3-alpine as base
+FROM node:12.22-slim as base
 
 WORKDIR /home
 
 COPY --from=dockerize /home/dockerize /usr/local/bin/
 
+RUN apt update && \
+    apt install openssl -y
+
 COPY package.json package-lock.json ./
 RUN npm ci --no-progress
 
 COPY lerna.json ./
-COPY packages/server/package.json packages/server/package-lock.json ./packages/server/
+COPY packages/server/package.json packages/server/package-lock.json packages/server/prisma ./packages/server/
 RUN npx lerna bootstrap --ci --no-progress
 
 COPY schema.gql .eslintignore .eslintrc.js .prettierrc ./

@@ -1,5 +1,5 @@
 import { isNullish } from "@kgtkr/utils";
-import { Subject } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { AtNotFoundError } from "../../at-error";
 import { Res } from "../../entities";
 import * as G from "../../generated/graphql";
@@ -12,6 +12,13 @@ export class ResRepoMock implements IResRepo {
     count: number;
   }>();
   private reses: Array<IResDB> = [];
+
+  subscribeInsertEvent(): Observable<{
+    res: Res;
+    count: number;
+  }> {
+    return this.insertEvent;
+  }
 
   async findOne(id: string): Promise<Res> {
     const res = this.reses.find(x => x.id === id);
@@ -136,8 +143,6 @@ export class ResRepoMock implements IResRepo {
     }
     return result;
   }
-
-  dispose(): void {}
 
   private async aggregate(reses: Array<IResDB>): Promise<Array<Res>> {
     const count = await this.replyCount(reses.map(x => x.id));

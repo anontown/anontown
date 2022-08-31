@@ -6,7 +6,7 @@ export const subscription: G.SubscriptionResolvers = {
   resAdded: {
     subscribe: (_parent, args, context, _info) =>
       observableAsyncIterator(
-        context.ports.resRepo.insertEvent.pipe(
+        context.ports.resRepo.subscribeInsertEvent().pipe(
           rxOps.filter(x => x.res.topic === args.topic),
           rxOps.map(x => ({
             count: x.count,

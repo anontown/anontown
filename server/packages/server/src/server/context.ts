@@ -1,3 +1,4 @@
+import { transaction } from "../prisma-client";
 import { array, option } from "fp-ts";
 import { none, some } from "fp-ts/lib/Option";
 import {
@@ -31,6 +32,8 @@ import * as authFromApiParam from "./auth-from-api-param";
 
 export interface AppContext {
   ports: Ports;
+  prismaOnSuccess: () => Promise<void>;
+  prismaOnError: (err: unknown) => Promise<void>;
 }
 
 async function createToken(raw: unknown, tokenRepo: ITokenRepo) {
@@ -62,7 +65,12 @@ export async function createContext(
 
   const logger = new Logger();
 
-  const tokenRepo = new TokenRepo();
+  const {
+    prismaTransaction,
+    prismaOnError,
+    prismaOnSuccess,
+  } = await transaction();
+  const tokenRepo = new TokenRepo(prismaTransaction);
 
   const token = await createToken(
     headers["x-token"] || headers["X-Token"],
@@ -71,14 +79,15 @@ export async function createContext(
 
   const authContainer = new AuthContainer(token);
 
-  const clientRepo = new ClientRepo();
-  const historyRepo = new HistoryRepo();
-  const msgRepo = new MsgRepo();
-  const profileRepo = new ProfileRepo();
-  const resRepo = new ResRepo();
-  const topicRepo = new TopicRepo(resRepo);
-  const userRepo = new UserRepo();
-  const storageRepo = new StorageRepo();
+  // TODO: トランザクション
+  const clientRepo = new ClientRepo(prismaTransaction);
+  const historyRepo = new HistoryRepo(prismaTransaction);
+  const msgRepo = new MsgRepo(prismaTransaction);
+  const profileRepo = new ProfileRepo(prismaTransaction);
+  const resRepo = new ResRepo(prismaTransaction);
+  const topicRepo = new TopicRepo(prismaTransaction);
+  const userRepo = new UserRepo(prismaTransaction);
+  const storageRepo = new StorageRepo(prismaTransaction);
   const clientLoader = new ClientLoader(clientRepo, authContainer);
   const historyLoader = new HistoryLoader(historyRepo);
   const msgLoader = new MsgLoader(msgRepo, authContainer);
@@ -111,5 +120,7 @@ export async function createContext(
       resLoader,
       topicLoader,
     },
+    prismaOnError,
+    prismaOnSuccess,
   };
 }

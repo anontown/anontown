@@ -1,6 +1,6 @@
-import { ObjectID } from "mongodb";
+import { ObjectID } from "bson";
 import { Profile } from "../../entities";
-import { fromProfile, toProfile } from "./jprofile-db";
+import { fromProfile, toProfile } from "./iprofile-db";
 
 describe("IProfileDB", () => {
   const profileID = new ObjectID().toHexString();

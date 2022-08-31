@@ -1,4 +1,6 @@
 import { isNullish } from "@kgtkr/utils";
+import { none } from "fp-ts/lib/Option";
+import { AuthContainer } from "..";
 import { AtNotFoundError } from "../../at-error";
 import { Topic } from "../../entities";
 import * as G from "../../generated/graphql";
@@ -107,8 +109,17 @@ export class TopicRepoMock implements ITopicRepo {
   }
 
   private async aggregate(topics: Array<ITopicDB>): Promise<Array<Topic>> {
-    const count = await this.resRepo.resCount(topics.map(x => x.id));
-
-    return topics.map(t => toTopic(t, count.get(t.id) || 0));
+    return Promise.all(
+      topics.map(async t => {
+        const count = (
+          await this.resRepo.find(
+            new AuthContainer(none),
+            { topic: t.id },
+            99999,
+          )
+        ).length;
+        return toTopic(t, count);
+      }),
+    );
   }
 }

@@ -25,8 +25,6 @@ profiles:
   - name: dev
     build:
       artifacts:
-        - image: anontown-es
-          context: es
         - image: anontown-server
           context: server
           docker:
@@ -69,8 +67,6 @@ profiles:
                 dest: "."
         - image: anontown-camo
           context: camo
-        - image: anontown-mongo
-          context: mongo
         - image: anontown-redis
           context: redis
   - name: prod
@@ -86,8 +82,6 @@ profiles:
               envTemplate:
                 template: "{{.TAG_SUFFIX}}"
       artifacts:
-        - image: anontown-es
-          context: es
         - image: anontown-server
           context: server
         - image: anontown-client
@@ -96,7 +90,5 @@ profiles:
           context: doc
         - image: anontown-camo
           context: camo
-        - image: anontown-mongo
-          context: mongo
         - image: anontown-redis
           context: redis

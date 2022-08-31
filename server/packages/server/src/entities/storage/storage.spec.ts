@@ -1,5 +1,5 @@
 import { none, some } from "fp-ts/lib/Option";
-import { ObjectID } from "mongodb";
+import { ObjectID } from "bson";
 import { AtError, IAuthTokenGeneral, IAuthTokenMaster, Storage } from "../../";
 
 describe("Storage", () => {
