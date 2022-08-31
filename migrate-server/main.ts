@@ -213,8 +213,33 @@ interface IResWait {
   const prisma = new P.PrismaClient();
 
   const clients = await db.collection<IClientDB>("clients").find().toArray();
-  await prisma.$transaction(async (prisma) => {
-    await prisma.client.createMany({
+  const profiles = await db.collection<IProfileDB>("profiles").find().toArray();
+  const tokens = await db.collection<ITokenDB>("tokens").find().toArray();
+  const users = await db.collection<IUserDB>("users").find().toArray();
+  const storages = await db.collection<IStorageDB>("storages").find().toArray();
+  const reses = await ESClient.search<IResDB["body"]>({
+    index: "reses",
+    size: 1000000,
+    body: {},
+  });
+  const histories = await ESClient.search<IHistoryDB["body"]>({
+    index: "histories",
+    size: 1000000,
+    body: {},
+  });
+  const msgs = await ESClient.search<IMsgDB["body"]>({
+    index: "msgs",
+    size: 1000000,
+    body: {},
+  });
+  const topics = await ESClient.search<ITopicDB["body"]>({
+    index: "topics",
+    size: 1000000,
+    body: {},
+  });
+
+  await prisma.$transaction([
+    prisma.client.createMany({
       data: clients.map((client) => ({
         id: client._id.toHexString(),
         name: client.name,
@@ -223,14 +248,8 @@ interface IResWait {
         createdAt: client.date,
         updatedAt: client.update,
       })),
-    });
-
-    const profiles = await db
-      .collection<IProfileDB>("profiles")
-      .find()
-      .toArray();
-
-    await prisma.profile.createMany({
+    }),
+    prisma.profile.createMany({
       data: profiles.map((profile) => ({
         id: profile._id.toHexString(),
         userId: profile.user.toHexString(),
@@ -240,11 +259,8 @@ interface IResWait {
         updatedAt: profile.update,
         screenName: profile.sn,
       })),
-    });
-
-    const tokens = await db.collection<ITokenDB>("tokens").find().toArray();
-
-    await prisma.token.createMany({
+    }),
+    prisma.token.createMany({
       data: tokens.map((token) => ({
         id: token._id.toHexString(),
         key: token.key,
@@ -254,9 +270,8 @@ interface IResWait {
         createdAt: token.date,
         clientId: token.type === "general" ? token.client.toHexString() : null,
       })),
-    });
-
-    await prisma.tokenReq.createMany({
+    }),
+    prisma.tokenReq.createMany({
       data: tokens
         .filter((token): token is ITokenGeneralDB => token.type === "general")
         .flatMap((token) =>
@@ -267,11 +282,8 @@ interface IResWait {
             tokenId: token._id.toHexString(),
           }))
         ),
-    });
-
-    const users = await db.collection<IUserDB>("users").find().toArray();
-
-    await prisma.user.createMany({
+    }),
+    prisma.user.createMany({
       data: users.map((user) => ({
         id: user._id.toHexString(),
         screenName: user.sn,
@@ -289,28 +301,16 @@ interface IResWait {
         point: user.point,
         oneTopicLastCreatedAt: user.lastOneTopic,
       })),
-    });
-
-    const storages = await db
-      .collection<IStorageDB>("storages")
-      .find()
-      .toArray();
-    await prisma.storage.createMany({
+    }),
+    prisma.storage.createMany({
       data: storages.map((storage) => ({
         clientId: storage.client ? storage.client.toHexString() : "",
         userId: storage.user.toHexString(),
         key: storage.key,
         value: storage.value,
       })),
-    });
-
-    const reses = await ESClient.search<IResDB["body"]>({
-      index: "reses",
-      size: 1000000,
-      body: {},
-    });
-
-    await prisma.res.createMany({
+    }),
+    prisma.res.createMany({
       data: reses.hits.hits.map((res) => ({
         id: res._id,
         type: (() => {
@@ -351,9 +351,8 @@ interface IResWait {
         historyId: res._source.type === "history" ? res._source.history : null,
         forkId: res._source.type === "fork" ? res._source.fork : null,
       })),
-    });
-
-    await prisma.resVote.createMany({
+    }),
+    prisma.resVote.createMany({
       data: reses.hits.hits.flatMap((res) =>
         res._source.votes.map((vote, i) => ({
           resId: res._id,
@@ -362,15 +361,8 @@ interface IResWait {
           vote: vote.value,
         }))
       ),
-    });
-
-    const histories = await ESClient.search<IHistoryDB["body"]>({
-      index: "histories",
-      size: 1000000,
-      body: {},
-    });
-
-    await prisma.history.createMany({
+    }),
+    prisma.history.createMany({
       data: histories.hits.hits.map((history) => ({
         id: history._id,
         topicId: history._source.topic,
@@ -380,9 +372,8 @@ interface IResWait {
         hash: history._source.hash,
         userId: history._source.user,
       })),
-    });
-
-    await prisma.historyTag.createMany({
+    }),
+    prisma.historyTag.createMany({
       data: histories.hits.hits.flatMap((history) =>
         history._source.tags.map((tag, i) => ({
           historyId: history._id,
@@ -390,30 +381,16 @@ interface IResWait {
           tag,
         }))
       ),
-    });
-
-    const msgs = await ESClient.search<IMsgDB["body"]>({
-      index: "msgs",
-      size: 1000000,
-      body: {},
-    });
-
-    await prisma.msg.createMany({
+    }),
+    prisma.msg.createMany({
       data: msgs.hits.hits.map((msg) => ({
         id: msg._id,
         receiverId: msg._source.receiver,
         content: msg._source.text,
         createdAt: msg._source.date,
       })),
-    });
-
-    const topics = await ESClient.search<ITopicDB["body"]>({
-      index: "topics",
-      size: 1000000,
-      body: {},
-    });
-
-    await prisma.topic.createMany({
+    }),
+    prisma.topic.createMany({
       data: topics.hits.hits.map((topic) => ({
         id: topic._id,
         type: (() => {
@@ -437,9 +414,8 @@ interface IResWait {
             : null,
         parentId: topic._source.type === "fork" ? topic._source.parent : null,
       })),
-    });
-
-    await prisma.topicTag.createMany({
+    }),
+    prisma.topicTag.createMany({
       data: topics.hits.hits.flatMap((topic) =>
         topic._source.type === "normal" || topic._source.type === "one"
           ? topic._source.tags.map((tag, i) => ({
@@ -449,6 +425,6 @@ interface IResWait {
             }))
           : []
       ),
-    });
-  });
+    }),
+  ]);
 })();
