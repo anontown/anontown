@@ -24,7 +24,7 @@
     "ioredis": "^4.9.0",
     "jsonwebtoken": "^8.5.1",
     "lazy-value": "^1.0.0",
-    "log4js": "^4.0.2",
+    "log4js": "^6.4.0",
     "moment-timezone": "^0.5.23",
     "nanoid": "^2.0.1",
     "request": "^2.88.0",
