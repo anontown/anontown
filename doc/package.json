@@ -4,8 +4,8 @@
   "version": "2.0.0",
   "description": "",
   "scripts": {
-    "build": "gitbook build src dist",
-    "start": "gitbook --port 4928 serve src dist"
+    "build": "honkit build src dist",
+    "start": "honkit serve src dist"
   },
   "repository": {
     "type": "git",
@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/anontown/anontown#readme",
   "devDependencies": {
-    "gitbook-cli": "^2.3.2"
+    "honkit": "^4.0.0"
   }
 }
