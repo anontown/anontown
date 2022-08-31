@@ -1,4 +1,4 @@
-FROM node:10.15.3-alpine
+FROM node:16.17.0-alpine
 
 ENV HOME=/home/app
 WORKDIR $HOME
