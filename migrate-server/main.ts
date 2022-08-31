@@ -213,235 +213,242 @@ interface IResWait {
   const prisma = new P.PrismaClient();
 
   const clients = await db.collection<IClientDB>("clients").find().toArray();
+  await prisma.$transaction(async (prisma) => {
+    await prisma.client.createMany({
+      data: clients.map((client) => ({
+        id: client._id.toHexString(),
+        name: client.name,
+        url: client.url,
+        userId: client.user.toHexString(),
+        createdAt: client.date,
+        updatedAt: client.update,
+      })),
+    });
 
-  await prisma.client.createMany({
-    data: clients.map((client) => ({
-      id: client._id.toHexString(),
-      name: client.name,
-      url: client.url,
-      userId: client.user.toHexString(),
-      createdAt: client.date,
-      updatedAt: client.update,
-    })),
-  });
+    const profiles = await db
+      .collection<IProfileDB>("profiles")
+      .find()
+      .toArray();
 
-  const profiles = await db.collection<IProfileDB>("profiles").find().toArray();
+    await prisma.profile.createMany({
+      data: profiles.map((profile) => ({
+        id: profile._id.toHexString(),
+        userId: profile.user.toHexString(),
+        name: profile.name,
+        description: profile.text,
+        createdAt: profile.date,
+        updatedAt: profile.update,
+        screenName: profile.sn,
+      })),
+    });
 
-  await prisma.profile.createMany({
-    data: profiles.map((profile) => ({
-      id: profile._id.toHexString(),
-      userId: profile.user.toHexString(),
-      name: profile.name,
-      description: profile.text,
-      createdAt: profile.date,
-      updatedAt: profile.update,
-      screenName: profile.sn,
-    })),
-  });
+    const tokens = await db.collection<ITokenDB>("tokens").find().toArray();
 
-  const tokens = await db.collection<ITokenDB>("tokens").find().toArray();
+    await prisma.token.createMany({
+      data: tokens.map((token) => ({
+        id: token._id.toHexString(),
+        key: token.key,
+        type:
+          token.type === "general" ? ("GENERAL" as const) : ("MASTER" as const),
+        userId: token.user.toHexString(),
+        createdAt: token.date,
+        clientId: token.type === "general" ? token.client.toHexString() : null,
+      })),
+    });
 
-  await prisma.token.createMany({
-    data: tokens.map((token) => ({
-      id: token._id.toHexString(),
-      key: token.key,
-      type:
-        token.type === "general" ? ("GENERAL" as const) : ("MASTER" as const),
-      userId: token.user.toHexString(),
-      createdAt: token.date,
-      clientId: token.type === "general" ? token.client.toHexString() : null,
-    })),
-  });
+    await prisma.tokenReq.createMany({
+      data: tokens
+        .filter((token): token is ITokenGeneralDB => token.type === "general")
+        .flatMap((token) =>
+          token.req.map((req) => ({
+            key: req.key,
+            expires: req.expireDate,
+            active: req.active,
+            tokenId: token._id.toHexString(),
+          }))
+        ),
+    });
 
-  await prisma.tokenReq.createMany({
-    data: tokens
-      .filter((token): token is ITokenGeneralDB => token.type === "general")
-      .flatMap((token) =>
-        token.req.map((req) => ({
-          key: req.key,
-          expires: req.expireDate,
-          active: req.active,
-          tokenId: token._id.toHexString(),
+    const users = await db.collection<IUserDB>("users").find().toArray();
+
+    await prisma.user.createMany({
+      data: users.map((user) => ({
+        id: user._id.toHexString(),
+        screenName: user.sn,
+        encryptedPassword: user.pass,
+        lv: user.lv,
+        resLastCreatedAt: user.resWait.last,
+        countCreatedResM10: user.resWait.m10,
+        countCreatedResM30: user.resWait.m30,
+        countCreatedResH1: user.resWait.h1,
+        countCreatedResH6: user.resWait.h6,
+        countCreatedResH12: user.resWait.h12,
+        countCreatedResD1: user.resWait.d1,
+        topicLastCreatedAt: user.lastTopic,
+        createdAt: user.date,
+        point: user.point,
+        oneTopicLastCreatedAt: user.lastOneTopic,
+      })),
+    });
+
+    const storages = await db
+      .collection<IStorageDB>("storages")
+      .find()
+      .toArray();
+    await prisma.storage.createMany({
+      data: storages.map((storage) => ({
+        clientId: storage.client ? storage.client.toHexString() : "",
+        userId: storage.user.toHexString(),
+        key: storage.key,
+        value: storage.value,
+      })),
+    });
+
+    const reses = await ESClient.search<IResDB["body"]>({
+      index: "reses",
+      size: 1000000,
+      body: {},
+    });
+
+    await prisma.res.createMany({
+      data: reses.hits.hits.map((res) => ({
+        id: res._id,
+        type: (() => {
+          switch (res._source.type) {
+            case "topic":
+              return "TOPIC" as const;
+            case "normal":
+              return "NORMAL" as const;
+            case "history":
+              return "HISTORY" as const;
+            case "fork":
+              return "FORK" as const;
+          }
+        })(),
+        topicId: res._source.topic,
+        createdAt: res._source.date,
+        userId: res._source.user,
+        lv: res._source.lv,
+        hash: res._source.hash,
+        name: res._source.type === "normal" ? res._source.name : null,
+        content: res._source.type === "normal" ? res._source.text : null,
+        replyId: res._source.type === "normal" ? res._source.reply?.res : null,
+        deleteFlag:
+          res._source.type === "normal"
+            ? (() => {
+                switch ((res._source as IResNormalDB["body"]).deleteFlag) {
+                  case "active":
+                    return "ACTIVE" as const;
+                  case "self":
+                    return "SELF" as const;
+                  case "freeze":
+                    return "FREEZE" as const;
+                }
+              })()
+            : null,
+        profileId: res._source.type === "normal" ? res._source.profile : null,
+        age: res._source.type === "normal" ? res._source.age : null,
+        historyId: res._source.type === "history" ? res._source.history : null,
+        forkId: res._source.type === "fork" ? res._source.fork : null,
+      })),
+    });
+
+    await prisma.resVote.createMany({
+      data: reses.hits.hits.flatMap((res) =>
+        res._source.votes.map((vote, i) => ({
+          resId: res._id,
+          order: i,
+          userId: vote.user,
+          vote: vote.value,
         }))
       ),
-  });
+    });
 
-  const users = await db.collection<IUserDB>("users").find().toArray();
+    const histories = await ESClient.search<IHistoryDB["body"]>({
+      index: "histories",
+      size: 1000000,
+      body: {},
+    });
 
-  await prisma.user.createMany({
-    data: users.map((user) => ({
-      id: user._id.toHexString(),
-      screenName: user.sn,
-      encryptedPassword: user.pass,
-      lv: user.lv,
-      resLastCreatedAt: user.resWait.last,
-      countCreatedResM10: user.resWait.m10,
-      countCreatedResM30: user.resWait.m30,
-      countCreatedResH1: user.resWait.h1,
-      countCreatedResH6: user.resWait.h6,
-      countCreatedResH12: user.resWait.h12,
-      countCreatedResD1: user.resWait.d1,
-      topicLastCreatedAt: user.lastTopic,
-      createdAt: user.date,
-      point: user.point,
-      oneTopicLastCreatedAt: user.lastOneTopic,
-    })),
-  });
+    await prisma.history.createMany({
+      data: histories.hits.hits.map((history) => ({
+        id: history._id,
+        topicId: history._source.topic,
+        title: history._source.title,
+        description: history._source.text,
+        createdAt: history._source.date,
+        hash: history._source.hash,
+        userId: history._source.user,
+      })),
+    });
 
-  const storages = await db.collection<IStorageDB>("storages").find().toArray();
-  await prisma.storage.createMany({
-    data: storages.map((storage) => ({
-      clientId: storage.client ? storage.client.toHexString() : "",
-      userId: storage.user.toHexString(),
-      key: storage.key,
-      value: storage.value,
-    })),
-  });
+    await prisma.historyTag.createMany({
+      data: histories.hits.hits.flatMap((history) =>
+        history._source.tags.map((tag, i) => ({
+          historyId: history._id,
+          order: i,
+          tag,
+        }))
+      ),
+    });
 
-  const reses = await ESClient.search<IResDB["body"]>({
-    index: "reses",
-    size: 1000000,
-    body: {},
-  });
+    const msgs = await ESClient.search<IMsgDB["body"]>({
+      index: "msgs",
+      size: 1000000,
+      body: {},
+    });
 
-  await prisma.res.createMany({
-    data: reses.hits.hits.map((res) => ({
-      id: res._id,
-      type: (() => {
-        switch (res._source.type) {
-          case "topic":
-            return "TOPIC" as const;
-          case "normal":
-            return "NORMAL" as const;
-          case "history":
-            return "HISTORY" as const;
-          case "fork":
-            return "FORK" as const;
-        }
-      })(),
-      topicId: res._source.topic,
-      createdAt: res._source.date,
-      userId: res._source.user,
-      lv: res._source.lv,
-      hash: res._source.hash,
-      name: res._source.type === "normal" ? res._source.name : null,
-      content: res._source.type === "normal" ? res._source.text : null,
-      replyId: res._source.type === "normal" ? res._source.reply?.res : null,
-      deleteFlag:
-        res._source.type === "normal"
-          ? (() => {
-              switch ((res._source as IResNormalDB["body"]).deleteFlag) {
-                case "active":
-                  return "ACTIVE" as const;
-                case "self":
-                  return "SELF" as const;
-                case "freeze":
-                  return "FREEZE" as const;
-              }
-            })()
-          : null,
-      profileId: res._source.type === "normal" ? res._source.profile : null,
-      age: res._source.type === "normal" ? res._source.age : null,
-      historyId: res._source.type === "history" ? res._source.history : null,
-      forkId: res._source.type === "fork" ? res._source.fork : null,
-    })),
-  });
+    await prisma.msg.createMany({
+      data: msgs.hits.hits.map((msg) => ({
+        id: msg._id,
+        receiverId: msg._source.receiver,
+        content: msg._source.text,
+        createdAt: msg._source.date,
+      })),
+    });
 
-  await prisma.resVote.createMany({
-    data: reses.hits.hits.flatMap((res) =>
-      res._source.votes.map((vote, i) => ({
-        resId: res._id,
-        order: i,
-        userId: vote.user,
-        vote: vote.value,
-      }))
-    ),
-  });
+    const topics = await ESClient.search<ITopicDB["body"]>({
+      index: "topics",
+      size: 1000000,
+      body: {},
+    });
 
-  const histories = await ESClient.search<IHistoryDB["body"]>({
-    index: "histories",
-    size: 1000000,
-    body: {},
-  });
+    await prisma.topic.createMany({
+      data: topics.hits.hits.map((topic) => ({
+        id: topic._id,
+        type: (() => {
+          switch (topic._source.type) {
+            case "normal":
+              return "NORMAL" as const;
+            case "one":
+              return "ONE" as const;
+            case "fork":
+              return "FORK" as const;
+          }
+        })(),
+        title: topic._source.title,
+        updatedAt: topic._source.update,
+        createdAt: topic._source.date,
+        ageUpdatedAt: topic._source.ageUpdate,
+        active: topic._source.active,
+        description:
+          topic._source.type === "normal" || topic._source.type === "one"
+            ? topic._source.text
+            : null,
+        parentId: topic._source.type === "fork" ? topic._source.parent : null,
+      })),
+    });
 
-  await prisma.history.createMany({
-    data: histories.hits.hits.map((history) => ({
-      id: history._id,
-      topicId: history._source.topic,
-      title: history._source.title,
-      description: history._source.text,
-      createdAt: history._source.date,
-      hash: history._source.hash,
-      userId: history._source.user,
-    })),
-  });
-
-  await prisma.historyTag.createMany({
-    data: histories.hits.hits.flatMap((history) =>
-      history._source.tags.map((tag, i) => ({
-        historyId: history._id,
-        order: i,
-        tag,
-      }))
-    ),
-  });
-
-  const msgs = await ESClient.search<IMsgDB["body"]>({
-    index: "msgs",
-    size: 1000000,
-    body: {},
-  });
-
-  await prisma.msg.createMany({
-    data: msgs.hits.hits.map((msg) => ({
-      id: msg._id,
-      receiverId: msg._source.receiver,
-      content: msg._source.text,
-      createdAt: msg._source.date,
-    })),
-  });
-
-  const topics = await ESClient.search<ITopicDB["body"]>({
-    index: "topics",
-    size: 1000000,
-    body: {},
-  });
-
-  await prisma.topic.createMany({
-    data: topics.hits.hits.map((topic) => ({
-      id: topic._id,
-      type: (() => {
-        switch (topic._source.type) {
-          case "normal":
-            return "NORMAL" as const;
-          case "one":
-            return "ONE" as const;
-          case "fork":
-            return "FORK" as const;
-        }
-      })(),
-      title: topic._source.title,
-      updatedAt: topic._source.update,
-      createdAt: topic._source.date,
-      ageUpdatedAt: topic._source.ageUpdate,
-      active: topic._source.active,
-      description:
+    await prisma.topicTag.createMany({
+      data: topics.hits.hits.flatMap((topic) =>
         topic._source.type === "normal" || topic._source.type === "one"
-          ? topic._source.text
-          : null,
-      parentId: topic._source.type === "fork" ? topic._source.parent : null,
-    })),
-  });
-
-  await prisma.topicTag.createMany({
-    data: topics.hits.hits.flatMap((topic) =>
-      topic._source.type === "normal" || topic._source.type === "one"
-        ? topic._source.tags.map((tag, i) => ({
-            topicId: topic._id,
-            order: i,
-            tag,
-          }))
-        : []
-    ),
+          ? topic._source.tags.map((tag, i) => ({
+              topicId: topic._id,
+              order: i,
+              tag,
+            }))
+          : []
+      ),
+    });
   });
 })();
